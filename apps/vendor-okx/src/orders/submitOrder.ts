@@ -121,5 +121,7 @@ export const submitOrder = async (credential: ICredential, order: IOrder): Promi
   if (res.code === '0' && res.data?.[0]?.ordId) {
     return { order_id: res.data[0].ordId };
   }
-  throw `Failed to submit order: ${res.code} ${res.msg}`;
+  throw `Failed to submit order: ${res.code} ${res.msg}: ${res.data
+    .map((x) => `${x.sCode} ${x.sMsg}`)
+    .join('; ')}`;
 };

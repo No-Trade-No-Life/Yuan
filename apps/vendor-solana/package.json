@@ -15,7 +15,6 @@
     "@yuants/protocol": "workspace:*",
     "@yuants/transfer": "workspace:*",
     "rxjs": "~7.5.6",
-    "crypto-js": "^4.2.0",
     "@yuants/data-account": "workspace:*",
     "@yuants/utils": "workspace:*"
   },

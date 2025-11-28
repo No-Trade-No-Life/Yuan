@@ -1,6 +1,4 @@
-import { formatTime } from '@yuants/utils';
-// @ts-ignore
-import CryptoJS from 'crypto-js';
+import { encodeHex, formatTime, HmacSHA512, sha512 } from '@yuants/utils';
 
 const BASE_URL = 'https://api.gateio.ws';
 
@@ -96,9 +94,12 @@ export const requestPrivate = async <TResponse>(
 ): Promise<TResponse> => {
   const { url, body } = createRequestArtifacts(method, path, params);
   const timestamp = Date.now() / 1000;
-  const bodyDigest = CryptoJS.enc.Hex.stringify(CryptoJS.SHA512(body));
+
+  const bodyDigest = encodeHex(await sha512(new TextEncoder().encode(body)));
   const signTarget = `${method}\n${url.pathname}\n${url.searchParams}\n${bodyDigest}\n${timestamp}`;
-  const sign = CryptoJS.enc.Hex.stringify(CryptoJS.HmacSHA512(signTarget, credential.secret_key));
+  const sign = encodeHex(
+    await HmacSHA512(new TextEncoder().encode(signTarget), new TextEncoder().encode(credential.secret_key)),
+  );
 
   const headers: Record<string, string> = {
     Accept: 'application/json',

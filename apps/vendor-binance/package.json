@@ -25,8 +25,7 @@
     "@yuants/data-interest-rate": "workspace:*",
     "@yuants/transfer": "workspace:*",
     "@yuants/exchange": "workspace:*",
-    "rxjs": "~7.5.6",
-    "crypto-js": "^4.2.0"
+    "rxjs": "~7.5.6"
   },
   "devDependencies": {
     "@microsoft/api-extractor": "~7.30.0",

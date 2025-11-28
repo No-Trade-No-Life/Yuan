@@ -13,7 +13,7 @@ export const getSpotAccountInfo: IActionHandlerOfGetAccountInfo<ICredential> = a
       return makeSpotPosition({
         position_id: `${v.currency}`,
         datasource_id: 'HTX',
-        product_id: encodePath('HTX', 'SPOT', v.currency),
+        product_id: encodePath('HTX', 'SPOT', v.currency + 'usdt'),
         volume: +(v.balance ?? 0),
         free_volume: +(v.balance ?? 0),
         closable_price: 1, // TODO: 获取现货币对价格

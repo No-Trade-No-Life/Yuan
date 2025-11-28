@@ -60,7 +60,7 @@ throw new NetworkError(`Failed to fetch data for userId=${userId}`);
 
 1. 知道如何应对 -> 使用备选方案；
 2. 认为是偶然性因素导致的 -> 重试；
-3. 需要补充上下文信息 -> 捕获并包装异常 (必须保留原始错误堆栈)。
+3. 补充上下文信息 -> 捕获并包装异常 (必须保留原始错误堆栈)。
 4. 认为是当前无法处理的 -> 汇报展示、控制影响面，通知外部介入处理错误；
 
 除此之外，永远不应当捕获异常。
@@ -300,12 +300,14 @@ export function scopeError<T>(
     const result = staff();
     if (result instanceof Promise) {
       return result.catch((e) => {
-        throw newError(type, context, e);
+        const ctx = typeof context === 'function' ? context() : context;
+        throw newError(type, ctx, e);
       }) as any;
     }
     return result;
   } catch (e) {
-    throw newError(type, context, e);
+    const ctx = typeof context === 'function' ? context() : context;
+    throw newError(type, ctx, e);
   }
 }
 
