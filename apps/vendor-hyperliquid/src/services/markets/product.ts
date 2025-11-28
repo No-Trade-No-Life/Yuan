@@ -9,11 +9,11 @@ const terminal = Terminal.fromNodeEnv();
 const product$ = new Subject<IProduct>();
 let latestProducts: IProduct[] = [];
 
-const fetchProducts = async (): Promise<IProduct[]> => {
+export const listProducts = async (): Promise<IProduct[]> => {
   const [spotMetaData, perpetualsMetaData] = await Promise.all([getSpotMetaData(), getPerpetualsMetaData()]);
   const spotProducts = spotMetaData.tokens.map(
     (token): IProduct => ({
-      product_id: encodePath('SPOT', `${token.name}-USDC`),
+      product_id: encodePath('HYPERLIQUID', 'SPOT', `${token.name}-USDC`),
       datasource_id: 'HYPERLIQUID',
       quote_currency: 'USDC',
       base_currency: token.name,
@@ -34,8 +34,8 @@ const fetchProducts = async (): Promise<IProduct[]> => {
     }),
   );
   const perpetualProducts = perpetualsMetaData.universe.map(
-    (product, index): IProduct => ({
-      product_id: encodePath('PERPETUAL', `${product.name}-USD`),
+    (product): IProduct => ({
+      product_id: encodePath('HYPERLIQUID', 'PERPETUAL', `${product.name}-USD`),
       datasource_id: 'HYPERLIQUID',
       quote_currency: 'USD',
       base_currency: product.name,
@@ -58,7 +58,7 @@ const fetchProducts = async (): Promise<IProduct[]> => {
   return [...spotProducts, ...perpetualProducts];
 };
 
-const refresh$ = defer(fetchProducts).pipe(
+const refresh$ = defer(listProducts).pipe(
   tap((products) => {
     latestProducts = products;
     products.forEach((product) => product$.next(product));
@@ -85,7 +85,7 @@ provideQueryProductsService(
   'HYPERLIQUID',
   async (_req: IQueryProductsRequest) => {
     if (!latestProducts.length) {
-      latestProducts = await fetchProducts();
+      latestProducts = await listProducts();
     }
     return latestProducts;
   },

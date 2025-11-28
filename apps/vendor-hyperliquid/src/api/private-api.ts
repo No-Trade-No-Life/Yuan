@@ -1,5 +1,5 @@
 import { Wallet } from 'ethers';
-import { signL1Action } from '../sign';
+import { signL1Action } from './sign';
 import { request } from './client';
 import { ICredential } from './types';
 

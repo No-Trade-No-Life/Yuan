@@ -32,7 +32,7 @@ const quote$ = defer(() => getAllMids()).pipe(
     const ctx = assetCtxMap.get(coin);
     return {
       datasource_id: 'HYPERLIQUID',
-      product_id: encodePath('PERPETUAL', `${coin}-USD`),
+      product_id: encodePath('HYPERLIQUID', 'PERPETUAL', `${coin}-USD`),
       last_price: `${price}`,
       bid_price: `${price}`,
       ask_price: `${price}`,
@@ -61,9 +61,9 @@ if (shouldWriteQuoteToSQL) {
 }
 
 terminal.channel.publishChannel('quote', { pattern: '^HYPERLIQUID/' }, (channel_id) => {
-  const [datasourceId, productId] = decodePath(channel_id);
-  if (!datasourceId || !productId) {
+  const [datasourceId] = decodePath(channel_id);
+  if (datasourceId !== 'HYPERLIQUID') {
     throw new Error(`Invalid channel_id: ${channel_id}`);
   }
-  return quote$.pipe(filter((quote) => quote.product_id === productId));
+  return quote$.pipe(filter((quote) => quote.product_id === channel_id));
 });

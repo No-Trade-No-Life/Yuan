@@ -6,17 +6,14 @@ import { Wallet } from 'ethers';
  */
 export interface ICredential {
   private_key: string;
+  address: string;
 }
 
 /**
- * 从凭证获取地址
- * @param credential 凭证对象
- * @returns 钱包地址
+ * 获取凭证唯一标识
  */
-export const getAddressFromCredential = (credential: ICredential): string => {
-  const wallet = new Wallet(credential.private_key);
-  return wallet.address;
-};
+export const getCredentialId = (credential: ICredential): string =>
+  `HYPERLIQUID/${credential.address.toLowerCase()}`;
 
 /**
  * 创建凭证对象
@@ -24,7 +21,8 @@ export const getAddressFromCredential = (credential: ICredential): string => {
  * @returns 凭证对象
  */
 export const createCredential = (private_key: string): ICredential => {
-  return { private_key };
+  const wallet = new Wallet(private_key);
+  return { private_key, address: wallet.address };
 };
 
 /**

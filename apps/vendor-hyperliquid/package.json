@@ -23,6 +23,7 @@
     "@yuants/data-order": "workspace:*",
     "@yuants/data-series": "workspace:*",
     "@yuants/data-quote": "workspace:*",
+    "@yuants/exchange": "workspace:*",
     "rxjs": "~7.5.6",
     "hyperliquid": "~1.6.2",
     "ethers": "~6.13.5",

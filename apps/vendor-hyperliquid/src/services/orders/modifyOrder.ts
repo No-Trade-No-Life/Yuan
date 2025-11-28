@@ -1,8 +1,8 @@
 import { IOrder } from '@yuants/data-order';
-import { ICredential } from '../../api/types';
-import { resolveAssetInfo, buildOrderPayload } from '../../utils';
-import { modifyOrder as modifyOrderApi } from '../../api/private-api';
 import { formatTime } from '@yuants/utils';
+import { ICredential } from '../../api/types';
+import { modifyOrder as modifyOrderApi } from '../../api/private-api';
+import { buildOrderPayload } from '../utils';
 
 /**
  * 修改订单 - 使用 Hyperliquid 原生 modify order API
