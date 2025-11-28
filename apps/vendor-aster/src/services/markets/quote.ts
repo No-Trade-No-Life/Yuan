@@ -30,7 +30,7 @@ const quote$ = defer(() => getFApiV1TickerPrice({})).pipe(
         map(
           (openInterest): Partial<IQuote> => ({
             datasource_id: 'ASTER',
-            product_id: encodePath('PERPETUAL', ticker.symbol),
+            product_id: encodePath('PERP', ticker.symbol),
             last_price: `${ticker.price}`,
             bid_price: `${ticker.price}`,
             ask_price: `${ticker.price}`,

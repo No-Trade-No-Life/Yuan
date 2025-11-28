@@ -112,14 +112,11 @@ const handleSubmitOrderOfPerp: IActionHandlerOfSubmitOrder<ICredential> = async 
 };
 
 export const handleSubmitOrder: IActionHandlerOfSubmitOrder<ICredential> = async (credential, order) => {
-  const accountId = order.account_id?.toUpperCase() ?? order.account_id;
-  const { category } = parseProductId(order.product_id);
-  const productType = category?.toUpperCase();
-
-  if (accountId?.includes('/SPOT') || productType === 'SPOT') {
+  const [_, instType] = decodePath(order.product_id); // BITGET/USDT-FUTURES/BTCUSDT
+  if (instType === 'SPOT') {
     return handleSubmitOrderOfSpot(credential, order);
   }
-  if (accountId?.includes('/PERP') || productType === 'PERPETUAL') {
+  if (instType === 'PERP') {
     return handleSubmitOrderOfPerp(credential, order);
   }
   throw new Error(`Unsupported account_id for SubmitOrder: ${order.account_id}`);
