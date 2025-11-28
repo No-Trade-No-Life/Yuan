@@ -898,7 +898,6 @@ importers:
       '@yuants/tool-kit': workspace:*
       '@yuants/transfer': workspace:*
       '@yuants/utils': workspace:*
-      crypto-js: ^4.2.0
       rxjs: ~7.5.6
       ts-node: ~10.9.2
       typescript: ~4.7.4
@@ -916,7 +915,6 @@ importers:
       '@yuants/sql': link:../../libraries/sql
       '@yuants/transfer': link:../../libraries/transfer
       '@yuants/utils': link:../../libraries/utils
-      crypto-js: 4.2.0
       rxjs: 7.5.7
     devDependencies:
       '@microsoft/api-extractor': 7.30.1
@@ -953,7 +951,6 @@ importers:
       '@yuants/tool-kit': workspace:*
       '@yuants/transfer': workspace:*
       '@yuants/utils': workspace:*
-      crypto-js: ^4.2.0
       rxjs: ~7.5.6
       ts-node: ~10.9.2
       typescript: ~4.7.4
@@ -971,7 +968,6 @@ importers:
       '@yuants/sql': link:../../libraries/sql
       '@yuants/transfer': link:../../libraries/transfer
       '@yuants/utils': link:../../libraries/utils
-      crypto-js: 4.2.0
       rxjs: 7.5.7
     devDependencies:
       '@microsoft/api-extractor': 7.30.1
@@ -1002,7 +998,6 @@ importers:
       '@yuants/tool-kit': workspace:*
       '@yuants/transfer': workspace:*
       '@yuants/utils': workspace:*
-      crypto-js: ^4.2.0
       rxjs: ~7.5.6
       ts-node: ~10.9.2
       typescript: ~4.7.4
@@ -1014,7 +1009,6 @@ importers:
       '@yuants/sql': link:../../libraries/sql
       '@yuants/transfer': link:../../libraries/transfer
       '@yuants/utils': link:../../libraries/utils
-      crypto-js: 4.2.0
       rxjs: 7.5.7
     devDependencies:
       '@microsoft/api-extractor': 7.30.1
@@ -1098,7 +1092,6 @@ importers:
       '@yuants/tool-kit': workspace:*
       '@yuants/transfer': workspace:*
       '@yuants/utils': workspace:*
-      crypto-js: ^4.2.0
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
@@ -1113,7 +1106,6 @@ importers:
       '@yuants/sql': link:../../libraries/sql
       '@yuants/transfer': link:../../libraries/transfer
       '@yuants/utils': link:../../libraries/utils
-      crypto-js: 4.2.0
       rxjs: 7.5.7
     devDependencies:
       '@microsoft/api-extractor': 7.30.1
@@ -1148,7 +1140,6 @@ importers:
       '@yuants/tool-kit': workspace:*
       '@yuants/transfer': workspace:*
       '@yuants/utils': workspace:*
-      crypto-js: ^4.2.0
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
@@ -1164,7 +1155,6 @@ importers:
       '@yuants/sql': link:../../libraries/sql
       '@yuants/transfer': link:../../libraries/transfer
       '@yuants/utils': link:../../libraries/utils
-      crypto-js: 4.2.0
       rxjs: 7.5.7
     devDependencies:
       '@microsoft/api-extractor': 7.30.1
@@ -1200,7 +1190,6 @@ importers:
       '@yuants/tool-kit': workspace:*
       '@yuants/transfer': workspace:*
       '@yuants/utils': workspace:*
-      crypto-js: ^4.2.0
       ethers: ~6.13.5
       hyperliquid: ~1.6.2
       rxjs: ~7.5.6
@@ -1220,7 +1209,6 @@ importers:
       '@yuants/sql': link:../../libraries/sql
       '@yuants/transfer': link:../../libraries/transfer
       '@yuants/utils': link:../../libraries/utils
-      crypto-js: 4.2.0
       ethers: 6.13.5
       hyperliquid: 1.6.2
       rxjs: 7.5.7
@@ -1254,6 +1242,7 @@ importers:
       '@yuants/data-quote': workspace:*
       '@yuants/data-series': workspace:*
       '@yuants/data-trade': workspace:*
+      '@yuants/exchange': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/secret': workspace:*
@@ -1261,7 +1250,6 @@ importers:
       '@yuants/tool-kit': workspace:*
       '@yuants/transfer': workspace:*
       '@yuants/utils': workspace:*
-      crypto-js: ^4.2.0
       rxjs: ~7.5.6
       ts-node: ~10.9.2
       typescript: ~4.7.4
@@ -1276,12 +1264,12 @@ importers:
       '@yuants/data-quote': link:../../libraries/data-quote
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/data-trade': link:../../libraries/data-trade
+      '@yuants/exchange': link:../../libraries/exchange
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/secret': link:../../libraries/secret
       '@yuants/sql': link:../../libraries/sql
       '@yuants/transfer': link:../../libraries/transfer
       '@yuants/utils': link:../../libraries/utils
-      crypto-js: 4.2.0
       rxjs: 7.5.7
       ws: 8.8.1
     devDependencies:
@@ -1312,7 +1300,6 @@ importers:
       '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
-      crypto-js: ^4.2.0
       rxjs: ~7.5.6
       ts-node: ~10.9.2
       typescript: ~4.7.4
@@ -1322,7 +1309,6 @@ importers:
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
-      crypto-js: 4.2.0
       rxjs: 7.5.7
       ws: 8.8.1
     devDependencies:
@@ -1352,7 +1338,6 @@ importers:
       '@yuants/tool-kit': workspace:*
       '@yuants/transfer': workspace:*
       '@yuants/utils': workspace:*
-      crypto-js: ^4.2.0
       rxjs: ~7.5.6
       ts-node: ~10.9.2
       typescript: ~4.7.4
@@ -1361,7 +1346,6 @@ importers:
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/transfer': link:../../libraries/transfer
       '@yuants/utils': link:../../libraries/utils
-      crypto-js: 4.2.0
       rxjs: 7.5.7
     devDependencies:
       '@microsoft/api-extractor': 7.30.1
@@ -1387,14 +1371,12 @@ importers:
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
-      crypto-js: ^4.2.0
       rxjs: ~7.5.6
       ts-node: ~10.9.2
       typescript: ~4.7.4
     dependencies:
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/utils': link:../../libraries/utils
-      crypto-js: 4.2.0
       rxjs: 7.5.7
     devDependencies:
       '@microsoft/api-extractor': 7.30.1
@@ -9698,10 +9680,6 @@ packages:
 
   /crypt/0.0.2:
     resolution: {integrity: sha512-mCxBlsHFYh9C+HVpiEacem8FEBnMXgU9gy4zmNC+SXAZNB/1idgp/aulFJ4FgCi7GPEVbfyng092GqL2k2rmow==}
-    dev: false
-
-  /crypto-js/4.2.0:
-    resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
     dev: false
 
   /crypto-random-string/2.0.0:

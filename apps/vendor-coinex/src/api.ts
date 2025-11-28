@@ -1,6 +1,4 @@
-import { UUID, formatTime } from '@yuants/utils';
-// @ts-ignore
-import CryptoJS from 'crypto-js';
+import { HmacSHA256, UUID, encodeBase64, formatTime } from '@yuants/utils';
 import { Subject, filter, firstValueFrom, mergeMap, of, shareReplay, throwError, timeout, timer } from 'rxjs';
 
 /**
@@ -39,7 +37,9 @@ export class CoinExClient {
     const secret_key = this.config.auth.secret_key;
     const body = method === 'GET' ? '' : JSON.stringify(params);
     const signData = method + url.pathname + url.search + body + timestamp;
-    const str = CryptoJS.enc.Base64.stringify(CryptoJS.HmacSHA256(signData, secret_key));
+    const str = encodeBase64(
+      await HmacSHA256(new TextEncoder().encode(signData), new TextEncoder().encode(secret_key)),
+    );
 
     const headers = {
       'Content-Type': 'application/json',

@@ -17,7 +17,6 @@
     "@yuants/sql": "workspace:*",
     "@yuants/data-account": "workspace:*",
     "rxjs": "~7.5.6",
-    "crypto-js": "^4.2.0",
     "ws": "~8.8.1"
   },
   "devDependencies": {

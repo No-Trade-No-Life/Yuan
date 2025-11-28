@@ -1,6 +1,4 @@
-import { UUID, formatTime } from '@yuants/utils';
-// @ts-ignore
-import CryptoJS from 'crypto-js';
+import { HmacSHA256, UUID, encodeBase64, formatTime } from '@yuants/utils';
 import { Subject, filter, firstValueFrom, mergeMap, of, shareReplay, throwError, timeout, timer } from 'rxjs';
 import { ICredential } from './types';
 
@@ -39,13 +37,20 @@ const createUrl = (path: string, method: HttpMethod, params?: Record<string, unk
   return url;
 };
 
-const buildHeaders = (credential: ICredential | undefined, method: HttpMethod, url: URL, body: string) => {
+const buildHeaders = async (
+  credential: ICredential | undefined,
+  method: HttpMethod,
+  url: URL,
+  body: string,
+) => {
   if (!credential) {
     return { 'Content-Type': 'application/json' } as Record<string, string>;
   }
   const timestamp = '' + Date.now();
   const signData = timestamp + method + url.pathname + url.search + body;
-  const signature = CryptoJS.enc.Base64.stringify(CryptoJS.HmacSHA256(signData, credential.secret_key));
+  const signature = encodeBase64(
+    await HmacSHA256(new TextEncoder().encode(signData), new TextEncoder().encode(credential.secret_key)),
+  );
   return {
     'Content-Type': 'application/json',
     'ACCESS-KEY': credential.access_key,
@@ -63,7 +68,7 @@ const callApi = async <TResponse>(
 ): Promise<TResponse> => {
   const url = createUrl(path, method, params);
   const body = method === 'GET' || params === undefined ? '' : JSON.stringify(params);
-  const headers = buildHeaders(credential, method, url, body);
+  const headers = await buildHeaders(credential, method, url, body);
   const init: RequestInit = {
     method,
     headers,
