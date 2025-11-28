@@ -29,7 +29,7 @@ const resolveSpotOrderDirection = (side: 'BUY' | 'SELL'): OrderDirection => {
   return side === 'SELL' ? 'CLOSE_LONG' : 'OPEN_LONG';
 };
 
-const mapPerpOrder = (order: IAsterFutureOpenOrder, account_id: string): IOrder => {
+export const mapPerpOrder = (order: IAsterFutureOpenOrder, account_id: string): IOrder => {
   const volume = Number(order.origQty);
   const tradedVolume = Number(order.executedQty);
   const price = Number(order.price);
@@ -38,7 +38,7 @@ const mapPerpOrder = (order: IAsterFutureOpenOrder, account_id: string): IOrder 
   return {
     order_id: `${order.orderId}`,
     account_id,
-    product_id: encodePath('PERPETUAL', order.symbol),
+    product_id: encodePath('ASTER', 'PERP', order.symbol),
     order_type: order.type,
     order_direction: resolvePerpOrderDirection(order),
     volume: Number.isFinite(volume) ? volume : 0,
@@ -50,7 +50,7 @@ const mapPerpOrder = (order: IAsterFutureOpenOrder, account_id: string): IOrder 
   };
 };
 
-const mapSpotOrder = (order: IAsterSpotOpenOrder, account_id: string): IOrder => {
+export const mapSpotOrder = (order: IAsterSpotOpenOrder, account_id: string): IOrder => {
   const volume = Number(order.origQty);
   const tradedVolume = Number(order.executedQty);
   const price = Number(order.price);
@@ -59,7 +59,7 @@ const mapSpotOrder = (order: IAsterSpotOpenOrder, account_id: string): IOrder =>
   return {
     order_id: `${order.orderId}`,
     account_id,
-    product_id: encodePath('SPOT', order.symbol),
+    product_id: encodePath('ASTER', 'SPOT', order.symbol),
     order_type: order.type,
     order_direction: resolveSpotOrderDirection(order.side),
     volume: Number.isFinite(volume) ? volume : 0,
@@ -71,14 +71,23 @@ const mapSpotOrder = (order: IAsterSpotOpenOrder, account_id: string): IOrder =>
   };
 };
 
-const isSpotAccount = (account_id: string) => account_id.endsWith('/SPOT');
+export const listOrders = async (credential: ICredential) => {
+  const [prepOrders, spotOrders] = await Promise.all([
+    getFApiV1OpenOrders(credential, {}),
+    getApiV1OpenOrders(credential, {}),
+  ]);
+  return [
+    ...prepOrders.map((order) => mapPerpOrder(order, '')),
+    ...spotOrders.map((order) => mapSpotOrder(order, '')),
+  ];
+};
 
-export const listOrders: IActionHandlerOfListOrders<ICredential> = async (credential, account_id) => {
-  if (isSpotAccount(account_id)) {
-    const orders = await getApiV1OpenOrders(credential, {});
-    return orders.map((order) => mapSpotOrder(order, account_id));
-  }
+export const listSpotOrders = async (credential: ICredential) => {
+  const [spotOrders] = await Promise.all([getApiV1OpenOrders(credential, {})]);
+  return [...spotOrders.map((order) => mapSpotOrder(order, ''))];
+};
 
-  const orders = await getFApiV1OpenOrders(credential, {});
-  return orders.map((order) => mapPerpOrder(order, account_id));
+export const listPrepOrders = async (credential: ICredential) => {
+  const [prepOrders] = await Promise.all([getFApiV1OpenOrders(credential, {})]);
+  return [...prepOrders.map((order) => mapPerpOrder(order, ''))];
 };

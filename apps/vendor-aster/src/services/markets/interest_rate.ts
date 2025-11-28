@@ -41,7 +41,7 @@ createSeriesProvider<IInterestRate>(terminal, {
     const [datasource_id, product_id] = decodePath(series_id);
     const [instType, instId] = decodePath(product_id);
 
-    if (instType !== 'PERPETUAL') {
+    if (instType !== 'PERP') {
       return;
     }
 

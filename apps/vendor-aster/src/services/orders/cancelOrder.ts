@@ -17,26 +17,20 @@ export const handleCancelOrder: IActionHandlerOfCancelOrder<ICredential> = async
   if (!order.order_id) {
     throw new Error('order_id is required for CancelOrder');
   }
-
-  const { category, symbol } = parseProductId(order.product_id);
+  const [_, instType, symbol] = decodePath(order.product_id); // BITGET/USDT-FUTURES/BTCUSDT
   if (!symbol) {
     throw new Error('product_id is required to resolve symbol for CancelOrder');
   }
-
-  const accountId = order.account_id?.toUpperCase() ?? order.account_id;
-  const productType = category?.toUpperCase();
-
-  if (accountId?.includes('/SPOT') || productType === 'SPOT') {
+  if (instType === 'SPOT') {
     await deleteApiV1Order(credential, {
       symbol,
       orderId: order.order_id,
     });
     return;
   }
-
-  if (accountId?.includes('/PERP') || productType === 'PERPETUAL') {
+  if (instType === 'PERP') {
     await deleteFApiV1Order(credential, {
-      symbol,
+      symbol: decodePath(order.product_id).slice(2).join('/'),
       orderId: order.order_id,
     });
     return;

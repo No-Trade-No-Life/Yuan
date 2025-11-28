@@ -1,8 +1,8 @@
-import { IActionHandlerOfGetAccountInfo, IPosition } from '@yuants/data-account';
+import { IPosition } from '@yuants/data-account';
 import { encodePath } from '@yuants/utils';
 import { getFApiV4Account, ICredential } from '../../api/private-api';
 
-export const getPerpAccountInfo: IActionHandlerOfGetAccountInfo<ICredential> = async (credential) => {
+export const getPerpAccountInfo = async (credential: ICredential) => {
   const [a] = await Promise.all([getFApiV4Account(credential, {})]);
 
   const equity = +a.totalWalletBalance + +a.totalUnrealizedProfit;
@@ -13,7 +13,7 @@ export const getPerpAccountInfo: IActionHandlerOfGetAccountInfo<ICredential> = a
     .map(
       (p): IPosition => ({
         position_id: p.symbol,
-        product_id: encodePath('PERPETUAL', p.symbol),
+        product_id: encodePath('ASTER', 'PERP', p.symbol),
         datasource_id: 'ASTER',
         direction: p.positionSide === 'BOTH' ? (+p.positionAmt > 0 ? 'LONG' : 'SHORT') : p.positionSide,
         volume: Math.abs(+p.positionAmt),
