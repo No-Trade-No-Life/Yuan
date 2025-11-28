@@ -1,6 +1,13 @@
 # Change Log - @yuants/utils
 
-This log was last generated on Tue, 25 Nov 2025 07:08:44 GMT and should not be manually modified.
+This log was last generated on Fri, 28 Nov 2025 13:29:13 GMT and should not be manually modified.
+
+## 0.14.0
+Fri, 28 Nov 2025 13:29:13 GMT
+
+### Minor changes
+
+- add sha512, HmacSHA512, encodeHex, decodeHex
 
 ## 0.13.0
 Tue, 25 Nov 2025 07:08:44 GMT
