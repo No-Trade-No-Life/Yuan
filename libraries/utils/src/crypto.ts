@@ -297,3 +297,49 @@ export async function HmacSHA256(data: Uint8Array, key: Uint8Array): Promise<Uin
 
   throw newError('UnsupportedEnvironment', { message: 'No crypto implementation found' });
 }
+
+/**
+ * Compute SHA-512 hash of the given data
+ * @param data - the data to hash
+ * @returns the SHA-512 hash of the data
+ * @public
+ */
+export async function sha512(data: Uint8Array): Promise<Uint8Array> {
+  // Web Crypto API (browsers and Node.js >= 18)
+  if (typeof globalThis.crypto.subtle.digest === 'function') {
+    const hashBuffer = await globalThis.crypto.subtle.digest('SHA-512', data);
+    return new Uint8Array(hashBuffer);
+  }
+
+  // Node.js 环境 (Node.js < 18)
+  if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+    const crypto = require('crypto');
+    return new Uint8Array(crypto.createHash('sha512').update(data).digest());
+  }
+
+  throw newError('UnsupportedEnvironment', { message: 'No crypto implementation found' });
+}
+
+/**
+ * Sign data with HMAC-SHA512
+ * @param data - data to be signed (Uint8Array)
+ * @param key - secret key (Uint8Array)
+ * @returns the HMAC-SHA512 signature (Uint8Array)
+ * @public
+ */
+export async function HmacSHA512(data: Uint8Array, key: Uint8Array): Promise<Uint8Array> {
+  // Web Crypto API (browsers and Node.js >= 18)
+  if (typeof globalThis.crypto.subtle.importKey === 'function') {
+    const cryptoKey = await globalThis.crypto.subtle.importKey(
+      'raw',
+      key,
+      { name: 'HMAC', hash: 'SHA-512' },
+      false,
+      ['sign', 'verify'],
+    );
+    const signature = await globalThis.crypto.subtle.sign('HMAC', cryptoKey, data);
+    return new Uint8Array(signature);
+  }
+
+  throw newError('UnsupportedEnvironment', { message: 'No crypto implementation found' });
+}

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/utils",
+      "comment": "add sha512, HmacSHA512, encodeHex, decodeHex",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/utils"
+}

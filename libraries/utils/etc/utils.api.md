@@ -31,6 +31,9 @@ export const decodeBase58: (data: string) => Uint8Array;
 export const decodeBase64: (data: string) => Uint8Array;
 
 // @public
+export const decodeHex: (data: string) => Uint8Array;
+
+// @public
 export const decodePath: (path: string) => string[];
 
 // @public
@@ -50,6 +53,9 @@ export const encodeBase58: (data: Uint8Array) => string;
 
 // @public
 export const encodeBase64: (data: Uint8Array) => string;
+
+// @public
+export const encodeHex: (data: Uint8Array) => string;
 
 // @public
 export const encodePath: (...params: any[]) => string;
@@ -86,6 +92,9 @@ export const generateX25519KeyPair: () => {
 
 // @public
 export function HmacSHA256(data: Uint8Array, key: Uint8Array): Promise<Uint8Array>;
+
+// @public
+export function HmacSHA512(data: Uint8Array, key: Uint8Array): Promise<Uint8Array>;
 
 // @public
 export interface IEd25519KeyPair {
@@ -128,6 +137,9 @@ export function scopeError<T>(type: string, context: Record<string, any> | (() =
 
 // @public
 export function sha256(data: Uint8Array): Promise<Uint8Array>;
+
+// @public
+export function sha512(data: Uint8Array): Promise<Uint8Array>;
 
 // @public
 export const signMessage: (message: string, privateKey: string) => string;
