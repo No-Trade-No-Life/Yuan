@@ -2,6 +2,23 @@
   "name": "@yuants/app-prometheus-client",
   "entries": [
     {
+      "version": "0.2.13",
+      "tag": "@yuants/app-prometheus-client_v0.2.13",
+      "date": "Sat, 29 Nov 2025 01:30:37 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.53.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.12",
       "tag": "@yuants/app-prometheus-client_v0.2.12",
       "date": "Fri, 28 Nov 2025 14:37:43 GMT",
