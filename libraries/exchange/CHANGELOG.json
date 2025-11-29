@@ -2,6 +2,32 @@
   "name": "@yuants/exchange",
   "entries": [
     {
+      "version": "0.1.2",
+      "tag": "@yuants/exchange_v0.1.2",
+      "date": "Sat, 29 Nov 2025 01:30:37 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.53.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.8.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-order\" to `0.6.6`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.4.21`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.1",
       "tag": "@yuants/exchange_v0.1.1",
       "date": "Fri, 28 Nov 2025 14:37:43 GMT",
