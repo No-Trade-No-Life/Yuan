@@ -28,8 +28,7 @@ createSeriesProvider<IInterestRate>(Terminal.fromNodeEnv(), {
   reversed: true,
   serviceOptions: { concurrent: 1 },
   queryFn: async function* ({ series_id, started_at }) {
-    const [datasource_id, product_id] = decodePath(series_id);
-    const [instType, instId] = decodePath(product_id);
+    const [, instType, instId] = decodePath(series_id);
     let current_page = 0;
     if (instType === 'USDT-FUTURES') {
       while (true) {
@@ -47,8 +46,8 @@ createSeriesProvider<IInterestRate>(Terminal.fromNodeEnv(), {
         yield res.data.map(
           (v: IHistoricalFundingRate): IInterestRate => ({
             series_id,
-            datasource_id,
-            product_id,
+            datasource_id: 'BITGET',
+            product_id: series_id,
             created_at: formatTime(+v.fundingTime),
             long_rate: `${-Number(v.fundingRate)}`,
             short_rate: `${Number(v.fundingRate)}`,
@@ -92,8 +91,8 @@ createSeriesProvider<IInterestRate>(Terminal.fromNodeEnv(), {
       yield [
         {
           series_id,
-          datasource_id,
-          product_id,
+          datasource_id: 'BITGET',
+          product_id: series_id,
           created_at: formatTime(Date.now()),
           long_rate: `${-quoteRate}`,
           short_rate: `${-baseRate}`,

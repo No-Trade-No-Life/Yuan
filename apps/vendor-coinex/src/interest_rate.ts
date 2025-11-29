@@ -13,8 +13,7 @@ createSeriesProvider<IInterestRate>(terminal, {
   reversed: true,
   serviceOptions: { concurrent: 1 },
   queryFn: async function* ({ series_id, started_at, ended_at }) {
-    const [datasource_id, product_id] = decodePath(series_id);
-    const [instType, instId] = decodePath(product_id);
+    const [, instType, instId] = decodePath(series_id);
     let current_page = 0;
 
     while (true) {
@@ -33,8 +32,8 @@ createSeriesProvider<IInterestRate>(terminal, {
       yield res.data.map(
         (v): IInterestRate => ({
           series_id,
-          datasource_id,
-          product_id,
+          datasource_id: 'COINEX',
+          product_id: series_id,
           created_at: formatTime(+v.funding_time),
           long_rate: `${-v.actual_funding_rate}`,
           short_rate: `${v.actual_funding_rate}`,

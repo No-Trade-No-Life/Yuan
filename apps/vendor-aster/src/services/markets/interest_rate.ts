@@ -16,7 +16,7 @@ createSQLWriter<ISeriesCollectingTask>(terminal, {
     mergeAll(),
     map(
       (product: IProduct): ISeriesCollectingTask => ({
-        series_id: encodePath(product.datasource_id, product.product_id),
+        series_id: product.product_id,
         table_name: 'interest_rate',
         cron_pattern: '0 * * * *',
         cron_timezone: 'UTC',
@@ -38,8 +38,7 @@ createSeriesProvider<IInterestRate>(terminal, {
   queryFn: async function* ({ series_id, started_at, ended_at }) {
     const start = started_at ?? 0;
     const end = ended_at ?? Date.now();
-    const [datasource_id, product_id] = decodePath(series_id);
-    const [instType, instId] = decodePath(product_id);
+    const [, instType, instId] = decodePath(series_id);
 
     if (instType !== 'PERP') {
       return;
@@ -76,8 +75,8 @@ createSeriesProvider<IInterestRate>(terminal, {
         const rate = Number(item.fundingRate);
         return {
           series_id,
-          product_id,
-          datasource_id,
+          product_id: series_id,
+          datasource_id: 'ASTER',
           created_at: formatTime(item.fundingTime),
           long_rate: `${-rate}`,
           short_rate: `${rate}`,
