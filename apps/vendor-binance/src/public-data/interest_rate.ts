@@ -14,9 +14,8 @@ createSeriesProvider<IInterestRate>(terminal, {
   reversed: true,
   serviceOptions: { concurrent: 1 },
   queryFn: async function* ({ series_id, started_at, ended_at }) {
-    const [datasource_id, product_id] = decodePath(series_id);
     let current_start = started_at;
-    const [, instType, symbol] = decodePath(product_id);
+    const [, instType, symbol] = decodePath(series_id);
     if (instType === 'USDT-FUTURE') {
       while (true) {
         // 向前翻页，时间降序
@@ -30,8 +29,8 @@ createSeriesProvider<IInterestRate>(terminal, {
           (v): IInterestRate => ({
             series_id,
             created_at: formatTime(v.fundingTime),
-            datasource_id,
-            product_id,
+            datasource_id: 'BINANCE',
+            product_id: series_id,
             long_rate: `${-v.fundingRate}`,
             short_rate: `${v.fundingRate}`,
             settlement_price: '',
@@ -62,8 +61,8 @@ createSeriesProvider<IInterestRate>(terminal, {
           }): IInterestRate => ({
             series_id,
             created_at: formatTime(v.timestamp),
-            datasource_id,
-            product_id,
+            datasource_id: 'BINANCE',
+            product_id: series_id,
             long_rate: v.dailyInterestRate,
             short_rate: '0',
             settlement_price: '',

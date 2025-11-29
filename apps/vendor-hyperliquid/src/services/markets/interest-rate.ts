@@ -44,16 +44,13 @@ createSQLWriter<ISeriesCollectingTask>(terminal, {
 
 createSeriesProvider<IInterestRate>(terminal, {
   tableName: 'interest_rate',
-  series_id_prefix_parts: ['HYPERLIQUID'],
+  series_id_prefix_parts: ['HYPERLIQUID', 'PERPETUAL'],
   reversed: true,
   serviceOptions: { concurrent: 1 },
   queryFn: async function* ({ series_id, started_at, ended_at }) {
     const start = started_at || 0;
     const end = ended_at || Date.now();
-    const [datasource_id, , instId] = decodePath(series_id);
-    if (datasource_id !== 'HYPERLIQUID') {
-      throw new Error(`Invalid datasource: ${datasource_id}`);
-    }
+    const [, , instId] = decodePath(series_id);
     const coin = instId?.split('-')?.[0];
     if (!coin) {
       throw new Error(`Invalid product in series_id: ${series_id}`);

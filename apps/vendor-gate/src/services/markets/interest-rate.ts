@@ -8,23 +8,20 @@ const terminal = Terminal.fromNodeEnv();
 
 createSeriesProvider<IInterestRate>(terminal, {
   tableName: 'interest_rate',
-  series_id_prefix_parts: ['GATE-FUTURE'],
+  series_id_prefix_parts: ['GATE'],
   reversed: false,
   queryFn: async ({ series_id }) => {
-    const [, product_id] = decodePath(series_id);
-    if (!product_id) {
-      return [];
-    }
+    const [, , contract] = decodePath(series_id);
     const funding_rate_history = await getFutureFundingRate('usdt', {
-      contract: product_id,
+      contract: contract,
       limit: 1000,
     });
 
     return funding_rate_history.map(
       (entry): IInterestRate => ({
         series_id,
-        product_id,
-        datasource_id: 'GATE-FUTURE',
+        product_id: series_id,
+        datasource_id: 'GATE',
         created_at: formatTime(entry.t * 1000),
         long_rate: `${-Number(entry.r)}`,
         short_rate: `${Number(entry.r)}`,

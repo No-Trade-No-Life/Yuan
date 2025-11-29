@@ -11,8 +11,7 @@ createSeriesProvider<IInterestRate>(Terminal.fromNodeEnv(), {
   reversed: true,
   serviceOptions: { concurrent: 10 },
   queryFn: async function* ({ series_id, started_at }) {
-    const [datasource_id, product_id] = decodePath(series_id);
-    const [, instType] = decodePath(product_id);
+    const [, instType, contract_code] = decodePath(series_id);
 
     if (instType === 'SWAP') {
       let current_page = 0;
@@ -20,7 +19,7 @@ createSeriesProvider<IInterestRate>(Terminal.fromNodeEnv(), {
       while (true) {
         // 向前翻页，时间降序
         const res = await getSwapHistoricalFundingRate({
-          contract_code: product_id,
+          contract_code: contract_code,
           page_index: current_page,
         });
         if (res.status !== 'ok') {
@@ -30,8 +29,8 @@ createSeriesProvider<IInterestRate>(Terminal.fromNodeEnv(), {
         yield res.data.data.map(
           (v): IInterestRate => ({
             series_id,
-            datasource_id,
-            product_id,
+            datasource_id: 'HTX',
+            product_id: series_id,
             created_at: formatTime(+v.funding_time),
             long_rate: `${-v.funding_rate}`,
             short_rate: `${v.funding_rate}`,
