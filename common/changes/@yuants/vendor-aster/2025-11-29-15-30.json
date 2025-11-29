@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-aster",
+      "comment": "fix credential id",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-aster"
+}
