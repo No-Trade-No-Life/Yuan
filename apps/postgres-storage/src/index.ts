@@ -1,21 +1,27 @@
-import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
+import { Terminal } from '@yuants/protocol';
 import type {} from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
 import postgres from 'postgres';
 import { first, from, tap } from 'rxjs';
 
-// 创建指标
-const MetricsPostgresStorageRequestTotal = GlobalPrometheusRegistry.counter(
-  'postgres_storage_request_total',
-  '',
-);
-const MetricsPostgresStorageRequestDurationMs = GlobalPrometheusRegistry.histogram(
-  'postgres_storage_request_duration_milliseconds',
-  'postgres_storage_request_duration',
-  [10, 50, 100, 500, 1000, 2000, 5000, 10000],
-);
-
 const terminal = Terminal.fromNodeEnv();
+// 创建指标
+const MetricsPostgresStorageRequestTotal = terminal.metrics
+  .counter('postgres_storage_request_total', '')
+  .labels({ terminal_id: terminal.terminal_id });
+
+const MetricsPostgresStorageRequestDurationMs = terminal.metrics
+  .histogram(
+    'postgres_storage_request_duration_milliseconds',
+    'postgres_storage_request_duration',
+    [10, 50, 100, 500, 1000, 2000, 5000, 10000],
+  )
+  .labels({ terminal_id: terminal.terminal_id });
+
+const totalSuccess = MetricsPostgresStorageRequestTotal.labels({ status: 'success' });
+const durationWhenSuccess = MetricsPostgresStorageRequestDurationMs.labels({ status: 'success' });
+const totalError = MetricsPostgresStorageRequestTotal.labels({ status: 'error' });
+const durationWhenError = MetricsPostgresStorageRequestDurationMs.labels({ status: 'error' });
 
 const sql = postgres(process.env.POSTGRES_URI!, {
   // ISSUE: automatically close the connection after 20 seconds of inactivity or 30 minutes of lifetime
@@ -62,10 +68,8 @@ terminal.server.provideService(
       console.info(formatTime(Date.now()), 'SQL RESPONSE', msg.trace_id, results.length);
 
       // 记录成功请求，添加source_terminal_id标签
-      MetricsPostgresStorageRequestTotal.labels({ status: 'success', source_terminal_id }).inc();
-      MetricsPostgresStorageRequestDurationMs.labels({ status: 'success', source_terminal_id }).observe(
-        duration,
-      );
+      totalSuccess.inc();
+      durationWhenSuccess.observe(duration);
 
       return { res: { code: 0, message: 'OK', data: results } };
     } catch (e) {
@@ -73,10 +77,8 @@ terminal.server.provideService(
       console.error(formatTime(Date.now()), 'SQL ERROR', msg.trace_id, e);
 
       // 记录失败请求，添加source_terminal_id标签
-      MetricsPostgresStorageRequestTotal.labels({ status: 'error', source_terminal_id }).inc();
-      MetricsPostgresStorageRequestDurationMs.labels({ status: 'error', source_terminal_id }).observe(
-        duration,
-      );
+      totalError.inc();
+      durationWhenError.observe(duration);
 
       throw e;
     }

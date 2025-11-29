@@ -579,8 +579,7 @@ export class TerminalServer {
       )
       .labels({
         method: requestContext.message.method!,
-        source_terminal_id: requestContext.message.source_terminal_id,
-        target_terminal_id: this.terminal.terminal_id,
+        terminal_id: this.terminal.terminal_id,
         code: (requestContext.response?.code ?? 520).toString(),
       })
       .observe(duration);
