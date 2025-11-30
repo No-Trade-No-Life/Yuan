@@ -1,6 +1,7 @@
 import { IconCode, IconRefresh } from '@douyinfe/semi-icons';
 import { Toast } from '@douyinfe/semi-ui';
 import { IDeploySpec, IEnvContext, mergeSchema } from '@yuants/extension';
+import { encodeBase64, encodeHex, sha256 } from '@yuants/utils';
 import Ajv from 'ajv';
 import { t } from 'i18next';
 import { parse } from 'jsonc-parser';
@@ -15,15 +16,6 @@ import { Button, DataView } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
 import { registerAssociationRule } from '../System';
 import { loadManifests } from './utils';
-
-// FYI: https://stackoverflow.com/a/30106551
-const stringToBase64String = (str: string) => {
-  return btoa(
-    encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function (match, p1) {
-      return String.fromCharCode(parseInt(p1, 16));
-    }),
-  );
-};
 
 const ajv = new Ajv();
 
@@ -87,17 +79,10 @@ registerPage('DeployConfigForm', () => {
             resolveLocal: async (v) => path.join('$YUAN_WORKSPACE', v),
             readFile: fs.readFile,
             readFileAsBase64: fs.readFileAsBase64,
-            toBase64String: async (str: string) => stringToBase64String(str),
+            toBase64String: async (str: string) => encodeBase64(new TextEncoder().encode(str)),
             readdir: fs.readdir,
             isDirectory: async (v) => (await fs.stat(v)).isDirectory(),
-            createHashOfSHA256: async (content) => {
-              const encoder = new window.TextEncoder();
-              const raw = encoder.encode(content);
-              const hashBuffer = await window.crypto.subtle.digest('SHA-256', raw);
-              const hashArray = Array.from(new Uint8Array(hashBuffer)); // 将缓冲区转换为字节数组
-              const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join(''); // 将字节数组转换为十六进制字符串
-              return hashHex;
-            },
+            createHashOfSHA256: async (content) => encodeHex(await sha256(new TextEncoder().encode(content))),
           };
           return [config, envCtx, task] as const;
         }),
@@ -159,17 +144,10 @@ registerPage('DeployConfigForm', () => {
             resolveLocal: async (v) => path.join('$YUAN_WORKSPACE', v),
             readFile: fs.readFile,
             readFileAsBase64: fs.readFileAsBase64,
-            toBase64String: async (str: string) => stringToBase64String(str),
+            toBase64String: async (str: string) => encodeBase64(new TextEncoder().encode(str)),
             readdir: fs.readdir,
             isDirectory: async (v) => (await fs.stat(v)).isDirectory(),
-            createHashOfSHA256: async (content) => {
-              const encoder = new window.TextEncoder();
-              const raw = encoder.encode(content);
-              const hashBuffer = await window.crypto.subtle.digest('SHA-256', raw);
-              const hashArray = Array.from(new Uint8Array(hashBuffer)); // 将缓冲区转换为字节数组
-              const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join(''); // 将字节数组转换为十六进制字符串
-              return hashHex;
-            },
+            createHashOfSHA256: async (content) => encodeHex(await sha256(new TextEncoder().encode(content))),
           };
           return [config, envCtx, task] as const;
         }),
