@@ -8,6 +8,7 @@ export * as BIOS from './modules/BIOS';
 export * as Chart from './modules/Chart';
 export * as CommandCenter from './modules/CommandCenter';
 export * as Copilot from './modules/Copilot';
+export * as CryptoTool from './modules/CryptoTool';
 export * as Data from './modules/Data';
 export * as DataRecord from './modules/DataRecord';
 export * as DataSeries from './modules/DataSeries';
