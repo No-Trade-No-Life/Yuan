@@ -39,42 +39,23 @@ export const getTradingAccountInfo: IActionHandlerOfGetAccountInfo<ICredential> 
 
   // 现货头寸
   balanceApi.data[0]?.details.forEach((detail) => {
-    if (detail.ccy === 'USDT') {
-      const balance = +(detail.cashBal ?? 0);
-      const free = Math.min(
-        balance, // free should no more than balance if there is much profits
-        +(detail.availEq ?? 0),
-      );
-      const equity = +(detail.eq ?? 0) - +(detail.stgyEq ?? 0);
-      positions.push(
-        makeSpotPosition({
-          position_id: encodePath('SPOT', 'USDT'),
-          datasource_id: 'OKX',
-          product_id: encodePath('SPOT', 'USDT'),
-          volume: equity,
-          free_volume: free,
-          closable_price: 1,
-        }),
-      );
-    } else {
-      const volume = +(detail.cashBal ?? 0);
-      const free_volume = Math.min(
-        volume, // free should no more than balance if there is much profits
-        +(detail.availEq ?? 0),
-      );
+    const volume = +(detail.cashBal ?? 0);
+    const free_volume = Math.min(
+      volume, // free should no more than balance if there is much profits
+      +(detail.availEq ?? 0),
+    );
 
-      const product_id = encodePath('SPOT', `${detail.ccy}-USDT`);
-      positions.push(
-        makeSpotPosition({
-          position_id: product_id,
-          datasource_id: 'OKX',
-          product_id: product_id,
-          volume: volume,
-          free_volume: free_volume,
-          closable_price: getSpotPrice(detail.ccy),
-        }),
-      );
-    }
+    const product_id = encodePath('SPOT', `${detail.ccy}-USDT`);
+    positions.push(
+      makeSpotPosition({
+        position_id: product_id,
+        datasource_id: 'OKX',
+        product_id: product_id,
+        volume: volume,
+        free_volume: free_volume,
+        closable_price: getSpotPrice(detail.ccy),
+      }),
+    );
   });
   positionsApi.data.forEach((x) => {
     const direction =
