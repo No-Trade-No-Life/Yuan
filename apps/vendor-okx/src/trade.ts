@@ -34,8 +34,8 @@ const tradeParser = async (accountId: string, params: Record<string, string>): P
         productList.forEach((p) => productIdToProduct.set(p.product_id, p));
       }
     }
-    mapTradeIdToBillList.forEach(async (v, tradeId) => {
-      if (!((v[0].instType === 'SPOT' && v.length === 2) || v[0].instType === 'SWAP')) return;
+    for (const [tradeId, v] of mapTradeIdToBillList) {
+      if (!((v[0].instType === 'SPOT' && v.length === 2) || v[0].instType === 'SWAP')) continue;
 
       const trade: ITrade = {
         id: tradeId,
@@ -96,7 +96,7 @@ const tradeParser = async (accountId: string, params: Record<string, string>): P
         throw new Error(`Not Found Product With Product Id: ${trade.product_id}`);
       }
       tradeList.push(trade);
-    });
+    }
   }
   return tradeList;
 };
