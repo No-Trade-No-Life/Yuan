@@ -2,19 +2,38 @@
 
 交易所对接，是指将一个新的交易所集成到现有的交易系统中，以便能够通过该系统与该交易所进行交易操作。以下是一些代码规范和最佳实践，旨在确保交易所对接的代码质量、可维护性和安全性。
 
+核心架构:
+
+- 交易所提供商 (Vendor): 负责与具体交易所的 API 进行交互，处理认证、请求和响应，负责包装接口，转换数据格式和语义。
+- Virtual Exchange (VEX): 负责组合各个交易所提供商，向下游服务提供统一的交易所接口。负责管理接口凭证 Credential，路由请求到对应的交易所提供商。
+
+可拓展性:
+
+- 每个交易所对接作为一个独立的 Vendor 包进行开发和部署，遵循统一的接口规范，便于新增和维护。
+- 每个 Vendor 无状态，不管理 Credential，可以水平扩展，支持多实例部署以应对高并发请求；支持多 IP 部署以应对交易所的限流要求；支持多 Credential 实例以支持多租户需求；支持多区域部署以降低网络延迟和异地容灾。
+- VEX 无状态，可以水平拓展，支持多实例部署以应对高并发请求。
+
+VEX 与 Vendor 之间的交互:
+
+- Vendor 负责注册能力，提供元信息 (metadata)，描述它支持的接口和功能。
+- VEX 负责根据下游服务的请求，动态调用 Vendor 提供的接口，进行请求路由、负载均衡和限流管理。
+
 核心原则:
 
 1. 集成 `@yuants/exchange` SDK，确保与交易所的交互符合统一的接口规范。
-2. 无状态，不读写数据库，只翻译接口，永远不主动发起请求。但允许使用 `@yuants/cache` 进行本地缓存以提升性能。
+2. Vendor 无状态，不读写数据库，只翻译接口，永远不主动发起请求。但允许使用 `@yuants/cache` 进行本地缓存以提升性能。
 3. 定义 credential 结构体，包含必要的认证信息，如 API Key、Secret Key 等。
 4. 构建 Virtual Exchange，封装交易所的业务逻辑。下游服务调用 Virtual Exchange 提供的接口，而 Virtual Exchange 负责与实际交易所进行交互。
 
 ```mermaid
-graph TD
+graph LR
     A[下游服务] -->|通过 Credential ID 调用| VEX[Virtual Exchange]
-    数据库 -->|加载加密 Credential| VEX
-    VEX -->|使用 Credential| EX[交易所终端]
-    EX -->|与外部交易所交互| EEX[外部交易所API]
+    VEX -->|使用 Credential| Vendor1[交易所提供商1]
+    Vendor1 --> API1[交易所API 1]
+    VEX -->|使用 Credential| Vendor2[交易所提供商2]
+    Vendor2 --> API2[交易所API 2]
+    VendorN[交易所提供商N] --> APIN[交易所API N]
+    VEX -->|使用 Credential| VendorN[交易所提供商N]
 ```
 
 主要业务逻辑:
@@ -44,6 +63,22 @@ product_id: 保证全局唯一，支持通过 decodePath 进行解析，以便�
 product_id 还可以用于限制查询持仓和订单的范围，确保只查询与该品种相关的 API，加速查询效率。例如 `getPositionsByProductId` 和 `getOrdersByProductId`。这在下游服务仅关注特定品种时非常有用。
 
 (提案) 现货代币，位于同一 credential 的不同的账户 (资金账户、理财账户、交易账户) 中时，使用不同的 product_id 进行区分。例如 `BINANCE/FUNDING/USDT` 和 `BINANCE/SPOT/USDT`。后续划转将被建模为一次交易行为。
+
+## Credential 管理规范
+
+每个交易所对接 Vendor 必须定义 Credential 结构体，包含必要的认证信息，如 API Key、Secret Key 等。
+
+使用 JSON Schema 定义 Credential 结构体，以便实现自动校验和路由。
+
+✅ 通过 `@yuants/exchange` SDK 为 Credential 定义 JSON Schema。
+
+🔐 Credentials 的加密持久化机制:
+
+VEX 负责管理 Credential 实例，会通过 `@yuants/secret` 加密读写数据库，Credential 的实例永远不明文存储，防止脱库攻击。VEX 使用运行环境 (例如 Node Unit) 公钥加密 Credential。而私钥仅有运行环境持有，这个私钥永远不会存储在数据库中或者暴露于主机集群中。VEX 需要通过运行环境代理解密 (Secret Proxy Service) 才能将 Credentials 重新加载回内存。
+
+❗️ 不处理 Credential 的过期和更新逻辑。大多数交易所的接口无法知晓 Credential 是否过期或者距离过期时间多远。Credential 的管理逻辑应由上层业务逻辑层实现，例如定期轮询测试 Credential 的有效性，并在发现 Credential 失效时，通知管理员更新。简而言之，Credential 过期，等同于一开始就配置了一个错误的 Credential。
+
+⚠️ Credential 鉴权，通过 VEX 调用特定的接口 (例如 `GetPositions`)，如果返回鉴权错误，则认为 Credential 无效，或者没有查询持仓的权限。实际上我们不需要专门的鉴权接口，如果某个接口返回错误，结合错误信息判断，我们就认为有可能是鉴权失败。根据下文的错误处理规范，VEX 和 Vendor 都会原样传递交易所的错误信息给上层调用者。因此，我们没有专门设计的鉴权接口。
 
 ## L1 报价数据
 
@@ -294,3 +329,15 @@ Inclusive vs Exclusive:
    - OKX 历史成交
 6. 给定 ID，向后获取一页数据
    - OKX 历史成交
+
+## 错误处理规范
+
+在与交易所交互的过程中，可能会遇到各种错误情况。为了确保系统的稳定性和可靠性，必须制定统一的错误处理规范。
+可能遇到的错误类型包括但不限于网络错误、认证错误、请求参数错误、交易所返回的业务错误等。
+
+核心原则:
+
+1. 原样传递交易所错误: 交易所返回的错误信息应尽可能原样传递给上层调用者，保留错误代码和消息，便于诊断问题。无论是 Vendor 还是 VEX 都不应对错误信息进行修改或隐藏。根据 [error.md](./error.md) 中的规范，VEX 和 Vendor 都不是业务逻辑层，没有资格捕获、转换错误类型。
+2. 保留调用参数上下文，特别是 Vendor 翻译接口时，需要保留发出请求的参数上下文，以及 VEX 调用参数上下文，便于排查是 Vendor 的问题还是 VEX 的问题，还是业务逻辑层的问题。
+
+标准化错误类型，目前来说是否有必要还不确定，先保留交易所原始错误即可。

@@ -1,7 +1,6 @@
 import '@yuants/deploy';
 import { IDeployment } from '@yuants/deploy';
 import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
-import pidusage from 'pidusage';
 import { setupSecretProxyService } from '@yuants/secret';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import {
@@ -19,10 +18,11 @@ import { createReadStream } from 'fs';
 import { mkdir, stat } from 'fs/promises';
 import { hostname } from 'os';
 import { join } from 'path';
+import pidusage from 'pidusage';
 import {
+  catchError,
   concat,
   defer,
-  catchError,
   EMPTY,
   firstValueFrom,
   fromEvent,
@@ -171,7 +171,7 @@ const startDeploymentMetricsCollector = () => {
     .subscribe();
 };
 
-const runDeployment = (nodeKeyPair: IEd25519KeyPair, deployment: IDeployment) => {
+const runDeployment = (nodeUnitKeyPair: IEd25519KeyPair, deployment: IDeployment) => {
   const terminalName = `${deployment.package_name}@${deployment.package_version}`;
 
   const deploymentDir = join(WORKSPACE_DIR, 'deployments', deployment.id);
@@ -213,9 +213,9 @@ const runDeployment = (nodeKeyPair: IEd25519KeyPair, deployment: IDeployment) =>
             process.env,
             {
               HOST_URL: process.env.HOST_URL,
-              TERMINAL_ID: encodePath('Deployment', deployment.id),
               TERMINAL_NAME: terminalName,
               TERMINAL_PRIVATE_KEY: childKeyPair.private_key,
+              NODE_UNIT_PUBLIC_KEY: nodeUnitKeyPair.public_key,
             },
             deployment.env,
           ),

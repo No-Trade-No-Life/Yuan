@@ -11,6 +11,8 @@ export interface IExchangeCredential {
 
 const terminal = Terminal.fromNodeEnv();
 
+const credentialReader = process.env.NODE_UNIT_PUBLIC_KEY || terminal.keyPair.public_key;
+
 interface ICredentialResolvedStatus {
   secret: ISecret;
   credential?: IExchangeCredential;
@@ -60,7 +62,7 @@ terminal.server.provideService<IExchangeCredential, void>(
   async (msg) => {
     const credential = msg.req;
     const secretData = new TextEncoder().encode(JSON.stringify(credential));
-    await writeSecret(terminal, terminal.keyPair.public_key, { type: 'exchange_credential' }, secretData);
+    await writeSecret(terminal, credentialReader, { type: 'exchange_credential' }, secretData);
     return { res: { code: 0, message: 'OK' } };
   },
 );
