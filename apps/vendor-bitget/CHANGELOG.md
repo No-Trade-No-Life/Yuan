@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-bitget
 
-This log was last generated on Sat, 29 Nov 2025 14:06:21 GMT and should not be manually modified.
+This log was last generated on Mon, 01 Dec 2025 10:30:55 GMT and should not be manually modified.
+
+## 0.10.0
+Mon, 01 Dec 2025 10:30:55 GMT
+
+### Minor changes
+
+- add channel header
 
 ## 0.9.3
 Sat, 29 Nov 2025 14:06:21 GMT
