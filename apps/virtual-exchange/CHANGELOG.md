@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-virtual-exchange
 
-This log was last generated on Sat, 29 Nov 2025 01:30:37 GMT and should not be manually modified.
+This log was last generated on Mon, 01 Dec 2025 05:41:28 GMT and should not be manually modified.
+
+## 0.4.0
+Mon, 01 Dec 2025 05:41:28 GMT
+
+### Minor changes
+
+- credentialReader
 
 ## 0.3.3
 Sat, 29 Nov 2025 01:30:37 GMT
