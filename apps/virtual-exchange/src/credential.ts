@@ -24,7 +24,7 @@ export const listAllCredentials = async () => {
   const secrets = await requestSQL<ISecret[]>(
     terminal,
     `select * from secret where tags->>'type' = 'exchange_credential' and reader = ${escapeSQL(
-      terminal.keyPair.public_key,
+      credentialReader,
     )}`,
   );
 
