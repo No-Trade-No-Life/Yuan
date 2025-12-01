@@ -51,13 +51,18 @@ const buildHeaders = async (
   const signature = encodeBase64(
     await HmacSHA256(new TextEncoder().encode(signData), new TextEncoder().encode(credential.secret_key)),
   );
-  return {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'ACCESS-KEY': credential.access_key,
     'ACCESS-SIGN': signature,
     'ACCESS-TIMESTAMP': timestamp,
     'ACCESS-PASSPHRASE': credential.passphrase,
   };
+  // Add Channel ID header if exists
+  if (process.env.CHANNEL_ID) {
+    headers['X-CHANNEL-API-CODE'] = process.env.CHANNEL_ID;
+  }
+  return headers;
 };
 
 const callApi = async <TResponse>(
