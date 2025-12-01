@@ -1,6 +1,13 @@
 # Change Log - @yuants/node-unit
 
-This log was last generated on Sat, 29 Nov 2025 01:30:37 GMT and should not be manually modified.
+This log was last generated on Mon, 01 Dec 2025 05:41:28 GMT and should not be manually modified.
+
+## 0.13.0
+Mon, 01 Dec 2025 05:41:28 GMT
+
+### Minor changes
+
+- add NODE_UNIT_PUBLIC_KEY env to child
 
 ## 0.12.26
 Sat, 29 Nov 2025 01:30:37 GMT
