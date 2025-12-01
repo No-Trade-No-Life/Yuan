@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-virtual-exchange
 
-This log was last generated on Mon, 01 Dec 2025 05:41:28 GMT and should not be manually modified.
+This log was last generated on Mon, 01 Dec 2025 06:20:04 GMT and should not be manually modified.
+
+## 0.4.1
+Mon, 01 Dec 2025 06:20:04 GMT
+
+### Patches
+
+- fix
 
 ## 0.4.0
 Mon, 01 Dec 2025 05:41:28 GMT
