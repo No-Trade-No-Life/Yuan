@@ -63,5 +63,5 @@ export const listOrders = async (credential: ICredential): Promise<IOrder[]> => 
     status: 'Pending',
   });
 
-  return response.data.data.map((order) => mapOrder(order));
+  return response.data.data?.map((order) => mapOrder(order)) || [];
 };
