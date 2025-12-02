@@ -53,7 +53,7 @@ export interface IExchange<T = any> {
 }
 
 // @public
-export const listProducts: (terminal: Terminal) => Promise<IResponse<IProduct[]>>;
+export const listProducts: (terminal: Terminal, type: string) => Promise<IResponse<IProduct[]>>;
 
 // @public
 export const modifyOrder: <T>(terminal: Terminal, credential: {
