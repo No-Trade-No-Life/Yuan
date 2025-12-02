@@ -1,6 +1,11 @@
 # Change Log - @yuants/vendor-turboflow
 
-This log was last generated on Tue, 02 Dec 2025 06:24:10 GMT and should not be manually modified.
+This log was last generated on Tue, 02 Dec 2025 14:00:52 GMT and should not be manually modified.
+
+## 1.2.5
+Tue, 02 Dec 2025 14:00:52 GMT
+
+_Version update only_
 
 ## 1.2.4
 Tue, 02 Dec 2025 06:24:10 GMT
