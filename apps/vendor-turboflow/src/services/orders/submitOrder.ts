@@ -1,5 +1,5 @@
 import { IOrder } from '@yuants/data-order';
-import { decodePath, formatTime, newError } from '@yuants/utils';
+import { decodePath, newError } from '@yuants/utils';
 import { ICredential, submitOrder as submitOrderApi } from '../../api/private-api';
 
 export const submitOrder = async (credential: ICredential, order: IOrder): Promise<{ order_id: string }> => {
@@ -39,7 +39,15 @@ export const submitOrder = async (credential: ICredential, order: IOrder): Promi
       order_type = 'limit';
   }
 
+  if (order.volume < 1) {
+    throw newError('TURBOFLOW_MIN_ORDER_VOLUME', { volume: order.volume });
+  }
+
   // Build the order request
+  const leverage = order.volume > 100 ? 100 : Math.floor(order.volume);
+  // 开仓时，保证金不得低于 1 USDC
+  const vol = order.order_direction.includes('OPEN') ? order.volume / leverage : undefined; // usdc 保证金数量
+  const size = order.order_direction.includes('CLOSE') ? order.volume.toString() : undefined; // 头寸名义价值
 
   const response = await submitOrderApi(credential, {
     request_id: Date.now(),
@@ -49,13 +57,15 @@ export const submitOrder = async (credential: ICredential, order: IOrder): Promi
     order_type,
     order_way,
     margin_type: 2, // Default to cross margin
-    leverage: 1,
-    vol: order.volume, // usdc value
+    leverage,
+    vol: vol, // usdc 保证金数量
+    size: size, // 头寸名义价值
     position_mode: 1, // Default to one-way
     time_in_force: 'GTC' as const,
     fee_mode: 1,
     order_mode: 1 as const, // Normal order
     price: order.price?.toString(),
+    position_id: order.position_id,
   });
 
   if (!response.data?.order) throw newError('TURBOFLOW_SUBMIT_ORDER_FAILED', { response });

@@ -1,6 +1,7 @@
 import {
   decodeBase58,
   encodeHex,
+  formatTime,
   fromPrivateKey,
   HmacSHA256,
   scopeError,
@@ -27,7 +28,9 @@ export const privateRequest = async (
 
   if (method === 'GET') {
     for (const [key, value] of Object.entries(params)) {
-      url.searchParams.set(key, `${value}`);
+      if (value !== undefined) {
+        url.searchParams.set(key, `${value}`);
+      }
     }
   }
 
@@ -66,7 +69,12 @@ export const privateRequest = async (
 
   const text = await response.text();
 
-  console.info(url.toString(), headers, text, params, body);
+  console.info(
+    formatTime(Date.now()),
+    method,
+    url.toString(),
+    `response = ${text}, requestBody = ${body}, headers = ${JSON.stringify(headers)}`,
+  );
 
   return scopeError('TurboAPIError', { status: response.status, statusText: response.statusText, text }, () =>
     JSON.parse(text),
@@ -160,7 +168,8 @@ export const submitOrder = createPrivateApi<
     order_way: 1 | 2 | 3 | 4; // 1:开多 2:平空 3:开空 4:平多
     margin_type: 1 | 2; // 1:逐仓 2:全仓
     leverage: number;
-    vol: number; // 交易数量
+    vol?: number; // 交易数量
+    size?: string; // 交易数量
     position_mode: 1 | 2 | 3; // 1:单向 2:双向 3:原子
     time_in_force: 'GTC' | 'IOC' | 'FOK';
     fee_mode: 1 | 2; // 1:固定 2:利润分层
