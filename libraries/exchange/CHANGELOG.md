@@ -1,6 +1,13 @@
 # Change Log - @yuants/exchange
 
-This log was last generated on Sat, 29 Nov 2025 01:30:37 GMT and should not be manually modified.
+This log was last generated on Tue, 02 Dec 2025 14:00:52 GMT and should not be manually modified.
+
+## 0.2.0
+Tue, 02 Dec 2025 14:00:52 GMT
+
+### Minor changes
+
+- add type to listProduct service
 
 ## 0.1.2
 Sat, 29 Nov 2025 01:30:37 GMT
