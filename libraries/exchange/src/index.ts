@@ -123,10 +123,20 @@ export const provideExchangeServices = <T>(terminal: Terminal, exchange: IExchan
   );
 
   // ListProducts
-  terminal.server.provideService<void, IProduct[]>('ListProducts', {}, async () => {
-    const products = await exchange.listProducts();
-    return { res: { code: 0, message: 'OK', data: products } };
-  });
+  terminal.server.provideService<void, IProduct[]>(
+    'ListProducts',
+    {
+      type: 'object',
+      required: ['type'],
+      properties: {
+        type: { const: exchange.name },
+      },
+    },
+    async () => {
+      const products = await exchange.listProducts();
+      return { res: { code: 0, message: 'OK', data: products } };
+    },
+  );
 
   // GetPositions
   terminal.server.provideService<
@@ -248,8 +258,8 @@ export const getCredentialId = async <T>(
  *
  * @public
  */
-export const listProducts = async (terminal: Terminal): Promise<IResponse<IProduct[]>> => {
-  return terminal.client.requestForResponse('ListProducts', {});
+export const listProducts = async (terminal: Terminal, type: string): Promise<IResponse<IProduct[]>> => {
+  return terminal.client.requestForResponse('ListProducts', { type });
 };
 
 /**
