@@ -1,7 +1,7 @@
 import { makeSpotPosition } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { encodePath } from '@yuants/utils';
-import { getSpotAssets, getSpotOrdersPending } from '../../api/private-api';
+import { getAccountFundingAssets, getUnfilledOrders } from '../../api/private-api';
 import { ICredential } from '../../api/types';
 
 const mapSpotOrders = (data: any): any[] => {
@@ -16,11 +16,11 @@ const mapSpotOrders = (data: any): any[] => {
 const mapSpotOrderDirection = (side?: string) => (side === 'sell' ? 'OPEN_SHORT' : 'OPEN_LONG');
 
 export const getSpotAccountInfo = async (credential: ICredential) => {
-  const res = await getSpotAssets(credential);
+  const res = await getAccountFundingAssets(credential);
   if (res.msg !== 'success') {
     throw new Error(res.msg);
   }
-  return res.data.map((v) => {
+  return res.data.map((v: any) => {
     return makeSpotPosition({
       position_id: v.coin,
       product_id: encodePath('BITGET', 'SPOT', `${v.coin}-USDT`),
@@ -32,14 +32,14 @@ export const getSpotAccountInfo = async (credential: ICredential) => {
 };
 
 export const listSpotPendingOrders = async (credential: ICredential): Promise<IOrder[]> => {
-  const res = await getSpotOrdersPending(credential);
+  const res = await getUnfilledOrders(credential, { category: 'SPOT' });
   if (res.msg !== 'success') {
     throw new Error(res.msg);
   }
   const list = mapSpotOrders(res.data);
   return list
     .map((order) => {
-      const symbol = order.symbol ?? order.instId;
+      const symbol = order.symbol;
       if (!symbol) return null;
       return {
         order_id: order.orderId ?? order.clientOid,

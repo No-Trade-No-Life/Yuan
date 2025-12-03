@@ -1,6 +1,6 @@
 import { createCache } from '@yuants/cache';
 import { getDefaultCredential } from '../../api/client';
-import { getAccountInfo } from '../../api/private-api';
+import { getAccountSettings } from '../../api/private-api';
 import { ICredential } from '../../api/types';
 
 export interface IAccountProfile {
@@ -11,17 +11,17 @@ export interface IAccountProfile {
 
 const PROFILE_TTL = 60_000;
 const fetchAccountProfile = async (credential: ICredential): Promise<IAccountProfile> => {
-  const res = await getAccountInfo(credential);
+  const res = await getAccountSettings(credential);
   if (res.msg !== 'success') {
-    throw new Error(`Bitget getAccountInfo failed: ${res.code} ${res.msg}`);
+    throw new Error(`Bitget getAccountSettings failed: ${res.code} ${res.msg}`);
   }
   const data = res.data;
-  if (!data?.userId) {
-    throw new Error(`Bitget getAccountInfo returned invalid payload: ${JSON.stringify(data)}`);
+  if (!data?.uid) {
+    throw new Error(`Bitget getAccountSettings returned invalid payload: ${JSON.stringify(data)}`);
   }
-  const uid = data.userId;
-  const parentId = `${data.parentId ?? data.userId}`;
-  return { uid, parentId, isMainAccount: uid === parentId };
+  const uid = data.uid;
+  const parentId = uid;
+  return { uid, parentId, isMainAccount: true };
 };
 
 const serializeCredential = (credential: ICredential) => JSON.stringify(credential);

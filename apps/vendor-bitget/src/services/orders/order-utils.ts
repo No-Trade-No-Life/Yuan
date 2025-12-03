@@ -24,18 +24,3 @@ export const mapOrderDirectionToTradeSide = (direction?: IOrder['order_direction
   }
   throw new Error(`Unknown order direction: ${direction}`);
 };
-
-export const buildFutureOrderParams = (order: IOrder) => {
-  const [datasource_id, instType, instId] = decodePath(order.product_id);
-  return {
-    symbol: instId,
-    productType: instType,
-    marginMode: 'crossed',
-    marginCoin: 'USDT',
-    size: '' + order.volume,
-    price: order.price !== undefined ? '' + order.price : undefined,
-    side: mapOrderDirectionToSide(order.order_direction),
-    tradeSide: mapOrderDirectionToTradeSide(order.order_direction),
-    orderType: order.order_type === 'LIMIT' ? 'limit' : 'market',
-  };
-};

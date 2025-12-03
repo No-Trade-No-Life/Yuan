@@ -3,30 +3,32 @@ import { Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';
 import { encodePath, formatTime } from '@yuants/utils';
 import { Subject, defer, repeat, retry, shareReplay, tap } from 'rxjs';
-import { IMixMarketContract, getMarketContracts } from '../../api/public-api';
+import { IUtaInstrument, getInstruments } from '../../api/public-api';
 
 const product$ = new Subject<IProduct>();
 
 // product
 export const listProducts = async (): Promise<IProduct[]> => {
   // usdt-m swap
-  const usdtFuturesProductRes = await getMarketContracts({ productType: 'USDT-FUTURES' });
+  const usdtFuturesProductRes = await getInstruments({ category: 'USDT-FUTURES' });
   if (usdtFuturesProductRes.msg !== 'success') {
     throw new Error(usdtFuturesProductRes.msg);
   }
   // mixed-coin swap, (including coin-m and coin-f)
-  const coinFuturesProductRes = await getMarketContracts({ productType: 'COIN-FUTURES' });
+  const coinFuturesProductRes = await getInstruments({ category: 'COIN-FUTURES' });
   if (coinFuturesProductRes.msg !== 'success') {
     throw new Error(coinFuturesProductRes.msg);
   }
   const usdtFutures = usdtFuturesProductRes.data.map(
-    (product: IMixMarketContract): IProduct => ({
+    (product: IUtaInstrument): IProduct => ({
       product_id: encodePath('BITGET', `USDT-FUTURES`, product.symbol),
       datasource_id: 'BITGET',
       quote_currency: product.quoteCoin,
       base_currency: product.baseCoin,
-      price_step: Number(`1e-${product.pricePlace}`),
-      volume_step: +product.sizeMultiplier,
+      price_step: Number(`1e-${product.pricePrecision}`),
+      volume_step: product.quantityMultiplier
+        ? +product.quantityMultiplier
+        : Number(`1e-${product.quantityPrecision}`),
       name: '',
       value_scale: 1,
       value_scale_unit: '',
@@ -42,13 +44,15 @@ export const listProducts = async (): Promise<IProduct[]> => {
     }),
   );
   const coinFutures = coinFuturesProductRes.data.map(
-    (product: IMixMarketContract): IProduct => ({
+    (product: IUtaInstrument): IProduct => ({
       product_id: encodePath('BITGET', `COIN-FUTURES`, product.symbol),
       datasource_id: 'BITGET',
       quote_currency: product.quoteCoin,
       base_currency: product.baseCoin,
-      price_step: Number(`1e-${product.pricePlace}`),
-      volume_step: +product.sizeMultiplier,
+      price_step: Number(`1e-${product.pricePrecision}`),
+      volume_step: product.quantityMultiplier
+        ? +product.quantityMultiplier
+        : Number(`1e-${product.quantityPrecision}`),
       name: '',
       value_scale: 1,
       value_scale_unit: '',
