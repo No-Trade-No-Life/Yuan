@@ -1,4 +1,4 @@
-import { IProduct, IQueryProductsRequest, provideQueryProductsService } from '@yuants/data-product';
+import { IProduct } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
 import { getFApiV1ExchangeInfo } from '../../api/public-api';
@@ -42,8 +42,3 @@ export const listProducts = async (): Promise<IProduct[]> => {
       };
     });
 };
-
-// Provide QueryProducts service for ASTER
-export const productService = provideQueryProductsService(terminal, 'ASTER', listProducts, {
-  auto_refresh_interval: 3600_000, // Refresh hourly
-});
