@@ -98,9 +98,7 @@ if [[ "${DRY_RUN:-0}" != "1" ]]; then
     --body "$PR_BODY" \
     --base main \
     --head "$BRANCH_NAME" \
-    --label automated \
-    --label report \
-    --label daily || echo "PR 创建失败，可能已存在"
+    --label skip-ci || echo "PR 创建失败，可能已存在"
 else
   echo "DRY_RUN=1, skip gh pr create"
 fi
