@@ -1,9 +1,11 @@
+import { createCache } from '@yuants/cache';
 import { IQuote } from '@yuants/data-quote';
 import { Terminal } from '@yuants/protocol';
-import { writeToSQL } from '@yuants/sql';
+import { escapeSQL, requestSQL, writeToSQL } from '@yuants/sql';
 import { encodePath, formatTime } from '@yuants/utils';
 import { defer, from, groupBy, map, merge, mergeMap, repeat, retry, scan, shareReplay, toArray } from 'rxjs';
 import {
+  getSpotMarketTickers,
   getSwapBatchFundingRate,
   getSwapMarketBbo,
   getSwapMarketTrade,
@@ -61,6 +63,24 @@ const quote2$ = swapTradeTick$.pipe(
       last_price: `${tick.price}`,
     }),
   ),
+);
+
+const quote5$ = defer(() => getSpotMarketTickers()).pipe(
+  mergeMap((res) => res.data || []),
+  map(
+    (tick): Partial<IQuote> => ({
+      datasource_id: 'HTX',
+      product_id: encodePath('HTX', 'SPOT', tick.symbol),
+      ask_price: `${tick.ask}`,
+      bid_price: `${tick.bid}`,
+      ask_volume: `${tick.askSize}`,
+      bid_volume: `${tick.bidSize}`,
+      last_price: `${tick.close}`,
+    }),
+  ),
+  repeat({ delay: 1000 }),
+  retry({ delay: 1000 }),
+  shareReplay(1),
 );
 
 const mapSwapContractCodeToTradeTick$ = defer(() => swapTradeTick$).pipe(
@@ -128,7 +148,7 @@ const quote4$ = swapOpenInterest$.pipe(
 
 if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
   // 合并不同来源的数据并进行合并，避免死锁
-  merge(quote1$, quote2$, quote3$, quote4$)
+  merge(quote1$, quote2$, quote3$, quote4$, quote5$)
     .pipe(
       groupBy((x) => encodePath(x.datasource_id, x.product_id)),
       mergeMap((group$) => {
@@ -158,6 +178,19 @@ const mapSwapContractCodeToOpenInterest$ = defer(() => swapOpenInterest$).pipe(
   repeat({ delay: 1000 }),
   retry({ delay: 1000 }),
   shareReplay(1),
+);
+
+const terminal = Terminal.fromNodeEnv();
+
+export const quoteCache = createCache<IQuote>(
+  async (product_id) => {
+    const sql = `select * from quote where product_id = ${escapeSQL(product_id)}`;
+    console.info('QuoteSQL', sql);
+    const [quote] = await requestSQL<IQuote[]>(terminal, sql);
+    console.info('QuoteFetched', product_id, JSON.stringify(quote));
+    return quote;
+  },
+  { expire: 10_000 },
 );
 
 // provideTicks(Terminal.fromNodeEnv(), 'HUOBI-SWAP', (product_id) => {

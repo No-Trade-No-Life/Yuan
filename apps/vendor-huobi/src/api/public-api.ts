@@ -357,3 +357,28 @@ export function getV2ReferenceCurrencies(params: { currency?: string; authorized
 }> {
   return publicRequest('GET', '/v2/reference/currencies', SPOT_API_ROOT, params);
 }
+
+/**
+ * 【现货】获取市场所有交易对的最新行情
+ *
+ * https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec40374-7773-11ed-9966-0242ac110003
+ *
+ */
+export const getSpotMarketTickers = (): Promise<{
+  data: {
+    symbol: string;
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+    amount: number;
+    vol: number;
+    count: number;
+    bid: number;
+    bidSize: number;
+    ask: number;
+    askSize: number;
+  }[];
+  status: string;
+  ts: number;
+}> => publicRequest('GET', '/market/tickers', SPOT_API_ROOT);

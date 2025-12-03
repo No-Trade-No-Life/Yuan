@@ -1,6 +1,5 @@
 import { IOrder } from '@yuants/data-order';
 import { decodePath, formatTime, newError, roundToStep } from '@yuants/utils';
-import { firstValueFrom } from 'rxjs';
 import {
   ICredential,
   getCrossMarginLoanInfo,
@@ -10,7 +9,7 @@ import {
   postSwapOrder,
 } from '../../api/private-api';
 import { getSpotTick } from '../../api/public-api';
-import { productService } from '../product';
+import { productCache } from '../product';
 import { superMarginAccountUidCache } from '../uid';
 
 /**
@@ -60,9 +59,9 @@ async function handleSuperMarginOrder(order: IOrder, credential: ICredential): P
   const loanable = +usdtLoanable['loanable-amt'];
 
   // 获取账户余额, 产品信息和价格
-  const [balanceRes, mapProductIdToProduct, priceRes] = await Promise.all([
+  const [balanceRes, theProduct, priceRes] = await Promise.all([
     getSpotAccountBalance(credential, superMarginAccountUid),
-    firstValueFrom(productService.mapProductIdToProduct$),
+    productCache.query(order.product_id),
     getSpotTick({ symbol: order.product_id }),
   ]);
 
@@ -70,9 +69,8 @@ async function handleSuperMarginOrder(order: IOrder, credential: ICredential): P
     .filter((v) => v.currency === 'usdt' && v.type === 'trade')
     .reduce((acc, cur) => acc + +cur.balance, 0);
 
-  if (!mapProductIdToProduct) throw new Error('Product map not found');
+  if (!theProduct) throw newError('HUOBI_SUBMIT_ORDER_PRODUCT_NOT_FOUND', { product_id: order.product_id });
 
-  const theProduct = mapProductIdToProduct.get(order.product_id);
   const price = priceRes.tick.close;
   const borrow_amount =
     order.order_direction === 'OPEN_LONG' || order.order_direction === 'CLOSE_SHORT'
