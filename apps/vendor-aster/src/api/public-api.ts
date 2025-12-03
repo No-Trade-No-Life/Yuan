@@ -1,5 +1,11 @@
 const BASE_URL = 'https://fapi.asterdex.com';
+import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 
+const MetricsAsterApiCallCounter = GlobalPrometheusRegistry.counter(
+  'aster_api_call',
+  'Number of aster api call',
+);
+const terminal = Terminal.fromNodeEnv();
 const request = async <T>(method: string, endpoint: string, params: any = {}): Promise<T> => {
   const url = new URL(BASE_URL);
   url.pathname = endpoint;
@@ -9,6 +15,7 @@ const request = async <T>(method: string, endpoint: string, params: any = {}): P
   }
 
   console.info(url.toString());
+  MetricsAsterApiCallCounter.labels({ path: url.pathname, terminal_id: terminal.terminal_id }).inc();
   const res = await fetch(url.toString(), {
     method,
   }).then((response) => response.json());
