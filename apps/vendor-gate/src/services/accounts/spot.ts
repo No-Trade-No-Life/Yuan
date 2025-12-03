@@ -11,7 +11,7 @@ export const getSpotAccountInfo = async (credential: ICredential) => {
     return makeSpotPosition({
       datasource_id: 'GATE',
       position_id: item.currency,
-      product_id: encodePath('GATE', 'SPOT', `${item.currency}-USDT`),
+      product_id: encodePath('GATE', 'SPOT', `${item.currency}`),
       volume: Number(item.available),
       free_volume: Number(item.available),
       closable_price: 1, // TODO: use real price
