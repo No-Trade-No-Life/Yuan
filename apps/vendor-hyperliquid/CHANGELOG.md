@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-hyperliquid
 
-This log was last generated on Wed, 03 Dec 2025 10:25:12 GMT and should not be manually modified.
+This log was last generated on Wed, 03 Dec 2025 12:57:13 GMT and should not be manually modified.
+
+## 0.7.5
+Wed, 03 Dec 2025 12:57:13 GMT
+
+### Patches
+
+- 更新账户信息处理，增加USDC头寸支持及API健壮性改进
 
 ## 0.7.4
 Wed, 03 Dec 2025 10:25:12 GMT
