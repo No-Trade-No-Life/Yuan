@@ -1,6 +1,13 @@
 # Change Log - @yuants/exchange
 
-This log was last generated on Wed, 03 Dec 2025 10:25:12 GMT and should not be manually modified.
+This log was last generated on Wed, 03 Dec 2025 17:57:50 GMT and should not be manually modified.
+
+## 0.3.0
+Wed, 03 Dec 2025 17:57:50 GMT
+
+### Minor changes
+
+- uniform valuation and interest
 
 ## 0.2.1
 Wed, 03 Dec 2025 10:25:12 GMT
