@@ -1,6 +1,7 @@
 import './account';
 import './account-actions-with-credential';
 import './api-service';
+import './experimental/exchange';
 import './order';
 import './order-actions';
 import './order-actions-with-credential';
