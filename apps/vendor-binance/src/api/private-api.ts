@@ -794,3 +794,63 @@ export const getMarginInterestRateHistory = (params: {
     }[]
   >(credential, 'GET', 'https://api.binance.com/sapi/v1/margin/interestRateHistory', params);
 };
+
+/**
+ *获取用户持仓
+ * @param credential
+ *  https://developers.binance.com/docs/zh-CN/wallet/asset/user-assets#%E8%AF%B7%E6%B1%82%E5%8F%82%E6%95%B0
+ * @param params
+ * @returns
+ */
+export const getUserAsset = (
+  credential: ICredential,
+  params: {
+    timestamp: number;
+    asset?: string;
+    needBtcValuation?: boolean;
+    recvWindow?: number;
+  },
+) => {
+  return requestPrivate<
+    | {
+        asset: string;
+        free: string;
+        locked: string;
+        freeze: string;
+        withdrawing: string;
+        ipoable: string;
+        btcValuation: string;
+      }[]
+    | IApiError
+  >(credential, 'POST', 'https://api.binance.com/sapi/v3/asset/getUserAsset', params);
+};
+
+/**
+ * 查询资金账户
+ * @param credential
+ * https://developers.binance.com/docs/zh-CN/wallet/asset/funding-wallet?utm_source=chatgpt.com
+ * @param params
+ * @returns
+ */
+export const getFundingAsset = (
+  credential: ICredential,
+  params: {
+    timestamp: number;
+    asset?: string;
+    needBtcValuation?: boolean;
+    recvWindow?: number;
+  },
+) => {
+  return requestPrivate<
+    | {
+        asset: string;
+        free: string;
+        locked: string;
+        freeze: string;
+        withdrawing: string;
+        ipoable: string;
+        btcValuation: string;
+      }[]
+    | IApiError
+  >(credential, 'POST', 'https://api.binance.com/sapi/v1/asset/get-funding-asset', params);
+};
