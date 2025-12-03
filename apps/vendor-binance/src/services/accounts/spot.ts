@@ -37,6 +37,7 @@ export const getSpotAccountInfoSnapshot = async (credential: ICredential): Promi
       ]),
     ]),
   });
+
   const positions = [...res.balances, ...fundingAsset]
     .map((balance) => {
       const volume = +balance.free + +balance.locked;
@@ -47,11 +48,12 @@ export const getSpotAccountInfoSnapshot = async (credential: ICredential): Promi
         product_id: encodePath('BINANCE', 'SPOT', `${balance.asset}`),
         volume,
         free_volume: +balance.free,
-        closable_price: Array.isArray(prices)
-          ? +(prices.find((item) => item.symbol === `${balance.asset}USDT`)?.price ?? 0)
-          : balance.asset === 'USDT'
-          ? 1
-          : 0,
+        closable_price:
+          balance.asset === 'USDT'
+            ? 1
+            : Array.isArray(prices)
+            ? +(prices.find((item) => item.symbol === `${balance.asset}USDT`)?.price ?? 0)
+            : 0,
       });
       return position;
     })
