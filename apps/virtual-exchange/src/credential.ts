@@ -95,6 +95,16 @@ export const validCredentials$ = defer(() => listAllCredentials()).pipe(
   shareReplay(1),
 );
 
+export const validCredentialTypes$ = validCredentials$.pipe(
+  map((credentials) => {
+    const types = new Set<string>();
+    credentials.forEach((credential) => {
+      types.add(credential.type);
+    });
+    return Array.from(types);
+  }),
+);
+
 export const getCredentialById = async (credential_id: string) => {
   const credentials = await firstValueFrom(validCredentials$);
   return credentials.get(credential_id);
