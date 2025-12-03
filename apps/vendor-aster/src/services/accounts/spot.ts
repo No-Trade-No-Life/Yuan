@@ -1,38 +1,82 @@
+import { createCache } from '@yuants/cache';
 import { IPosition, makeSpotPosition } from '@yuants/data-account';
-import { getApiV1Account, getApiV1TickerPrice, getFApiV4Account, ICredential } from '../../api/private-api';
 import { encodePath } from '@yuants/utils';
+import { getApiV1Account, getApiV1TickerPrice, getFApiV4Account, ICredential } from '../../api/private-api';
 
-export const getSpotAccountInfo = async (credential: ICredential) => {
+// ISSUE: ASBNB price is not available in the price API, need to fetch from coingecko
+const asBNBPrice = createCache(
+  () =>
+    fetch('https://api.coingecko.com/api/v3/simple/price?ids=astherus-staked-bnb&vs_currencies=usd')
+      .then((res) => res.json())
+      .then((data) => data['astherus-staked-bnb'].usd as number),
+  {
+    expire: 60_000, // 1 minute
+  },
+);
+
+export const getPositions = async (credential: ICredential) => {
+  const positions: IPosition[] = [];
   const [x, prices, prep] = await Promise.all([
     getApiV1Account(credential, {}),
     getApiV1TickerPrice(credential, {}),
     getFApiV4Account(credential, {}),
   ]);
 
-  const positions = x.balances.map((b): IPosition => {
+  for (const b of x.balances) {
     const thePrice = b.asset === 'USDT' ? 1 : prices.find((p) => p.symbol === b.asset + 'USDT')?.price ?? 0;
-    return makeSpotPosition({
-      position_id: b.asset,
-      datasource_id: 'ASTER',
-      product_id: encodePath('ASTER', 'SPOT', b.asset),
-      volume: +b.free + +b.locked,
-      free_volume: +b.free,
-      closable_price: +thePrice,
-    });
-  });
-  const walletAssets = prep.assets
-    .filter((xx) => +xx.walletBalance > 0)
-    .map((b): IPosition => {
-      const thePrice = b.asset === 'USDT' ? 1 : prices.find((p) => p.symbol === b.asset + 'USDT')?.price ?? 0;
-      return makeSpotPosition({
+    positions.push(
+      makeSpotPosition({
+        position_id: b.asset,
+        datasource_id: 'ASTER',
+        product_id: encodePath('ASTER', 'SPOT', b.asset),
+        volume: +b.free + +b.locked,
+        free_volume: +b.free,
+        closable_price: +thePrice,
+      }),
+    );
+  }
+
+  for (const b of prep.assets) {
+    if (+b.walletBalance === 0) continue;
+    let thePrice = 0;
+    if (b.asset === 'USDT') {
+      thePrice = 1;
+    } else if (b.asset === 'ASBNB') {
+      const _p = await asBNBPrice.query('').catch(() => 0);
+      if (_p) {
+        thePrice = _p;
+      }
+    } else {
+      thePrice = +(prices.find((p) => p.symbol === b.asset + 'USDT')?.price ?? 0);
+    }
+
+    positions.push(
+      makeSpotPosition({
         position_id: encodePath(b.asset, 'ASSET'),
         datasource_id: 'ASTER',
         product_id: encodePath('ASTER', 'PERP-ASSET', b.asset),
         volume: +b.walletBalance,
         free_volume: +b.walletBalance,
-        closable_price: +thePrice,
-      });
-    });
+        closable_price: thePrice,
+      }),
+    );
+  }
 
-  return [...positions, ...walletAssets];
+  for (const p of prep.positions) {
+    if (+p.positionAmt === 0) continue;
+    positions.push({
+      position_id: p.symbol,
+      product_id: encodePath('ASTER', 'PERP', p.symbol),
+      datasource_id: 'ASTER',
+      direction: p.positionSide === 'BOTH' ? (+p.positionAmt > 0 ? 'LONG' : 'SHORT') : p.positionSide,
+      volume: Math.abs(+p.positionAmt),
+      free_volume: Math.abs(+p.positionAmt),
+      position_price: +p.entryPrice,
+      closable_price: Math.abs(+p.notional / +p.positionAmt),
+      floating_profit: +p.unrealizedProfit,
+      valuation: Math.abs(+p.notional),
+    });
+  }
+
+  return positions;
 };

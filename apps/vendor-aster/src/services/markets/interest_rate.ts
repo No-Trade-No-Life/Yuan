@@ -1,34 +1,11 @@
 import { IInterestRate } from '@yuants/data-interest-rate';
-import { IProduct } from '@yuants/data-product';
-import { createSeriesProvider, ISeriesCollectingTask } from '@yuants/data-series';
+import { createSeriesProvider } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
-import { createSQLWriter } from '@yuants/sql';
-import { decodePath, encodePath, formatTime } from '@yuants/utils';
-import { firstValueFrom, map, mergeAll, timer } from 'rxjs';
+import { decodePath, formatTime } from '@yuants/utils';
+import { firstValueFrom, timer } from 'rxjs';
 import { getFApiV1FundingRate } from '../../api/public-api';
-import { productService } from './product';
 
 const terminal = Terminal.fromNodeEnv();
-
-createSQLWriter<ISeriesCollectingTask>(terminal, {
-  data$: productService.products$.pipe(
-    map((products: IProduct[]) => products.filter((product) => product.no_interest_rate === false)),
-    mergeAll(),
-    map(
-      (product: IProduct): ISeriesCollectingTask => ({
-        series_id: product.product_id,
-        table_name: 'interest_rate',
-        cron_pattern: '0 * * * *',
-        cron_timezone: 'UTC',
-        disabled: false,
-        replay_count: 0,
-      }),
-    ),
-  ),
-  tableName: 'series_collecting_task',
-  writeInterval: 1000,
-  conflictKeys: ['series_id', 'table_name'],
-});
 
 createSeriesProvider<IInterestRate>(terminal, {
   tableName: 'interest_rate',
