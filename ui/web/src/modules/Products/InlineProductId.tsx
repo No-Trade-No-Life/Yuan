@@ -6,7 +6,7 @@ import { useObservable, useObservableState } from 'observable-hooks';
 import { filter, map, switchMap } from 'rxjs';
 import { terminal$ } from '../Terminals';
 
-const ProductCard = (props: { datasource_id: string; product_id: string }) => {
+const ProductCard = (props: { product_id: string }) => {
   const product = useObservableState(
     useObservable(
       () =>
@@ -15,27 +15,25 @@ const ProductCard = (props: { datasource_id: string; product_id: string }) => {
           switchMap((terminal) =>
             requestSQL<IProduct[]>(
               terminal,
-              `select * from product where datasource_id = ${escapeSQL(
-                props.datasource_id,
-              )} and product_id = ${escapeSQL(props.product_id)}`,
+              `select * from product where product_id = ${escapeSQL(props.product_id)}`,
             ),
           ),
           map((x) => x[0]),
         ),
-      [props.datasource_id, props.product_id],
+      [props.product_id],
     ),
   );
 
   if (!product) {
     return (
-      <Card title={encodePath(props.datasource_id, props.product_id)} loading={true}>
+      <Card title={props.product_id} loading={true}>
         <Card.Meta></Card.Meta>
       </Card>
     );
   }
 
   return (
-    <Card title={encodePath(product.datasource_id, product.product_id)}>
+    <Card title={product.product_id}>
       <Descriptions
         data={[
           { key: '数据源', value: product.datasource_id },
@@ -58,9 +56,10 @@ const ProductCard = (props: { datasource_id: string; product_id: string }) => {
 
 export const InlineProductId = (props: { datasource_id: string; product_id: string }) => {
   return (
-    <Popover content={<ProductCard datasource_id={props.datasource_id} product_id={props.product_id} />}>
+    <Popover content={<ProductCard product_id={props.product_id} />}>
+      ({props.datasource_id})
       <Typography.Text copyable link={{}}>
-        {encodePath(props.datasource_id, props.product_id)}
+        {props.product_id}
       </Typography.Text>
     </Popover>
   );
