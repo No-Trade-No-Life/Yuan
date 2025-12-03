@@ -31,6 +31,9 @@
     "@yuants/data-account": "workspace:*",
     "@yuants/data-order": "workspace:*",
     "@yuants/data-product": "workspace:*",
+    "@yuants/data-quote": "workspace:*",
+    "@yuants/sql": "workspace:*",
+    "@yuants/utils": "workspace:*",
     "rxjs": "~7.5.6"
   }
 }
