@@ -93,13 +93,13 @@ if [ "$OLD_COMMIT" = "$NEW_COMMIT" ]; then
 fi
 
 # 输出结果
-echo "::set-output name=old_commit::$OLD_COMMIT"
-echo "::set-output name=new_commit::$NEW_COMMIT"
-echo "::set-output name=old_commit_short::$(git rev-parse --short "$OLD_COMMIT")"
-echo "::set-output name=new_commit_short::$(git rev-parse --short "$NEW_COMMIT")"
+echo "old_commit=$OLD_COMMIT" >> $GITHUB_OUTPUT
+echo "new_commit=$NEW_COMMIT" >> $GITHUB_OUTPUT
+echo "old_commit_short=$(git rev-parse --short "$OLD_COMMIT")" >> $GITHUB_OUTPUT
+echo "new_commit_short=$(git rev-parse --short "$NEW_COMMIT")" >> $GITHUB_OUTPUT
 
 # 计算提交数量
 COMMIT_COUNT=$(git rev-list --count "$OLD_COMMIT".."$NEW_COMMIT" 2>/dev/null || echo "0")
-echo "::set-output name=commit_count::$COMMIT_COUNT"
+echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
 
 echo "提交范围: $OLD_COMMIT..$NEW_COMMIT ($COMMIT_COUNT 个提交)"
