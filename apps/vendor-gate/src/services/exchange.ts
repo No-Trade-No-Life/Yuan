@@ -4,7 +4,6 @@ import { provideExchangeServices } from '@yuants/exchange';
 import { Terminal } from '@yuants/protocol';
 import { decodePath } from '@yuants/utils';
 import { getCredentialId } from './accounts/profile';
-import { getSpotAccountInfo } from './accounts/spot';
 import { getUnifiedAccountInfo } from './accounts/unified';
 import { cancelOrder } from './orders/cancelOrder';
 import { submitOrder } from './orders/submitOrder';
@@ -28,12 +27,11 @@ provideExchangeServices<ICredential>(terminal, {
   getCredentialId,
   listProducts,
   getPositions: async function (credential: ICredential): Promise<IPosition[]> {
-    const [uFuturePositions, spotPositions, unifiedPositions] = await Promise.all([
-      getFutureAccountInfo(credential),
-      getSpotAccountInfo(credential),
+    const [unifiedPositions] = await Promise.all([
+      // getFutureAccountInfo(credential),
       getUnifiedAccountInfo(credential),
     ]);
-    return [...uFuturePositions, ...spotPositions, ...unifiedPositions];
+    return [...unifiedPositions];
   },
   getOrders: async function (credential: ICredential): Promise<IOrder[]> {
     const [umOrders] = await Promise.all([
