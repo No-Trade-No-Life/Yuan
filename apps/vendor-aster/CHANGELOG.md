@@ -1,6 +1,15 @@
 # Change Log - @yuants/vendor-aster
 
-This log was last generated on Tue, 02 Dec 2025 14:00:52 GMT and should not be manually modified.
+This log was last generated on Wed, 03 Dec 2025 07:26:21 GMT and should not be manually modified.
+
+## 0.7.13
+Wed, 03 Dec 2025 07:26:21 GMT
+
+### Patches
+
+- add api call monitor
+- add api call monitor
+- fix aster openinterest call
 
 ## 0.7.12
 Tue, 02 Dec 2025 14:00:52 GMT
