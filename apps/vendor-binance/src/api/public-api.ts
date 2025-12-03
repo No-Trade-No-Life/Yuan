@@ -215,3 +215,33 @@ export interface ISpotExchangeInfo {
  */
 export const getSpotExchangeInfo = (): Promise<ISpotExchangeInfo> =>
   requestPublic<ISpotExchangeInfo>('GET', 'https://api.binance.com/api/v3/exchangeInfo');
+
+/**
+ * 获取当前现货报价
+ *
+ *https://developers.binance.com/docs/zh-CN/binance-spot-api-docs/rest-api/market-data-endpoints#%E6%9C%80%E6%96%B0%E4%BB%B7%E6%A0%BC%E6%8E%A5%E5%8F%A3
+ */
+export const getSpotTickerPrice = (params?: {
+  symbol?: string;
+  symbols?: string;
+  symbolStatus?: 'TRADING' | 'HALT' | 'BREAK';
+}): Promise<
+  | {
+      symbol: string;
+      price: string;
+    }
+  | {
+      symbol: string;
+      price: string;
+    }[]
+> =>
+  requestPublic<
+    | {
+        symbol: string;
+        price: string;
+      }
+    | {
+        symbol: string;
+        price: string;
+      }[]
+  >('GET', 'https://api.binance.com/api/v3/ticker/price', params);
