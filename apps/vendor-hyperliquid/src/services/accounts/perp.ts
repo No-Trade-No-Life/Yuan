@@ -1,4 +1,4 @@
-import { IPosition } from '@yuants/data-account';
+import { IPosition, makeSpotPosition } from '@yuants/data-account';
 import { encodePath, formatTime } from '@yuants/utils';
 import { getUserPerpetualsAccountSummary } from '../../api/public-api';
 import { ICredential } from '../../api/types';
@@ -7,12 +7,11 @@ import { ICredential } from '../../api/types';
  * Get account info for perpetual account
  */
 export const getPerpPositions = async (credential: ICredential) => {
-  console.info(`[${formatTime(Date.now())}] Getting perp account info for ${credential.address}`);
+  console.info(formatTime(Date.now()), `Getting perp account info for ${credential.address}`);
 
   const summary = await getUserPerpetualsAccountSummary({ user: credential.address });
 
-  // Map positions
-  const positions = summary.assetPositions.map(
+  const perpPositions = summary.assetPositions.map(
     (position): IPosition => ({
       position_id: `${position.position.coin}-USD`,
       datasource_id: 'HYPERLIQUID',
@@ -28,5 +27,25 @@ export const getPerpPositions = async (credential: ICredential) => {
     }),
   );
 
-  return positions;
+  const totalUnrealizedPnl = summary.assetPositions.reduce(
+    (acc, assetPosition) => acc + Number(assetPosition.position.unrealizedPnl || 0),
+    0,
+  );
+  const accountValue = Number(summary.marginSummary?.accountValue ?? 0);
+  const usdcBalance = accountValue - totalUnrealizedPnl;
+  const usdcPositions =
+    usdcBalance > 0
+      ? [
+          makeSpotPosition({
+            position_id: 'USDC',
+            datasource_id: 'HYPERLIQUID',
+            product_id: encodePath('HYPERLIQUID', 'PERPETUAL-ASSET', 'USDC'),
+            volume: usdcBalance,
+            free_volume: usdcBalance,
+            closable_price: 1,
+          }),
+        ]
+      : [];
+
+  return [...usdcPositions, ...perpPositions];
 };

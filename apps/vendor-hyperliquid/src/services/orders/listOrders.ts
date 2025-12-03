@@ -49,6 +49,9 @@ export const listPerpOrders = async (credential: ICredential): Promise<IOrder[]>
 
   try {
     const orders = await getUserOpenOrders({ user: credential.address });
+    if (!orders || !Array.isArray(orders)) {
+      return [];
+    }
     return orders.map((order) => mapOrder(order));
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
