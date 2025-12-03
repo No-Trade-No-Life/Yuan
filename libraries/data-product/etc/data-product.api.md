@@ -9,7 +9,7 @@ import { IServiceOptions } from '@yuants/protocol';
 import { Observable } from 'rxjs';
 import { Terminal } from '@yuants/protocol';
 
-// @public (undocumented)
+// @public
 export const createClientProductCache: (terminal: Terminal, options?: IProductCacheOptions) => ICache<IProduct>;
 
 // @public

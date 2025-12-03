@@ -47,6 +47,11 @@ export const createProductCache = (terminal: Terminal, options?: IProductCacheOp
     { expire: options?.expire ?? 3600 * 1000 },
   );
 
+/**
+ * Create a client-side product cache.
+ *
+ * @public
+ */
 export const createClientProductCache = (
   terminal: Terminal,
   options?: IProductCacheOptions,
