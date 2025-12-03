@@ -24,22 +24,16 @@ const openInterestCache = createCache<string>(
 
 const quote$ = defer(() => getFApiV1TickerPrice({})).pipe(
   mergeMap((tickers) => tickers || []),
-  mergeMap(
-    (ticker) =>
-      from(openInterestCache.query(ticker.symbol)).pipe(
-        map(
-          (openInterest): Partial<IQuote> => ({
-            datasource_id: 'ASTER',
-            product_id: encodePath('PERP', ticker.symbol),
-            last_price: `${ticker.price}`,
-            bid_price: `${ticker.price}`,
-            ask_price: `${ticker.price}`,
-            open_interest: `${openInterest ?? 0}`,
-            updated_at: new Date(ticker.time ?? Date.now()).toISOString(),
-          }),
-        ),
-      ),
-    5,
+  map(
+    (ticker): Partial<IQuote> => ({
+      datasource_id: 'ASTER',
+      product_id: encodePath('ASTER', 'PERP', ticker.symbol),
+      last_price: `${ticker.price}`,
+      bid_price: `${ticker.price}`,
+      ask_price: `${ticker.price}`,
+      open_interest: '0',
+      updated_at: new Date(ticker.time ?? Date.now()).toISOString(),
+    }),
   ),
   repeat({ delay: 1000 }),
   retry({ delay: 5000 }),
