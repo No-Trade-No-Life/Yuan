@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-aster",
+      "comment": "add api call monitor",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-aster"
+}

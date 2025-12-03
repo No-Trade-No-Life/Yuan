@@ -1,5 +1,13 @@
 import { encodeHex, HmacSHA256 } from '@yuants/utils';
 
+import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
+
+const MetricsAsterApiCallCounter = GlobalPrometheusRegistry.counter(
+  'aster_api_call',
+  'Number of aster api call',
+);
+const terminal = Terminal.fromNodeEnv();
+
 export interface ICredential {
   address: string;
   api_key: string;
@@ -70,6 +78,7 @@ const request = async <T>(
   url.searchParams.set('signature', signature);
 
   console.info(url.toString());
+  MetricsAsterApiCallCounter.labels({ path: url.pathname, terminal_id: terminal.terminal_id }).inc();
   const response = await fetch(url.toString(), {
     method,
     headers: {
