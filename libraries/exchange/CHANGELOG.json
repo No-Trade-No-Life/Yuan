@@ -2,6 +2,23 @@
   "name": "@yuants/exchange",
   "entries": [
     {
+      "version": "0.3.0",
+      "tag": "@yuants/exchange_v0.3.0",
+      "date": "Wed, 03 Dec 2025 17:57:50 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "uniform valuation and interest"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.1",
       "tag": "@yuants/exchange_v0.2.1",
       "date": "Wed, 03 Dec 2025 10:25:12 GMT",
