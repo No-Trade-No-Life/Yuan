@@ -1,3 +1,4 @@
+import { createCache } from '@yuants/cache';
 import { IPosition } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { createClientProductCache, IProduct } from '@yuants/data-product';
@@ -5,7 +6,6 @@ import { IQuote } from '@yuants/data-quote';
 import { IResponse, Terminal } from '@yuants/protocol';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import { JSONSchema7 } from 'json-schema';
-import { createCache } from '../../cache/lib';
 
 /**
  * Exchange Interface
