@@ -6,7 +6,22 @@
       "Bash(npx tsc:*)",
       "Bash(tree:*)",
       "Skill(context-management)",
-      "Skill(recent-changes-digest)"
+      "Skill(recent-changes-digest)",
+      "Bash(git rev-parse:*)",
+      "Bash(.claude/skills/recent-changes-digest/scripts/generate-digest.js:*)",
+      "Bash(python3:*)",
+      "Skill(skill-creator)",
+      "Bash(node .claude/skills/git-changes-reporter/scripts/generate-json.js:*)",
+      "Bash(node .claude/skills/git-changes-reporter/scripts/generate-github-links.js:*)",
+      "Bash(node -c:*)",
+      "Bash(chmod:*)",
+      "Skill(git-changes-reporter)",
+      "Bash(.claude/skills/git-changes-reporter/scripts/get-daily-commit-range.sh:*)",
+      "Bash(node .claude/skills/git-changes-reporter/scripts/generate-daily-report.js:*)",
+      "Bash(DEEPSEEK_API_KEY=\"test_key\" node .claude/skills/git-changes-reporter/scripts/deepseek-skill-runner.js:*)",
+      "Bash(node .claude/skills/git-changes-reporter/scripts/deepseek-skill-runner.js:*)",
+      "Bash(npm install:*)",
+      "Bash(DEEPSEEK_API_KEY=\"sk-ad8dbd8290df4270a70fa223ef6e6b56\" node:*)"
     ],
     "deny": [],
     "ask": []
