@@ -1,7 +1,8 @@
-import { IPosition } from '@yuants/data-account';
+import { IPosition, makeSpotPosition } from '@yuants/data-account';
 import { encodePath } from '@yuants/utils';
 import { isApiError } from '../../api/client';
 import { getUnifiedAccountBalance, getUnifiedUmAccount, ICredential } from '../../api/private-api';
+import { getSpotTickerPrice } from '../../api/public-api';
 
 export const getUnifiedAccountInfo = async (credential: ICredential): Promise<IPosition[]> => {
   const [balanceRes, umAccountRes] = await Promise.all([
@@ -40,5 +41,37 @@ export const getUnifiedAccountInfo = async (credential: ICredential): Promise<IP
           (+position.positionAmt === 0 ? 0 : +position.unrealizedProfit / +position.positionAmt)),
     }));
 
-  return positions;
+  const prices = await getSpotTickerPrice({
+    symbols: JSON.stringify([
+      ...new Set([
+        ...balanceRes
+          .map((balance) => {
+            const match = balance.asset.match(/^LD(\w+)$/);
+            let symbol = balance.asset;
+            if (match) {
+              symbol = match[1];
+            }
+            if (symbol === 'USDT') return '';
+            return `${symbol}USDT`;
+          })
+          .filter(Boolean),
+      ]),
+    ]),
+  });
+  const balancePositions: IPosition[] = balanceRes.map((position) =>
+    makeSpotPosition({
+      position_id: `UNIFIED-SPOT/${position.asset}`,
+      datasource_id: 'BINANCE',
+      product_id: encodePath('BINANCE', 'UNIFIED-SPOT', position.asset),
+      volume: +position.totalWalletBalance + +position.umUnrealizedPNL,
+      free_volume: +position.crossMarginFree,
+      closable_price:
+        position.asset === 'USDT'
+          ? 1
+          : Array.isArray(prices)
+          ? +(prices.find((item) => item.symbol === `${position.asset}USDT`)?.price ?? 0)
+          : 0,
+    }),
+  );
+  return [...balancePositions, ...positions];
 };
