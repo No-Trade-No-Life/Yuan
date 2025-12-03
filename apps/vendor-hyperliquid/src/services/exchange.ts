@@ -58,6 +58,10 @@ provideExchangeServices<ICredential>(terminal, {
       const perpPositions = await getPerpPositions(credential);
       return perpPositions.filter((position) => position.product_id === product_id);
     }
+    if (instType === 'PERPETUAL-ASSET') {
+      const perpPositions = await getPerpPositions(credential);
+      return perpPositions.filter((position) => position.product_id === product_id);
+    }
     if (instType === 'SPOT') {
       const spotPositions = await getSpotPositions(credential);
       return spotPositions.filter((position) => position.product_id === product_id);

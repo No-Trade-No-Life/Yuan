@@ -184,6 +184,21 @@
 
 > 约定：仅记录已经结束的会话；进行中的内容放在第 11 节，收尾后再搬运；按时间倒序追加。
 
+### 2025-12-03 — Codex Agent
+
+- **本轮摘要**：
+  - 为 perp 账户补充 USDC 余额，使用清算所 `marginSummary.accountValue - Σ(unrealizedPnl)` 作为现金余额生成 `PERPETUAL-ASSET` 头寸（避免被当作永续品种），修复 equity 缺失现金的问题。
+  - Spot 账户估值改为使用 `allMids` 当前价格折算为 USDC，浮盈与估值同步更新。
+  - 修复 API 返回 null 时的健壮性：spot 余额与 open orders 为空时不再抛异常。
+- **修改的文件**：
+  - `apps/vendor-hyperliquid/src/services/accounts/perp.ts`（新增 USDC 资产头寸，过滤 USD/USDC 不再标记为永续）
+  - `apps/vendor-hyperliquid/src/services/accounts/spot.ts`（引入 allMids 现价折算，填充估值/浮盈）
+  - `apps/vendor-hyperliquid/src/services/orders/listOrders.ts`（空列表兼容）
+  - `apps/vendor-hyperliquid/src/services/exchange.ts`（支持按 product_id 查询 `PERPETUAL-ASSET` 头寸）
+- **运行的测试 / 检查**：
+  - 命令：`npx tsc --noEmit --project apps/vendor-hyperliquid/tsconfig.json`
+  - 结果：Passed
+
 ### 2025-11-26 — Codex Agent
 
 - **本轮摘要**：

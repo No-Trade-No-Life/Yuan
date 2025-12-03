@@ -1,15 +1,18 @@
 import { IPosition, makeSpotPosition } from '@yuants/data-account';
 import { encodePath, formatTime } from '@yuants/utils';
-import { getUserTokenBalances } from '../../api/public-api';
+import { getAllMids, getUserTokenBalances } from '../../api/public-api';
 import { ICredential } from '../../api/types';
 
 /**
  * Get account info for spot account
  */
 export const getSpotPositions = async (credential: ICredential) => {
-  console.info(`[${formatTime(Date.now())}] Getting spot account info for ${credential.address}`);
+  console.info(formatTime(Date.now()), `Getting spot account info for ${credential.address}`);
 
-  const balances = await getUserTokenBalances({ user: credential.address });
+  const [balances, mids] = await Promise.all([
+    getUserTokenBalances({ user: credential.address }),
+    getAllMids(),
+  ]);
 
   // Map token balances to positions (using spot as "positions")
   const positions = balances.balances
@@ -22,7 +25,7 @@ export const getSpotPositions = async (credential: ICredential) => {
           product_id: encodePath('HYPERLIQUID', 'SPOT', `${balance.coin}-USDC`),
           volume: Number(balance.total),
           free_volume: Number(balance.total) - Number(balance.hold),
-          closable_price: 1,
+          closable_price: balance.coin === 'USDC' ? 1 : Number(mids?.[balance.coin] ?? 0),
         }),
     );
 
