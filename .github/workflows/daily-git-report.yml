@@ -1,0 +1,171 @@
+name: Daily Git Change Report
+
+on:
+  schedule:
+    # 东八区早上8点运行 (UTC 0点)
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    inputs:
+      timezone_offset:
+        description: '时区偏移小时数 (例如 +8 表示东八区)'
+        required: false
+        default: '+8'
+        type: string
+
+jobs:
+  generate-report:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.14.0'
+
+      - name: Prepare report date
+        id: report_date
+        run: echo "value=$(date +%Y-%m-%d)" >> $GITHUB_OUTPUT
+
+      - name: Get daily commit range
+        id: commit_range
+        run: |
+          chmod +x .claude/skills/git-changes-reporter/scripts/get-daily-commit-range.sh
+          .claude/skills/git-changes-reporter/scripts/get-daily-commit-range.sh ${{ github.event.inputs.timezone_offset || '+8' }}
+
+      - name: Display commit range
+        run: |
+          echo "提交范围: ${{ steps.commit_range.outputs.old_commit_short }}..${{ steps.commit_range.outputs.new_commit_short }}"
+          echo "提交数量: ${{ steps.commit_range.outputs.commit_count }}"
+
+      - name: Generate JSON data
+        id: generate_json
+        run: |
+          REPORT_DATE=${{ steps.report_date.outputs.value }}
+          mkdir -p docs/reports
+          node .claude/skills/git-changes-reporter/scripts/generate-json.js \
+            "${{ steps.commit_range.outputs.old_commit }}" \
+            "${{ steps.commit_range.outputs.new_commit }}" \
+            "docs/reports/git-changes-${REPORT_DATE}.json"
+          echo "json_file=docs/reports/git-changes-${REPORT_DATE}.json" >> $GITHUB_OUTPUT
+
+      - name: Generate report with Claude Code
+        id: generate_report
+        uses: anthropics/claude-code-action@v1
+        with:
+          prompt: |
+            请使用 git-changes-reporter skill 生成 Git 变更报告。
+
+            任务信息：
+            - 起始提交: ${{ steps.commit_range.outputs.old_commit }}
+            - 结束提交: ${{ steps.commit_range.outputs.new_commit }}
+            - 提交范围: ${{ steps.commit_range.outputs.old_commit_short }}..${{ steps.commit_range.outputs.new_commit_short }}
+            - 提交数量: ${{ steps.commit_range.outputs.commit_count }}
+            - 输出文件: docs/reports/git-changes-report-$(date +%Y-%m-%d).md
+
+            请严格按照 git-changes-reporter skill 的所有规则生成报告，特别是：
+            1. 必须使用短哈希引用提交，不要使用 JSON 文件行号
+            2. 按技术领域进行语义聚类
+            3. 包含完整的报告结构
+            4. 提供具体的文件引用和代码位置
+
+            请先生成 JSON 数据，然后基于 JSON 数据生成语义化报告。
+        env:
+          ANTHROPIC_AUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
+          ANTHROPIC_BASE_URL: 'https://api.deepseek.com/anthropic'
+          ANTHROPIC_MODEL: 'deepseek-reasoner'
+          ANTHROPIC_SMALL_FAST_MODEL: 'deepseek-chat'
+          API_TIMEOUT_MS: '600000'
+          CLAUDE_CODE_MAX_OUTPUT_TOKENS: '32000'
+          CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1'
+
+      - name: Check if report was generated
+        id: check_report
+        run: |
+          MD_FILE="docs/reports/git-changes-report-${{ steps.report_date.outputs.value }}.md"
+          if [ -f "$MD_FILE" ]; then
+            echo "报告文件已生成: $MD_FILE"
+            echo "report_generated=true" >> $GITHUB_OUTPUT
+          else
+            echo "报告文件未生成: $MD_FILE"
+            echo "report_generated=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create or update PR
+        id: create_pr
+        if: steps.check_report.outputs.report_generated == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          REPORT_DATE=${{ steps.report_date.outputs.value }}
+          BRANCH_NAME="daily-report-${REPORT_DATE}"
+          git checkout -B "$BRANCH_NAME"
+          git add docs/reports/
+
+          if git diff --cached --quiet; then
+            echo "没有变更，跳过 PR 创建"
+            echo "pr_created=false" >> $GITHUB_OUTPUT
+          else
+            git commit -m "feat: add daily git change report for ${REPORT_DATE} - ${{ steps.commit_range.outputs.commit_count }} commits"
+            git push origin "$BRANCH_NAME" --force
+
+            PR_TITLE="Daily Git Change Report ${REPORT_DATE}"
+            PR_BODY=$(cat <<-EOF
+            ## 每日 Git 变更报告
+
+            ### 报告信息
+            - **日期**: ${REPORT_DATE}
+            - **提交范围**: ${{ steps.commit_range.outputs.old_commit_short }}..${{ steps.commit_range.outputs.new_commit_short }}
+            - **提交数量**: ${{ steps.commit_range.outputs.commit_count }}
+            - **生成时间**: $(date -Iseconds)
+
+            ### 包含文件
+            1. \`docs/reports/git-changes-${REPORT_DATE}.json\` - 结构化 JSON 数据
+            2. \`docs/reports/git-changes-report-${REPORT_DATE}.md\` - 完整的语义化报告
+
+            ### 报告特点
+            - 使用 Claude Code 的 git-changes-reporter skill 生成
+            - 包含技术领域分析
+            - 贡献者统计和分析
+            - 风险评估和建议
+            - 具体的文件引用和代码位置
+
+            ### 自动化
+            此 PR 由 GitHub Actions 自动生成，计划每天东八区早上8点运行。
+
+            🤖 Generated with [Claude Code](https://claude.com/claude-code)
+            EOF
+            )
+
+            gh pr create \
+              --title "$PR_TITLE" \
+              --body "$PR_BODY" \
+              --base main \
+              --head "$BRANCH_NAME" \
+              --label automated \
+              --label report \
+              --label daily || echo "PR 创建失败，可能已存在"
+
+            echo "pr_created=true" >> $GITHUB_OUTPUT
+            echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload reports as artifact
+        if: steps.check_report.outputs.report_generated == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-git-reports-${{ steps.report_date.outputs.value }}
+          path: |
+            docs/reports/git-changes-${{ steps.report_date.outputs.value }}.json
+            docs/reports/git-changes-report-${{ steps.report_date.outputs.value }}.md
+          retention-days: 7

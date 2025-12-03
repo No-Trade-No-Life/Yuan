@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-virtual-exchange",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "main": "lib/index.js",
   "files": [
     "dist",
@@ -13,6 +13,7 @@
   "dependencies": {
     "@yuants/protocol": "workspace:*",
     "@yuants/utils": "workspace:*",
+    "@yuants/data-product": "workspace:*",
     "@yuants/data-account": "workspace:*",
     "@yuants/data-order": "workspace:*",
     "@yuants/secret": "workspace:*",

@@ -100,6 +100,11 @@ export function provideQueryProductsService(
      * 自动刷新间隔（毫秒）
      */
     auto_refresh_interval?: number;
+    /**
+     * Dispose observable to clean up resources
+     * 清理资源的可观察对象
+     */
+    dispose$?: Observable<void>;
   },
 ): IQueryProductsService {
   // Local cache for products
@@ -186,6 +191,10 @@ export function provideQueryProductsService(
     },
     options?.serviceOptions,
   );
+
+  options?.dispose$?.subscribe(() => {
+    dispose.dispose();
+  });
 
   // Return cache object
   return {

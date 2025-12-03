@@ -1,28 +1,39 @@
-import { IPosition } from '@yuants/data-account';
+import { IPosition, makeSpotPosition } from '@yuants/data-account';
 import { encodePath } from '@yuants/utils';
-import { firstValueFrom } from 'rxjs';
 import { getSwapCrossPositionInfo, getUnifiedAccountInfo, ICredential } from '../../api/private-api';
-import { productService } from '../product';
+import { productCache } from '../product';
+
+const usdAssets = new Set(['USDT', 'USDC', 'USDD']);
 
 export const getSwapAccountInfo = async (credential: ICredential): Promise<IPosition[]> => {
+  const positions: IPosition[] = [];
   // balance
   const balance = await getUnifiedAccountInfo(credential);
   if (!balance.data) {
     throw new Error('Failed to get unified account info');
   }
-  const balanceData = balance.data.find((v) => v.margin_asset === 'USDT');
-  if (!balanceData) {
-    throw new Error('No USDT balance found in unified account');
+
+  for (const v of balance.data || []) {
+    if (v.margin_balance === 0) continue;
+    positions.push(
+      makeSpotPosition({
+        position_id: encodePath('HTX', 'SWAP-MARGIN', v.margin_asset),
+        datasource_id: 'HTX',
+        product_id: encodePath('HTX', 'SWAP-MARGIN', v.margin_asset),
+        volume: +v.margin_balance,
+        free_volume: +v.withdraw_available,
+        closable_price: usdAssets.has(v.margin_asset) ? 1 : 0,
+      }),
+    );
   }
 
   // positions
   const positionsRes = await getSwapCrossPositionInfo(credential);
-  const mapProductIdToPerpetualProduct = await firstValueFrom(productService.mapProductIdToProduct$);
-  const positions: IPosition[] = (positionsRes.data || []).map((v): IPosition => {
+  for (const v of positionsRes.data || []) {
     const product_id = encodePath('HTX', 'SWAP', v.contract_code);
-    const theProduct = mapProductIdToPerpetualProduct?.get(product_id);
+    const theProduct = await productCache.query(product_id);
     const valuation = v.volume * v.last_price * (theProduct?.value_scale || 1);
-    return {
+    positions.push({
       position_id: `${product_id}/${v.contract_type}/${v.direction}/${v.margin_mode}`,
       datasource_id: 'HTX',
       product_id,
@@ -33,8 +44,8 @@ export const getSwapAccountInfo = async (credential: ICredential): Promise<IPosi
       closable_price: v.last_price,
       floating_profit: v.profit_unreal,
       valuation,
-    };
-  });
+    });
+  }
 
   return positions;
 };

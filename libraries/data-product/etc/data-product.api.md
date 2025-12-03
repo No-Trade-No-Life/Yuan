@@ -10,6 +10,9 @@ import { Observable } from 'rxjs';
 import { Terminal } from '@yuants/protocol';
 
 // @public
+export const createClientProductCache: (terminal: Terminal, options?: IProductCacheOptions) => ICache<IProduct>;
+
+// @public
 export const createProductCache: (terminal: Terminal, options?: IProductCacheOptions) => ICache<IProduct>;
 
 // @public (undocumented)
@@ -73,6 +76,7 @@ export interface IQueryProductsService {
 export function provideQueryProductsService(terminal: Terminal, datasource_id: string, queryProduct: (req: IQueryProductsRequest) => Promise<IProduct[]>, options?: {
     serviceOptions?: IServiceOptions;
     auto_refresh_interval?: number;
+    dispose$?: Observable<void>;
 }): IQueryProductsService;
 
 // (No @packageDocumentation comment for this package)

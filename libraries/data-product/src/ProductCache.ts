@@ -46,3 +46,24 @@ export const createProductCache = (terminal: Terminal, options?: IProductCacheOp
     },
     { expire: options?.expire ?? 3600 * 1000 },
   );
+
+/**
+ * Create a client-side product cache.
+ *
+ * @public
+ */
+export const createClientProductCache = (
+  terminal: Terminal,
+  options?: IProductCacheOptions,
+): ICache<IProduct> =>
+  createCache<IProduct>(
+    async (product_id, _force_update) => {
+      // TODO: Add datasource_id
+      const [data] = await requestSQL<IProduct[]>(
+        terminal,
+        `select * from product where product_id=${escapeSQL(product_id)}`,
+      );
+      return data;
+    },
+    { expire: options?.expire ?? 3600 * 1000 },
+  );

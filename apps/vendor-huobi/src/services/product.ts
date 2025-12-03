@@ -1,4 +1,4 @@
-import { IProduct, provideQueryProductsService } from '@yuants/data-product';
+import { createProductCache, IProduct } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
 import { getPerpetualContractSymbols, getSpotSymbols, getSwapCrossLadderMargin } from '../api/public-api';
@@ -87,6 +87,4 @@ export const listProducts = async (): Promise<IProduct[]> => {
   return [...swapProducts, ...spotProducts];
 };
 
-export const productService = provideQueryProductsService(terminal, 'HTX', listProducts, {
-  auto_refresh_interval: 3600_000,
-});
+export const productCache = createProductCache(terminal);

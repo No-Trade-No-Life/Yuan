@@ -2,6 +2,31 @@
   "name": "@yuants/app-virtual-exchange",
   "entries": [
     {
+      "version": "0.5.0",
+      "tag": "@yuants/app-virtual-exchange_v0.5.0",
+      "date": "Wed, 03 Dec 2025 10:25:12 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "auto pull all products"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.5.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.2.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.2",
       "tag": "@yuants/app-virtual-exchange_v0.4.2",
       "date": "Tue, 02 Dec 2025 14:00:52 GMT",
