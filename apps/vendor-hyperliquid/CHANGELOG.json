@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-hyperliquid",
   "entries": [
     {
+      "version": "0.7.5",
+      "tag": "@yuants/vendor-hyperliquid_v0.7.5",
+      "date": "Wed, 03 Dec 2025 12:57:13 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "更新账户信息处理，增加USDC头寸支持及API健壮性改进"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.7.4",
       "tag": "@yuants/vendor-hyperliquid_v0.7.4",
       "date": "Wed, 03 Dec 2025 10:25:12 GMT",
