@@ -9,11 +9,41 @@ type ApiResponse<T> = {
 
 export interface IMixMarketContract {
   symbol: string;
-  productType: string;
   baseCoin: string;
   quoteCoin: string;
+  buyLimitPriceRatio: string;
+  sellLimitPriceRatio: string;
+  feeRateUpRatio: string;
+  makerFeeRate: string;
+  takerFeeRate: string;
+  openCostUpRatio: string;
+  supportMarginCoins: string[];
+  minTradeNum: string;
+  priceEndStep: string;
+  volumePlace: string;
   pricePlace: string;
   sizeMultiplier: string;
+  symbolType: string;
+  minTradeUSDT: string;
+  maxSymbolOrderNum: string;
+  maxProductOrderNum: string;
+  maxPositionNum: string;
+  symbolStatus: string;
+  offTime: string;
+  limitOpenTime: string;
+  deliveryTime: string;
+  deliveryStartTime: string;
+  deliveryPeriod: string;
+  launchTime: string;
+  fundInterval: string;
+  minLever: string;
+  maxLever: string;
+  posLimit: string;
+  maintainTime: string;
+  openTime: string;
+  maxMarketOrderQty: string;
+  maxOrderQty: string;
+  isRwa: string;
 }
 
 export interface IMixMarketSymbol {

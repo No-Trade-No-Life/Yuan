@@ -1,8 +1,11 @@
 import { IPosition } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
-import { IProduct } from '@yuants/data-product';
+import { createClientProductCache, IProduct } from '@yuants/data-product';
+import { IQuote } from '@yuants/data-quote';
 import { IResponse, Terminal } from '@yuants/protocol';
+import { escapeSQL, requestSQL } from '@yuants/sql';
 import { JSONSchema7 } from 'json-schema';
+import { createCache } from '../../cache/lib';
 
 /**
  * Exchange Interface
@@ -106,6 +109,17 @@ const makeCredentialSchema = (type: string, payloadSchema: JSONSchema7): JSONSch
 export const provideExchangeServices = <T>(terminal: Terminal, exchange: IExchange<T>) => {
   const { name: type, credentialSchema } = exchange;
 
+  const quoteCache = createCache<IQuote>(
+    async (product_id) => {
+      const sql = `select * from quote where product_id = ${escapeSQL(product_id)}`;
+      const [quote] = await requestSQL<IQuote[]>(terminal, sql);
+      return quote;
+    },
+    { expire: 30_000 },
+  );
+
+  const productCache = createClientProductCache(terminal, { expire: 3600_000 });
+
   // GetCredentialId
   terminal.server.provideService<{ credential: { type: string; payload: T } }, string>(
     'GetCredentialId',
@@ -161,6 +175,34 @@ export const provideExchangeServices = <T>(terminal: Terminal, exchange: IExchan
         return { res: { code: 0, message: 'OK', data: positions } };
       }
       const positions = await exchange.getPositions(msg.req.credential.payload);
+      for (const pos of positions) {
+        const [theProduct, quote] = await Promise.all([
+          productCache.query(pos.product_id),
+          quoteCache.query(pos.product_id),
+        ]);
+
+        // 估值 = value_scale * volume * closable_price
+        if (theProduct) {
+          pos.valuation = Math.abs((theProduct.value_scale || 1) * pos.volume * pos.closable_price);
+        }
+
+        // 利率相关信息的追加
+        if (quote) {
+          if (quote.interest_rate_next_settled_at !== null) {
+            pos.settlement_scheduled_at = new Date(quote.interest_rate_next_settled_at).getTime();
+          }
+          if (pos.direction === 'LONG') {
+            if (quote.interest_rate_long !== null) {
+              pos.interest_to_settle = +quote.interest_rate_long * pos.valuation;
+            }
+          }
+          if (pos.direction === 'SHORT') {
+            if (quote.interest_rate_short !== null) {
+              pos.interest_to_settle = +quote.interest_rate_short * pos.valuation;
+            }
+          }
+        }
+      }
       return { res: { code: 0, message: 'OK', data: positions } };
     },
   );

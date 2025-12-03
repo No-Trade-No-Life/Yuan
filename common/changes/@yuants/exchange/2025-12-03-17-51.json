@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/exchange",
+      "comment": "uniform valuation and interest",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/exchange"
+}
