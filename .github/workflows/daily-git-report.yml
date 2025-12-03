@@ -63,25 +63,7 @@ jobs:
 
       - name: Generate report with Claude Code
         id: generate_report
-        uses: anthropics/claude-code-action@v1
-        with:
-          prompt: |
-            请使用 git-changes-reporter skill 生成 Git 变更报告。
-
-            任务信息：
-            - 起始提交: ${{ steps.commit_range.outputs.old_commit }}
-            - 结束提交: ${{ steps.commit_range.outputs.new_commit }}
-            - 提交范围: ${{ steps.commit_range.outputs.old_commit_short }}..${{ steps.commit_range.outputs.new_commit_short }}
-            - 提交数量: ${{ steps.commit_range.outputs.commit_count }}
-            - 输出文件: docs/reports/git-changes-report-$(date +%Y-%m-%d).md
-
-            请严格按照 git-changes-reporter skill 的所有规则生成报告，特别是：
-            1. 必须使用短哈希引用提交，不要使用 JSON 文件行号
-            2. 按技术领域进行语义聚类
-            3. 包含完整的报告结构
-            4. 提供具体的文件引用和代码位置
-
-            请先生成 JSON 数据，然后基于 JSON 数据生成语义化报告。
+        uses: anthropics/claude-code-base-action@beta
         env:
           ANTHROPIC_AUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
           ANTHROPIC_BASE_URL: 'https://api.deepseek.com/anthropic'
@@ -90,6 +72,24 @@ jobs:
           API_TIMEOUT_MS: '600000'
           CLAUDE_CODE_MAX_OUTPUT_TOKENS: '32000'
           CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1'
+        with:
+          allowed_tools: 'Bash(git:*),View,GlobTool,GrepTool,BatchTool'
+          prompt: |
+            使用 git-changes-reporter skill 生成每日 Git 变更报告，并将结果保存为 Markdown 文件。
+
+            - 起始提交: ${{ steps.commit_range.outputs.old_commit }}
+            - 结束提交: ${{ steps.commit_range.outputs.new_commit }}
+            - 提交范围: ${{ steps.commit_range.outputs.old_commit_short }}..${{ steps.commit_range.outputs.new_commit_short }}
+            - 提交数量: ${{ steps.commit_range.outputs.commit_count }}
+            - JSON 数据文件: ${{ steps.generate_json.outputs.json_file }}
+            - 输出文件: docs/reports/git-changes-report-${{ steps.report_date.outputs.value }}.md
+            - 技能文档路径: .claude/skills/git-changes-reporter/SKILL.md
+
+            要求：
+            1) 读取上述 JSON 数据，并严格按照 git-changes-reporter skill 的规则生成报告。
+            2) 必须使用短哈希引用提交，绝对不要使用 JSON 行号。
+            3) 按技能文档的语义聚类和报告结构输出，包含具体文件引用和代码位置。
+            4) 将最终 Markdown 报告写入指定输出文件。
 
       - name: Check if report was generated
         id: check_report
