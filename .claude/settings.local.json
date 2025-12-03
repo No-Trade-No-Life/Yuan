@@ -21,7 +21,7 @@
       "Bash(DEEPSEEK_API_KEY=\"test_key\" node .claude/skills/git-changes-reporter/scripts/deepseek-skill-runner.js:*)",
       "Bash(node .claude/skills/git-changes-reporter/scripts/deepseek-skill-runner.js:*)",
       "Bash(npm install:*)",
-      "Bash(DEEPSEEK_API_KEY=\"sk-ad8dbd8290df4270a70fa223ef6e6b56\" node:*)"
+      "Bash(DEEPSEEK_API_KEY=\"$DEEPSEEK_API_KEY\" node:*)"
     ],
     "deny": [],
     "ask": []
