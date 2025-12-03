@@ -73,6 +73,7 @@ jobs:
           CLAUDE_CODE_MAX_OUTPUT_TOKENS: '32000'
           CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1'
         with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           allowed_tools: 'Bash(git:*),View,GlobTool,GrepTool,BatchTool'
           prompt: |
             使用 git-changes-reporter skill 生成每日 Git 变更报告，并将结果保存为 Markdown 文件。
