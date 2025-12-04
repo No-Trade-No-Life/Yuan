@@ -101,6 +101,17 @@
 
 > 仅记录已结束的会话;进行中的内容放在第 11 节,收尾后再搬运;最新记录置顶。
 
+### 2025-12-04 — Codex
+
+- **本轮摘要**：
+  - quote 的 open interest 与 margin 利率请求按 `exchangeInfo.rateLimits` 计算的间隔串行发送，并设置默认间隔（Futures 500ms、Spot/Margin 200ms），避免瞬时请求过快导致 IP 被封。
+  - `margin/allPairs` 返回非数组或 4xx 时降级为空数组并记录日志，防止 quote pipeline 由于不可迭代输入崩溃。
+  - 串行请求的节流改为使用 RxJS `timer` + `concatMap`，不再使用 `await wait`。
+- **修改的文件**：
+  - `apps/vendor-binance/src/public-data/quote.ts`
+- **运行的测试 / 检查**：
+  - `./node_modules/.bin/tsc --noEmit --project apps/vendor-binance/tsconfig.json`
+
 ### 2025-11-25 — Antigravity
 
 - **本轮摘要**:
