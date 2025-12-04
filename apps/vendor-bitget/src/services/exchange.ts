@@ -4,9 +4,8 @@ import { provideExchangeServices } from '@yuants/exchange';
 import { Terminal } from '@yuants/protocol';
 import { decodePath } from '@yuants/utils';
 import { ICredential } from '../api/types';
-import { getFuturesAccountInfo as getFuturesPositions } from './accounts/futures';
 import { resolveAccountProfile } from './accounts/profile';
-import { getSpotAccountInfo as getSpotPositions } from './accounts/spot';
+import { getAccountInfo } from './accounts/account';
 import { listProducts } from './markets/product';
 import { cancelOrder } from './orders/cancelOrder';
 import { listFuturesOrders, listSpotOrders } from './orders/listOrders';
@@ -34,12 +33,7 @@ provideExchangeServices<ICredential>(terminal, {
   getCredentialId,
   listProducts,
   getPositions: async function (credential: ICredential): Promise<IPosition[]> {
-    const profile = await resolveAccountProfile(credential);
-    const [futuresPositions, spotPositions] = await Promise.all([
-      getFuturesPositions(credential),
-      getSpotPositions(credential),
-    ]);
-    return [...futuresPositions, ...spotPositions];
+    return getAccountInfo(credential);
   },
   getOrders: async function (credential: ICredential): Promise<IOrder[]> {
     const [futuresOrders, spotOrders] = await Promise.all([
@@ -53,16 +47,8 @@ provideExchangeServices<ICredential>(terminal, {
     product_id: string,
   ): Promise<IPosition[]> {
     const [_, instType] = decodePath(product_id); // BITGET/USDT-FUTURES/BTCUSDT
-    const profile = await resolveAccountProfile(credential);
-    if (instType === 'SPOT') {
-      const positions = await getSpotPositions(credential);
-      return positions.filter((position) => position.product_id === product_id);
-    }
-    if (instType === 'USDT-FUTURES') {
-      const positions = await getFuturesPositions(credential);
-      return positions.filter((position) => position.product_id === product_id);
-    }
-    throw new Error(`Unsupported instType: ${instType}`);
+    const positions = await getAccountInfo(credential);
+    return positions.filter((position) => position.product_id === product_id);
   },
   getOrdersByProductId: async function (credential: ICredential, product_id: string): Promise<IOrder[]> {
     const [_, instType] = decodePath(product_id); // BITGET/USDT-FUTURES/BTCUSDT

@@ -91,6 +91,7 @@
 
 - commit `b00e9aa7` 已完成 Bitget 模块化重构，后续改动必须保持 `account/order/public-data/transfer` 的分层，并同步更新 README、package docs 与 `SESSION_NOTES`。
 - Credential-aware Submit/Cancel、TRC20 提现和子账户调拨仍缺少 E2E/脚本验证；下一轮工作优先补齐测试和 checklist 验证。
+- UTA v3 API 已替换旧 spot/margin/futures v2 接口，所有新增/维护需使用 `src/api/private-api.ts` 与 `src/api/public-api.ts` 的 UTA 端点，避免回退旧版。
 
 ### 3.3 临时 / 一次性指令
 
