@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-bitget
 
-This log was last generated on Thu, 04 Dec 2025 06:30:10 GMT and should not be manually modified.
+This log was last generated on Thu, 04 Dec 2025 10:36:34 GMT and should not be manually modified.
+
+## 0.11.1
+Thu, 04 Dec 2025 10:36:34 GMT
+
+### Patches
+
+- fix product of spot
 
 ## 0.11.0
 Thu, 04 Dec 2025 06:30:10 GMT

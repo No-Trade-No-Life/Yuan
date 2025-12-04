@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-binance
 
-This log was last generated on Wed, 03 Dec 2025 18:20:00 GMT and should not be manually modified.
+This log was last generated on Thu, 04 Dec 2025 10:36:34 GMT and should not be manually modified.
+
+## 0.10.10
+Thu, 04 Dec 2025 10:36:34 GMT
+
+### Patches
+
+- add request interval to binance
 
 ## 0.10.9
 Wed, 03 Dec 2025 18:20:00 GMT
