@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Thu, 04 Dec 2025 10:36:34 GMT and should not be manually modified.
+This log was last generated on Thu, 04 Dec 2025 16:51:07 GMT and should not be manually modified.
+
+## 0.28.4
+Thu, 04 Dec 2025 16:51:07 GMT
+
+### Patches
+
+- remove series_collector_task writer
 
 ## 0.28.3
 Thu, 04 Dec 2025 10:36:34 GMT

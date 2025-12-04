@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-hyperliquid
 
-This log was last generated on Wed, 03 Dec 2025 18:20:00 GMT and should not be manually modified.
+This log was last generated on Thu, 04 Dec 2025 16:51:07 GMT and should not be manually modified.
+
+## 0.7.8
+Thu, 04 Dec 2025 16:51:07 GMT
+
+### Patches
+
+- remove series_collector_task writer
 
 ## 0.7.7
 Wed, 03 Dec 2025 18:20:00 GMT
