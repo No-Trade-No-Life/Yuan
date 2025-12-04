@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-turboflow",
   "entries": [
     {
+      "version": "1.2.9",
+      "tag": "@yuants/vendor-turboflow_v1.2.9",
+      "date": "Thu, 04 Dec 2025 03:10:55 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix close position"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "1.2.8",
       "tag": "@yuants/vendor-turboflow_v1.2.8",
       "date": "Wed, 03 Dec 2025 18:20:00 GMT",
