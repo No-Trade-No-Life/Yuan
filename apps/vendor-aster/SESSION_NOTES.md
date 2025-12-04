@@ -112,6 +112,17 @@
 
 ## 6. 最近几轮工作记录（Recent Sessions）
 
+### 2025-12-04 — Codex
+
+- **本轮摘要**：
+  - quote 服务按 `exchangeInfo` 的限频信息（若缺失则用默认 500ms）推算请求间隔，串行查询 open interest，避免过快轮询导致封禁。
+  - ticker 与 open interest 通过 `groupBy + scan` 合并，持续输出同一 product 的增量字段；exchangeInfo 类型增加可选 `rateLimits`。
+- **修改的文件**：
+  - `apps/vendor-aster/src/api/public-api.ts`
+  - `apps/vendor-aster/src/services/markets/quote.ts`
+- **运行的测试 / 检查**：
+  - `./node_modules/.bin/tsc --noEmit --project apps/vendor-aster/tsconfig.json`
+
 ### 2025-11-19 — GitHub Copilot
 
 - **本轮摘要**：
