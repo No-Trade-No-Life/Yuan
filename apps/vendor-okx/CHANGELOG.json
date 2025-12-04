@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.28.3",
+      "tag": "@yuants/vendor-okx_v0.28.3",
+      "date": "Thu, 04 Dec 2025 10:36:34 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix interest rate"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.28.2",
       "tag": "@yuants/vendor-okx_v0.28.2",
       "date": "Wed, 03 Dec 2025 18:20:00 GMT",
