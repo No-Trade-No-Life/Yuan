@@ -49,30 +49,37 @@ export const getFApiV1FundingRate = createApi<
   }[]
 >('GET', '/fapi/v1/fundingRate');
 
+export interface IAsterRateLimit {
+  rateLimitType?: string;
+  interval?: string;
+  intervalNum?: number;
+  limit?: number;
+}
+
+export interface IAsterExchangeInfo {
+  symbols: {
+    symbol: string;
+    status: 'TRADING' | 'BREAK' | 'HALT';
+    baseAsset: string;
+    quoteAsset: string;
+    pricePrecision: number;
+    quantityPrecision: number;
+    baseAssetPrecision: number;
+    quotePrecision: number;
+    filters: {
+      filterType: string;
+      [key: string]: any;
+    }[];
+  }[];
+  rateLimits?: IAsterRateLimit[];
+}
+
 /**
  * 获取交易对信息
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#%E4%BA%A4%E6%98%93%E5%AF%B9%E4%BF%A1%E6%81%AF
  */
-export const getFApiV1ExchangeInfo = createApi<
-  {},
-  {
-    symbols: {
-      symbol: string;
-      status: 'TRADING' | 'BREAK' | 'HALT';
-      baseAsset: string;
-      quoteAsset: string;
-      pricePrecision: number;
-      quantityPrecision: number;
-      baseAssetPrecision: number;
-      quotePrecision: number;
-      filters: {
-        filterType: string;
-        [key: string]: any;
-      }[];
-    }[];
-  }
->('GET', '/fapi/v1/exchangeInfo');
+export const getFApiV1ExchangeInfo = createApi<{}, IAsterExchangeInfo>('GET', '/fapi/v1/exchangeInfo');
 
 /**
  * 获取未平仓合约数量
