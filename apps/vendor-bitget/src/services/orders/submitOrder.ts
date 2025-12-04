@@ -6,6 +6,7 @@ import { mapOrderDirectionToSide } from './order-utils';
 
 export const submitOrder = async (credential: ICredential, order: IOrder) => {
   const [datasource_id, instType, instId] = decodePath(order.product_id);
+  const isMaker = order.order_type === 'MAKER';
 
   if (instType === 'USDT-FUTURES') {
     const res = await postPlaceOrder(credential, {
@@ -14,9 +15,10 @@ export const submitOrder = async (credential: ICredential, order: IOrder) => {
       qty: '' + order.volume,
       price: order.price !== undefined ? '' + order.price : undefined,
       side: mapOrderDirectionToSide(order.order_direction),
-      orderType: order.order_type === 'LIMIT' ? 'limit' : 'market',
+      orderType: order.order_type === 'LIMIT' || isMaker ? 'limit' : 'market',
+      timeInForce: isMaker ? 'post_only' : undefined,
       posSide: order.order_direction?.includes('LONG') ? 'long' : 'short',
-      reduceOnly: order.order_direction?.startsWith('CLOSE') ? 'yes' : 'no',
+      // UTA error 25238: posSide and reduceOnly cannot be used together; hedge mode relies on posSide+side.
     });
     if (res.msg !== 'success') {
       throw new Error(`Bitget submit future order failed: ${res.code} ${res.msg}`);
@@ -30,6 +32,7 @@ export const submitOrder = async (credential: ICredential, order: IOrder) => {
       symbol: instId,
       side: mapOrderDirectionToSide(order.order_direction),
       orderType: order.order_type === 'MARKET' ? 'market' : 'limit',
+      timeInForceValue: isMaker ? 'post_only' : undefined,
       price: order.price !== undefined ? '' + order.price : undefined,
       qty: order.volume?.toString() ?? '0',
       clientOid: (order as any).client_order_id,

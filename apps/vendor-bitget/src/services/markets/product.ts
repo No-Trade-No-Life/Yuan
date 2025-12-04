@@ -1,11 +1,6 @@
 import { IProduct } from '@yuants/data-product';
-import { Terminal } from '@yuants/protocol';
-import { createSQLWriter } from '@yuants/sql';
-import { encodePath, formatTime } from '@yuants/utils';
-import { Subject, defer, repeat, retry, shareReplay, tap } from 'rxjs';
+import { encodePath } from '@yuants/utils';
 import { IUtaInstrument, getInstruments } from '../../api/public-api';
-
-const product$ = new Subject<IProduct>();
 
 // product
 export const listProducts = async (): Promise<IProduct[]> => {
@@ -18,6 +13,10 @@ export const listProducts = async (): Promise<IProduct[]> => {
   const coinFuturesProductRes = await getInstruments({ category: 'COIN-FUTURES' });
   if (coinFuturesProductRes.msg !== 'success') {
     throw new Error(coinFuturesProductRes.msg);
+  }
+  const spotProductRes = await getInstruments({ category: 'SPOT' });
+  if (spotProductRes.msg !== 'success') {
+    throw new Error(spotProductRes.msg);
   }
   const usdtFutures = usdtFuturesProductRes.data.map(
     (product: IUtaInstrument): IProduct => ({
@@ -68,28 +67,30 @@ export const listProducts = async (): Promise<IProduct[]> => {
     }),
   );
 
-  return [...usdtFutures, ...coinFutures];
+  const spots = spotProductRes.data.map(
+    (product: IUtaInstrument): IProduct => ({
+      product_id: encodePath('BITGET', 'SPOT', product.symbol),
+      datasource_id: 'BITGET',
+      quote_currency: product.quoteCoin,
+      base_currency: product.baseCoin,
+      price_step: Number(`1e-${product.pricePrecision}`),
+      volume_step: product.quantityMultiplier
+        ? +product.quantityMultiplier
+        : Number(`1e-${product.quantityPrecision}`),
+      name: '',
+      value_scale: 1,
+      value_scale_unit: '',
+      margin_rate: 0,
+      value_based_cost: 0,
+      volume_based_cost: 0,
+      max_position: 0,
+      max_volume: 0,
+      allow_long: true,
+      allow_short: false,
+      market_id: 'BITGET/SPOT',
+      no_interest_rate: false,
+    }),
+  );
+
+  return [...usdtFutures, ...coinFutures, ...spots];
 };
-
-const futureProducts$ = defer(listProducts).pipe(
-  tap((list) => {
-    list.forEach((product) => product$.next(product));
-  }),
-  tap({
-    error: (e) => {
-      console.error(formatTime(Date.now()), 'FuturesProducts', e);
-    },
-  }),
-  retry({ delay: 5000 }),
-  repeat({ delay: 86400_000 }),
-  shareReplay(1),
-);
-
-createSQLWriter<IProduct>(Terminal.fromNodeEnv(), {
-  data$: product$,
-  tableName: 'product',
-  conflictKeys: ['datasource_id', 'product_id'],
-  writeInterval: 1000,
-});
-
-futureProducts$.subscribe();

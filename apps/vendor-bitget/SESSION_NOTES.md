@@ -99,6 +99,17 @@
 
 > 仅记录已结束的会话；进行中的内容放在第 11 节，收尾后再搬运；最新记录置顶。
 
+### 2025-12-04 — Codex
+
+- **本轮摘要**：
+  - product 服务新增对 SPOT 产品的获取与写库，`listProducts` 现在返回 futures + spot 并定期写入 `product` 表。
+  - 账户服务合并 futures/spot，统一通过 `getAccountAssets` + `getCurrentPosition` 获取资产与持仓，并用 SPOT tickers 估算 `closable_price`。
+  - 修正 UTA 下单参数：去除 futures 下单的 `reduceOnly`，避免与 `posSide` 并存触发 25238 错误。
+  - 支持下单 Post-only（MAKER）：当 `order_type === 'MAKER'` 时传 `timeInForce: post_only`。
+- **运行的测试 / 检查**：
+  - 命令：`npx -y typescript@5.6.3 --noEmit --project apps/vendor-bitget/tsconfig.json`
+  - 结果：失败（npm 报错 could not determine executable to run；本地未能通过 npx 拉起 tsc）
+
 ### 2025-12-09 — Codex
 
 - **本轮摘要**：
