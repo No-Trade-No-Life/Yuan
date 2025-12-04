@@ -1,46 +1,10 @@
 import { IInterestRate } from '@yuants/data-interest-rate';
-import { createSeriesProvider, ISeriesCollectingTask } from '@yuants/data-series';
+import { createSeriesProvider } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
-import { createSQLWriter } from '@yuants/sql';
-import { decodePath, encodePath, formatTime } from '@yuants/utils';
-import { defer, map, mergeAll, repeat, retry, shareReplay, tap } from 'rxjs';
-import { getHistoricalFundingRates, getPerpetualsMetaData } from '../../api/public-api';
+import { decodePath, formatTime } from '@yuants/utils';
+import { getHistoricalFundingRates } from '../../api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
-
-const perpetualProducts$ = defer(async () => {
-  const meta = await getPerpetualsMetaData();
-  return meta.universe.map((product) => ({
-    product_id: encodePath('HYPERLIQUID', 'PERPETUAL', `${product.name}-USD`),
-    datasource_id: 'HYPERLIQUID',
-    no_interest_rate: false,
-  }));
-}).pipe(
-  tap({ error: (err) => console.error(formatTime(Date.now()), 'PerpetualProductFetchFailed', err) }),
-  retry({ delay: 10_000 }),
-  repeat({ delay: 3600_000 }),
-  shareReplay({ bufferSize: 1, refCount: true }),
-);
-
-createSQLWriter<ISeriesCollectingTask>(terminal, {
-  data$: perpetualProducts$.pipe(
-    map((products) => products.filter((product) => product.no_interest_rate === false)),
-    mergeAll(),
-    map(
-      (product): ISeriesCollectingTask => ({
-        series_id: product.product_id,
-        table_name: 'interest_rate',
-        cron_pattern: '0 * * * *',
-        cron_timezone: 'UTC',
-        disabled: false,
-        replay_count: 0,
-      }),
-    ),
-  ),
-  tableName: 'series_collecting_task',
-  writeInterval: 1000,
-  conflictKeys: ['series_id', 'table_name'],
-});
 
 createSeriesProvider<IInterestRate>(terminal, {
   tableName: 'interest_rate',
