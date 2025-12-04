@@ -1,5 +1,5 @@
 import { IOrder } from '@yuants/data-order';
-import { decodePath, newError } from '@yuants/utils';
+import { decodePath, newError, roundToStep } from '@yuants/utils';
 import { ICredential, submitOrder as submitOrderApi } from '../../api/private-api';
 
 export const submitOrder = async (credential: ICredential, order: IOrder): Promise<{ order_id: string }> => {
@@ -47,7 +47,8 @@ export const submitOrder = async (credential: ICredential, order: IOrder): Promi
   const leverage = order.volume > 100 ? 100 : Math.floor(order.volume);
   // 开仓时，保证金不得低于 1 USDC
   const vol = order.order_direction.includes('OPEN') ? order.volume / leverage : undefined; // usdc 保证金数量
-  const size = order.order_direction.includes('CLOSE') ? order.volume.toString() : undefined; // 头寸名义价值
+  // 平仓时，剩余小于 1 USDC 时会自动平仓
+  const size = order.order_direction.includes('CLOSE') ? Math.floor(order.volume).toString() : undefined; // 头寸名义价值
 
   const response = await submitOrderApi(credential, {
     request_id: Date.now(),

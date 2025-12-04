@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-turboflow",
+      "comment": "fix close position",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-turboflow"
+}
