@@ -88,7 +88,7 @@ export const listProducts = async (): Promise<IProduct[]> => {
       allow_long: true,
       allow_short: false,
       market_id: 'BITGET/SPOT',
-      no_interest_rate: false,
+      no_interest_rate: true,
     }),
   );
 
