@@ -32,7 +32,7 @@ export const submitOrder = async (credential: ICredential, order: IOrder) => {
       symbol: instId,
       side: mapOrderDirectionToSide(order.order_direction),
       orderType: order.order_type === 'MARKET' ? 'market' : 'limit',
-      timeInForceValue: isMaker ? 'post_only' : undefined,
+      timeInForce: isMaker ? 'post_only' : undefined,
       price: order.price !== undefined ? '' + order.price : undefined,
       qty: order.volume?.toString() ?? '0',
       clientOid: (order as any).client_order_id,
