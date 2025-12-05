@@ -26,8 +26,14 @@ import {
   tap,
   toArray,
 } from 'rxjs';
-import { getInstruments, getMarketTickers, getOpenInterest, getPositionTiers } from '../api/public-api';
-import { useFundingRate, useOpenInterest, useTicker } from '../ws';
+import {
+  getFundingRate,
+  getInstruments,
+  getMarketTickers,
+  getOpenInterest,
+  getPositionTiers,
+} from '../api/public-api';
+import { useOpenInterest, useTicker } from '../ws';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -191,23 +197,23 @@ const openInterestOfSwapFromWS$ = swapInstruments$.pipe(
   share(),
 );
 
-const interestRateOfSwapFromWS$ = swapInstruments$.pipe(
-  listWatch(
-    (x) => x.instId,
-    (x) => useFundingRate(x.instId),
-    () => true,
-  ),
-  map(
-    (x): Partial<IQuote> => ({
-      datasource_id: 'OKX',
-      product_id: encodePath('OKX', 'SWAP', x[0].instId),
-      interest_rate_long: `${-+x[0].fundingRate}`,
-      interest_rate_short: x[0].fundingRate,
-      interest_rate_next_settled_at: x[0].fundingTime,
-    }),
-  ),
-  share(),
-);
+// const interestRateOfSwapFromWS$ = swapInstruments$.pipe(
+//   listWatch(
+//     (x) => x.instId,
+//     (x) => useFundingRate(x.instId),
+//     () => true,
+//   ),
+//   map(
+//     (x): Partial<IQuote> => ({
+//       datasource_id: 'OKX',
+//       product_id: encodePath('OKX', 'SWAP', x[0].instId),
+//       interest_rate_long: `-${x[0].fundingRate}`,
+//       interest_rate_short: x[0].fundingRate,
+//       interest_rate_next_settled_at: x[0].fundingTime,
+//     }),
+//   ),
+//   share(),
+// );
 
 type PositionTiersResponse = Awaited<ReturnType<typeof getPositionTiers>>;
 type PositionTiersEntry = PositionTiersResponse['data'];
@@ -310,6 +316,27 @@ const marginOpenInterest$ = spotInstIds$.pipe(
   share(),
 );
 
+const fundingRate$ = defer(() => getFundingRate({ instId: 'ANY' })).pipe(
+  map((data) => data.data),
+  repeat({ delay: 50_000 }),
+  retry({ delay: 5000 }),
+  shareReplay({ bufferSize: 1, refCount: true }),
+);
+
+// Convert funding rate data to quote format
+const interestRateOfSwap$ = fundingRate$.pipe(
+  mergeMap((premiumDataArray) => premiumDataArray),
+  map(
+    (premiumData): Partial<IQuote> => ({
+      datasource_id: 'OKX',
+      product_id: encodePath('OKX', 'SWAP', premiumData.instId),
+      interest_rate_long: premiumData.fundingRate ? `${-+premiumData.fundingRate}` : undefined,
+      interest_rate_short: premiumData.fundingRate,
+      interest_rate_next_settled_at: premiumData.fundingTime,
+    }),
+  ),
+);
+
 marginOpenInterest$.subscribe();
 
 const quoteSources$ = [
@@ -319,7 +346,7 @@ const quoteSources$ = [
   quoteOfSpotAndMarginFromWs$,
   quoteOfSpotAndMarginFromRest$,
   marginOpenInterest$,
-  interestRateOfSwapFromWS$,
+  interestRateOfSwap$,
 ];
 
 const quote$ = defer(() =>
