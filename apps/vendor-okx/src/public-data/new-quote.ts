@@ -337,8 +337,6 @@ const interestRateOfSwap$ = fundingRate$.pipe(
   ),
 );
 
-marginOpenInterest$.subscribe();
-
 const quoteSources$ = [
   quoteOfSwapFromWs$,
   openInterestOfSwapFromWS$,
