@@ -6,7 +6,7 @@ import { productService } from '../public-data/product';
 import { spotMarketTickers$ } from '../public-data/quote';
 
 export const modifyOrder = async (credential: ICredential, order: IOrder) => {
-  const [instType, instId] = decodePath(order.product_id);
+  const [instType, instId] = decodePath(order.product_id).slice(-2);
   const params: {
     instId: string;
     ordId: string;

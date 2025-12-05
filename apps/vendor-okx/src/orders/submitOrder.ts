@@ -42,7 +42,7 @@ const mapOrderTypeToOrdType = (order_type?: string) => {
 };
 
 export const submitOrder = async (credential: ICredential, order: IOrder): Promise<{ order_id: string }> => {
-  const [instType, instId] = decodePath(order.product_id);
+  const [instType, instId] = decodePath(order.product_id).slice(-2);
 
   // 交易数量，表示要购买或者出售的数量。
   // 当币币/币币杠杆以限价买入和卖出时，指交易货币数量。
@@ -115,7 +115,7 @@ export const submitOrder = async (credential: ICredential, order: IOrder): Promi
         : undefined,
     px: order.order_type === 'LIMIT' || order.order_type === 'MAKER' ? order.price!.toString() : undefined,
     ccy: instType === 'MARGIN' ? 'USDT' : undefined,
-    tag: process.env.BROKER_TAG,
+    tag: process.env.BROKER_CODE,
   };
   console.info(formatTime(Date.now()), 'SubmitOrder', 'params', JSON.stringify(params));
   const res = await postTradeOrder(credential, params);
