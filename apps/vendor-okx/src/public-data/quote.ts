@@ -27,7 +27,7 @@ import {
   toArray,
 } from 'rxjs';
 import { getInstruments, getMarketTickers, getOpenInterest, getPositionTiers } from '../api/public-api';
-import { useFundingRate, useOpenInterest, useTicker } from '../ws';
+import { useOpenInterest, useTicker } from '../ws';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -191,24 +191,6 @@ const openInterestOfSwapFromWS$ = swapInstruments$.pipe(
   share(),
 );
 
-const interestRateOfSwapFromWS$ = swapInstruments$.pipe(
-  listWatch(
-    (x) => x.instId,
-    (x) => useFundingRate(x.instId),
-    () => true,
-  ),
-  map(
-    (x): Partial<IQuote> => ({
-      datasource_id: 'OKX',
-      product_id: encodePath('SWAP', x[0].instId),
-      interest_rate_long: `-${x[0].fundingRate}`,
-      interest_rate_short: x[0].fundingRate,
-      interest_rate_next_settled_at: x[0].fundingTime,
-    }),
-  ),
-  share(),
-);
-
 type PositionTiersResponse = Awaited<ReturnType<typeof getPositionTiers>>;
 type PositionTiersEntry = PositionTiersResponse['data'];
 
@@ -310,8 +292,6 @@ const marginOpenInterest$ = spotInstIds$.pipe(
   share(),
 );
 
-marginOpenInterest$.subscribe();
-
 const quoteSources$ = [
   quoteOfSwapFromWs$,
   openInterestOfSwapFromWS$,
@@ -319,7 +299,6 @@ const quoteSources$ = [
   quoteOfSpotAndMarginFromWs$,
   quoteOfSpotAndMarginFromRest$,
   marginOpenInterest$,
-  interestRateOfSwapFromWS$,
 ];
 
 const quote$ = defer(() =>
