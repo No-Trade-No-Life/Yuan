@@ -1,6 +1,17 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Thu, 04 Dec 2025 16:51:07 GMT and should not be manually modified.
+This log was last generated on Fri, 05 Dec 2025 05:46:23 GMT and should not be manually modified.
+
+## 0.29.0
+Fri, 05 Dec 2025 05:46:23 GMT
+
+### Minor changes
+
+- add broker tag
+
+### Patches
+
+- add broker tag to algo order
 
 ## 0.28.4
 Thu, 04 Dec 2025 16:51:07 GMT
