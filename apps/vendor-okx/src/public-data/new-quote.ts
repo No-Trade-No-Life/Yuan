@@ -396,11 +396,3 @@ export const swapOpenInterest$ = defer(() => swapOpenInterests$).pipe(
   map((x) => new Map(x.data.map((x) => [x.instId, +x.oi] as const))),
   shareReplay(1),
 );
-
-quote$
-  .pipe(
-    tap((quote) => {
-      console.log(quote);
-    }),
-  )
-  .subscribe();
