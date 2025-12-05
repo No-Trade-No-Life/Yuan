@@ -8,6 +8,7 @@ import {
   combineLatest,
   concatMap,
   defer,
+  exhaustMap,
   filter,
   from,
   groupBy,
@@ -120,7 +121,7 @@ const OPEN_INTEREST_CYCLE_DELAY = process.env.OPEN_INTEREST_CYCLE_DELAY
   : 60_000; // 60 seconds between full cycles
 
 const openInterestRotation$ = combineLatest([symbolList$, requestInterval$]).pipe(
-  mergeMap(([symbols, requestInterval]) =>
+  exhaustMap(([symbols, requestInterval]) =>
     defer(() => {
       console.info(
         `Starting open interest rotation for ${symbols.length} symbols with ${requestInterval}ms interval`,
@@ -141,10 +142,7 @@ const openInterestRotation$ = combineLatest([symbolList$, requestInterval$]).pip
           ),
         ),
       );
-    }).pipe(
-      // After completing one full cycle through all symbols, wait before starting the next cycle
-      repeat({ delay: OPEN_INTEREST_CYCLE_DELAY }),
-    ),
+    }),
   ),
   filter((x) => !!x),
   shareReplay({ bufferSize: 1000, refCount: true }), // Cache open interest for all symbols
