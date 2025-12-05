@@ -61,29 +61,29 @@ const getRequestIntervalMs = (rateLimits: IAsterRateLimit[] | undefined, fallbac
   return Math.max(fallbackMs, Math.max(...intervals));
 };
 
-const openInterestCache = createCache<string>(
-  async (symbol: string) => {
-    try {
-      const data = await getFApiV1OpenInterest({ symbol });
-      return data.openInterest;
-    } catch (error) {
-      console.warn('getFApiV1OpenInterest failed', symbol, error);
-      return undefined;
-    }
-  },
-  { expire: OPEN_INTEREST_TTL },
-);
+// const openInterestCache = createCache<string>(
+//   async (symbol: string) => {
+//     try {
+//       const data = await getFApiV1OpenInterest({ symbol });
+//       return data.openInterest;
+//     } catch (error) {
+//       console.warn('getFApiV1OpenInterest failed', symbol, error);
+//       return undefined;
+//     }
+//   },
+//   { expire: OPEN_INTEREST_TTL },
+// );
 
-const requestInterval$ = defer(() => getFApiV1ExchangeInfo({})).pipe(
-  map((info) => getRequestIntervalMs(info.rateLimits, DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS)),
-  catchError((err) => {
-    console.warn('getFApiV1ExchangeInfo failed when calculating request interval', err);
-    return of(DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS);
-  }),
-  startWith(DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS),
-  retry({ delay: 60_000 }),
-  shareReplay({ bufferSize: 1, refCount: true }),
-);
+// const requestInterval$ = defer(() => getFApiV1ExchangeInfo({})).pipe(
+//   map((info) => getRequestIntervalMs(info.rateLimits, DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS)),
+//   catchError((err) => {
+//     console.warn('getFApiV1ExchangeInfo failed when calculating request interval', err);
+//     return of(DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS);
+//   }),
+//   startWith(DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS),
+//   retry({ delay: 60_000 }),
+//   shareReplay({ bufferSize: 1, refCount: true }),
+// );
 
 const ticker$ = defer(() => getFApiV1TickerPrice({})).pipe(
   map((tickers) => (Array.isArray(tickers) ? tickers : [])),
@@ -106,27 +106,30 @@ const quoteFromTicker$ = ticker$.pipe(
   ),
 );
 
-const quoteFromOpenInterest$ = combineLatest([ticker$, requestInterval$]).pipe(
-  mergeMap(([tickers, requestInterval]) =>
-    from(tickers).pipe(
-      concatMap((ticker, index) =>
-        (index > 0 ? timer(requestInterval) : of(0)).pipe(
-          mergeMap(() => from(openInterestCache.query(ticker.symbol))),
-          map(
-            (openInterest): Partial<IQuote> => ({
-              datasource_id: 'ASTER',
-              product_id: encodePath('ASTER', 'PERP', ticker.symbol),
-              open_interest: `${openInterest ?? 0}`,
-              updated_at: new Date(ticker.time ?? Date.now()).toISOString(),
-            }),
-          ),
-        ),
-      ),
-    ),
-  ),
-);
+// const quoteFromOpenInterest$ = combineLatest([ticker$, requestInterval$]).pipe(
+//   mergeMap(([tickers, requestInterval]) =>
+//     from(tickers).pipe(
+//       concatMap((ticker, index) =>
+//         (index > 0 ? timer(requestInterval) : of(0)).pipe(
+//           mergeMap(() => from(openInterestCache.query(ticker.symbol))),
+//           map(
+//             (openInterest): Partial<IQuote> => ({
+//               datasource_id: 'ASTER',
+//               product_id: encodePath('ASTER', 'PERP', ticker.symbol),
+//               open_interest: `${openInterest ?? 0}`,
+//               updated_at: new Date(ticker.time ?? Date.now()).toISOString(),
+//             }),
+//           ),
+//         ),
+//       ),
+//     ),
+//   ),
+// );
 
-const quote$ = merge(quoteFromTicker$, quoteFromOpenInterest$).pipe(
+const quote$ = merge(
+  quoteFromTicker$,
+  // quoteFromOpenInterest$
+).pipe(
   groupBy((quote) => quote.product_id),
   mergeMap((group$) =>
     group$.pipe(
