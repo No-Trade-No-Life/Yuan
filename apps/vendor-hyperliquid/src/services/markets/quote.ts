@@ -37,6 +37,8 @@ const quote$ = defer(() => getAllMids()).pipe(
       bid_price: `${price}`,
       ask_price: `${price}`,
       open_interest: `${ctx?.openInterest ?? 0}`,
+      interest_rate_long: ctx?.funding ? `-${ctx?.funding}` : undefined,
+      interest_rate_short: ctx?.funding,
       updated_at: new Date().toISOString(),
     };
   }),
