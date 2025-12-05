@@ -332,7 +332,7 @@ const interestRateOfSwap$ = fundingRate$.pipe(
       product_id: encodePath('OKX', 'SWAP', premiumData.instId),
       interest_rate_long: premiumData.fundingRate ? `${-+premiumData.fundingRate}` : undefined,
       interest_rate_short: premiumData.fundingRate,
-      interest_rate_next_settled_at: premiumData.fundingTime,
+      interest_rate_next_settled_at: formatTime(+premiumData.fundingTime),
     }),
   ),
 );
@@ -396,3 +396,11 @@ export const swapOpenInterest$ = defer(() => swapOpenInterests$).pipe(
   map((x) => new Map(x.data.map((x) => [x.instId, +x.oi] as const))),
   shareReplay(1),
 );
+
+quote$
+  .pipe(
+    tap((quote) => {
+      console.log(quote);
+    }),
+  )
+  .subscribe();
