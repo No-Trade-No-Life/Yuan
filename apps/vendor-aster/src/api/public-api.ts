@@ -110,3 +110,33 @@ export const getFApiV1TickerPrice = createApi<
     time?: number;
   }[]
 >('GET', '/fapi/v1/ticker/price');
+
+/**
+ * 获取资金费率
+ * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md
+ */
+export const getFApiV1PremiumIndex = createApi<
+  {
+    symbol?: string;
+  },
+  | {
+      symbol: string; // 交易对
+      markPrice: string; // 标记价格
+      indexPrice: string; // 指数价格
+      estimatedSettlePrice: string; // 预估结算价,仅在交割开始前最后一小时有意义
+      lastFundingRate: string; // 最近更新的资金费率
+      nextFundingTime: number; // 下次资金费时间
+      interestRate: string; // 标的资产基础利率
+      time: number; // 更新时间
+    }
+  | {
+      symbol: string; // 交易对
+      markPrice: string; // 标记价格
+      indexPrice: string; // 指数价格
+      estimatedSettlePrice: string; // 预估结算价,仅在交割开始前最后一小时有意义
+      lastFundingRate: string; // 最近更新的资金费率
+      nextFundingTime: number; // 下次资金费时间
+      interestRate: string; // 标的资产基础利率
+      time: number; // 更新时间
+    }[]
+>('GET', '/fapi/v1/premiumIndex');

@@ -20,11 +20,13 @@ import {
   scan,
   shareReplay,
   startWith,
+  tap,
   timer,
 } from 'rxjs';
 import {
   getFApiV1ExchangeInfo,
   getFApiV1OpenInterest,
+  getFApiV1PremiumIndex,
   getFApiV1TickerPrice,
   IAsterRateLimit,
 } from '../../api/public-api';
@@ -61,29 +63,29 @@ const getRequestIntervalMs = (rateLimits: IAsterRateLimit[] | undefined, fallbac
   return Math.max(fallbackMs, Math.max(...intervals));
 };
 
-// const openInterestCache = createCache<string>(
-//   async (symbol: string) => {
-//     try {
-//       const data = await getFApiV1OpenInterest({ symbol });
-//       return data.openInterest;
-//     } catch (error) {
-//       console.warn('getFApiV1OpenInterest failed', symbol, error);
-//       return undefined;
-//     }
-//   },
-//   { expire: OPEN_INTEREST_TTL },
-// );
+const openInterestCache = createCache<string>(
+  async (symbol: string) => {
+    try {
+      const data = await getFApiV1OpenInterest({ symbol });
+      return data.openInterest;
+    } catch (error) {
+      console.warn('getFApiV1OpenInterest failed', symbol, error);
+      return undefined;
+    }
+  },
+  { expire: OPEN_INTEREST_TTL },
+);
 
-// const requestInterval$ = defer(() => getFApiV1ExchangeInfo({})).pipe(
-//   map((info) => getRequestIntervalMs(info.rateLimits, DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS)),
-//   catchError((err) => {
-//     console.warn('getFApiV1ExchangeInfo failed when calculating request interval', err);
-//     return of(DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS);
-//   }),
-//   startWith(DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS),
-//   retry({ delay: 60_000 }),
-//   shareReplay({ bufferSize: 1, refCount: true }),
-// );
+const requestInterval$ = defer(() => getFApiV1ExchangeInfo({})).pipe(
+  map((info) => getRequestIntervalMs(info.rateLimits, DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS)),
+  catchError((err) => {
+    console.warn('getFApiV1ExchangeInfo failed when calculating request interval', err);
+    return of(DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS);
+  }),
+  startWith(DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS),
+  retry({ delay: 60_000 }),
+  shareReplay({ bufferSize: 1, refCount: true }),
+);
 
 const ticker$ = defer(() => getFApiV1TickerPrice({})).pipe(
   map((tickers) => (Array.isArray(tickers) ? tickers : [])),
@@ -101,35 +103,93 @@ const quoteFromTicker$ = ticker$.pipe(
       last_price: `${ticker.price}`,
       bid_price: `${ticker.price}`,
       ask_price: `${ticker.price}`,
-      updated_at: new Date(ticker.time ?? Date.now()).toISOString(),
     }),
   ),
 );
 
-// const quoteFromOpenInterest$ = combineLatest([ticker$, requestInterval$]).pipe(
-//   mergeMap(([tickers, requestInterval]) =>
-//     from(tickers).pipe(
-//       concatMap((ticker, index) =>
-//         (index > 0 ? timer(requestInterval) : of(0)).pipe(
-//           mergeMap(() => from(openInterestCache.query(ticker.symbol))),
-//           map(
-//             (openInterest): Partial<IQuote> => ({
-//               datasource_id: 'ASTER',
-//               product_id: encodePath('ASTER', 'PERP', ticker.symbol),
-//               open_interest: `${openInterest ?? 0}`,
-//               updated_at: new Date(ticker.time ?? Date.now()).toISOString(),
-//             }),
-//           ),
-//         ),
-//       ),
-//     ),
-//   ),
-// );
+// Extract unique symbols from ticker stream
+const symbolList$ = ticker$.pipe(
+  map((tickers) => tickers.map((t) => t.symbol)),
+  shareReplay({ bufferSize: 1, refCount: true }),
+);
 
-const quote$ = merge(
-  quoteFromTicker$,
-  // quoteFromOpenInterest$
-).pipe(
+// Create a controlled rotation stream for fetching open interest
+// This cycles through all symbols with proper delays, independent of ticker updates
+const OPEN_INTEREST_CYCLE_DELAY = process.env.OPEN_INTEREST_CYCLE_DELAY
+  ? Number(process.env.OPEN_INTEREST_CYCLE_DELAY)
+  : 60_000; // 60 seconds between full cycles
+
+const openInterestRotation$ = combineLatest([symbolList$, requestInterval$]).pipe(
+  mergeMap(([symbols, requestInterval]) =>
+    defer(() => {
+      console.info(
+        `Starting open interest rotation for ${symbols.length} symbols with ${requestInterval}ms interval`,
+      );
+      return from(symbols).pipe(
+        concatMap((symbol, index) =>
+          (index > 0 ? timer(requestInterval) : of(0)).pipe(
+            mergeMap(() => from(openInterestCache.query(symbol))),
+            map((openInterest) => ({
+              symbol,
+              openInterest: openInterest ?? '0',
+              timestamp: Date.now(),
+            })),
+            catchError((err) => {
+              console.warn(`Failed to fetch open interest for ${symbol}:`, err);
+              return of(undefined);
+            }),
+          ),
+        ),
+      );
+    }).pipe(
+      // After completing one full cycle through all symbols, wait before starting the next cycle
+      repeat({ delay: OPEN_INTEREST_CYCLE_DELAY }),
+    ),
+  ),
+  filter((x) => !!x),
+  shareReplay({ bufferSize: 1000, refCount: true }), // Cache open interest for all symbols
+);
+
+// Subscribe to rotation stream to keep it active
+openInterestRotation$.subscribe();
+
+// Convert open interest rotation data to quote format
+const quoteFromOpenInterest$ = openInterestRotation$.pipe(
+  map(
+    (data): Partial<IQuote> => ({
+      datasource_id: 'ASTER',
+      product_id: encodePath('ASTER', 'PERP', data?.symbol),
+      open_interest: data?.openInterest,
+    }),
+  ),
+);
+
+// Funding rate stream - fetches all symbols at once (more efficient than per-symbol)
+const fundingRate$ = defer(() => getFApiV1PremiumIndex({})).pipe(
+  map((data) => {
+    // Handle both single object and array responses
+    const premiumDataArray = Array.isArray(data) ? data : [data];
+    return premiumDataArray;
+  }),
+  repeat({ delay: OPEN_INTEREST_CYCLE_DELAY }),
+  retry({ delay: 5000 }),
+  shareReplay({ bufferSize: 1, refCount: true }),
+);
+
+// Convert funding rate data to quote format
+const quoteFromFundingRate$ = fundingRate$.pipe(
+  mergeMap((premiumDataArray) => premiumDataArray),
+  map(
+    (premiumData): Partial<IQuote> => ({
+      datasource_id: 'ASTER',
+      product_id: encodePath('ASTER', 'PERP', premiumData.symbol),
+      interest_rate_long: premiumData.lastFundingRate ? `${-+premiumData.lastFundingRate}` : undefined,
+      interest_rate_short: premiumData.lastFundingRate,
+    }),
+  ),
+);
+
+const quote$ = merge(quoteFromTicker$, quoteFromOpenInterest$, quoteFromFundingRate$).pipe(
   groupBy((quote) => quote.product_id),
   mergeMap((group$) =>
     group$.pipe(
