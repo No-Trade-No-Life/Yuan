@@ -115,6 +115,7 @@ export const submitOrder = async (credential: ICredential, order: IOrder): Promi
         : undefined,
     px: order.order_type === 'LIMIT' || order.order_type === 'MAKER' ? order.price!.toString() : undefined,
     ccy: instType === 'MARGIN' ? 'USDT' : undefined,
+    tag: process.env.BROKER_TAG,
   };
   console.info(formatTime(Date.now()), 'SubmitOrder', 'params', JSON.stringify(params));
   const res = await postTradeOrder(credential, params);
