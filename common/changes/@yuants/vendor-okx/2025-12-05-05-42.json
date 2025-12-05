@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-okx",
+      "comment": "add broker tag to algo order",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-okx"
+}
