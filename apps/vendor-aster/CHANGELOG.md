@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-aster
 
-This log was last generated on Fri, 05 Dec 2025 09:35:39 GMT and should not be manually modified.
+This log was last generated on Fri, 05 Dec 2025 17:11:30 GMT and should not be manually modified.
+
+## 0.7.20
+Fri, 05 Dec 2025 17:11:30 GMT
+
+### Patches
+
+- add aster interest rate
 
 ## 0.7.19
 Fri, 05 Dec 2025 09:35:39 GMT
