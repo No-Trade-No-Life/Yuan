@@ -329,25 +329,3 @@ export const useMarketBooks = (
     //
     filter((data) => data.length > 0),
   );
-
-export const useFundingRate = (instId: string) =>
-  fromWsChannelAndInstId<
-    {
-      fundingRate: string;
-      fundingTime: string;
-      instId: string;
-      instType: string;
-      method: string;
-      maxFundingRate: string;
-      minFundingRate: string;
-      nextFundingRate: string;
-      nextFundingTime: string;
-      premium: string;
-      settFundingRate: string;
-      settState: string;
-      ts: string;
-    }[]
-  >('ws/v5/public', 'funding-rate', instId).pipe(
-    //
-    filter((data) => data.length > 0),
-  );
