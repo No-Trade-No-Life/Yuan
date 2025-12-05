@@ -21,7 +21,7 @@ defer(async () => {
     },
     async (msg) => {
       if (msg.req) {
-        msg.req.tag = process.env.BROKER_TAG;
+        msg.req.tag = process.env.BROKER_CODE;
         const result = await postGridAlgoOrder(credential, msg.req);
         return { res: { code: 0, message: 'OK', data: result } };
       }
