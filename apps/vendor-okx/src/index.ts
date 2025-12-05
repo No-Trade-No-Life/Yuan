@@ -13,3 +13,4 @@ import './services';
 import './strategy-account';
 import './trade';
 import './transfer';
+import './public-data/new-quote';

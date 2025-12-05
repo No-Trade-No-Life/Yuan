@@ -89,7 +89,7 @@ const quoteOfSwapFromRest$ = defer(() => getMarketTickers({ instType: 'SWAP' }))
   map(
     (x): Partial<IQuote> => ({
       datasource_id: 'OKX',
-      product_id: encodePath(x.instType, x.instId),
+      product_id: encodePath('OKX', x.instType, x.instId),
       last_price: x.last,
       ask_price: x.askPx,
       bid_price: x.bidPx,
@@ -106,7 +106,7 @@ const quoteOfSpotAndMarginFromRest$ = defer(() => getMarketTickers({ instType: '
   mergeMap((x): Partial<IQuote>[] => [
     {
       datasource_id: 'OKX',
-      product_id: encodePath('SPOT', x.instId),
+      product_id: encodePath('OKX', 'SPOT', x.instId),
       last_price: x.last,
       ask_price: x.askPx,
       bid_price: x.bidPx,
@@ -115,7 +115,7 @@ const quoteOfSpotAndMarginFromRest$ = defer(() => getMarketTickers({ instType: '
     },
     {
       datasource_id: 'OKX',
-      product_id: encodePath('MARGIN', x.instId),
+      product_id: encodePath('OKX', 'MARGIN', x.instId),
       last_price: x.last,
       ask_price: x.askPx,
       bid_price: x.bidPx,
@@ -136,7 +136,7 @@ const quoteOfSwapFromWs$ = swapInstruments$.pipe(
   map(
     (ticker): Partial<IQuote> => ({
       datasource_id: 'OKX',
-      product_id: encodePath('SWAP', ticker[0].instId),
+      product_id: encodePath('OKX', 'SWAP', ticker[0].instId),
       last_price: ticker[0].last,
       ask_price: ticker[0].askPx,
       bid_price: ticker[0].bidPx,
@@ -150,7 +150,7 @@ const quoteOfSpotAndMarginFromWs$ = spotTicker$.pipe(
   mergeMap((ticker): Partial<IQuote>[] => [
     {
       datasource_id: 'OKX',
-      product_id: encodePath('SPOT', ticker[0].instId),
+      product_id: encodePath('OKX', 'SPOT', ticker[0].instId),
       last_price: ticker[0].last,
       ask_price: ticker[0].askPx,
       bid_price: ticker[0].bidPx,
@@ -159,7 +159,7 @@ const quoteOfSpotAndMarginFromWs$ = spotTicker$.pipe(
     },
     {
       datasource_id: 'OKX',
-      product_id: encodePath('MARGIN', ticker[0].instId),
+      product_id: encodePath('OKX', 'MARGIN', ticker[0].instId),
       last_price: ticker[0].last,
       ask_price: ticker[0].askPx,
       bid_price: ticker[0].bidPx,
@@ -184,7 +184,7 @@ const openInterestOfSwapFromWS$ = swapInstruments$.pipe(
   map(
     (x): Partial<IQuote> => ({
       datasource_id: 'OKX',
-      product_id: encodePath('SWAP', x[0].instId),
+      product_id: encodePath('OKX', 'SWAP', x[0].instId),
       open_interest: x[0].oi,
     }),
   ),
@@ -200,7 +200,7 @@ const interestRateOfSwapFromWS$ = swapInstruments$.pipe(
   map(
     (x): Partial<IQuote> => ({
       datasource_id: 'OKX',
-      product_id: encodePath('SWAP', x[0].instId),
+      product_id: encodePath('OKX', 'SWAP', x[0].instId),
       interest_rate_long: `-${x[0].fundingRate}`,
       interest_rate_short: x[0].fundingRate,
       interest_rate_next_settled_at: x[0].fundingTime,
@@ -300,7 +300,7 @@ const marginOpenInterest$ = spotInstIds$.pipe(
   map(({ instId, openInterest }) => {
     const partial: Partial<IQuote> = {
       datasource_id: 'OKX',
-      product_id: encodePath('MARGIN', instId),
+      product_id: encodePath('OKX', 'MARGIN', instId),
     };
     if (typeof openInterest === 'number' && Number.isFinite(openInterest)) {
       partial.open_interest = `${openInterest}`;
