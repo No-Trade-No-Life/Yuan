@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-aster
 
-This log was last generated on Thu, 04 Dec 2025 10:36:34 GMT and should not be manually modified.
+This log was last generated on Fri, 05 Dec 2025 09:35:39 GMT and should not be manually modified.
+
+## 0.7.19
+Fri, 05 Dec 2025 09:35:39 GMT
+
+### Patches
+
+- temp remove code sick
 
 ## 0.7.18
 Thu, 04 Dec 2025 10:36:34 GMT
