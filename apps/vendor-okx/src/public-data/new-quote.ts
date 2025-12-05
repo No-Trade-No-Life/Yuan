@@ -201,7 +201,7 @@ const interestRateOfSwapFromWS$ = swapInstruments$.pipe(
     (x): Partial<IQuote> => ({
       datasource_id: 'OKX',
       product_id: encodePath('OKX', 'SWAP', x[0].instId),
-      interest_rate_long: `-${x[0].fundingRate}`,
+      interest_rate_long: `${-+x[0].fundingRate}`,
       interest_rate_short: x[0].fundingRate,
       interest_rate_next_settled_at: x[0].fundingTime,
     }),
