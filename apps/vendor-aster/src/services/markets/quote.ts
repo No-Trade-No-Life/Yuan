@@ -148,9 +148,6 @@ const openInterestRotation$ = combineLatest([symbolList$, requestInterval$]).pip
   shareReplay({ bufferSize: 1000, refCount: true }), // Cache open interest for all symbols
 );
 
-// Subscribe to rotation stream to keep it active
-openInterestRotation$.subscribe();
-
 // Convert open interest rotation data to quote format
 const quoteFromOpenInterest$ = openInterestRotation$.pipe(
   map(
