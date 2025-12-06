@@ -1086,6 +1086,7 @@ importers:
       '@yuants/data-interest-rate': workspace:*
       '@yuants/data-order': workspace:*
       '@yuants/data-product': workspace:*
+      '@yuants/data-quote': workspace:*
       '@yuants/data-series': workspace:*
       '@yuants/exchange': workspace:*
       '@yuants/extension': workspace:*
@@ -1102,6 +1103,7 @@ importers:
       '@yuants/data-interest-rate': link:../../libraries/data-interest-rate
       '@yuants/data-order': link:../../libraries/data-order
       '@yuants/data-product': link:../../libraries/data-product
+      '@yuants/data-quote': link:../../libraries/data-quote
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/exchange': link:../../libraries/exchange
       '@yuants/protocol': link:../../libraries/protocol

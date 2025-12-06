@@ -142,7 +142,7 @@ export const getFuturesTickers = (
 /**
  * 获取交易对 ticker 信息
  *
- * https://www.gate.io/docs/developers/apiv4/zh_CN/#%E6%9F%A5%E8%AF%A2%E5%8D%95%E4%B8%AA%E4%BA%A4%E6%98%93%E5%AF%B9%E8%AF%A6%E6%83%85
+ * https://www.gate.com/docs/developers/apiv4/zh_CN/#%E8%8E%B7%E5%8F%96%E4%BA%A4%E6%98%93%E5%AF%B9-ticker-%E4%BF%A1%E6%81%AF
  */
 export const getSpotTickers = (params: {
   currency_pair?: string;
