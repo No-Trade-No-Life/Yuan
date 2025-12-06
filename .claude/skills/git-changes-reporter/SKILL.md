@@ -49,11 +49,36 @@ description: 生成结构化 git 变更报告，包含原始 JSON 数据和语�
 **目的**：收集原始数据，自动提取代码片段和风险指标
 
 ```bash
-.claude/skills/git-changes-reporter/scripts/generate-json.js <old_commit> <new_commit> [output_path]
+.claude/skills/git-changes-reporter/scripts/generate-json.js <old_commit> <new_commit> [output_path] [options]
+```
+
+**选项**：
+
+| 选项                        | 说明                                   | 默认值                               |
+| --------------------------- | -------------------------------------- | ------------------------------------ |
+| `--markers=FILE1,FILE2,...` | 项目边界特征文件（用于 monorepo 分析） | `package.json,Cargo.toml,go.mod,...` |
+
+**Monorepo 项目检测**：
+
+脚本会自动扫描仓库中的特征文件（如 `package.json`、`Cargo.toml`）来识别项目边界，支持任意深度的嵌套结构：
+
+```bash
+# 默认使用常见特征文件检测项目
+generate-json.js HEAD~10 HEAD
+
+# 指定特定的特征文件（如纯 Python 项目）
+generate-json.js HEAD~10 HEAD --markers=pyproject.toml,setup.py
 ```
 
 **输出内容**：
 
+- `directoryAnalysis`：目录热点分析
+  - `topLevel[]`：顶层目录统计（如 `apps`, `libraries`）
+  - `projects[]`：项目级别统计（如 `apps/vendor-okx`, `libraries/protocol`）
+    - `project`：项目路径
+    - `fileCount`：变更文件数
+    - `marker`：检测到的特征文件（如 `package.json`）
+  - `markersUsed`：使用的特征文件列表
 - `commits[]`：每个 commit 的详细信息
   - `short`：短哈希（用于引用）
   - `subject`：提交主题
@@ -109,7 +134,7 @@ Agent 应按以下结构输出报告：
 
 - **提交数量**：N
 - **主要贡献者**：Author1 (X commits), Author2 (Y commits)
-- **热点目录**：`apps` (N 文件), `common` (M 文件)
+- **热点项目**：`apps/vendor-okx` (N 文件), `libraries/protocol` (M 文件)
 - **风险指标**：⚠️ N 个高风险项
 
 ## 2. 核心变更
