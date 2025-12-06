@@ -53,7 +53,7 @@ const tradeParser = async (accountId: string, params: Record<string, string>): P
 
       v.forEach((bill) => {
         trade.created_at = Math.max(Number(trade.created_at), Number(bill.ts)).toString();
-        trade.product_id = encodePath(bill.instType, bill.instId);
+        trade.product_id = encodePath('OKX', bill.instType, bill.instId);
         trade.traded_price = bill.px;
         if (bill.instType === 'SWAP') {
           if (bill.subType === '1') trade.direction = 'OPEN_LONG';
