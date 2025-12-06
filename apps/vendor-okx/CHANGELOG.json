@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.29.8",
+      "tag": "@yuants/vendor-okx_v0.29.8",
+      "date": "Sat, 06 Dec 2025 17:00:15 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix trade product id"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.29.7",
       "tag": "@yuants/vendor-okx_v0.29.7",
       "date": "Sat, 06 Dec 2025 07:51:30 GMT",
