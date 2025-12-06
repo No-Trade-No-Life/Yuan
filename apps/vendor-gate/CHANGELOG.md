@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-gate
 
-This log was last generated on Wed, 03 Dec 2025 18:20:00 GMT and should not be manually modified.
+This log was last generated on Sat, 06 Dec 2025 09:10:29 GMT and should not be manually modified.
+
+## 0.4.17
+Sat, 06 Dec 2025 09:10:29 GMT
+
+### Patches
+
+- add gate quote
 
 ## 0.4.16
 Wed, 03 Dec 2025 18:20:00 GMT
