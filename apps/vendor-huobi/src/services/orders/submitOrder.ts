@@ -23,8 +23,9 @@ async function handleSwapOrder(order: IOrder, credential: ICredential): Promise<
   );
 
   const lever_rate = mapContractCodeToRate[order.product_id] ?? 20;
+  const [, instType, contractCode] = decodePath(order.product_id);
   const params = {
-    contract_code: order.product_id,
+    contract_code: contractCode,
     contract_type: 'swap',
     price: order.price,
     volume: order.volume,
@@ -58,11 +59,13 @@ async function handleSuperMarginOrder(order: IOrder, credential: ICredential): P
   if (!usdtLoanable) throw new Error('USDT loanable amount not found');
   const loanable = +usdtLoanable['loanable-amt'];
 
+  const [, instType, contractCode] = decodePath(order.product_id);
+
   // 获取账户余额, 产品信息和价格
   const [balanceRes, theProduct, priceRes] = await Promise.all([
     getSpotAccountBalance(credential, superMarginAccountUid),
     productCache.query(order.product_id),
-    getSpotTick({ symbol: order.product_id }),
+    getSpotTick({ symbol: contractCode }),
   ]);
 
   const balance = balanceRes.data.list
@@ -78,7 +81,7 @@ async function handleSuperMarginOrder(order: IOrder, credential: ICredential): P
       : undefined;
 
   const params = {
-    symbol: order.product_id,
+    symbol: contractCode,
     'account-id': '' + superMarginAccountUid,
     amount:
       '' +
