@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@yuants/app-alert-receiver",
-      "comment": "reduce number of elements in alert detials",
+      "comment": "reduce number of elements in alert details",
       "type": "patch"
     }
   ],
