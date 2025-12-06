@@ -1,6 +1,43 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Fri, 05 Dec 2025 06:30:56 GMT and should not be manually modified.
+This log was last generated on Fri, 05 Dec 2025 19:11:57 GMT and should not be manually modified.
+
+## 0.29.6
+Fri, 05 Dec 2025 19:11:57 GMT
+
+### Patches
+
+- 1
+
+## 0.29.5
+Fri, 05 Dec 2025 19:07:36 GMT
+
+### Patches
+
+- 1
+
+## 0.29.4
+Fri, 05 Dec 2025 18:43:51 GMT
+
+### Patches
+
+- fix ws 
+- 1
+
+## 0.29.3
+Fri, 05 Dec 2025 15:22:22 GMT
+
+### Patches
+
+- fix
+
+## 0.29.2
+Fri, 05 Dec 2025 14:34:29 GMT
+
+### Patches
+
+- add interest rate for okx
+- add new quote
 
 ## 0.29.1
 Fri, 05 Dec 2025 06:30:56 GMT
