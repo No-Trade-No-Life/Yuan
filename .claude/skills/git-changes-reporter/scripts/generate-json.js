@@ -7,10 +7,31 @@ import { promisify } from 'node:util';
 
 const exec = promisify(execFile);
 
+/**
+ * Default marker files that indicate project boundaries in monorepos
+ */
+const DEFAULT_PROJECT_MARKERS = [
+  'package.json',
+  'Cargo.toml',
+  'go.mod',
+  'requirements.txt',
+  'pyproject.toml',
+  'setup.py',
+  'pom.xml',
+  'build.gradle',
+  'build.gradle.kts',
+  'CMakeLists.txt',
+  'Makefile',
+  'pubspec.yaml', // Flutter/Dart
+  'mix.exs', // Elixir
+  'Gemfile', // Ruby
+  'composer.json', // PHP
+];
+
 const usage = () => {
   console.error(
     [
-      'Usage: generate-json.js <old_commit> <new_commit> [output_path]',
+      'Usage: generate-json.js <old_commit> <new_commit> [output_path] [options]',
       '',
       'Generate structured JSON for commits in range <old_commit>..<new_commit>',
       'including per-file stats and patch text.',
@@ -20,10 +41,14 @@ const usage = () => {
       '  <new_commit>    End commit reference',
       '  [output_path]   Optional output path (default: docs/reports/git-changes-YYYY-MM-DD.json)',
       '',
+      'Options:',
+      '  --markers=FILE1,FILE2,...   Comma-separated list of marker files for project detection',
+      `                              Default: ${DEFAULT_PROJECT_MARKERS.slice(0, 4).join(',')},...`,
+      '',
       'Examples:',
       '  generate-json.js HEAD~10 HEAD',
       '  generate-json.js v1.0.0 HEAD ./reports/changes.json',
-      '  generate-json.js 6df6ea741 1b4e97ac5',
+      '  generate-json.js 6df6ea741 1b4e97ac5 --markers=package.json,Cargo.toml',
     ].join('\n'),
   );
 };
@@ -87,20 +112,109 @@ const getContributors = async (oldRef, newRef) => {
   });
 };
 
-const getTopDirectories = async (oldRef, newRef) => {
+/**
+ * Scan repository for project roots by finding directories containing marker files
+ * @param {string[]} markers - List of marker file names (e.g., ['package.json', 'Cargo.toml'])
+ * @returns {Promise<Map<string, string>>} Map of directory path to marker file found
+ */
+const scanProjectRoots = async (markers) => {
+  const projectRoots = new Map();
+
+  // Use git ls-files to find all tracked marker files (faster than find)
+  for (const marker of markers) {
+    try {
+      const { stdout } = await exec('git', ['ls-files', '--full-name', `**/${marker}`, marker]);
+      const markerPaths = stdout.split('\n').filter(Boolean);
+
+      for (const markerPath of markerPaths) {
+        // Extract directory containing the marker file
+        const dir = markerPath.includes('/') ? markerPath.substring(0, markerPath.lastIndexOf('/')) : '.';
+        // Only keep the first marker found for each directory
+        if (!projectRoots.has(dir)) {
+          projectRoots.set(dir, marker);
+        }
+      }
+    } catch {
+      // Ignore errors (marker not found)
+    }
+  }
+
+  return projectRoots;
+};
+
+/**
+ * Find the closest project root for a given file path
+ * @param {string} filePath - File path relative to repo root
+ * @param {Map<string, string>} projectRoots - Map of project directories to markers
+ * @returns {{project: string, marker: string} | null}
+ */
+const findProjectRoot = (filePath, projectRoots) => {
+  // Build list of ancestor directories from most specific to least
+  const parts = filePath.split('/');
+  const ancestors = [];
+
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const ancestor = parts.slice(0, i).join('/') || '.';
+    ancestors.push(ancestor);
+  }
+
+  // Find the closest ancestor that is a project root
+  for (const ancestor of ancestors) {
+    if (projectRoots.has(ancestor)) {
+      return { project: ancestor, marker: projectRoots.get(ancestor) };
+    }
+  }
+
+  return null;
+};
+
+/**
+ * Analyze directory hotspots at both top-level and project-level
+ * @param {string} oldRef - Old commit reference
+ * @param {string} newRef - New commit reference
+ * @param {string[]} markers - Marker files for project detection
+ * @returns {Promise<{topLevel: Array, projects: Array}>}
+ */
+const getTopDirectories = async (oldRef, newRef, markers = DEFAULT_PROJECT_MARKERS) => {
+  // Get all changed files
   const files = (await exec('git', ['diff', '--name-only', `${oldRef}..${newRef}`])).stdout
     .split('\n')
     .filter(Boolean);
 
-  const dirCounts = files.reduce((acc, filePath) => {
-    const dir = filePath.split('/')[0] || '.';
-    acc.set(dir, (acc.get(dir) || 0) + 1);
-    return acc;
-  }, new Map());
+  // Scan for project roots
+  const projectRoots = await scanProjectRoots(markers);
 
-  return Array.from(dirCounts.entries())
+  const topLevelCounts = new Map();
+  const projectCounts = new Map();
+
+  for (const filePath of files) {
+    // Top-level directory (e.g., "apps", "libraries")
+    const topDir = filePath.split('/')[0] || '.';
+    topLevelCounts.set(topDir, (topLevelCounts.get(topDir) || 0) + 1);
+
+    // Project-level path based on marker detection
+    const projectInfo = findProjectRoot(filePath, projectRoots);
+    if (projectInfo) {
+      const key = projectInfo.project;
+      const existing = projectCounts.get(key) || { fileCount: 0, marker: projectInfo.marker };
+      projectCounts.set(key, { fileCount: existing.fileCount + 1, marker: existing.marker });
+    } else {
+      // File not under any detected project - use top-level dir
+      const key = topDir;
+      const existing = projectCounts.get(key) || { fileCount: 0, marker: null };
+      projectCounts.set(key, { fileCount: existing.fileCount + 1, marker: null });
+    }
+  }
+
+  const topLevel = Array.from(topLevelCounts.entries())
     .map(([dir, fileCount]) => ({ dir, fileCount }))
     .sort((a, b) => b.fileCount - a.fileCount);
+
+  const projects = Array.from(projectCounts.entries())
+    .map(([project, data]) => ({ project, fileCount: data.fileCount, marker: data.marker }))
+    .sort((a, b) => b.fileCount - a.fileCount);
+
+  return { topLevel, projects, markersUsed: markers };
 };
 
 /**
@@ -450,8 +564,34 @@ const identifyRisks = (commits) => {
   return risks;
 };
 
+/**
+ * Parse command line arguments
+ * @param {string[]} args - Command line arguments
+ * @returns {{oldRef: string, newRef: string, output: string|null, markers: string[]}}
+ */
+const parseArgs = (args) => {
+  let oldRef = null;
+  let newRef = null;
+  let output = null;
+  let markers = DEFAULT_PROJECT_MARKERS;
+
+  for (const arg of args) {
+    if (arg.startsWith('--markers=')) {
+      markers = arg.substring('--markers='.length).split(',').filter(Boolean);
+    } else if (!oldRef) {
+      oldRef = arg;
+    } else if (!newRef) {
+      newRef = arg;
+    } else if (!output && !arg.startsWith('--')) {
+      output = arg;
+    }
+  }
+
+  return { oldRef, newRef, output, markers };
+};
+
 const main = async () => {
-  const [oldRef, newRef, outputArg] = process.argv.slice(2);
+  const { oldRef, newRef, output: outputArg, markers } = parseArgs(process.argv.slice(2));
 
   // Validate arguments
   if (!oldRef || !newRef) {
@@ -498,8 +638,8 @@ const main = async () => {
   console.info('Collecting contributor information...');
   const contributors = await getContributors(oldRef, newRef);
 
-  console.info('Analyzing file changes...');
-  const topDirs = await getTopDirectories(oldRef, newRef);
+  console.info('Analyzing file changes (detecting project boundaries)...');
+  const directoryAnalysis = await getTopDirectories(oldRef, newRef, markers);
 
   console.info('Extracting commit details...');
   const commits = await getCommitDetails(oldRef, newRef);
@@ -523,7 +663,7 @@ const main = async () => {
       generatedAt: new Date().toISOString(),
     },
     contributors,
-    topDirs,
+    directoryAnalysis,
     commits,
     analysis: {
       domains,
@@ -531,7 +671,7 @@ const main = async () => {
     },
     metadata: {
       tool: 'git-changes-reporter',
-      version: '2.0.0',
+      version: '3.0.0',
       repository: repoRoot,
     },
   };
@@ -539,8 +679,9 @@ const main = async () => {
   // Write output
   await writeFile(output, JSON.stringify(outputData, null, 2));
   console.info(`✅ JSON data written to ${output}`);
+  console.info(`📊 Summary: ${commitCount} commits, ${contributors.length} contributors`);
   console.info(
-    `📊 Summary: ${commitCount} commits, ${contributors.length} contributors, ${topDirs.length} directories changed`,
+    `📁 Directories: ${directoryAnalysis.topLevel.length} top-level, ${directoryAnalysis.projects.length} projects detected`,
   );
   console.info(
     `🔍 Analysis: ${domains.length} domains identified, ${riskIndicators.length} risk indicators found`,
