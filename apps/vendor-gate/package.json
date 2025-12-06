@@ -22,6 +22,7 @@
     "@yuants/data-series": "workspace:*",
     "@yuants/data-interest-rate": "workspace:*",
     "@yuants/exchange": "workspace:*",
+    "@yuants/data-quote": "workspace:*",
     "rxjs": "~7.5.6"
   },
   "devDependencies": {
