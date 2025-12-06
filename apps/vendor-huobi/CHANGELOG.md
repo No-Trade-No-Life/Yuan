@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Wed, 03 Dec 2025 18:20:00 GMT and should not be manually modified.
+This log was last generated on Sat, 06 Dec 2025 20:13:27 GMT and should not be manually modified.
+
+## 0.15.8
+Sat, 06 Dec 2025 20:13:27 GMT
+
+### Patches
+
+- fix submit order
 
 ## 0.15.7
 Wed, 03 Dec 2025 18:20:00 GMT
