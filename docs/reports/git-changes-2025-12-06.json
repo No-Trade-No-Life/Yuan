@@ -1,0 +1,1800 @@
+{
+  "range": {
+    "old": "c36262caddee5b4ee9ada840501c81e554b5de6a",
+    "new": "c3b9a3726918ed17e9a53614b7ccf8673e97e88d",
+    "label": "c36262cad..c3b9a3726",
+    "startDate": "2025-12-05",
+    "endDate": "2025-12-06",
+    "commitCount": 21,
+    "generatedAt": "2025-12-06T06:36:33.236Z"
+  },
+  "contributors": [
+    {
+      "name": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "commits": 9
+    },
+    {
+      "name": "Ryan",
+      "email": "stayrealrhr@gmail.com",
+      "commits": 8
+    },
+    {
+      "name": "CZ",
+      "email": "zheng.chen@no-trade-no.life",
+      "commits": 4
+    }
+  ],
+  "topDirs": [
+    {
+      "dir": "apps",
+      "fileCount": 24
+    },
+    {
+      "dir": "common",
+      "fileCount": 3
+    }
+  ],
+  "commits": [
+    {
+      "hash": "6f0d6e65cf5ac4f2cfd3b2236b067f325a5fd017",
+      "short": "6f0d6e65c",
+      "author": "CZ",
+      "email": "zheng.chen@no-trade-no.life",
+      "authoredAt": "2025-12-05 13:39:48 +0800",
+      "subject": "feat: add broker tag to order submission parameters (#2201)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 1,
+          "deletions": 0,
+          "path": "apps/vendor-okx/src/experimental/submitOrder.ts",
+          "changeType": "added",
+          "patch": "commit 6f0d6e65cf5ac4f2cfd3b2236b067f325a5fd017\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Fri Dec 5 13:39:48 2025 +0800\n\n    feat: add broker tag to order submission parameters (#2201)\n\ndiff --git a/apps/vendor-okx/src/experimental/submitOrder.ts b/apps/vendor-okx/src/experimental/submitOrder.ts\nindex 343ec45f3..bfeca4a48 100644\n--- a/apps/vendor-okx/src/experimental/submitOrder.ts\n+++ b/apps/vendor-okx/src/experimental/submitOrder.ts\n@@ -117,0 +118 @@ export const submitOrder = async (credential: ICredential, order: IOrder): Promi\n+    tag: process.env.BROKER_TAG,\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 0,
+          "path": "apps/vendor-okx/src/orders/submitOrder.ts",
+          "changeType": "added",
+          "patch": "commit 6f0d6e65cf5ac4f2cfd3b2236b067f325a5fd017\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Fri Dec 5 13:39:48 2025 +0800\n\n    feat: add broker tag to order submission parameters (#2201)\n\ndiff --git a/apps/vendor-okx/src/orders/submitOrder.ts b/apps/vendor-okx/src/orders/submitOrder.ts\nindex d9200e3cf..5a161696c 100644\n--- a/apps/vendor-okx/src/orders/submitOrder.ts\n+++ b/apps/vendor-okx/src/orders/submitOrder.ts\n@@ -117,0 +118 @@ export const submitOrder = async (credential: ICredential, order: IOrder): Promi\n+    tag: process.env.BROKER_TAG,\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-05-05-38.json",
+          "changeType": "added",
+          "patch": "commit 6f0d6e65cf5ac4f2cfd3b2236b067f325a5fd017\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Fri Dec 5 13:39:48 2025 +0800\n\n    feat: add broker tag to order submission parameters (#2201)\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-05-05-38.json b/common/changes/@yuants/vendor-okx/2025-12-05-05-38.json\nnew file mode 100644\nindex 000000000..4363f35a4\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-okx/2025-12-05-05-38.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-okx\",\n+      \"comment\": \"add broker tag\",\n+      \"type\": \"minor\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-okx\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "60338d13357d6778e0d82ccaa0a5a438f112f814",
+      "short": "60338d133",
+      "author": "CZ",
+      "email": "zheng.chen@no-trade-no.life",
+      "authoredAt": "2025-12-05 13:44:12 +0800",
+      "subject": "feat: add broker tag to algo order (#2202)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 6,
+          "deletions": 3,
+          "path": "apps/vendor-okx/src/services.ts",
+          "changeType": "modified",
+          "patch": "commit 60338d13357d6778e0d82ccaa0a5a438f112f814\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Fri Dec 5 13:44:12 2025 +0800\n\n    feat: add broker tag to algo order (#2202)\n\ndiff --git a/apps/vendor-okx/src/services.ts b/apps/vendor-okx/src/services.ts\nindex 2cbbc938f..9c8c077ad 100644\n--- a/apps/vendor-okx/src/services.ts\n+++ b/apps/vendor-okx/src/services.ts\n@@ -3 +2,0 @@ import { defer } from 'rxjs';\n-import { getDefaultCredential, postGridAlgoOrder } from './api/private-api';\n@@ -4,0 +4 @@ import { getTradingAccountId } from './accountInfos/uid';\n+import { getDefaultCredential, postGridAlgoOrder } from './api/private-api';\n@@ -12 +12,3 @@ defer(async () => {\n-  terminal.server.provideService(\n+  type Request = Parameters<typeof postGridAlgoOrder>[1];\n+\n+  terminal.server.provideService<Request, any>(\n@@ -22 +24,2 @@ defer(async () => {\n-        const result = await postGridAlgoOrder(credential, msg.req as any);\n+        msg.req.tag = process.env.BROKER_TAG;\n+        const result = await postGridAlgoOrder(credential, msg.req);\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "result",
+              "code": "const result = await postGridAlgoOrder(credential, msg.req);",
+              "lineStart": 25,
+              "lineEnd": 26
+            }
+          ]
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-05-05-42.json",
+          "changeType": "added",
+          "patch": "commit 60338d13357d6778e0d82ccaa0a5a438f112f814\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Fri Dec 5 13:44:12 2025 +0800\n\n    feat: add broker tag to algo order (#2202)\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-05-05-42.json b/common/changes/@yuants/vendor-okx/2025-12-05-05-42.json\nnew file mode 100644\nindex 000000000..e1ee03ccf\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-okx/2025-12-05-05-42.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-okx\",\n+      \"comment\": \"add broker tag to algo order\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-okx\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "624436a6e4c829649ce41eba3eb5d343c669779f",
+      "short": "624436a6e",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2025-12-05 13:48:23 +0800",
+      "subject": "chore: bump version (#2203)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 22,
+          "deletions": 0,
+          "path": "apps/vendor-okx/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 624436a6e4c829649ce41eba3eb5d343c669779f\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Dec 5 13:48:23 2025 +0800\n\n    chore: bump version (#2203)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.json b/apps/vendor-okx/CHANGELOG.json\nindex 7649a74c2..b372c1ad7 100644\n--- a/apps/vendor-okx/CHANGELOG.json\n+++ b/apps/vendor-okx/CHANGELOG.json\n@@ -3,0 +4,22 @@\n+    {\n+      \"version\": \"0.29.0\",\n+      \"tag\": \"@yuants/vendor-okx_v0.29.0\",\n+      \"date\": \"Fri, 05 Dec 2025 05:46:23 GMT\",\n+      \"comments\": {\n+        \"minor\": [\n+          {\n+            \"comment\": \"add broker tag\"\n+          }\n+        ],\n+        \"patch\": [\n+          {\n+            \"comment\": \"add broker tag to algo order\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 12,
+          "deletions": 1,
+          "path": "apps/vendor-okx/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 624436a6e4c829649ce41eba3eb5d343c669779f\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Dec 5 13:48:23 2025 +0800\n\n    chore: bump version (#2203)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.md b/apps/vendor-okx/CHANGELOG.md\nindex 8acce7199..2c57a21cc 100644\n--- a/apps/vendor-okx/CHANGELOG.md\n+++ b/apps/vendor-okx/CHANGELOG.md\n@@ -3 +3,12 @@\n-This log was last generated on Thu, 04 Dec 2025 16:51:07 GMT and should not be manually modified.\n+This log was last generated on Fri, 05 Dec 2025 05:46:23 GMT and should not be manually modified.\n+\n+## 0.29.0\n+Fri, 05 Dec 2025 05:46:23 GMT\n+\n+### Minor changes\n+\n+- add broker tag\n+\n+### Patches\n+\n+- add broker tag to algo order\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-okx/package.json",
+          "changeType": "modified",
+          "patch": "commit 624436a6e4c829649ce41eba3eb5d343c669779f\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Dec 5 13:48:23 2025 +0800\n\n    chore: bump version (#2203)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/package.json b/apps/vendor-okx/package.json\nindex 3e058d461..5a652b575 100644\n--- a/apps/vendor-okx/package.json\n+++ b/apps/vendor-okx/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.28.4\",\n+  \"version\": \"0.29.0\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-05-05-38.json",
+          "changeType": "deleted",
+          "patch": "commit 624436a6e4c829649ce41eba3eb5d343c669779f\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Dec 5 13:48:23 2025 +0800\n\n    chore: bump version (#2203)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-05-05-38.json b/common/changes/@yuants/vendor-okx/2025-12-05-05-38.json\ndeleted file mode 100644\nindex 4363f35a4..000000000\n--- a/common/changes/@yuants/vendor-okx/2025-12-05-05-38.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-okx\",\n-      \"comment\": \"add broker tag\",\n-      \"type\": \"minor\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-okx\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-05-05-42.json",
+          "changeType": "deleted",
+          "patch": "commit 624436a6e4c829649ce41eba3eb5d343c669779f\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Dec 5 13:48:23 2025 +0800\n\n    chore: bump version (#2203)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-05-05-42.json b/common/changes/@yuants/vendor-okx/2025-12-05-05-42.json\ndeleted file mode 100644\nindex e1ee03ccf..000000000\n--- a/common/changes/@yuants/vendor-okx/2025-12-05-05-42.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-okx\",\n-      \"comment\": \"add broker tag to algo order\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-okx\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/{main_2025-12-04-16-51.json => main_2025-12-05-05-46.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "ac108ab9dc96fd2602b3bae02f6aa6263d4f45e8",
+      "short": "ac108ab9d",
+      "author": "CZ",
+      "email": "zheng.chen@no-trade-no.life",
+      "authoredAt": "2025-12-05 14:28:04 +0800",
+      "subject": "refactor: move order-related functions to a dedicated orders directory and update imports (#2204)",
+      "conventionalCommit": {
+        "type": "refactor",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 0,
+          "deletions": 14,
+          "path": "apps/vendor-okx/src/experimental/cancelOrder.ts",
+          "changeType": "deleted",
+          "patch": "commit ac108ab9dc96fd2602b3bae02f6aa6263d4f45e8\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Fri Dec 5 14:28:04 2025 +0800\n\n    refactor: move order-related functions to a dedicated orders directory and update imports (#2204)\n\ndiff --git a/apps/vendor-okx/src/experimental/cancelOrder.ts b/apps/vendor-okx/src/experimental/cancelOrder.ts\ndeleted file mode 100644\nindex 6c4b53b5a..000000000\n--- a/apps/vendor-okx/src/experimental/cancelOrder.ts\n+++ /dev/null\n@@ -1,14 +0,0 @@\n-import { IOrder } from '@yuants/data-order';\n-import { decodePath } from '@yuants/utils';\n-import { ICredential, postTradeCancelOrder } from '../api/private-api';\n-\n-export const cancelOrder = async (credential: ICredential, order: IOrder) => {\n-  const [, , instId] = decodePath(order.product_id);\n-  const res = await postTradeCancelOrder(credential, {\n-    instId,\n-    ordId: order.order_id!,\n-  });\n-  if (res.code !== '0') {\n-    throw new Error(`Cancel order failed: code=${res.code} msg=${res.msg}`);\n-  }\n-};\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 3,
+          "deletions": 3,
+          "path": "apps/vendor-okx/src/experimental/exchange.ts",
+          "changeType": "modified",
+          "patch": "commit ac108ab9dc96fd2602b3bae02f6aa6263d4f45e8\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Fri Dec 5 14:28:04 2025 +0800\n\n    refactor: move order-related functions to a dedicated orders directory and update imports (#2204)\n\ndiff --git a/apps/vendor-okx/src/experimental/exchange.ts b/apps/vendor-okx/src/experimental/exchange.ts\nindex 98e379e8a..df5c9dc9e 100644\n--- a/apps/vendor-okx/src/experimental/exchange.ts\n+++ b/apps/vendor-okx/src/experimental/exchange.ts\n@@ -5 +5,3 @@ import { getAccountConfig, ICredential } from '../api/private-api';\n-import { cancelOrder } from './cancelOrder';\n+import { cancelOrder } from '../orders/cancelOrder';\n+import { modifyOrder } from '../orders/modifyOrder';\n+import { submitOrder } from '../orders/submitOrder';\n@@ -8 +9,0 @@ import { getPositions } from './getPositions';\n-import { modifyOrder } from './modifyOrder';\n@@ -10 +10,0 @@ import { listProducts } from './product';\n-import { submitOrder } from './submitOrder';\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 73,
+          "path": "apps/vendor-okx/src/experimental/modifyOrder.ts",
+          "changeType": "deleted",
+          "patch": "commit ac108ab9dc96fd2602b3bae02f6aa6263d4f45e8\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Fri Dec 5 14:28:04 2025 +0800\n\n    refactor: move order-related functions to a dedicated orders directory and update imports (#2204)\n\ndiff --git a/apps/vendor-okx/src/experimental/modifyOrder.ts b/apps/vendor-okx/src/experimental/modifyOrder.ts\ndeleted file mode 100644\nindex 5e1e31188..000000000\n--- a/apps/vendor-okx/src/experimental/modifyOrder.ts\n+++ /dev/null\n@@ -1,73 +0,0 @@\n-import { IOrder } from '@yuants/data-order';\n-import { formatTime, decodePath, roundToStep } from '@yuants/utils';\n-import { firstValueFrom, map } from 'rxjs';\n-import { ICredential, postTradeAmendOrder } from '../api/private-api';\n-import { productService } from '../public-data/product';\n-import { spotMarketTickers$ } from '../public-data/quote';\n-\n-export const modifyOrder = async (credential: ICredential, order: IOrder) => {\n-  const [, instType, instId] = decodePath(order.product_id);\n-  const params: {\n-    instId: string;\n-    ordId: string;\n-    newPx?: string;\n-    newSz?: string;\n-  } = {\n-    instId,\n-    ordId: order.order_id!, // 使用现有订单ID\n-  };\n-\n-  // 如果需要修改价格\n-  if (order.price !== undefined) {\n-    params.newPx = order.price.toString();\n-  }\n-\n-  // 如果需要修改数量\n-  if (order.volume !== undefined) {\n-    // 处理数量修改，类似于 SubmitOrder 中的逻辑\n-    if (instType === 'SWAP') {\n-      params.newSz = order.volume.toString();\n-    } else if (instType === 'SPOT') {\n-      params.newSz = order.volume.toString();\n-    } else if (instType === 'MARGIN') {\n-      if (order.order_type === 'LIMIT') {\n-        params.newSz = order.volume.toString();\n-      }\n-      if (order.order_type === 'MAKER') {\n-        params.newSz = order.volume.toString();\n-      }\n-      if (order.order_type === 'MARKET') {\n-        // 对于市价单，可能需要根据当前价格计算新的数量\n-        const price = await firstValueFrom(\n-          spotMarketTickers$.pipe(\n-            map((x) =>\n-              order.order_direction === 'OPEN_LONG' || order.order_direction === 'CLOSE_SHORT'\n-                ? +x[instId].askPx\n-                : +x[instId].bidPx,\n-            ),\n-          ),\n-        );\n-        if (!price) {\n-          throw new Error(`invalid tick: ${price}`);\n-        }\n-        console.info(formatTime(Date.now()), 'ModifyOrder', 'price', price);\n-        const theProduct = await firstValueFrom(\n-          productService.mapProductIdToProduct$.pipe(map((x) => x.get(order.product_id))),\n-        );\n-        if (!theProduct) {\n-          throw new Error(`Unknown product: ${order.position_id}`);\n-        }\n-        params.newSz = roundToStep(order.volume * price, theProduct.volume_step!).toString();\n-      }\n-    } else {\n-      throw new Error(`Unknown instType: ${instType}`);\n-    }\n-  }\n-\n-  console.info(formatTime(Date.now()), 'ModifyOrder', 'params', JSON.stringify(params));\n-\n-  const res = await postTradeAmendOrder(credential, params);\n-  if (res.code !== '0') {\n-    throw new Error(`ModifyOrder failed: code=${res.code}, msg=${res.msg}`);\n-  }\n-};\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 128,
+          "path": "apps/vendor-okx/src/experimental/submitOrder.ts",
+          "changeType": "deleted",
+          "patch": "commit ac108ab9dc96fd2602b3bae02f6aa6263d4f45e8\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Fri Dec 5 14:28:04 2025 +0800\n\n    refactor: move order-related functions to a dedicated orders directory and update imports (#2204)\n\ndiff --git a/apps/vendor-okx/src/experimental/submitOrder.ts b/apps/vendor-okx/src/experimental/submitOrder.ts\ndeleted file mode 100644\nindex bfeca4a48..000000000\n--- a/apps/vendor-okx/src/experimental/submitOrder.ts\n+++ /dev/null\n@@ -1,128 +0,0 @@\n-import { IOrder } from '@yuants/data-order';\n-import { decodePath, formatTime, roundToStep } from '@yuants/utils';\n-import { firstValueFrom, map } from 'rxjs';\n-import { ICredential, postTradeOrder } from '../api/private-api';\n-import { productService } from '../public-data/product';\n-import { spotMarketTickers$ } from '../public-data/quote';\n-\n-const mapOrderDirectionToSide = (direction?: string) => {\n-  switch (direction) {\n-    case 'OPEN_LONG':\n-    case 'CLOSE_SHORT':\n-      return 'buy';\n-    case 'OPEN_SHORT':\n-    case 'CLOSE_LONG':\n-      return 'sell';\n-  }\n-  throw new Error(`Unknown direction: ${direction}`);\n-};\n-\n-const mapOrderDirectionToPosSide = (direction?: string) => {\n-  switch (direction) {\n-    case 'OPEN_LONG':\n-    case 'CLOSE_LONG':\n-      return 'long';\n-    case 'CLOSE_SHORT':\n-    case 'OPEN_SHORT':\n-      return 'short';\n-  }\n-  throw new Error(`Unknown direction: ${direction}`);\n-};\n-\n-const mapOrderTypeToOrdType = (order_type?: string) => {\n-  switch (order_type) {\n-    case 'LIMIT':\n-      return 'limit';\n-    case 'MARKET':\n-      return 'market';\n-    case 'MAKER':\n-      return 'post_only';\n-  }\n-  throw new Error(`Unknown order type: ${order_type}`);\n-};\n-\n-export const submitOrder = async (credential: ICredential, order: IOrder): Promise<{ order_id: string }> => {\n-  const [, instType, instId] = decodePath(order.product_id);\n-\n-  // 交易数量，表示要购买或者出售的数量。\n-  // 当币币/币币杠杆以限价买入和卖出时，指交易货币数量。\n-  // 当币币杠杆以市价买入时，指计价货币的数量。\n-  // 当币币杠杆以市价卖出时，指交易货币的数量。\n-  // 对于币币市价单，单位由 tgtCcy 决定\n-  // 当交割、永续、期权买入和卖出时，指合约张数。\n-  const mapOrderVolumeToSz = async (order: IOrder) => {\n-    if (instType === 'SWAP') {\n-      return order.volume;\n-    }\n-    if (instType === 'MARGIN') {\n-      if (order.order_type === 'LIMIT') {\n-        return order.volume;\n-      }\n-      if (order.order_type === 'MAKER') {\n-        return order.volume;\n-      }\n-      if (order.order_type === 'MARKET') {\n-        if (order.order_direction === 'OPEN_SHORT' || order.order_direction === 'CLOSE_LONG') {\n-          return order.volume;\n-        }\n-        //\n-        const price = await firstValueFrom(\n-          spotMarketTickers$.pipe(\n-            map((x) =>\n-              mapOrderDirectionToPosSide(order.order_direction) === 'long'\n-                ? +x[instId].askPx\n-                : +x[instId].bidPx,\n-            ),\n-          ),\n-        );\n-        if (!price) {\n-          throw new Error(`invalid tick: ${price}`);\n-        }\n-        console.info(formatTime(Date.now()), 'SubmitOrder', 'price', price);\n-        const theProduct = await firstValueFrom(\n-          productService.mapProductIdToProduct$.pipe(map((x) => x.get(order.product_id))),\n-        );\n-        if (!theProduct) {\n-          throw new Error(`Unknown product: ${order.position_id}`);\n-        }\n-        return roundToStep(order.volume * price, theProduct.volume_step!);\n-      }\n-\n-      return 0;\n-    }\n-\n-    if (instType === 'SPOT') {\n-      return order.volume;\n-    }\n-\n-    throw new Error(`Unknown instType: ${instType}`);\n-  };\n-\n-  const params = {\n-    instId,\n-    tdMode: instType === 'SPOT' ? 'cash' : 'cross',\n-    side: mapOrderDirectionToSide(order.order_direction),\n-    posSide:\n-      instType === 'MARGIN' || instType === 'SPOT'\n-        ? 'net'\n-        : mapOrderDirectionToPosSide(order.order_direction),\n-    ordType: mapOrderTypeToOrdType(order.order_type),\n-    sz: (await mapOrderVolumeToSz(order)).toString(),\n-    tgtCcy: instType === 'SPOT' && order.order_type === 'MARKET' ? 'base_ccy' : undefined,\n-    reduceOnly:\n-      instType === 'MARGIN' && ['CLOSE_LONG', 'CLOSE_SHORT'].includes(order.order_direction ?? '')\n-        ? 'true'\n-        : undefined,\n-    px: order.order_type === 'LIMIT' || order.order_type === 'MAKER' ? order.price!.toString() : undefined,\n-    ccy: instType === 'MARGIN' ? 'USDT' : undefined,\n-    tag: process.env.BROKER_TAG,\n-  };\n-  console.info(formatTime(Date.now()), 'SubmitOrder', 'params', JSON.stringify(params));\n-  const res = await postTradeOrder(credential, params);\n-  if (res.code === '0' && res.data?.[0]?.ordId) {\n-    return { order_id: res.data[0].ordId };\n-  }\n-  throw `Failed to submit order: ${res.code} ${res.msg}: ${res.data\n-    .map((x) => `${x.sCode} ${x.sMsg}`)\n-    .join('; ')}`;\n-};\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-okx/src/orders/cancelOrder.ts",
+          "changeType": "modified",
+          "patch": "commit ac108ab9dc96fd2602b3bae02f6aa6263d4f45e8\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Fri Dec 5 14:28:04 2025 +0800\n\n    refactor: move order-related functions to a dedicated orders directory and update imports (#2204)\n\ndiff --git a/apps/vendor-okx/src/orders/cancelOrder.ts b/apps/vendor-okx/src/orders/cancelOrder.ts\nindex db8741b6f..9a6c6d976 100644\n--- a/apps/vendor-okx/src/orders/cancelOrder.ts\n+++ b/apps/vendor-okx/src/orders/cancelOrder.ts\n@@ -6 +6 @@ export const cancelOrder = async (credential: ICredential, order: IOrder) => {\n-  const [, instId] = decodePath(order.product_id);\n+  const [instId] = decodePath(order.product_id).slice(-1);\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-okx/src/orders/modifyOrder.ts",
+          "changeType": "modified",
+          "patch": "commit ac108ab9dc96fd2602b3bae02f6aa6263d4f45e8\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Fri Dec 5 14:28:04 2025 +0800\n\n    refactor: move order-related functions to a dedicated orders directory and update imports (#2204)\n\ndiff --git a/apps/vendor-okx/src/orders/modifyOrder.ts b/apps/vendor-okx/src/orders/modifyOrder.ts\nindex ab30a4b20..9101b5049 100644\n--- a/apps/vendor-okx/src/orders/modifyOrder.ts\n+++ b/apps/vendor-okx/src/orders/modifyOrder.ts\n@@ -9 +9 @@ export const modifyOrder = async (credential: ICredential, order: IOrder) => {\n-  const [instType, instId] = decodePath(order.product_id);\n+  const [instType, instId] = decodePath(order.product_id).slice(-2);\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 2,
+          "deletions": 2,
+          "path": "apps/vendor-okx/src/orders/submitOrder.ts",
+          "changeType": "modified",
+          "patch": "commit ac108ab9dc96fd2602b3bae02f6aa6263d4f45e8\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Fri Dec 5 14:28:04 2025 +0800\n\n    refactor: move order-related functions to a dedicated orders directory and update imports (#2204)\n\ndiff --git a/apps/vendor-okx/src/orders/submitOrder.ts b/apps/vendor-okx/src/orders/submitOrder.ts\nindex 5a161696c..564c8a659 100644\n--- a/apps/vendor-okx/src/orders/submitOrder.ts\n+++ b/apps/vendor-okx/src/orders/submitOrder.ts\n@@ -45 +45 @@ export const submitOrder = async (credential: ICredential, order: IOrder): Promi\n-  const [instType, instId] = decodePath(order.product_id);\n+  const [instType, instId] = decodePath(order.product_id).slice(-2);\n@@ -118 +118 @@ export const submitOrder = async (credential: ICredential, order: IOrder): Promi\n-    tag: process.env.BROKER_TAG,\n+    tag: process.env.BROKER_CODE,\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-okx/src/services.ts",
+          "changeType": "modified",
+          "patch": "commit ac108ab9dc96fd2602b3bae02f6aa6263d4f45e8\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Fri Dec 5 14:28:04 2025 +0800\n\n    refactor: move order-related functions to a dedicated orders directory and update imports (#2204)\n\ndiff --git a/apps/vendor-okx/src/services.ts b/apps/vendor-okx/src/services.ts\nindex 9c8c077ad..aeaf5f9d0 100644\n--- a/apps/vendor-okx/src/services.ts\n+++ b/apps/vendor-okx/src/services.ts\n@@ -24 +24 @@ defer(async () => {\n-        msg.req.tag = process.env.BROKER_TAG;\n+        msg.req.tag = process.env.BROKER_CODE;\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-05-06-24.json",
+          "changeType": "added",
+          "patch": "commit ac108ab9dc96fd2602b3bae02f6aa6263d4f45e8\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Fri Dec 5 14:28:04 2025 +0800\n\n    refactor: move order-related functions to a dedicated orders directory and update imports (#2204)\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-05-06-24.json b/common/changes/@yuants/vendor-okx/2025-12-05-06-24.json\nnew file mode 100644\nindex 000000000..480fd1904\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-okx/2025-12-05-06-24.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-okx\",\n+      \"comment\": \"fix order actions\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-okx\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "d8d60c1f208f08ba0c8566d6d83f7ddb46d457e1",
+      "short": "d8d60c1f2",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2025-12-05 14:33:05 +0800",
+      "subject": "chore: bump version (#2205)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-okx/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit d8d60c1f208f08ba0c8566d6d83f7ddb46d457e1\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Dec 5 14:33:05 2025 +0800\n\n    chore: bump version (#2205)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.json b/apps/vendor-okx/CHANGELOG.json\nindex b372c1ad7..96e11227a 100644\n--- a/apps/vendor-okx/CHANGELOG.json\n+++ b/apps/vendor-okx/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.29.1\",\n+      \"tag\": \"@yuants/vendor-okx_v0.29.1\",\n+      \"date\": \"Fri, 05 Dec 2025 06:30:56 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"fix order actions\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-okx/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit d8d60c1f208f08ba0c8566d6d83f7ddb46d457e1\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Dec 5 14:33:05 2025 +0800\n\n    chore: bump version (#2205)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.md b/apps/vendor-okx/CHANGELOG.md\nindex 2c57a21cc..2cdf45546 100644\n--- a/apps/vendor-okx/CHANGELOG.md\n+++ b/apps/vendor-okx/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Fri, 05 Dec 2025 05:46:23 GMT and should not be manually modified.\n+This log was last generated on Fri, 05 Dec 2025 06:30:56 GMT and should not be manually modified.\n+\n+## 0.29.1\n+Fri, 05 Dec 2025 06:30:56 GMT\n+\n+### Patches\n+\n+- fix order actions\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-okx/package.json",
+          "changeType": "modified",
+          "patch": "commit d8d60c1f208f08ba0c8566d6d83f7ddb46d457e1\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Dec 5 14:33:05 2025 +0800\n\n    chore: bump version (#2205)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/package.json b/apps/vendor-okx/package.json\nindex 5a652b575..1d18b3e95 100644\n--- a/apps/vendor-okx/package.json\n+++ b/apps/vendor-okx/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.29.0\",\n+  \"version\": \"0.29.1\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-05-06-24.json",
+          "changeType": "deleted",
+          "patch": "commit d8d60c1f208f08ba0c8566d6d83f7ddb46d457e1\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Dec 5 14:33:05 2025 +0800\n\n    chore: bump version (#2205)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-05-06-24.json b/common/changes/@yuants/vendor-okx/2025-12-05-06-24.json\ndeleted file mode 100644\nindex 480fd1904..000000000\n--- a/common/changes/@yuants/vendor-okx/2025-12-05-06-24.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-okx\",\n-      \"comment\": \"fix order actions\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-okx\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/{main_2025-12-05-05-46.json => main_2025-12-05-06-30.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "ec771df32a8c5881d8e3313c6cf879739af57964",
+      "short": "ec771df32",
+      "author": "CZ",
+      "email": "zheng.chen@no-trade-no.life",
+      "authoredAt": "2025-12-05 17:28:14 +0800",
+      "subject": "chore: temporarily remove open interest caching and related logic (#2206)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 45,
+          "deletions": 42,
+          "path": "apps/vendor-aster/src/services/markets/quote.ts",
+          "changeType": "modified",
+          "patch": "commit ec771df32a8c5881d8e3313c6cf879739af57964\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Fri Dec 5 17:28:14 2025 +0800\n\n    chore: temporarily remove open interest caching and related logic (#2206)\n\ndiff --git a/apps/vendor-aster/src/services/markets/quote.ts b/apps/vendor-aster/src/services/markets/quote.ts\nindex ead158a55..9ea420c98 100644\n--- a/apps/vendor-aster/src/services/markets/quote.ts\n+++ b/apps/vendor-aster/src/services/markets/quote.ts\n@@ -64,12 +64,12 @@ const getRequestIntervalMs = (rateLimits: IAsterRateLimit[] | undefined, fallbac\n-const openInterestCache = createCache<string>(\n-  async (symbol: string) => {\n-    try {\n-      const data = await getFApiV1OpenInterest({ symbol });\n-      return data.openInterest;\n-    } catch (error) {\n-      console.warn('getFApiV1OpenInterest failed', symbol, error);\n-      return undefined;\n-    }\n-  },\n-  { expire: OPEN_INTEREST_TTL },\n-);\n+// const openInterestCache = createCache<string>(\n+//   async (symbol: string) => {\n+//     try {\n+//       const data = await getFApiV1OpenInterest({ symbol });\n+//       return data.openInterest;\n+//     } catch (error) {\n+//       console.warn('getFApiV1OpenInterest failed', symbol, error);\n+//       return undefined;\n+//     }\n+//   },\n+//   { expire: OPEN_INTEREST_TTL },\n+// );\n@@ -77,10 +77,10 @@ const openInterestCache = createCache<string>(\n-const requestInterval$ = defer(() => getFApiV1ExchangeInfo({})).pipe(\n-  map((info) => getRequestIntervalMs(info.rateLimits, DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS)),\n-  catchError((err) => {\n-    console.warn('getFApiV1ExchangeInfo failed when calculating request interval', err);\n-    return of(DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS);\n-  }),\n-  startWith(DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS),\n-  retry({ delay: 60_000 }),\n-  shareReplay({ bufferSize: 1, refCount: true }),\n-);\n+// const requestInterval$ = defer(() => getFApiV1ExchangeInfo({})).pipe(\n+//   map((info) => getRequestIntervalMs(info.rateLimits, DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS)),\n+//   catchError((err) => {\n+//     console.warn('getFApiV1ExchangeInfo failed when calculating request interval', err);\n+//     return of(DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS);\n+//   }),\n+//   startWith(DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS),\n+//   retry({ delay: 60_000 }),\n+//   shareReplay({ bufferSize: 1, refCount: true }),\n+// );\n@@ -109,19 +109,19 @@ const quoteFromTicker$ = ticker$.pipe(\n-const quoteFromOpenInterest$ = combineLatest([ticker$, requestInterval$]).pipe(\n-  mergeMap(([tickers, requestInterval]) =>\n-    from(tickers).pipe(\n-      concatMap((ticker, index) =>\n-        (index > 0 ? timer(requestInterval) : of(0)).pipe(\n-          mergeMap(() => from(openInterestCache.query(ticker.symbol))),\n-          map(\n-            (openInterest): Partial<IQuote> => ({\n-              datasource_id: 'ASTER',\n-              product_id: encodePath('ASTER', 'PERP', ticker.symbol),\n-              open_interest: `${openInterest ?? 0}`,\n-              updated_at: new Date(ticker.time ?? Date.now()).toISOString(),\n-            }),\n-          ),\n-        ),\n-      ),\n-    ),\n-  ),\n-);\n+// const quoteFromOpenInterest$ = combineLatest([ticker$, requestInterval$]).pipe(\n+//   mergeMap(([tickers, requestInterval]) =>\n+//     from(tickers).pipe(\n+//       concatMap((ticker, index) =>\n+//         (index > 0 ? timer(requestInterval) : of(0)).pipe(\n+//           mergeMap(() => from(openInterestCache.query(ticker.symbol))),\n+//           map(\n+//             (openInterest): Partial<IQuote> => ({\n+//               datasource_id: 'ASTER',\n+//               product_id: encodePath('ASTER', 'PERP', ticker.symbol),\n+//               open_interest: `${openInterest ?? 0}`,\n+//               updated_at: new Date(ticker.time ?? Date.now()).toISOString(),\n+//             }),\n+//           ),\n+//         ),\n+//       ),\n+//     ),\n+//   ),\n+// );\n@@ -129 +129,4 @@ const quoteFromOpenInterest$ = combineLatest([ticker$, requestInterval$]).pipe(\n-const quote$ = merge(quoteFromTicker$, quoteFromOpenInterest$).pipe(\n+const quote$ = merge(\n+  quoteFromTicker$,\n+  // quoteFromOpenInterest$\n+).pipe(\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "openInterestCache",
+              "code": "// const openInterestCache = createCache<string>(\n//   async (symbol: string) => {\n//     try {",
+              "lineStart": 64,
+              "lineEnd": 66
+            },
+            {
+              "type": "function",
+              "name": "data",
+              "code": "//       const data = await getFApiV1OpenInterest({ symbol });\n//       return data.openInterest;\n//     } catch (error) {\n//       console.warn('getFApiV1OpenInterest failed', symbol, error);\n//       return undefined;\n//     }\n//   },\n//   { expire: OPEN_INTEREST_TTL },\n// );",
+              "lineStart": 67,
+              "lineEnd": 76
+            },
+            {
+              "type": "function",
+              "name": "requestInterval",
+              "code": "// const requestInterval$ = defer(() => getFApiV1ExchangeInfo({})).pipe(\n//   map((info) => getRequestIntervalMs(info.rateLimits, DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS)),\n//   catchError((err) => {\n//     console.warn('getFApiV1ExchangeInfo failed when calculating request interval', err);\n//     return of(DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS);\n//   }),\n//   startWith(DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS),\n//   retry({ delay: 60_000 }),\n//   shareReplay({ bufferSize: 1, refCount: true }),\n// );",
+              "lineStart": 77,
+              "lineEnd": 108
+            },
+            {
+              "type": "function",
+              "name": "quoteFromOpenInterest",
+              "code": "// const quoteFromOpenInterest$ = combineLatest([ticker$, requestInterval$]).pipe(\n//   mergeMap(([tickers, requestInterval]) =>\n//     from(tickers).pipe(\n//       concatMap((ticker, index) =>\n//         (index > 0 ? timer(requestInterval) : of(0)).pipe(\n//           mergeMap(() => from(openInterestCache.query(ticker.symbol))),\n//           map(\n//             (openInterest): Partial<IQuote> => ({\n//               datasource_id: 'ASTER',\n//               product_id: encodePath('ASTER', 'PERP', ticker.symbol),\n//               open_interest: `${openInterest ?? 0}`,\n//               updated_at: new Date(ticker.time ?? Date.now()).toISOString(),\n//             }),\n//           ),\n//         ),",
+              "lineStart": 109,
+              "lineEnd": 128
+            },
+            {
+              "type": "function",
+              "name": "quote",
+              "code": "const quote$ = merge(\n  quoteFromTicker$,\n  // quoteFromOpenInterest$\n).pipe(",
+              "lineStart": 129,
+              "lineEnd": 133
+            }
+          ]
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-aster/2025-12-05-09-26.json",
+          "changeType": "added",
+          "patch": "commit ec771df32a8c5881d8e3313c6cf879739af57964\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Fri Dec 5 17:28:14 2025 +0800\n\n    chore: temporarily remove open interest caching and related logic (#2206)\n\ndiff --git a/common/changes/@yuants/vendor-aster/2025-12-05-09-26.json b/common/changes/@yuants/vendor-aster/2025-12-05-09-26.json\nnew file mode 100644\nindex 000000000..fdae00998\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-aster/2025-12-05-09-26.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-aster\",\n+      \"comment\": \"temp remove code sick\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-aster\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "82809689b13ce6890dc934748f5ad84a028b5053",
+      "short": "82809689b",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2025-12-05 17:36:06 +0800",
+      "subject": "chore: bump version (#2207)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-aster/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 82809689b13ce6890dc934748f5ad84a028b5053\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Dec 5 17:36:06 2025 +0800\n\n    chore: bump version (#2207)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/CHANGELOG.json b/apps/vendor-aster/CHANGELOG.json\nindex 157e86d10..098dec2b3 100644\n--- a/apps/vendor-aster/CHANGELOG.json\n+++ b/apps/vendor-aster/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.7.19\",\n+      \"tag\": \"@yuants/vendor-aster_v0.7.19\",\n+      \"date\": \"Fri, 05 Dec 2025 09:35:39 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"temp remove code sick\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-aster/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 82809689b13ce6890dc934748f5ad84a028b5053\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Dec 5 17:36:06 2025 +0800\n\n    chore: bump version (#2207)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/CHANGELOG.md b/apps/vendor-aster/CHANGELOG.md\nindex 102ea3be5..d31cd102a 100644\n--- a/apps/vendor-aster/CHANGELOG.md\n+++ b/apps/vendor-aster/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Thu, 04 Dec 2025 10:36:34 GMT and should not be manually modified.\n+This log was last generated on Fri, 05 Dec 2025 09:35:39 GMT and should not be manually modified.\n+\n+## 0.7.19\n+Fri, 05 Dec 2025 09:35:39 GMT\n+\n+### Patches\n+\n+- temp remove code sick\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-aster/package.json",
+          "changeType": "modified",
+          "patch": "commit 82809689b13ce6890dc934748f5ad84a028b5053\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Dec 5 17:36:06 2025 +0800\n\n    chore: bump version (#2207)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/package.json b/apps/vendor-aster/package.json\nindex 86120e2ae..073099d7a 100644\n--- a/apps/vendor-aster/package.json\n+++ b/apps/vendor-aster/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.7.18\",\n+  \"version\": \"0.7.19\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-aster/2025-12-05-09-26.json",
+          "changeType": "deleted",
+          "patch": "commit 82809689b13ce6890dc934748f5ad84a028b5053\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Dec 5 17:36:06 2025 +0800\n\n    chore: bump version (#2207)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-aster/2025-12-05-09-26.json b/common/changes/@yuants/vendor-aster/2025-12-05-09-26.json\ndeleted file mode 100644\nindex fdae00998..000000000\n--- a/common/changes/@yuants/vendor-aster/2025-12-05-09-26.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-aster\",\n-      \"comment\": \"temp remove code sick\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-aster\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-aster/{main_2025-12-04-10-36.json => main_2025-12-05-09-35.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "af56c8e8a565fb8340b703f1c86545d15848b57c",
+      "short": "af56c8e8a",
+      "author": "Ryan",
+      "email": "stayrealrhr@gmail.com",
+      "authoredAt": "2025-12-05 22:24:08 +0800",
+      "subject": "feat: add interest rate (#2208)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 30,
+          "deletions": 11,
+          "path": "apps/vendor-okx/src/public-data/quote.ts",
+          "changeType": "modified",
+          "patch": "commit af56c8e8a565fb8340b703f1c86545d15848b57c\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Fri Dec 5 22:24:08 2025 +0800\n\n    feat: add interest rate (#2208)\n\ndiff --git a/apps/vendor-okx/src/public-data/quote.ts b/apps/vendor-okx/src/public-data/quote.ts\nindex 4ab43a1d6..6ed5cb051 100644\n--- a/apps/vendor-okx/src/public-data/quote.ts\n+++ b/apps/vendor-okx/src/public-data/quote.ts\n@@ -30 +30 @@ import { getInstruments, getMarketTickers, getOpenInterest, getPositionTiers } f\n-import { useOpenInterest, useTicker } from '../ws';\n+import { useFundingRate, useOpenInterest, useTicker } from '../ws';\n@@ -92 +92 @@ const quoteOfSwapFromRest$ = defer(() => getMarketTickers({ instType: 'SWAP' }))\n-      product_id: encodePath(x.instType, x.instId),\n+      product_id: encodePath('OKX', x.instType, x.instId),\n@@ -109 +109 @@ const quoteOfSpotAndMarginFromRest$ = defer(() => getMarketTickers({ instType: '\n-      product_id: encodePath('SPOT', x.instId),\n+      product_id: encodePath('OKX', 'SPOT', x.instId),\n@@ -118 +118 @@ const quoteOfSpotAndMarginFromRest$ = defer(() => getMarketTickers({ instType: '\n-      product_id: encodePath('MARGIN', x.instId),\n+      product_id: encodePath('OKX', 'MARGIN', x.instId),\n@@ -139 +139 @@ const quoteOfSwapFromWs$ = swapInstruments$.pipe(\n-      product_id: encodePath('SWAP', ticker[0].instId),\n+      product_id: encodePath('OKX', 'SWAP', ticker[0].instId),\n@@ -153 +153 @@ const quoteOfSpotAndMarginFromWs$ = spotTicker$.pipe(\n-      product_id: encodePath('SPOT', ticker[0].instId),\n+      product_id: encodePath('OKX', 'SPOT', ticker[0].instId),\n@@ -162 +162 @@ const quoteOfSpotAndMarginFromWs$ = spotTicker$.pipe(\n-      product_id: encodePath('MARGIN', ticker[0].instId),\n+      product_id: encodePath('OKX', 'MARGIN', ticker[0].instId),\n@@ -178 +178 @@ const swapOpenInterests$ = defer(() => getOpenInterest({ instType: 'SWAP' })).pi\n-const interestRateOfSwapFromWS$ = swapInstruments$.pipe(\n+const openInterestOfSwapFromWS$ = swapInstruments$.pipe(\n@@ -187 +187 @@ const interestRateOfSwapFromWS$ = swapInstruments$.pipe(\n-      product_id: encodePath('SWAP', x[0].instId),\n+      product_id: encodePath('OKX', 'SWAP', x[0].instId),\n@@ -193,0 +194,18 @@ const interestRateOfSwapFromWS$ = swapInstruments$.pipe(\n+const interestRateOfSwapFromWS$ = swapInstruments$.pipe(\n+  listWatch(\n+    (x) => x.instId,\n+    (x) => useFundingRate(x.instId),\n+    () => true,\n+  ),\n+  map(\n+    (x): Partial<IQuote> => ({\n+      datasource_id: 'OKX',\n+      product_id: encodePath('OKX', 'SWAP', x[0].instId),\n+      interest_rate_long: `-${x[0].fundingRate}`,\n+      interest_rate_short: x[0].fundingRate,\n+      interest_rate_next_settled_at: x[0].fundingTime,\n+    }),\n+  ),\n+  share(),\n+);\n+\n@@ -285 +303 @@ const marginOpenInterest$ = spotInstIds$.pipe(\n-      product_id: encodePath('MARGIN', instId),\n+      product_id: encodePath('OKX', 'MARGIN', instId),\n@@ -299 +317 @@ const quoteSources$ = [\n-  interestRateOfSwapFromWS$,\n+  openInterestOfSwapFromWS$,\n@@ -303,0 +322 @@ const quoteSources$ = [\n+  interestRateOfSwapFromWS$,\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "openInterestOfSwapFromWS",
+              "code": "const openInterestOfSwapFromWS$ = swapInstruments$.pipe(\n      product_id: encodePath('OKX', 'SWAP', x[0].instId),",
+              "lineStart": 178,
+              "lineEnd": 193
+            },
+            {
+              "type": "function",
+              "name": "interestRateOfSwapFromWS",
+              "code": "const interestRateOfSwapFromWS$ = swapInstruments$.pipe(\n  listWatch(\n    (x) => x.instId,\n    (x) => useFundingRate(x.instId),\n    () => true,\n  ),\n  map(\n    (x): Partial<IQuote> => ({\n      datasource_id: 'OKX',\n      product_id: encodePath('OKX', 'SWAP', x[0].instId),\n      interest_rate_long: `-${x[0].fundingRate}`,\n      interest_rate_short: x[0].fundingRate,\n      interest_rate_next_settled_at: x[0].fundingTime,\n    }),\n  ),",
+              "lineStart": 194,
+              "lineEnd": 323
+            }
+          ]
+        },
+        {
+          "additions": 22,
+          "deletions": 0,
+          "path": "apps/vendor-okx/src/ws.ts",
+          "changeType": "added",
+          "patch": "commit af56c8e8a565fb8340b703f1c86545d15848b57c\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Fri Dec 5 22:24:08 2025 +0800\n\n    feat: add interest rate (#2208)\n\ndiff --git a/apps/vendor-okx/src/ws.ts b/apps/vendor-okx/src/ws.ts\nindex 67e46658d..c3e29df77 100644\n--- a/apps/vendor-okx/src/ws.ts\n+++ b/apps/vendor-okx/src/ws.ts\n@@ -331,0 +332,22 @@ export const useMarketBooks = (\n+\n+export const useFundingRate = (instId: string) =>\n+  fromWsChannelAndInstId<\n+    {\n+      fundingRate: string;\n+      fundingTime: string;\n+      instId: string;\n+      instType: string;\n+      method: string;\n+      maxFundingRate: string;\n+      minFundingRate: string;\n+      nextFundingRate: string;\n+      nextFundingTime: string;\n+      premium: string;\n+      settFundingRate: string;\n+      settState: string;\n+      ts: string;\n+    }[]\n+  >('ws/v5/public', 'funding-rate', instId).pipe(\n+    //\n+    filter((data) => data.length > 0),\n+  );\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "useFundingRate",
+              "code": "export const useFundingRate = (instId: string) =>\n  fromWsChannelAndInstId<\n    {\n      fundingRate: string;\n      fundingTime: string;\n      instId: string;\n      instType: string;\n      method: string;\n      maxFundingRate: string;\n      minFundingRate: string;\n      nextFundingRate: string;\n      nextFundingTime: string;\n      premium: string;\n      settFundingRate: string;\n      settState: string;",
+              "lineStart": 333,
+              "lineEnd": 354
+            }
+          ]
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-05-14-21.json",
+          "changeType": "added",
+          "patch": "commit af56c8e8a565fb8340b703f1c86545d15848b57c\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Fri Dec 5 22:24:08 2025 +0800\n\n    feat: add interest rate (#2208)\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-05-14-21.json b/common/changes/@yuants/vendor-okx/2025-12-05-14-21.json\nnew file mode 100644\nindex 000000000..983bf70cd\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-okx/2025-12-05-14-21.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-okx\",\n+      \"comment\": \"add interest rate for okx\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-okx\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "4ecf8af008db1b477bf99100d1c34d81c1cc4830",
+      "short": "4ecf8af00",
+      "author": "Ryan",
+      "email": "stayrealrhr@gmail.com",
+      "authoredAt": "2025-12-05 22:33:29 +0800",
+      "subject": "feat: add new quote (#2209)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 1,
+          "deletions": 0,
+          "path": "apps/vendor-okx/src/index.ts",
+          "changeType": "added",
+          "patch": "commit 4ecf8af008db1b477bf99100d1c34d81c1cc4830\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Fri Dec 5 22:33:29 2025 +0800\n\n    feat: add new quote (#2209)\n\ndiff --git a/apps/vendor-okx/src/index.ts b/apps/vendor-okx/src/index.ts\nindex 9432e574a..4bad32deb 100644\n--- a/apps/vendor-okx/src/index.ts\n+++ b/apps/vendor-okx/src/index.ts\n@@ -15,0 +16 @@ import './transfer';\n+import './public-data/new-quote';\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 373,
+          "deletions": 0,
+          "path": "apps/vendor-okx/src/public-data/new-quote.ts",
+          "changeType": "added",
+          "patch": "commit 4ecf8af008db1b477bf99100d1c34d81c1cc4830\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Fri Dec 5 22:33:29 2025 +0800\n\n    feat: add new quote (#2209)\n\ndiff --git a/apps/vendor-okx/src/public-data/new-quote.ts b/apps/vendor-okx/src/public-data/new-quote.ts\nnew file mode 100644\nindex 000000000..6ed5cb051\n--- /dev/null\n+++ b/apps/vendor-okx/src/public-data/new-quote.ts\n@@ -0,0 +1,373 @@\n+import { IQuote } from '@yuants/data-quote';\n+import { Terminal } from '@yuants/protocol';\n+import { writeToSQL } from '@yuants/sql';\n+import { decodePath, encodePath, formatTime, listWatch } from '@yuants/utils';\n+import {\n+  catchError,\n+  concatMap,\n+  defer,\n+  distinctUntilChanged,\n+  EMPTY,\n+  filter,\n+  first,\n+  firstValueFrom,\n+  from,\n+  groupBy,\n+  map,\n+  merge,\n+  mergeMap,\n+  reduce,\n+  repeat,\n+  retry,\n+  scan,\n+  share,\n+  shareReplay,\n+  switchMap,\n+  tap,\n+  toArray,\n+} from 'rxjs';\n+import { getInstruments, getMarketTickers, getOpenInterest, getPositionTiers } from '../api/public-api';\n+import { useFundingRate, useOpenInterest, useTicker } from '../ws';\n+\n+const terminal = Terminal.fromNodeEnv();\n+\n+const swapInstruments$ = defer(() => getInstruments({ instType: 'SWAP' })).pipe(\n+  repeat({ delay: 3600_000 }),\n+  retry({ delay: 10_000 }),\n+  map((x) => x.data),\n+  shareReplay(1),\n+);\n+const spotInstruments$ = defer(() => getInstruments({ instType: 'SPOT' })).pipe(\n+  repeat({ delay: 3600_000 }),\n+  retry({ delay: 10_000 }),\n+  map((x) => x.data),\n+  shareReplay(1),\n+);\n+\n+const shallowEqual = (a: string[], b: string[]) => a.length === b.length && a.every((v, i) => v === b[i]);\n+\n+const spotInstIds$ = spotInstruments$.pipe(\n+  map((items) => items.map((item) => item.instId)),\n+  distinctUntilChanged(shallowEqual),\n+  shareReplay(1),\n+);\n+\n+const spotTickers$ = defer(() => getMarketTickers({ instType: 'SPOT' })).pipe(\n+  repeat({ delay: 5000 }),\n+  retry({ delay: 5000 }),\n+  shareReplay(1),\n+);\n+\n+// depend by SubmitOrders\n+export const spotMarketTickers$ = defer(() => spotTickers$).pipe(\n+  mergeMap((x) =>\n+    from(x.data).pipe(\n+      map((x) => [x.instId, x] as const),\n+      toArray(),\n+      map((x) => Object.fromEntries(x)),\n+    ),\n+  ),\n+  repeat({ delay: 5000 }),\n+  retry({ delay: 5000 }),\n+  shareReplay(1),\n+);\n+\n+const spotTicker$ = spotInstruments$.pipe(\n+  tap((x) => {\n+    console.info('SPOT INSTRUMENTS', x.length);\n+  }),\n+  listWatch(\n+    (x) => x.instId,\n+    (x) => useTicker(x.instId),\n+    () => true,\n+  ),\n+  share(),\n+);\n+\n+const quoteOfSwapFromRest$ = defer(() => getMarketTickers({ instType: 'SWAP' })).pipe(\n+  mergeMap((x) => x.data || []),\n+  map(\n+    (x): Partial<IQuote> => ({\n+      datasource_id: 'OKX',\n+      product_id: encodePath('OKX', x.instType, x.instId),\n+      last_price: x.last,\n+      ask_price: x.askPx,\n+      bid_price: x.bidPx,\n+      ask_volume: x.askSz,\n+      bid_volume: x.bidSz,\n+    }),\n+  ),\n+  repeat({ delay: 1000 }),\n+  retry({ delay: 1000 }),\n+);\n+\n+const quoteOfSpotAndMarginFromRest$ = defer(() => getMarketTickers({ instType: 'SPOT' })).pipe(\n+  mergeMap((x) => x.data || []),\n+  mergeMap((x): Partial<IQuote>[] => [\n+    {\n+      datasource_id: 'OKX',\n+      product_id: encodePath('OKX', 'SPOT', x.instId),\n+      last_price: x.last,\n+      ask_price: x.askPx,\n+      bid_price: x.bidPx,\n+      ask_volume: x.askSz,\n+      bid_volume: x.bidSz,\n+    },\n+    {\n+      datasource_id: 'OKX',\n+      product_id: encodePath('OKX', 'MARGIN', x.instId),\n+      last_price: x.last,\n+      ask_price: x.askPx,\n+      bid_price: x.bidPx,\n+      ask_volume: x.askSz,\n+      bid_volume: x.bidSz,\n+    },\n+  ]),\n+  repeat({ delay: 1000 }),\n+  retry({ delay: 1000 }),\n+);\n+\n+const quoteOfSwapFromWs$ = swapInstruments$.pipe(\n+  listWatch(\n+    (x) => x.instId,\n+    (x) => useTicker(x.instId),\n+    () => true,\n+  ),\n+  map(\n+    (ticker): Partial<IQuote> => ({\n+      datasource_id: 'OKX',\n+      product_id: encodePath('OKX', 'SWAP', ticker[0].instId),\n+      last_price: ticker[0].last,\n+      ask_price: ticker[0].askPx,\n+      bid_price: ticker[0].bidPx,\n+      ask_volume: ticker[0].askSz,\n+      bid_volume: ticker[0].bidSz,\n+    }),\n+  ),\n+);\n+\n+const quoteOfSpotAndMarginFromWs$ = spotTicker$.pipe(\n+  mergeMap((ticker): Partial<IQuote>[] => [\n+    {\n+      datasource_id: 'OKX',\n+      product_id: encodePath('OKX', 'SPOT', ticker[0].instId),\n+      last_price: ticker[0].last,\n+      ask_price: ticker[0].askPx,\n+      bid_price: ticker[0].bidPx,\n+      ask_volume: ticker[0].askSz,\n+      bid_volume: ticker[0].bidSz,\n+    },\n+    {\n+      datasource_id: 'OKX',\n+      product_id: encodePath('OKX', 'MARGIN', ticker[0].instId),\n+      last_price: ticker[0].last,\n+      ask_price: ticker[0].askPx,\n+      bid_price: ticker[0].bidPx,\n+      ask_volume: ticker[0].askSz,\n+      bid_volume: ticker[0].bidSz,\n+    },\n+  ]),\n+);\n+\n+const swapOpenInterests$ = defer(() => getOpenInterest({ instType: 'SWAP' })).pipe(\n+  repeat({ delay: 10_000 }),\n+  retry({ delay: 10_000 }),\n+  shareReplay(1),\n+);\n+\n+const openInterestOfSwapFromWS$ = swapInstruments$.pipe(\n+  listWatch(\n+    (x) => x.instId,\n+    (x) => useOpenInterest(x.instId),\n+    () => true,\n+  ),\n+  map(\n+    (x): Partial<IQuote> => ({\n+      datasource_id: 'OKX',\n+      product_id: encodePath('OKX', 'SWAP', x[0].instId),\n+      open_interest: x[0].oi,\n+    }),\n+  ),\n+  share(),\n+);\n+\n+const interestRateOfSwapFromWS$ = swapInstruments$.pipe(\n+  listWatch(\n+    (x) => x.instId,\n+    (x) => useFundingRate(x.instId),\n+    () => true,\n+  ),\n+  map(\n+    (x): Partial<IQuote> => ({\n+      datasource_id: 'OKX',\n+      product_id: encodePath('OKX', 'SWAP', x[0].instId),\n+      interest_rate_long: `-${x[0].fundingRate}`,\n+      interest_rate_short: x[0].fundingRate,\n+      interest_rate_next_settled_at: x[0].fundingTime,\n+    }),\n+  ),\n+  share(),\n+);\n+\n+type PositionTiersResponse = Awaited<ReturnType<typeof getPositionTiers>>;\n+type PositionTiersEntry = PositionTiersResponse['data'];\n+\n+const marginPositionTiersMap$ = defer(() =>\n+  spotInstIds$.pipe(\n+    first(),\n+    map((instIds) => instIds.filter((id) => id.endsWith('USDT') || id.endsWith('USDC'))),\n+    switchMap((instIds) => {\n+      const total = instIds.length;\n+      let processed = 0;\n+      return from(instIds).pipe(\n+        concatMap((instId) =>\n+          defer(async () => {\n+            const tiers = await terminal.client.requestForResponseData<\n+              { instType: string; tdMode: string; instId: string },\n+              PositionTiersResponse\n+            >('OKX/PositionTiers', {\n+              instType: 'MARGIN',\n+              tdMode: 'cross',\n+              instId,\n+            });\n+            if (!tiers?.data) {\n+              throw new Error(`Failed to load position tiers for ${instId}: ${tiers.msg}`);\n+            }\n+            return {\n+              instId,\n+              tiers,\n+            };\n+          }).pipe(retry({ delay: 2000 })),\n+        ),\n+        reduce((map, { instId, tiers }) => {\n+          processed += 1;\n+          console.info(\n+            formatTime(Date.now()),\n+            `Loaded margin position tiers ${processed}/${total} (${instId})`,\n+          );\n+          if (tiers?.data) {\n+            map.set(instId, tiers.data);\n+          }\n+          return map;\n+        }, new Map<string, PositionTiersEntry>()),\n+      );\n+    }),\n+  ),\n+).pipe(\n+  //\n+  retry({ delay: 60_000 }),\n+  repeat({ delay: 86400_000 }),\n+  shareReplay(1),\n+);\n+\n+// Margin 的 open interest 只依赖 position-tier：\n+// 1) 启动时先拉全量 MARGIN 仓位档位并缓存，下次直接命中；\n+// 2) 档位内只保留同 tier 杠杆最高的记录；\n+// 3) 当前策略只使用 tier=1 的 quoteMaxLoan 作为持仓上限，不再混合 /account/max-size；\n+// 4) 每个 instId 60 秒刷新一次，并在接口报错时 10 秒重试。\n+const marginOpenInterest$ = spotInstIds$.pipe(\n+  mergeMap((instIds) =>\n+    from(instIds).pipe(\n+      mergeMap((instId) =>\n+        defer(async () => {\n+          const tiersMap = await firstValueFrom(marginPositionTiersMap$);\n+          const tiers = tiersMap.get(instId);\n+          if (!tiers?.length) {\n+            return null;\n+          }\n+\n+          const tierByLevel = tiers\n+            .filter((tier) => !tier.instId || tier.instId === instId)\n+            .reduce((mapTierToTierInfo, tierInfo) => {\n+              const existing = mapTierToTierInfo.get(tierInfo.tier);\n+              if (!existing || +tierInfo.maxLever > +existing.maxLever) {\n+                mapTierToTierInfo.set(tierInfo.tier, tierInfo);\n+              }\n+              return mapTierToTierInfo;\n+            }, new Map<string, (typeof tiers)[number]>());\n+          // 获取一级杠杆的最大可借贷额度作为持仓量\n+          const openInterest = +(tierByLevel.get('1')?.quoteMaxLoan || 0);\n+\n+          return {\n+            instId,\n+            openInterest,\n+          };\n+        }).pipe(retry({ delay: 10_000 }), repeat({ delay: 60_000 })),\n+      ),\n+    ),\n+  ),\n+  filter((result): result is { instId: string; openInterest: number } => result !== null),\n+  map(({ instId, openInterest }) => {\n+    const partial: Partial<IQuote> = {\n+      datasource_id: 'OKX',\n+      product_id: encodePath('OKX', 'MARGIN', instId),\n+    };\n+    if (typeof openInterest === 'number' && Number.isFinite(openInterest)) {\n+      partial.open_interest = `${openInterest}`;\n+    }\n+    return partial;\n+  }),\n+  share(),\n+);\n+\n+marginOpenInterest$.subscribe();\n+\n+const quoteSources$ = [\n+  quoteOfSwapFromWs$,\n+  openInterestOfSwapFromWS$,\n+  quoteOfSwapFromRest$,\n+  quoteOfSpotAndMarginFromWs$,\n+  quoteOfSpotAndMarginFromRest$,\n+  marginOpenInterest$,\n+  interestRateOfSwapFromWS$,\n+];\n+\n+const quote$ = defer(() =>\n+  merge(\n+    ...quoteSources$.map((x$) =>\n+      defer(() => x$).pipe(\n+        // 防止单个流关闭导致整体关闭\n+        catchError(() => EMPTY),\n+      ),\n+    ),\n+  ),\n+).pipe(\n+  groupBy((x) => encodePath(x.datasource_id, x.product_id)),\n+  mergeMap((group$) => {\n+    return group$.pipe(\n+      //\n+      scan((acc, cur) => Object.assign(acc, cur), {} as Partial<IQuote>),\n+    );\n+  }),\n+  share(),\n+);\n+\n+// 合并不同来源的数据并进行合并，避免死锁\n+if (process.env.WRITE_QUOTE_TO_SQL === 'true') {\n+  terminal.channel.publishChannel('quote', { pattern: `^OKX/` }, (channel_id) => {\n+    const [datasource_id, product_id] = decodePath(channel_id);\n+    if (!datasource_id) {\n+      throw 'datasource_id is required';\n+    }\n+    if (!product_id) {\n+      throw 'product_id is required';\n+    }\n+    return quote$.pipe(filter((x) => x.product_id === product_id));\n+  });\n+\n+  quote$\n+    .pipe(\n+      writeToSQL({\n+        terminal,\n+        writeInterval: 1000,\n+        tableName: 'quote',\n+        conflictKeys: ['datasource_id', 'product_id'],\n+      }),\n+    )\n+    .subscribe();\n+}\n+\n+export const swapOpenInterest$ = defer(() => swapOpenInterests$).pipe(\n+  map((x) => new Map(x.data.map((x) => [x.instId, +x.oi] as const))),\n+  shareReplay(1),\n+);\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "terminal",
+              "code": "const terminal = Terminal.fromNodeEnv();\n",
+              "lineStart": 32,
+              "lineEnd": 33
+            },
+            {
+              "type": "function",
+              "name": "swapInstruments",
+              "code": "const swapInstruments$ = defer(() => getInstruments({ instType: 'SWAP' })).pipe(\n  repeat({ delay: 3600_000 }),\n  retry({ delay: 10_000 }),\n  map((x) => x.data),\n  shareReplay(1),\n);",
+              "lineStart": 34,
+              "lineEnd": 39
+            },
+            {
+              "type": "function",
+              "name": "spotInstruments",
+              "code": "const spotInstruments$ = defer(() => getInstruments({ instType: 'SPOT' })).pipe(\n  repeat({ delay: 3600_000 }),\n  retry({ delay: 10_000 }),\n  map((x) => x.data),\n  shareReplay(1),\n);\n",
+              "lineStart": 40,
+              "lineEnd": 46
+            },
+            {
+              "type": "function",
+              "name": "shallowEqual",
+              "code": "const shallowEqual = (a: string[], b: string[]) => a.length === b.length && a.every((v, i) => v === b[i]);\n",
+              "lineStart": 47,
+              "lineEnd": 48
+            },
+            {
+              "type": "function",
+              "name": "spotInstIds",
+              "code": "const spotInstIds$ = spotInstruments$.pipe(\n  map((items) => items.map((item) => item.instId)),\n  distinctUntilChanged(shallowEqual),\n  shareReplay(1),\n);\n",
+              "lineStart": 49,
+              "lineEnd": 54
+            },
+            {
+              "type": "function",
+              "name": "spotTickers",
+              "code": "const spotTickers$ = defer(() => getMarketTickers({ instType: 'SPOT' })).pipe(\n  repeat({ delay: 5000 }),\n  retry({ delay: 5000 }),\n  shareReplay(1),\n);\n\n// depend by SubmitOrders",
+              "lineStart": 55,
+              "lineEnd": 61
+            },
+            {
+              "type": "function",
+              "name": "spotMarketTickers",
+              "code": "export const spotMarketTickers$ = defer(() => spotTickers$).pipe(\n  mergeMap((x) =>\n    from(x.data).pipe(\n      map((x) => [x.instId, x] as const),\n      toArray(),\n      map((x) => Object.fromEntries(x)),\n    ),\n  ),\n  repeat({ delay: 5000 }),\n  retry({ delay: 5000 }),\n  shareReplay(1),\n);\n",
+              "lineStart": 62,
+              "lineEnd": 74
+            },
+            {
+              "type": "function",
+              "name": "spotTicker",
+              "code": "const spotTicker$ = spotInstruments$.pipe(\n  tap((x) => {\n    console.info('SPOT INSTRUMENTS', x.length);\n  }),\n  listWatch(\n    (x) => x.instId,\n    (x) => useTicker(x.instId),\n    () => true,\n  ),\n  share(),\n);\n",
+              "lineStart": 75,
+              "lineEnd": 86
+            },
+            {
+              "type": "function",
+              "name": "quoteOfSwapFromRest",
+              "code": "const quoteOfSwapFromRest$ = defer(() => getMarketTickers({ instType: 'SWAP' })).pipe(\n  mergeMap((x) => x.data || []),\n  map(\n    (x): Partial<IQuote> => ({\n      datasource_id: 'OKX',\n      product_id: encodePath('OKX', x.instType, x.instId),\n      last_price: x.last,\n      ask_price: x.askPx,\n      bid_price: x.bidPx,\n      ask_volume: x.askSz,\n      bid_volume: x.bidSz,\n    }),\n  ),\n  repeat({ delay: 1000 }),\n  retry({ delay: 1000 }),",
+              "lineStart": 87,
+              "lineEnd": 103
+            },
+            {
+              "type": "function",
+              "name": "quoteOfSpotAndMarginFromRest",
+              "code": "const quoteOfSpotAndMarginFromRest$ = defer(() => getMarketTickers({ instType: 'SPOT' })).pipe(\n  mergeMap((x) => x.data || []),\n  mergeMap((x): Partial<IQuote>[] => [\n    {\n      datasource_id: 'OKX',\n      product_id: encodePath('OKX', 'SPOT', x.instId),\n      last_price: x.last,\n      ask_price: x.askPx,\n      bid_price: x.bidPx,\n      ask_volume: x.askSz,\n      bid_volume: x.bidSz,\n    },\n    {\n      datasource_id: 'OKX',\n      product_id: encodePath('OKX', 'MARGIN', x.instId),",
+              "lineStart": 104,
+              "lineEnd": 129
+            },
+            {
+              "type": "function",
+              "name": "quoteOfSwapFromWs",
+              "code": "const quoteOfSwapFromWs$ = swapInstruments$.pipe(\n  listWatch(\n    (x) => x.instId,\n    (x) => useTicker(x.instId),\n    () => true,\n  ),\n  map(\n    (ticker): Partial<IQuote> => ({\n      datasource_id: 'OKX',\n      product_id: encodePath('OKX', 'SWAP', ticker[0].instId),\n      last_price: ticker[0].last,\n      ask_price: ticker[0].askPx,\n      bid_price: ticker[0].bidPx,\n      ask_volume: ticker[0].askSz,\n      bid_volume: ticker[0].bidSz,",
+              "lineStart": 130,
+              "lineEnd": 148
+            },
+            {
+              "type": "function",
+              "name": "quoteOfSpotAndMarginFromWs",
+              "code": "const quoteOfSpotAndMarginFromWs$ = spotTicker$.pipe(\n  mergeMap((ticker): Partial<IQuote>[] => [\n    {\n      datasource_id: 'OKX',\n      product_id: encodePath('OKX', 'SPOT', ticker[0].instId),\n      last_price: ticker[0].last,\n      ask_price: ticker[0].askPx,\n      bid_price: ticker[0].bidPx,\n      ask_volume: ticker[0].askSz,\n      bid_volume: ticker[0].bidSz,\n    },\n    {\n      datasource_id: 'OKX',\n      product_id: encodePath('OKX', 'MARGIN', ticker[0].instId),\n      last_price: ticker[0].last,",
+              "lineStart": 149,
+              "lineEnd": 171
+            },
+            {
+              "type": "function",
+              "name": "swapOpenInterests",
+              "code": "const swapOpenInterests$ = defer(() => getOpenInterest({ instType: 'SWAP' })).pipe(\n  repeat({ delay: 10_000 }),\n  retry({ delay: 10_000 }),\n  shareReplay(1),\n);\n",
+              "lineStart": 172,
+              "lineEnd": 177
+            },
+            {
+              "type": "function",
+              "name": "openInterestOfSwapFromWS",
+              "code": "const openInterestOfSwapFromWS$ = swapInstruments$.pipe(\n  listWatch(\n    (x) => x.instId,\n    (x) => useOpenInterest(x.instId),\n    () => true,\n  ),\n  map(\n    (x): Partial<IQuote> => ({\n      datasource_id: 'OKX',\n      product_id: encodePath('OKX', 'SWAP', x[0].instId),\n      open_interest: x[0].oi,\n    }),\n  ),\n  share(),\n);",
+              "lineStart": 178,
+              "lineEnd": 193
+            },
+            {
+              "type": "function",
+              "name": "interestRateOfSwapFromWS",
+              "code": "const interestRateOfSwapFromWS$ = swapInstruments$.pipe(\n  listWatch(\n    (x) => x.instId,\n    (x) => useFundingRate(x.instId),\n    () => true,\n  ),\n  map(\n    (x): Partial<IQuote> => ({\n      datasource_id: 'OKX',\n      product_id: encodePath('OKX', 'SWAP', x[0].instId),\n      interest_rate_long: `-${x[0].fundingRate}`,\n      interest_rate_short: x[0].fundingRate,\n      interest_rate_next_settled_at: x[0].fundingTime,\n    }),\n  ),",
+              "lineStart": 194,
+              "lineEnd": 214
+            },
+            {
+              "type": "function",
+              "name": "marginPositionTiersMap",
+              "code": "const marginPositionTiersMap$ = defer(() =>\n  spotInstIds$.pipe(\n    first(),\n    map((instIds) => instIds.filter((id) => id.endsWith('USDT') || id.endsWith('USDC'))),\n    switchMap((instIds) => {",
+              "lineStart": 215,
+              "lineEnd": 219
+            },
+            {
+              "type": "function",
+              "name": "total",
+              "code": "const total = instIds.length;",
+              "lineStart": 220,
+              "lineEnd": 220
+            },
+            {
+              "type": "function",
+              "name": "processed",
+              "code": "let processed = 0;\nreturn from(instIds).pipe(\n  concatMap((instId) =>\n    defer(async () => {",
+              "lineStart": 221,
+              "lineEnd": 224
+            },
+            {
+              "type": "function",
+              "name": "tiers",
+              "code": "const tiers = await terminal.client.requestForResponseData<\n  { instType: string; tdMode: string; instId: string },\n  PositionTiersResponse\n>('OKX/PositionTiers', {\n  instType: 'MARGIN',\n  tdMode: 'cross',\n  instId,\n});\nif (!tiers?.data) {\n  throw new Error(`Failed to load position tiers for ${instId}: ${tiers.msg}`);\n}\nreturn {\n  instId,\n  tiers,\n};",
+              "lineStart": 225,
+              "lineEnd": 267
+            },
+            {
+              "type": "function",
+              "name": "marginOpenInterest",
+              "code": "const marginOpenInterest$ = spotInstIds$.pipe(\n  mergeMap((instIds) =>\n    from(instIds).pipe(\n      mergeMap((instId) =>\n        defer(async () => {",
+              "lineStart": 268,
+              "lineEnd": 272
+            },
+            {
+              "type": "function",
+              "name": "tiersMap",
+              "code": "const tiersMap = await firstValueFrom(marginPositionTiersMap$);",
+              "lineStart": 273,
+              "lineEnd": 273
+            },
+            {
+              "type": "function",
+              "name": "tiers",
+              "code": "const tiers = tiersMap.get(instId);\nif (!tiers?.length) {\n  return null;\n}\n",
+              "lineStart": 274,
+              "lineEnd": 278
+            },
+            {
+              "type": "function",
+              "name": "tierByLevel",
+              "code": "const tierByLevel = tiers\n  .filter((tier) => !tier.instId || tier.instId === instId)\n  .reduce((mapTierToTierInfo, tierInfo) => {",
+              "lineStart": 279,
+              "lineEnd": 281
+            },
+            {
+              "type": "function",
+              "name": "existing",
+              "code": "    const existing = mapTierToTierInfo.get(tierInfo.tier);\n    if (!existing || +tierInfo.maxLever > +existing.maxLever) {\n      mapTierToTierInfo.set(tierInfo.tier, tierInfo);\n    }\n    return mapTierToTierInfo;\n  }, new Map<string, (typeof tiers)[number]>());\n// 获取一级杠杆的最大可借贷额度作为持仓量",
+              "lineStart": 282,
+              "lineEnd": 288
+            },
+            {
+              "type": "function",
+              "name": "openInterest",
+              "code": "        const openInterest = +(tierByLevel.get('1')?.quoteMaxLoan || 0);\n\n        return {\n          instId,\n          openInterest,\n        };\n      }).pipe(retry({ delay: 10_000 }), repeat({ delay: 60_000 })),\n    ),\n  ),\n),\nfilter((result): result is { instId: string; openInterest: number } => result !== null),\nmap(({ instId, openInterest }) => {",
+              "lineStart": 289,
+              "lineEnd": 300
+            },
+            {
+              "type": "function",
+              "name": "partial",
+              "code": "    const partial: Partial<IQuote> = {\n      datasource_id: 'OKX',\n      product_id: encodePath('OKX', 'MARGIN', instId),\n    };\n    if (typeof openInterest === 'number' && Number.isFinite(openInterest)) {\n      partial.open_interest = `${openInterest}`;\n    }\n    return partial;\n  }),\n  share(),\n);\n\nmarginOpenInterest$.subscribe();\n",
+              "lineStart": 301,
+              "lineEnd": 314
+            },
+            {
+              "type": "function",
+              "name": "quoteSources",
+              "code": "const quoteSources$ = [\n  quoteOfSwapFromWs$,\n  openInterestOfSwapFromWS$,\n  quoteOfSwapFromRest$,\n  quoteOfSpotAndMarginFromWs$,\n  quoteOfSpotAndMarginFromRest$,\n  marginOpenInterest$,\n  interestRateOfSwapFromWS$,\n];\n",
+              "lineStart": 315,
+              "lineEnd": 324
+            },
+            {
+              "type": "function",
+              "name": "quote",
+              "code": "const quote$ = defer(() =>\n  merge(\n    ...quoteSources$.map((x$) =>\n      defer(() => x$).pipe(\n        // 防止单个流关闭导致整体关闭\n        catchError(() => EMPTY),\n      ),\n    ),\n  ),\n).pipe(\n  groupBy((x) => encodePath(x.datasource_id, x.product_id)),\n  mergeMap((group$) => {\n    return group$.pipe(\n      //\n      scan((acc, cur) => Object.assign(acc, cur), {} as Partial<IQuote>),",
+              "lineStart": 325,
+              "lineEnd": 369
+            },
+            {
+              "type": "function",
+              "name": "swapOpenInterest",
+              "code": "export const swapOpenInterest$ = defer(() => swapOpenInterests$).pipe(\n  map((x) => new Map(x.data.map((x) => [x.instId, +x.oi] as const))),\n  shareReplay(1),\n);",
+              "lineStart": 370,
+              "lineEnd": 374
+            }
+          ]
+        },
+        {
+          "additions": 9,
+          "deletions": 9,
+          "path": "apps/vendor-okx/src/public-data/quote.ts",
+          "changeType": "modified",
+          "patch": "commit 4ecf8af008db1b477bf99100d1c34d81c1cc4830\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Fri Dec 5 22:33:29 2025 +0800\n\n    feat: add new quote (#2209)\n\ndiff --git a/apps/vendor-okx/src/public-data/quote.ts b/apps/vendor-okx/src/public-data/quote.ts\nindex 6ed5cb051..e6a73bb79 100644\n--- a/apps/vendor-okx/src/public-data/quote.ts\n+++ b/apps/vendor-okx/src/public-data/quote.ts\n@@ -92 +92 @@ const quoteOfSwapFromRest$ = defer(() => getMarketTickers({ instType: 'SWAP' }))\n-      product_id: encodePath('OKX', x.instType, x.instId),\n+      product_id: encodePath(x.instType, x.instId),\n@@ -109 +109 @@ const quoteOfSpotAndMarginFromRest$ = defer(() => getMarketTickers({ instType: '\n-      product_id: encodePath('OKX', 'SPOT', x.instId),\n+      product_id: encodePath('SPOT', x.instId),\n@@ -118 +118 @@ const quoteOfSpotAndMarginFromRest$ = defer(() => getMarketTickers({ instType: '\n-      product_id: encodePath('OKX', 'MARGIN', x.instId),\n+      product_id: encodePath('MARGIN', x.instId),\n@@ -139 +139 @@ const quoteOfSwapFromWs$ = swapInstruments$.pipe(\n-      product_id: encodePath('OKX', 'SWAP', ticker[0].instId),\n+      product_id: encodePath('SWAP', ticker[0].instId),\n@@ -153 +153 @@ const quoteOfSpotAndMarginFromWs$ = spotTicker$.pipe(\n-      product_id: encodePath('OKX', 'SPOT', ticker[0].instId),\n+      product_id: encodePath('SPOT', ticker[0].instId),\n@@ -162 +162 @@ const quoteOfSpotAndMarginFromWs$ = spotTicker$.pipe(\n-      product_id: encodePath('OKX', 'MARGIN', ticker[0].instId),\n+      product_id: encodePath('MARGIN', ticker[0].instId),\n@@ -187 +187 @@ const openInterestOfSwapFromWS$ = swapInstruments$.pipe(\n-      product_id: encodePath('OKX', 'SWAP', x[0].instId),\n+      product_id: encodePath('SWAP', x[0].instId),\n@@ -203 +203 @@ const interestRateOfSwapFromWS$ = swapInstruments$.pipe(\n-      product_id: encodePath('OKX', 'SWAP', x[0].instId),\n+      product_id: encodePath('SWAP', x[0].instId),\n@@ -303 +303 @@ const marginOpenInterest$ = spotInstIds$.pipe(\n-      product_id: encodePath('OKX', 'MARGIN', instId),\n+      product_id: encodePath('MARGIN', instId),\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-05-14-31.json",
+          "changeType": "added",
+          "patch": "commit 4ecf8af008db1b477bf99100d1c34d81c1cc4830\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Fri Dec 5 22:33:29 2025 +0800\n\n    feat: add new quote (#2209)\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-05-14-31.json b/common/changes/@yuants/vendor-okx/2025-12-05-14-31.json\nnew file mode 100644\nindex 000000000..ecebf1b48\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-okx/2025-12-05-14-31.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-okx\",\n+      \"comment\": \"add new quote\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-okx\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "b7e2101680d95c25d53a77647295e2e09094c7aa",
+      "short": "b7e210168",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2025-12-05 22:34:48 +0800",
+      "subject": "chore: bump version (#2210)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 20,
+          "deletions": 0,
+          "path": "apps/vendor-okx/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit b7e2101680d95c25d53a77647295e2e09094c7aa\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Dec 5 22:34:48 2025 +0800\n\n    chore: bump version (#2210)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.json b/apps/vendor-okx/CHANGELOG.json\nindex 96e11227a..5dbb9eb6a 100644\n--- a/apps/vendor-okx/CHANGELOG.json\n+++ b/apps/vendor-okx/CHANGELOG.json\n@@ -3,0 +4,20 @@\n+    {\n+      \"version\": \"0.29.2\",\n+      \"tag\": \"@yuants/vendor-okx_v0.29.2\",\n+      \"date\": \"Fri, 05 Dec 2025 14:34:29 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"add interest rate for okx\"\n+          },\n+          {\n+            \"comment\": \"add new quote\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 9,
+          "deletions": 1,
+          "path": "apps/vendor-okx/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit b7e2101680d95c25d53a77647295e2e09094c7aa\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Dec 5 22:34:48 2025 +0800\n\n    chore: bump version (#2210)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.md b/apps/vendor-okx/CHANGELOG.md\nindex 2cdf45546..09f58fed9 100644\n--- a/apps/vendor-okx/CHANGELOG.md\n+++ b/apps/vendor-okx/CHANGELOG.md\n@@ -3 +3,9 @@\n-This log was last generated on Fri, 05 Dec 2025 06:30:56 GMT and should not be manually modified.\n+This log was last generated on Fri, 05 Dec 2025 14:34:29 GMT and should not be manually modified.\n+\n+## 0.29.2\n+Fri, 05 Dec 2025 14:34:29 GMT\n+\n+### Patches\n+\n+- add interest rate for okx\n+- add new quote\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-okx/package.json",
+          "changeType": "modified",
+          "patch": "commit b7e2101680d95c25d53a77647295e2e09094c7aa\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Dec 5 22:34:48 2025 +0800\n\n    chore: bump version (#2210)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/package.json b/apps/vendor-okx/package.json\nindex 1d18b3e95..314748c28 100644\n--- a/apps/vendor-okx/package.json\n+++ b/apps/vendor-okx/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.29.1\",\n+  \"version\": \"0.29.2\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-05-14-21.json",
+          "changeType": "deleted",
+          "patch": "commit b7e2101680d95c25d53a77647295e2e09094c7aa\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Dec 5 22:34:48 2025 +0800\n\n    chore: bump version (#2210)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-05-14-21.json b/common/changes/@yuants/vendor-okx/2025-12-05-14-21.json\ndeleted file mode 100644\nindex 983bf70cd..000000000\n--- a/common/changes/@yuants/vendor-okx/2025-12-05-14-21.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-okx\",\n-      \"comment\": \"add interest rate for okx\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-okx\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-05-14-31.json",
+          "changeType": "deleted",
+          "patch": "commit b7e2101680d95c25d53a77647295e2e09094c7aa\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Dec 5 22:34:48 2025 +0800\n\n    chore: bump version (#2210)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-05-14-31.json b/common/changes/@yuants/vendor-okx/2025-12-05-14-31.json\ndeleted file mode 100644\nindex ecebf1b48..000000000\n--- a/common/changes/@yuants/vendor-okx/2025-12-05-14-31.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-okx\",\n-      \"comment\": \"add new quote\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-okx\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/{main_2025-12-05-06-30.json => main_2025-12-05-14-34.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "1e77d860ac517c51538e701d845557f9f386c35a",
+      "short": "1e77d860a",
+      "author": "Ryan",
+      "email": "stayrealrhr@gmail.com",
+      "authoredAt": "2025-12-05 23:20:55 +0800",
+      "subject": "feat: add hl interest rate (#2211)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 2,
+          "deletions": 0,
+          "path": "apps/vendor-hyperliquid/src/services/markets/quote.ts",
+          "changeType": "added",
+          "patch": "commit 1e77d860ac517c51538e701d845557f9f386c35a\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Fri Dec 5 23:20:55 2025 +0800\n\n    feat: add hl interest rate (#2211)\n    \n    * feat: add hl interest rate\n\ndiff --git a/apps/vendor-hyperliquid/src/services/markets/quote.ts b/apps/vendor-hyperliquid/src/services/markets/quote.ts\nindex 25f888666..f7d97a992 100644\n--- a/apps/vendor-hyperliquid/src/services/markets/quote.ts\n+++ b/apps/vendor-hyperliquid/src/services/markets/quote.ts\n@@ -39,0 +40,2 @@ const quote$ = defer(() => getAllMids()).pipe(\n+      interest_rate_long: ctx?.funding ? `${-+ctx.funding}` : undefined,\n+      interest_rate_short: ctx?.funding,\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-okx/src/public-data/new-quote.ts",
+          "changeType": "modified",
+          "patch": "commit 1e77d860ac517c51538e701d845557f9f386c35a\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Fri Dec 5 23:20:55 2025 +0800\n\n    feat: add hl interest rate (#2211)\n    \n    * feat: add hl interest rate\n\ndiff --git a/apps/vendor-okx/src/public-data/new-quote.ts b/apps/vendor-okx/src/public-data/new-quote.ts\nindex 6ed5cb051..703eaa20f 100644\n--- a/apps/vendor-okx/src/public-data/new-quote.ts\n+++ b/apps/vendor-okx/src/public-data/new-quote.ts\n@@ -204 +204 @@ const interestRateOfSwapFromWS$ = swapInstruments$.pipe(\n-      interest_rate_long: `-${x[0].fundingRate}`,\n+      interest_rate_long: `${-+x[0].fundingRate}`,\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-hyperliquid/2025-12-05-14-46.json",
+          "changeType": "added",
+          "patch": "commit 1e77d860ac517c51538e701d845557f9f386c35a\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Fri Dec 5 23:20:55 2025 +0800\n\n    feat: add hl interest rate (#2211)\n    \n    * feat: add hl interest rate\n\ndiff --git a/common/changes/@yuants/vendor-hyperliquid/2025-12-05-14-46.json b/common/changes/@yuants/vendor-hyperliquid/2025-12-05-14-46.json\nnew file mode 100644\nindex 000000000..ec6762b4a\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-hyperliquid/2025-12-05-14-46.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-hyperliquid\",\n+      \"comment\": \"add hl interest rate\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-hyperliquid\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-05-15-19.json",
+          "changeType": "added",
+          "patch": "commit 1e77d860ac517c51538e701d845557f9f386c35a\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Fri Dec 5 23:20:55 2025 +0800\n\n    feat: add hl interest rate (#2211)\n    \n    * feat: add hl interest rate\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-05-15-19.json b/common/changes/@yuants/vendor-okx/2025-12-05-15-19.json\nnew file mode 100644\nindex 000000000..0d31100d1\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-okx/2025-12-05-15-19.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-okx\",\n+      \"comment\": \"fix\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-okx\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "c840c382e85f76e6ea73540c60cab59a7c6a4a62",
+      "short": "c840c382e",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2025-12-05 23:22:42 +0800",
+      "subject": "chore: bump version (#2212)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-hyperliquid/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit c840c382e85f76e6ea73540c60cab59a7c6a4a62\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Dec 5 23:22:42 2025 +0800\n\n    chore: bump version (#2212)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-hyperliquid/CHANGELOG.json b/apps/vendor-hyperliquid/CHANGELOG.json\nindex 3de161f60..bb50049e2 100644\n--- a/apps/vendor-hyperliquid/CHANGELOG.json\n+++ b/apps/vendor-hyperliquid/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.7.9\",\n+      \"tag\": \"@yuants/vendor-hyperliquid_v0.7.9\",\n+      \"date\": \"Fri, 05 Dec 2025 15:22:22 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"add hl interest rate\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-hyperliquid/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit c840c382e85f76e6ea73540c60cab59a7c6a4a62\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Dec 5 23:22:42 2025 +0800\n\n    chore: bump version (#2212)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-hyperliquid/CHANGELOG.md b/apps/vendor-hyperliquid/CHANGELOG.md\nindex 5c3abad78..ca255f704 100644\n--- a/apps/vendor-hyperliquid/CHANGELOG.md\n+++ b/apps/vendor-hyperliquid/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Thu, 04 Dec 2025 16:51:07 GMT and should not be manually modified.\n+This log was last generated on Fri, 05 Dec 2025 15:22:22 GMT and should not be manually modified.\n+\n+## 0.7.9\n+Fri, 05 Dec 2025 15:22:22 GMT\n+\n+### Patches\n+\n+- add hl interest rate\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-hyperliquid/package.json",
+          "changeType": "modified",
+          "patch": "commit c840c382e85f76e6ea73540c60cab59a7c6a4a62\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Dec 5 23:22:42 2025 +0800\n\n    chore: bump version (#2212)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-hyperliquid/package.json b/apps/vendor-hyperliquid/package.json\nindex 267ed6867..07748d229 100644\n--- a/apps/vendor-hyperliquid/package.json\n+++ b/apps/vendor-hyperliquid/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.7.8\",\n+  \"version\": \"0.7.9\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-okx/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit c840c382e85f76e6ea73540c60cab59a7c6a4a62\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Dec 5 23:22:42 2025 +0800\n\n    chore: bump version (#2212)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.json b/apps/vendor-okx/CHANGELOG.json\nindex 5dbb9eb6a..bdad91c7a 100644\n--- a/apps/vendor-okx/CHANGELOG.json\n+++ b/apps/vendor-okx/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.29.3\",\n+      \"tag\": \"@yuants/vendor-okx_v0.29.3\",\n+      \"date\": \"Fri, 05 Dec 2025 15:22:22 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"fix\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-okx/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit c840c382e85f76e6ea73540c60cab59a7c6a4a62\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Dec 5 23:22:42 2025 +0800\n\n    chore: bump version (#2212)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.md b/apps/vendor-okx/CHANGELOG.md\nindex 09f58fed9..0a58ccbc1 100644\n--- a/apps/vendor-okx/CHANGELOG.md\n+++ b/apps/vendor-okx/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Fri, 05 Dec 2025 14:34:29 GMT and should not be manually modified.\n+This log was last generated on Fri, 05 Dec 2025 15:22:22 GMT and should not be manually modified.\n+\n+## 0.29.3\n+Fri, 05 Dec 2025 15:22:22 GMT\n+\n+### Patches\n+\n+- fix\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-okx/package.json",
+          "changeType": "modified",
+          "patch": "commit c840c382e85f76e6ea73540c60cab59a7c6a4a62\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Dec 5 23:22:42 2025 +0800\n\n    chore: bump version (#2212)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/package.json b/apps/vendor-okx/package.json\nindex 314748c28..b07c8112a 100644\n--- a/apps/vendor-okx/package.json\n+++ b/apps/vendor-okx/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.29.2\",\n+  \"version\": \"0.29.3\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-hyperliquid/2025-12-05-14-46.json",
+          "changeType": "deleted",
+          "patch": "commit c840c382e85f76e6ea73540c60cab59a7c6a4a62\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Dec 5 23:22:42 2025 +0800\n\n    chore: bump version (#2212)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-hyperliquid/2025-12-05-14-46.json b/common/changes/@yuants/vendor-hyperliquid/2025-12-05-14-46.json\ndeleted file mode 100644\nindex ec6762b4a..000000000\n--- a/common/changes/@yuants/vendor-hyperliquid/2025-12-05-14-46.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-hyperliquid\",\n-      \"comment\": \"add hl interest rate\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-hyperliquid\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-hyperliquid/{main_2025-12-04-16-51.json => main_2025-12-05-15-22.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-05-15-19.json",
+          "changeType": "deleted",
+          "patch": "commit c840c382e85f76e6ea73540c60cab59a7c6a4a62\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Dec 5 23:22:42 2025 +0800\n\n    chore: bump version (#2212)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-05-15-19.json b/common/changes/@yuants/vendor-okx/2025-12-05-15-19.json\ndeleted file mode 100644\nindex 0d31100d1..000000000\n--- a/common/changes/@yuants/vendor-okx/2025-12-05-15-19.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-okx\",\n-      \"comment\": \"fix\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-okx\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/{main_2025-12-05-14-34.json => main_2025-12-05-15-22.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "8aa2e3f9dce77c78c4482ecfa248769a464c5d2a",
+      "short": "8aa2e3f9d",
+      "author": "Ryan",
+      "email": "stayrealrhr@gmail.com",
+      "authoredAt": "2025-12-06 01:10:11 +0800",
+      "subject": "feat: add aster interest rate (#2213)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 30,
+          "deletions": 0,
+          "path": "apps/vendor-aster/src/api/public-api.ts",
+          "changeType": "added",
+          "patch": "commit 8aa2e3f9dce77c78c4482ecfa248769a464c5d2a\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sat Dec 6 01:10:11 2025 +0800\n\n    feat: add aster interest rate (#2213)\n    \n    * feat: add aster interest rate\n\ndiff --git a/apps/vendor-aster/src/api/public-api.ts b/apps/vendor-aster/src/api/public-api.ts\nindex 516014a16..4cd51f4b6 100644\n--- a/apps/vendor-aster/src/api/public-api.ts\n+++ b/apps/vendor-aster/src/api/public-api.ts\n@@ -112,0 +113,30 @@ export const getFApiV1TickerPrice = createApi<\n+\n+/**\n+ * 获取资金费率\n+ * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md\n+ */\n+export const getFApiV1PremiumIndex = createApi<\n+  {\n+    symbol?: string;\n+  },\n+  | {\n+      symbol: string; // 交易对\n+      markPrice: string; // 标记价格\n+      indexPrice: string; // 指数价格\n+      estimatedSettlePrice: string; // 预估结算价,仅在交割开始前最后一小时有意义\n+      lastFundingRate: string; // 最近更新的资金费率\n+      nextFundingTime: number; // 下次资金费时间\n+      interestRate: string; // 标的资产基础利率\n+      time: number; // 更新时间\n+    }\n+  | {\n+      symbol: string; // 交易对\n+      markPrice: string; // 标记价格\n+      indexPrice: string; // 指数价格\n+      estimatedSettlePrice: string; // 预估结算价,仅在交割开始前最后一小时有意义\n+      lastFundingRate: string; // 最近更新的资金费率\n+      nextFundingTime: number; // 下次资金费时间\n+      interestRate: string; // 标的资产基础利率\n+      time: number; // 更新时间\n+    }[]\n+>('GET', '/fapi/v1/premiumIndex');\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "getFApiV1PremiumIndex",
+              "code": "export const getFApiV1PremiumIndex = createApi<\n  {\n    symbol?: string;\n  },\n  | {\n      symbol: string; // 交易对\n      markPrice: string; // 标记价格\n      indexPrice: string; // 指数价格\n      estimatedSettlePrice: string; // 预估结算价,仅在交割开始前最后一小时有意义\n      lastFundingRate: string; // 最近更新的资金费率\n      nextFundingTime: number; // 下次资金费时间\n      interestRate: string; // 标的资产基础利率\n      time: number; // 更新时间\n    }\n  | {",
+              "lineStart": 118,
+              "lineEnd": 143
+            }
+          ]
+        },
+        {
+          "additions": 103,
+          "deletions": 48,
+          "path": "apps/vendor-aster/src/services/markets/quote.ts",
+          "changeType": "modified",
+          "patch": "commit 8aa2e3f9dce77c78c4482ecfa248769a464c5d2a\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sat Dec 6 01:10:11 2025 +0800\n\n    feat: add aster interest rate (#2213)\n    \n    * feat: add aster interest rate\n\ndiff --git a/apps/vendor-aster/src/services/markets/quote.ts b/apps/vendor-aster/src/services/markets/quote.ts\nindex 9ea420c98..ba022abb8 100644\n--- a/apps/vendor-aster/src/services/markets/quote.ts\n+++ b/apps/vendor-aster/src/services/markets/quote.ts\n@@ -10,0 +11 @@ import {\n+  exhaustMap,\n@@ -22,0 +24 @@ import {\n+  tap,\n@@ -27,0 +30 @@ import {\n+  getFApiV1PremiumIndex,\n@@ -64,23 +67,23 @@ const getRequestIntervalMs = (rateLimits: IAsterRateLimit[] | undefined, fallbac\n-// const openInterestCache = createCache<string>(\n-//   async (symbol: string) => {\n-//     try {\n-//       const data = await getFApiV1OpenInterest({ symbol });\n-//       return data.openInterest;\n-//     } catch (error) {\n-//       console.warn('getFApiV1OpenInterest failed', symbol, error);\n-//       return undefined;\n-//     }\n-//   },\n-//   { expire: OPEN_INTEREST_TTL },\n-// );\n-\n-// const requestInterval$ = defer(() => getFApiV1ExchangeInfo({})).pipe(\n-//   map((info) => getRequestIntervalMs(info.rateLimits, DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS)),\n-//   catchError((err) => {\n-//     console.warn('getFApiV1ExchangeInfo failed when calculating request interval', err);\n-//     return of(DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS);\n-//   }),\n-//   startWith(DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS),\n-//   retry({ delay: 60_000 }),\n-//   shareReplay({ bufferSize: 1, refCount: true }),\n-// );\n+const openInterestCache = createCache<string>(\n+  async (symbol: string) => {\n+    try {\n+      const data = await getFApiV1OpenInterest({ symbol });\n+      return data.openInterest;\n+    } catch (error) {\n+      console.warn('getFApiV1OpenInterest failed', symbol, error);\n+      return undefined;\n+    }\n+  },\n+  { expire: OPEN_INTEREST_TTL },\n+);\n+\n+const requestInterval$ = defer(() => getFApiV1ExchangeInfo({})).pipe(\n+  map((info) => getRequestIntervalMs(info.rateLimits, DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS)),\n+  catchError((err) => {\n+    console.warn('getFApiV1ExchangeInfo failed when calculating request interval', err);\n+    return of(DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS);\n+  }),\n+  startWith(DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS),\n+  retry({ delay: 60_000 }),\n+  shareReplay({ bufferSize: 1, refCount: true }),\n+);\n@@ -104 +106,0 @@ const quoteFromTicker$ = ticker$.pipe(\n-      updated_at: new Date(ticker.time ?? Date.now()).toISOString(),\n@@ -109,24 +111,77 @@ const quoteFromTicker$ = ticker$.pipe(\n-// const quoteFromOpenInterest$ = combineLatest([ticker$, requestInterval$]).pipe(\n-//   mergeMap(([tickers, requestInterval]) =>\n-//     from(tickers).pipe(\n-//       concatMap((ticker, index) =>\n-//         (index > 0 ? timer(requestInterval) : of(0)).pipe(\n-//           mergeMap(() => from(openInterestCache.query(ticker.symbol))),\n-//           map(\n-//             (openInterest): Partial<IQuote> => ({\n-//               datasource_id: 'ASTER',\n-//               product_id: encodePath('ASTER', 'PERP', ticker.symbol),\n-//               open_interest: `${openInterest ?? 0}`,\n-//               updated_at: new Date(ticker.time ?? Date.now()).toISOString(),\n-//             }),\n-//           ),\n-//         ),\n-//       ),\n-//     ),\n-//   ),\n-// );\n-\n-const quote$ = merge(\n-  quoteFromTicker$,\n-  // quoteFromOpenInterest$\n-).pipe(\n+// Extract unique symbols from ticker stream\n+const symbolList$ = ticker$.pipe(\n+  map((tickers) => tickers.map((t) => t.symbol)),\n+  shareReplay({ bufferSize: 1, refCount: true }),\n+);\n+\n+// Create a controlled rotation stream for fetching open interest\n+// This cycles through all symbols with proper delays, independent of ticker updates\n+const OPEN_INTEREST_CYCLE_DELAY = process.env.OPEN_INTEREST_CYCLE_DELAY\n+  ? Number(process.env.OPEN_INTEREST_CYCLE_DELAY)\n+  : 60_000; // 60 seconds between full cycles\n+\n+const openInterestRotation$ = combineLatest([symbolList$, requestInterval$]).pipe(\n+  exhaustMap(([symbols, requestInterval]) =>\n+    defer(() => {\n+      console.info(\n+        `Starting open interest rotation for ${symbols.length} symbols with ${requestInterval}ms interval`,\n+      );\n+      return from(symbols).pipe(\n+        concatMap((symbol, index) =>\n+          (index > 0 ? timer(requestInterval) : of(0)).pipe(\n+            mergeMap(() => from(openInterestCache.query(symbol))),\n+            map((openInterest) => ({\n+              symbol,\n+              openInterest: openInterest ?? '0',\n+              timestamp: Date.now(),\n+            })),\n+            catchError((err) => {\n+              console.warn(`Failed to fetch open interest for ${symbol}:`, err);\n+              return of(undefined);\n+            }),\n+          ),\n+        ),\n+      );\n+    }),\n+  ),\n+  filter((x) => !!x),\n+  shareReplay({ bufferSize: 1000, refCount: true }), // Cache open interest for all symbols\n+);\n+\n+// Convert open interest rotation data to quote format\n+const quoteFromOpenInterest$ = openInterestRotation$.pipe(\n+  map(\n+    (data): Partial<IQuote> => ({\n+      datasource_id: 'ASTER',\n+      product_id: encodePath('ASTER', 'PERP', data?.symbol),\n+      open_interest: data?.openInterest,\n+    }),\n+  ),\n+);\n+\n+// Funding rate stream - fetches all symbols at once (more efficient than per-symbol)\n+const fundingRate$ = defer(() => getFApiV1PremiumIndex({})).pipe(\n+  map((data) => {\n+    // Handle both single object and array responses\n+    const premiumDataArray = Array.isArray(data) ? data : [data];\n+    return premiumDataArray;\n+  }),\n+  repeat({ delay: OPEN_INTEREST_CYCLE_DELAY }),\n+  retry({ delay: 5000 }),\n+  shareReplay({ bufferSize: 1, refCount: true }),\n+);\n+\n+// Convert funding rate data to quote format\n+const quoteFromFundingRate$ = fundingRate$.pipe(\n+  mergeMap((premiumDataArray) => premiumDataArray),\n+  map(\n+    (premiumData): Partial<IQuote> => ({\n+      datasource_id: 'ASTER',\n+      product_id: encodePath('ASTER', 'PERP', premiumData.symbol),\n+      interest_rate_long: premiumData.lastFundingRate ? `${-+premiumData.lastFundingRate}` : undefined,\n+      interest_rate_short: premiumData.lastFundingRate,\n+    }),\n+  ),\n+);\n+\n+const quote$ = merge(quoteFromTicker$, quoteFromOpenInterest$, quoteFromFundingRate$).pipe(\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "openInterestCache",
+              "code": "const openInterestCache = createCache<string>(\n  async (symbol: string) => {\n    try {",
+              "lineStart": 67,
+              "lineEnd": 69
+            },
+            {
+              "type": "function",
+              "name": "data",
+              "code": "      const data = await getFApiV1OpenInterest({ symbol });\n      return data.openInterest;\n    } catch (error) {\n      console.warn('getFApiV1OpenInterest failed', symbol, error);\n      return undefined;\n    }\n  },\n  { expire: OPEN_INTEREST_TTL },\n);\n",
+              "lineStart": 70,
+              "lineEnd": 79
+            },
+            {
+              "type": "function",
+              "name": "requestInterval",
+              "code": "const requestInterval$ = defer(() => getFApiV1ExchangeInfo({})).pipe(\n  map((info) => getRequestIntervalMs(info.rateLimits, DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS)),\n  catchError((err) => {\n    console.warn('getFApiV1ExchangeInfo failed when calculating request interval', err);\n    return of(DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS);\n  }),\n  startWith(DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS),\n  retry({ delay: 60_000 }),\n  shareReplay({ bufferSize: 1, refCount: true }),\n);\n// Extract unique symbols from ticker stream",
+              "lineStart": 80,
+              "lineEnd": 111
+            },
+            {
+              "type": "function",
+              "name": "symbolList",
+              "code": "const symbolList$ = ticker$.pipe(\n  map((tickers) => tickers.map((t) => t.symbol)),\n  shareReplay({ bufferSize: 1, refCount: true }),\n);\n\n// Create a controlled rotation stream for fetching open interest\n// This cycles through all symbols with proper delays, independent of ticker updates",
+              "lineStart": 112,
+              "lineEnd": 118
+            },
+            {
+              "type": "function",
+              "name": "OPEN_INTEREST_CYCLE_DELAY",
+              "code": "const OPEN_INTEREST_CYCLE_DELAY = process.env.OPEN_INTEREST_CYCLE_DELAY\n  ? Number(process.env.OPEN_INTEREST_CYCLE_DELAY)\n  : 60_000; // 60 seconds between full cycles\n",
+              "lineStart": 119,
+              "lineEnd": 122
+            },
+            {
+              "type": "function",
+              "name": "openInterestRotation",
+              "code": "const openInterestRotation$ = combineLatest([symbolList$, requestInterval$]).pipe(\n  exhaustMap(([symbols, requestInterval]) =>\n    defer(() => {\n      console.info(\n        `Starting open interest rotation for ${symbols.length} symbols with ${requestInterval}ms interval`,\n      );\n      return from(symbols).pipe(\n        concatMap((symbol, index) =>\n          (index > 0 ? timer(requestInterval) : of(0)).pipe(\n            mergeMap(() => from(openInterestCache.query(symbol))),\n            map((openInterest) => ({\n              symbol,\n              openInterest: openInterest ?? '0',\n              timestamp: Date.now(),\n            })),",
+              "lineStart": 123,
+              "lineEnd": 151
+            },
+            {
+              "type": "function",
+              "name": "quoteFromOpenInterest",
+              "code": "const quoteFromOpenInterest$ = openInterestRotation$.pipe(\n  map(\n    (data): Partial<IQuote> => ({\n      datasource_id: 'ASTER',\n      product_id: encodePath('ASTER', 'PERP', data?.symbol),\n      open_interest: data?.openInterest,\n    }),\n  ),\n);\n\n// Funding rate stream - fetches all symbols at once (more efficient than per-symbol)",
+              "lineStart": 152,
+              "lineEnd": 162
+            },
+            {
+              "type": "function",
+              "name": "fundingRate",
+              "code": "const fundingRate$ = defer(() => getFApiV1PremiumIndex({})).pipe(\n  map((data) => {\n    // Handle both single object and array responses",
+              "lineStart": 163,
+              "lineEnd": 165
+            },
+            {
+              "type": "function",
+              "name": "premiumDataArray",
+              "code": "    const premiumDataArray = Array.isArray(data) ? data : [data];\n    return premiumDataArray;\n  }),\n  repeat({ delay: OPEN_INTEREST_CYCLE_DELAY }),\n  retry({ delay: 5000 }),\n  shareReplay({ bufferSize: 1, refCount: true }),\n);\n\n// Convert funding rate data to quote format",
+              "lineStart": 166,
+              "lineEnd": 174
+            },
+            {
+              "type": "function",
+              "name": "quoteFromFundingRate",
+              "code": "const quoteFromFundingRate$ = fundingRate$.pipe(\n  mergeMap((premiumDataArray) => premiumDataArray),\n  map(\n    (premiumData): Partial<IQuote> => ({\n      datasource_id: 'ASTER',\n      product_id: encodePath('ASTER', 'PERP', premiumData.symbol),\n      interest_rate_long: premiumData.lastFundingRate ? `${-+premiumData.lastFundingRate}` : undefined,\n      interest_rate_short: premiumData.lastFundingRate,\n    }),\n  ),\n);\n",
+              "lineStart": 175,
+              "lineEnd": 186
+            },
+            {
+              "type": "function",
+              "name": "quote",
+              "code": "const quote$ = merge(quoteFromTicker$, quoteFromOpenInterest$, quoteFromFundingRate$).pipe(",
+              "lineStart": 187,
+              "lineEnd": 188
+            }
+          ]
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-aster/2025-12-05-16-39.json",
+          "changeType": "added",
+          "patch": "commit 8aa2e3f9dce77c78c4482ecfa248769a464c5d2a\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sat Dec 6 01:10:11 2025 +0800\n\n    feat: add aster interest rate (#2213)\n    \n    * feat: add aster interest rate\n\ndiff --git a/common/changes/@yuants/vendor-aster/2025-12-05-16-39.json b/common/changes/@yuants/vendor-aster/2025-12-05-16-39.json\nnew file mode 100644\nindex 000000000..343b32f4f\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-aster/2025-12-05-16-39.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-aster\",\n+      \"comment\": \"add aster interest rate\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-aster\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "4f88a860d31c3c87a87c8a17f08874df4f165926",
+      "short": "4f88a860d",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2025-12-06 01:15:09 +0800",
+      "subject": "chore: bump version (#2214)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-aster/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 4f88a860d31c3c87a87c8a17f08874df4f165926\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sat Dec 6 01:15:09 2025 +0800\n\n    chore: bump version (#2214)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/CHANGELOG.json b/apps/vendor-aster/CHANGELOG.json\nindex 098dec2b3..ed645a9b9 100644\n--- a/apps/vendor-aster/CHANGELOG.json\n+++ b/apps/vendor-aster/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.7.20\",\n+      \"tag\": \"@yuants/vendor-aster_v0.7.20\",\n+      \"date\": \"Fri, 05 Dec 2025 17:11:30 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"add aster interest rate\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-aster/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 4f88a860d31c3c87a87c8a17f08874df4f165926\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sat Dec 6 01:15:09 2025 +0800\n\n    chore: bump version (#2214)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/CHANGELOG.md b/apps/vendor-aster/CHANGELOG.md\nindex d31cd102a..7fe7f275a 100644\n--- a/apps/vendor-aster/CHANGELOG.md\n+++ b/apps/vendor-aster/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Fri, 05 Dec 2025 09:35:39 GMT and should not be manually modified.\n+This log was last generated on Fri, 05 Dec 2025 17:11:30 GMT and should not be manually modified.\n+\n+## 0.7.20\n+Fri, 05 Dec 2025 17:11:30 GMT\n+\n+### Patches\n+\n+- add aster interest rate\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-aster/package.json",
+          "changeType": "modified",
+          "patch": "commit 4f88a860d31c3c87a87c8a17f08874df4f165926\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sat Dec 6 01:15:09 2025 +0800\n\n    chore: bump version (#2214)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/package.json b/apps/vendor-aster/package.json\nindex 073099d7a..1976fd5c4 100644\n--- a/apps/vendor-aster/package.json\n+++ b/apps/vendor-aster/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.7.19\",\n+  \"version\": \"0.7.20\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-aster/2025-12-05-16-39.json",
+          "changeType": "deleted",
+          "patch": "commit 4f88a860d31c3c87a87c8a17f08874df4f165926\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sat Dec 6 01:15:09 2025 +0800\n\n    chore: bump version (#2214)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-aster/2025-12-05-16-39.json b/common/changes/@yuants/vendor-aster/2025-12-05-16-39.json\ndeleted file mode 100644\nindex 343b32f4f..000000000\n--- a/common/changes/@yuants/vendor-aster/2025-12-05-16-39.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-aster\",\n-      \"comment\": \"add aster interest rate\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-aster\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-aster/{main_2025-12-05-09-35.json => main_2025-12-05-17-11.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "c79ad8cf3b8bd4aabdf86cb5715cdfb2baa23529",
+      "short": "c79ad8cf3",
+      "author": "Ryan",
+      "email": "stayrealrhr@gmail.com",
+      "authoredAt": "2025-12-06 02:38:52 +0800",
+      "subject": "fix: interest rate (#2215)",
+      "conventionalCommit": {
+        "type": "fix",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 47,
+          "deletions": 20,
+          "path": "apps/vendor-okx/src/public-data/new-quote.ts",
+          "changeType": "modified",
+          "patch": "commit c79ad8cf3b8bd4aabdf86cb5715cdfb2baa23529\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sat Dec 6 02:38:52 2025 +0800\n\n    fix: interest rate (#2215)\n\ndiff --git a/apps/vendor-okx/src/public-data/new-quote.ts b/apps/vendor-okx/src/public-data/new-quote.ts\nindex 703eaa20f..e3c6a7098 100644\n--- a/apps/vendor-okx/src/public-data/new-quote.ts\n+++ b/apps/vendor-okx/src/public-data/new-quote.ts\n@@ -29,2 +29,8 @@ import {\n-import { getInstruments, getMarketTickers, getOpenInterest, getPositionTiers } from '../api/public-api';\n-import { useFundingRate, useOpenInterest, useTicker } from '../ws';\n+import {\n+  getFundingRate,\n+  getInstruments,\n+  getMarketTickers,\n+  getOpenInterest,\n+  getPositionTiers,\n+} from '../api/public-api';\n+import { useOpenInterest, useTicker } from '../ws';\n@@ -194,17 +200,17 @@ const openInterestOfSwapFromWS$ = swapInstruments$.pipe(\n-const interestRateOfSwapFromWS$ = swapInstruments$.pipe(\n-  listWatch(\n-    (x) => x.instId,\n-    (x) => useFundingRate(x.instId),\n-    () => true,\n-  ),\n-  map(\n-    (x): Partial<IQuote> => ({\n-      datasource_id: 'OKX',\n-      product_id: encodePath('OKX', 'SWAP', x[0].instId),\n-      interest_rate_long: `${-+x[0].fundingRate}`,\n-      interest_rate_short: x[0].fundingRate,\n-      interest_rate_next_settled_at: x[0].fundingTime,\n-    }),\n-  ),\n-  share(),\n-);\n+// const interestRateOfSwapFromWS$ = swapInstruments$.pipe(\n+//   listWatch(\n+//     (x) => x.instId,\n+//     (x) => useFundingRate(x.instId),\n+//     () => true,\n+//   ),\n+//   map(\n+//     (x): Partial<IQuote> => ({\n+//       datasource_id: 'OKX',\n+//       product_id: encodePath('OKX', 'SWAP', x[0].instId),\n+//       interest_rate_long: `-${x[0].fundingRate}`,\n+//       interest_rate_short: x[0].fundingRate,\n+//       interest_rate_next_settled_at: x[0].fundingTime,\n+//     }),\n+//   ),\n+//   share(),\n+// );\n@@ -312,0 +319,21 @@ const marginOpenInterest$ = spotInstIds$.pipe(\n+const fundingRate$ = defer(() => getFundingRate({ instId: 'ANY' })).pipe(\n+  map((data) => data.data),\n+  repeat({ delay: 50_000 }),\n+  retry({ delay: 5000 }),\n+  shareReplay({ bufferSize: 1, refCount: true }),\n+);\n+\n+// Convert funding rate data to quote format\n+const interestRateOfSwap$ = fundingRate$.pipe(\n+  mergeMap((premiumDataArray) => premiumDataArray),\n+  map(\n+    (premiumData): Partial<IQuote> => ({\n+      datasource_id: 'OKX',\n+      product_id: encodePath('OKX', 'SWAP', premiumData.instId),\n+      interest_rate_long: premiumData.fundingRate ? `${-+premiumData.fundingRate}` : undefined,\n+      interest_rate_short: premiumData.fundingRate,\n+      interest_rate_next_settled_at: premiumData.fundingTime,\n+    }),\n+  ),\n+);\n+\n@@ -322 +349 @@ const quoteSources$ = [\n-  interestRateOfSwapFromWS$,\n+  interestRateOfSwap$,\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "interestRateOfSwapFromWS",
+              "code": "// const interestRateOfSwapFromWS$ = swapInstruments$.pipe(\n//   listWatch(\n//     (x) => x.instId,\n//     (x) => useFundingRate(x.instId),\n//     () => true,\n//   ),\n//   map(\n//     (x): Partial<IQuote> => ({\n//       datasource_id: 'OKX',\n//       product_id: encodePath('OKX', 'SWAP', x[0].instId),\n//       interest_rate_long: `-${x[0].fundingRate}`,\n//       interest_rate_short: x[0].fundingRate,\n//       interest_rate_next_settled_at: x[0].fundingTime,\n//     }),\n//   ),",
+              "lineStart": 200,
+              "lineEnd": 318
+            },
+            {
+              "type": "function",
+              "name": "fundingRate",
+              "code": "const fundingRate$ = defer(() => getFundingRate({ instId: 'ANY' })).pipe(\n  map((data) => data.data),\n  repeat({ delay: 50_000 }),\n  retry({ delay: 5000 }),\n  shareReplay({ bufferSize: 1, refCount: true }),\n);\n\n// Convert funding rate data to quote format",
+              "lineStart": 319,
+              "lineEnd": 326
+            },
+            {
+              "type": "function",
+              "name": "interestRateOfSwap",
+              "code": "const interestRateOfSwap$ = fundingRate$.pipe(\n  mergeMap((premiumDataArray) => premiumDataArray),\n  map(\n    (premiumData): Partial<IQuote> => ({\n      datasource_id: 'OKX',\n      product_id: encodePath('OKX', 'SWAP', premiumData.instId),\n      interest_rate_long: premiumData.fundingRate ? `${-+premiumData.fundingRate}` : undefined,\n      interest_rate_short: premiumData.fundingRate,\n      interest_rate_next_settled_at: premiumData.fundingTime,\n    }),\n  ),\n);\n\n  interestRateOfSwap$,",
+              "lineStart": 327,
+              "lineEnd": 350
+            }
+          ]
+        },
+        {
+          "additions": 62,
+          "deletions": 22,
+          "path": "apps/vendor-okx/src/ws.ts",
+          "changeType": "modified",
+          "patch": "commit c79ad8cf3b8bd4aabdf86cb5715cdfb2baa23529\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sat Dec 6 02:38:52 2025 +0800\n\n    fix: interest rate (#2215)\n\ndiff --git a/apps/vendor-okx/src/ws.ts b/apps/vendor-okx/src/ws.ts\nindex c3e29df77..5e8fe8c97 100644\n--- a/apps/vendor-okx/src/ws.ts\n+++ b/apps/vendor-okx/src/ws.ts\n@@ -3 +3,11 @@ import { encodePath, formatTime } from '@yuants/utils';\n-import { catchError, defer, EMPTY, filter, interval, Observable, Subscription, tap, timeout } from 'rxjs';\n+import {\n+  catchError,\n+  EMPTY,\n+  filter,\n+  interval,\n+  Observable,\n+  shareReplay,\n+  Subscription,\n+  tap,\n+  timeout,\n+} from 'rxjs';\n@@ -259,21 +269,33 @@ class OKXWsClient {\n-const fromWsChannelAndInstId = <T>(path: string, channel: string, instId: string) =>\n-  defer(\n-    () =>\n-      new Observable<T>((subscriber) => {\n-        const client = OKXWsClient.GetWsClient(path);\n-        client.subscribe(channel, instId, (data: T) => {\n-          subscriber.next(data);\n-        });\n-        const removeError = client.addConnectionListener('error', (err) => {\n-          subscriber.error(err);\n-        });\n-        const removeClose = client.addConnectionListener('close', () => {\n-          subscriber.error('WS Connection Closed');\n-        });\n-        subscriber.add(() => {\n-          removeError();\n-          removeClose();\n-          client.unsubscribe(channel, instId);\n-        });\n-      }),\n-  ).pipe(\n+// 全局缓存：存储已创建的 WebSocket Observable，实现订阅复用\n+// key: encodePath(path, channel, instId)\n+// value: shared Observable\n+const wsObservableCache = new Map<string, Observable<any>>();\n+\n+const fromWsChannelAndInstId = <T>(path: string, channel: string, instId: string) => {\n+  const cacheKey = encodePath(path, channel, instId);\n+\n+  // 检查缓存中是否已存在该订阅\n+  const cached = wsObservableCache.get(cacheKey);\n+  if (cached) {\n+    console.info(formatTime(Date.now()), `♻️ Reusing cached subscription: ${cacheKey}`);\n+    return cached as Observable<T>;\n+  }\n+\n+  // 创建新的 Observable\n+  const observable$ = new Observable<T>((subscriber) => {\n+    const client = OKXWsClient.GetWsClient(path);\n+    client.subscribe(channel, instId, (data: T) => {\n+      subscriber.next(data);\n+    });\n+    const removeError = client.addConnectionListener('error', (err) => {\n+      subscriber.error(err);\n+    });\n+    const removeClose = client.addConnectionListener('close', () => {\n+      subscriber.error('WS Connection Closed');\n+    });\n+    subscriber.add(() => {\n+      removeError();\n+      removeClose();\n+      client.unsubscribe(channel, instId);\n+    });\n+  }).pipe(\n@@ -289,0 +312,11 @@ const fromWsChannelAndInstId = <T>(path: string, channel: string, instId: string\n+    // 🔑 关键：使用 shareReplay 实现订阅复用\n+    // - bufferSize: 1 - 缓存最新的一个值，新订阅者可以立即获得最新数据\n+    // - refCount: true - 当所有订阅者都取消订阅时，自动取消上游订阅并清理资源\n+    shareReplay({ bufferSize: 1, refCount: true }),\n+    // 当订阅完全结束时，从缓存中移除\n+    tap({\n+      finalize: () => {\n+        console.info(formatTime(Date.now()), `🗑️ Removing from cache: ${cacheKey}`);\n+        wsObservableCache.delete(cacheKey);\n+      },\n+    }),\n@@ -291,0 +325,7 @@ const fromWsChannelAndInstId = <T>(path: string, channel: string, instId: string\n+  // 存入缓存\n+  wsObservableCache.set(cacheKey, observable$);\n+  console.info(formatTime(Date.now()), `📦 Cached new subscription: ${cacheKey}`);\n+\n+  return observable$;\n+};\n+\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "wsObservableCache",
+              "code": "const wsObservableCache = new Map<string, Observable<any>>();\n",
+              "lineStart": 272,
+              "lineEnd": 273
+            },
+            {
+              "type": "function",
+              "name": "fromWsChannelAndInstId",
+              "code": "const fromWsChannelAndInstId = <T>(path: string, channel: string, instId: string) => {",
+              "lineStart": 274,
+              "lineEnd": 274
+            },
+            {
+              "type": "function",
+              "name": "cacheKey",
+              "code": "const cacheKey = encodePath(path, channel, instId);\n\n// 检查缓存中是否已存在该订阅",
+              "lineStart": 275,
+              "lineEnd": 277
+            },
+            {
+              "type": "function",
+              "name": "cached",
+              "code": "const cached = wsObservableCache.get(cacheKey);\nif (cached) {\n  console.info(formatTime(Date.now()), `♻️ Reusing cached subscription: ${cacheKey}`);\n  return cached as Observable<T>;\n}\n\n// 创建新的 Observable",
+              "lineStart": 278,
+              "lineEnd": 284
+            },
+            {
+              "type": "function",
+              "name": "observable",
+              "code": "const observable$ = new Observable<T>((subscriber) => {",
+              "lineStart": 285,
+              "lineEnd": 285
+            },
+            {
+              "type": "function",
+              "name": "client",
+              "code": "const client = OKXWsClient.GetWsClient(path);\nclient.subscribe(channel, instId, (data: T) => {\n  subscriber.next(data);\n});",
+              "lineStart": 286,
+              "lineEnd": 289
+            },
+            {
+              "type": "function",
+              "name": "removeError",
+              "code": "const removeError = client.addConnectionListener('error', (err) => {\n  subscriber.error(err);\n});",
+              "lineStart": 290,
+              "lineEnd": 292
+            },
+            {
+              "type": "function",
+              "name": "removeClose",
+              "code": "  const removeClose = client.addConnectionListener('close', () => {\n    subscriber.error('WS Connection Closed');\n  });\n  subscriber.add(() => {\n    removeError();\n    removeClose();\n    client.unsubscribe(channel, instId);\n  });\n}).pipe(\n  // 🔑 关键：使用 shareReplay 实现订阅复用\n  // - bufferSize: 1 - 缓存最新的一个值，新订阅者可以立即获得最新数据\n  // - refCount: true - 当所有订阅者都取消订阅时，自动取消上游订阅并清理资源\n  shareReplay({ bufferSize: 1, refCount: true }),\n  // 当订阅完全结束时，从缓存中移除\n  tap({",
+              "lineStart": 293,
+              "lineEnd": 332
+            }
+          ]
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-05-18-36.json",
+          "changeType": "added",
+          "patch": "commit c79ad8cf3b8bd4aabdf86cb5715cdfb2baa23529\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sat Dec 6 02:38:52 2025 +0800\n\n    fix: interest rate (#2215)\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-05-18-36.json b/common/changes/@yuants/vendor-okx/2025-12-05-18-36.json\nnew file mode 100644\nindex 000000000..5ef6e40a5\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-okx/2025-12-05-18-36.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-okx\",\n+      \"comment\": \"fix ws \",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-okx\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "9d30c323aa15afab3eae342a638f5017c1b097b4",
+      "short": "9d30c323a",
+      "author": "Ryan",
+      "email": "stayrealrhr@gmail.com",
+      "authoredAt": "2025-12-06 02:43:02 +0800",
+      "subject": "fix: interest rate (#2216)",
+      "conventionalCommit": {
+        "type": "fix",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 0,
+          "deletions": 2,
+          "path": "apps/vendor-okx/src/public-data/new-quote.ts",
+          "changeType": "deleted",
+          "patch": "commit 9d30c323aa15afab3eae342a638f5017c1b097b4\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sat Dec 6 02:43:02 2025 +0800\n\n    fix: interest rate (#2216)\n\ndiff --git a/apps/vendor-okx/src/public-data/new-quote.ts b/apps/vendor-okx/src/public-data/new-quote.ts\nindex e3c6a7098..fd912742c 100644\n--- a/apps/vendor-okx/src/public-data/new-quote.ts\n+++ b/apps/vendor-okx/src/public-data/new-quote.ts\n@@ -340,2 +339,0 @@ const interestRateOfSwap$ = fundingRate$.pipe(\n-marginOpenInterest$.subscribe();\n-\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 22,
+          "path": "apps/vendor-okx/src/public-data/quote.ts",
+          "changeType": "modified",
+          "patch": "commit 9d30c323aa15afab3eae342a638f5017c1b097b4\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sat Dec 6 02:43:02 2025 +0800\n\n    fix: interest rate (#2216)\n\ndiff --git a/apps/vendor-okx/src/public-data/quote.ts b/apps/vendor-okx/src/public-data/quote.ts\nindex e6a73bb79..84db94c5a 100644\n--- a/apps/vendor-okx/src/public-data/quote.ts\n+++ b/apps/vendor-okx/src/public-data/quote.ts\n@@ -30 +30 @@ import { getInstruments, getMarketTickers, getOpenInterest, getPositionTiers } f\n-import { useFundingRate, useOpenInterest, useTicker } from '../ws';\n+import { useOpenInterest, useTicker } from '../ws';\n@@ -194,18 +193,0 @@ const openInterestOfSwapFromWS$ = swapInstruments$.pipe(\n-const interestRateOfSwapFromWS$ = swapInstruments$.pipe(\n-  listWatch(\n-    (x) => x.instId,\n-    (x) => useFundingRate(x.instId),\n-    () => true,\n-  ),\n-  map(\n-    (x): Partial<IQuote> => ({\n-      datasource_id: 'OKX',\n-      product_id: encodePath('SWAP', x[0].instId),\n-      interest_rate_long: `-${x[0].fundingRate}`,\n-      interest_rate_short: x[0].fundingRate,\n-      interest_rate_next_settled_at: x[0].fundingTime,\n-    }),\n-  ),\n-  share(),\n-);\n-\n@@ -313,2 +294,0 @@ const marginOpenInterest$ = spotInstIds$.pipe(\n-marginOpenInterest$.subscribe();\n-\n@@ -322 +301,0 @@ const quoteSources$ = [\n-  interestRateOfSwapFromWS$,\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-05-18-41.json",
+          "changeType": "added",
+          "patch": "commit 9d30c323aa15afab3eae342a638f5017c1b097b4\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sat Dec 6 02:43:02 2025 +0800\n\n    fix: interest rate (#2216)\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-05-18-41.json b/common/changes/@yuants/vendor-okx/2025-12-05-18-41.json\nnew file mode 100644\nindex 000000000..8c8f65674\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-okx/2025-12-05-18-41.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-okx\",\n+      \"comment\": \"1\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-okx\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "250b6c5d708cd53b40570b95e60f60e9ebeb509d",
+      "short": "250b6c5d7",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2025-12-06 02:44:57 +0800",
+      "subject": "chore: bump version (#2217)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 20,
+          "deletions": 0,
+          "path": "apps/vendor-okx/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 250b6c5d708cd53b40570b95e60f60e9ebeb509d\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sat Dec 6 02:44:57 2025 +0800\n\n    chore: bump version (#2217)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.json b/apps/vendor-okx/CHANGELOG.json\nindex bdad91c7a..d14cb068b 100644\n--- a/apps/vendor-okx/CHANGELOG.json\n+++ b/apps/vendor-okx/CHANGELOG.json\n@@ -3,0 +4,20 @@\n+    {\n+      \"version\": \"0.29.4\",\n+      \"tag\": \"@yuants/vendor-okx_v0.29.4\",\n+      \"date\": \"Fri, 05 Dec 2025 18:43:51 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"fix ws \"\n+          },\n+          {\n+            \"comment\": \"1\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 9,
+          "deletions": 1,
+          "path": "apps/vendor-okx/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 250b6c5d708cd53b40570b95e60f60e9ebeb509d\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sat Dec 6 02:44:57 2025 +0800\n\n    chore: bump version (#2217)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.md b/apps/vendor-okx/CHANGELOG.md\nindex 0a58ccbc1..3fe8571a2 100644\n--- a/apps/vendor-okx/CHANGELOG.md\n+++ b/apps/vendor-okx/CHANGELOG.md\n@@ -3 +3,9 @@\n-This log was last generated on Fri, 05 Dec 2025 15:22:22 GMT and should not be manually modified.\n+This log was last generated on Fri, 05 Dec 2025 18:43:51 GMT and should not be manually modified.\n+\n+## 0.29.4\n+Fri, 05 Dec 2025 18:43:51 GMT\n+\n+### Patches\n+\n+- fix ws \n+- 1\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-okx/package.json",
+          "changeType": "modified",
+          "patch": "commit 250b6c5d708cd53b40570b95e60f60e9ebeb509d\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sat Dec 6 02:44:57 2025 +0800\n\n    chore: bump version (#2217)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/package.json b/apps/vendor-okx/package.json\nindex b07c8112a..3c4366cb5 100644\n--- a/apps/vendor-okx/package.json\n+++ b/apps/vendor-okx/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.29.3\",\n+  \"version\": \"0.29.4\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-05-18-36.json",
+          "changeType": "deleted",
+          "patch": "commit 250b6c5d708cd53b40570b95e60f60e9ebeb509d\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sat Dec 6 02:44:57 2025 +0800\n\n    chore: bump version (#2217)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-05-18-36.json b/common/changes/@yuants/vendor-okx/2025-12-05-18-36.json\ndeleted file mode 100644\nindex 5ef6e40a5..000000000\n--- a/common/changes/@yuants/vendor-okx/2025-12-05-18-36.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-okx\",\n-      \"comment\": \"fix ws \",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-okx\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-05-18-41.json",
+          "changeType": "deleted",
+          "patch": "commit 250b6c5d708cd53b40570b95e60f60e9ebeb509d\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sat Dec 6 02:44:57 2025 +0800\n\n    chore: bump version (#2217)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-05-18-41.json b/common/changes/@yuants/vendor-okx/2025-12-05-18-41.json\ndeleted file mode 100644\nindex 8c8f65674..000000000\n--- a/common/changes/@yuants/vendor-okx/2025-12-05-18-41.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-okx\",\n-      \"comment\": \"1\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-okx\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/{main_2025-12-05-15-22.json => main_2025-12-05-18-43.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "fff872a17836a27b43cbec5c3d906cadf39d5174",
+      "short": "fff872a17",
+      "author": "Ryan",
+      "email": "stayrealrhr@gmail.com",
+      "authoredAt": "2025-12-06 03:05:09 +0800",
+      "subject": "fix: interest rate (#2218)",
+      "conventionalCommit": {
+        "type": "fix",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 9,
+          "deletions": 1,
+          "path": "apps/vendor-okx/src/public-data/new-quote.ts",
+          "changeType": "modified",
+          "patch": "commit fff872a17836a27b43cbec5c3d906cadf39d5174\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sat Dec 6 03:05:09 2025 +0800\n\n    fix: interest rate (#2218)\n\ndiff --git a/apps/vendor-okx/src/public-data/new-quote.ts b/apps/vendor-okx/src/public-data/new-quote.ts\nindex fd912742c..dcfc532ee 100644\n--- a/apps/vendor-okx/src/public-data/new-quote.ts\n+++ b/apps/vendor-okx/src/public-data/new-quote.ts\n@@ -335 +335 @@ const interestRateOfSwap$ = fundingRate$.pipe(\n-      interest_rate_next_settled_at: premiumData.fundingTime,\n+      interest_rate_next_settled_at: formatTime(+premiumData.fundingTime),\n@@ -398,0 +399,8 @@ export const swapOpenInterest$ = defer(() => swapOpenInterests$).pipe(\n+\n+quote$\n+  .pipe(\n+    tap((quote) => {\n+      console.log(quote);\n+    }),\n+  )\n+  .subscribe();\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-05-19-03.json",
+          "changeType": "added",
+          "patch": "commit fff872a17836a27b43cbec5c3d906cadf39d5174\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sat Dec 6 03:05:09 2025 +0800\n\n    fix: interest rate (#2218)\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-05-19-03.json b/common/changes/@yuants/vendor-okx/2025-12-05-19-03.json\nnew file mode 100644\nindex 000000000..8c8f65674\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-okx/2025-12-05-19-03.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-okx\",\n+      \"comment\": \"1\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-okx\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "80a3e69621a24ebc3b78e18627a9ee7fd3e63290",
+      "short": "80a3e6962",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2025-12-06 03:07:53 +0800",
+      "subject": "chore: bump version (#2219)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-okx/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 80a3e69621a24ebc3b78e18627a9ee7fd3e63290\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sat Dec 6 03:07:53 2025 +0800\n\n    chore: bump version (#2219)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.json b/apps/vendor-okx/CHANGELOG.json\nindex d14cb068b..8432a1a0d 100644\n--- a/apps/vendor-okx/CHANGELOG.json\n+++ b/apps/vendor-okx/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.29.5\",\n+      \"tag\": \"@yuants/vendor-okx_v0.29.5\",\n+      \"date\": \"Fri, 05 Dec 2025 19:07:36 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"1\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-okx/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 80a3e69621a24ebc3b78e18627a9ee7fd3e63290\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sat Dec 6 03:07:53 2025 +0800\n\n    chore: bump version (#2219)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.md b/apps/vendor-okx/CHANGELOG.md\nindex 3fe8571a2..fed9dc3b7 100644\n--- a/apps/vendor-okx/CHANGELOG.md\n+++ b/apps/vendor-okx/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Fri, 05 Dec 2025 18:43:51 GMT and should not be manually modified.\n+This log was last generated on Fri, 05 Dec 2025 19:07:36 GMT and should not be manually modified.\n+\n+## 0.29.5\n+Fri, 05 Dec 2025 19:07:36 GMT\n+\n+### Patches\n+\n+- 1\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-okx/package.json",
+          "changeType": "modified",
+          "patch": "commit 80a3e69621a24ebc3b78e18627a9ee7fd3e63290\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sat Dec 6 03:07:53 2025 +0800\n\n    chore: bump version (#2219)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/package.json b/apps/vendor-okx/package.json\nindex 3c4366cb5..3a46cbd9b 100644\n--- a/apps/vendor-okx/package.json\n+++ b/apps/vendor-okx/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.29.4\",\n+  \"version\": \"0.29.5\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-05-19-03.json",
+          "changeType": "deleted",
+          "patch": "commit 80a3e69621a24ebc3b78e18627a9ee7fd3e63290\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sat Dec 6 03:07:53 2025 +0800\n\n    chore: bump version (#2219)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-05-19-03.json b/common/changes/@yuants/vendor-okx/2025-12-05-19-03.json\ndeleted file mode 100644\nindex 8c8f65674..000000000\n--- a/common/changes/@yuants/vendor-okx/2025-12-05-19-03.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-okx\",\n-      \"comment\": \"1\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-okx\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/{main_2025-12-05-18-43.json => main_2025-12-05-19-07.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "4bc38e98fc3c96675ab4b9be3c5cadce08da81ab",
+      "short": "4bc38e98f",
+      "author": "Ryan",
+      "email": "stayrealrhr@gmail.com",
+      "authoredAt": "2025-12-06 03:11:15 +0800",
+      "subject": "fix: interest rate (#2220)",
+      "conventionalCommit": {
+        "type": "fix",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 0,
+          "deletions": 8,
+          "path": "apps/vendor-okx/src/public-data/new-quote.ts",
+          "changeType": "deleted",
+          "patch": "commit 4bc38e98fc3c96675ab4b9be3c5cadce08da81ab\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sat Dec 6 03:11:15 2025 +0800\n\n    fix: interest rate (#2220)\n\ndiff --git a/apps/vendor-okx/src/public-data/new-quote.ts b/apps/vendor-okx/src/public-data/new-quote.ts\nindex dcfc532ee..c184aae20 100644\n--- a/apps/vendor-okx/src/public-data/new-quote.ts\n+++ b/apps/vendor-okx/src/public-data/new-quote.ts\n@@ -399,8 +398,0 @@ export const swapOpenInterest$ = defer(() => swapOpenInterests$).pipe(\n-\n-quote$\n-  .pipe(\n-    tap((quote) => {\n-      console.log(quote);\n-    }),\n-  )\n-  .subscribe();\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-05-19-09.json",
+          "changeType": "added",
+          "patch": "commit 4bc38e98fc3c96675ab4b9be3c5cadce08da81ab\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sat Dec 6 03:11:15 2025 +0800\n\n    fix: interest rate (#2220)\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-05-19-09.json b/common/changes/@yuants/vendor-okx/2025-12-05-19-09.json\nnew file mode 100644\nindex 000000000..8c8f65674\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-okx/2025-12-05-19-09.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-okx\",\n+      \"comment\": \"1\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-okx\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "c3b9a3726918ed17e9a53614b7ccf8673e97e88d",
+      "short": "c3b9a3726",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2025-12-06 03:12:16 +0800",
+      "subject": "chore: bump version (#2221)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-okx/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit c3b9a3726918ed17e9a53614b7ccf8673e97e88d\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sat Dec 6 03:12:16 2025 +0800\n\n    chore: bump version (#2221)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.json b/apps/vendor-okx/CHANGELOG.json\nindex 8432a1a0d..347053c59 100644\n--- a/apps/vendor-okx/CHANGELOG.json\n+++ b/apps/vendor-okx/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.29.6\",\n+      \"tag\": \"@yuants/vendor-okx_v0.29.6\",\n+      \"date\": \"Fri, 05 Dec 2025 19:11:57 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"1\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-okx/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit c3b9a3726918ed17e9a53614b7ccf8673e97e88d\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sat Dec 6 03:12:16 2025 +0800\n\n    chore: bump version (#2221)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.md b/apps/vendor-okx/CHANGELOG.md\nindex fed9dc3b7..f82f60a78 100644\n--- a/apps/vendor-okx/CHANGELOG.md\n+++ b/apps/vendor-okx/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Fri, 05 Dec 2025 19:07:36 GMT and should not be manually modified.\n+This log was last generated on Fri, 05 Dec 2025 19:11:57 GMT and should not be manually modified.\n+\n+## 0.29.6\n+Fri, 05 Dec 2025 19:11:57 GMT\n+\n+### Patches\n+\n+- 1\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-okx/package.json",
+          "changeType": "modified",
+          "patch": "commit c3b9a3726918ed17e9a53614b7ccf8673e97e88d\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sat Dec 6 03:12:16 2025 +0800\n\n    chore: bump version (#2221)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/package.json b/apps/vendor-okx/package.json\nindex 3a46cbd9b..1a8de4f66 100644\n--- a/apps/vendor-okx/package.json\n+++ b/apps/vendor-okx/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.29.5\",\n+  \"version\": \"0.29.6\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-05-19-09.json",
+          "changeType": "deleted",
+          "patch": "commit c3b9a3726918ed17e9a53614b7ccf8673e97e88d\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sat Dec 6 03:12:16 2025 +0800\n\n    chore: bump version (#2221)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-05-19-09.json b/common/changes/@yuants/vendor-okx/2025-12-05-19-09.json\ndeleted file mode 100644\nindex 8c8f65674..000000000\n--- a/common/changes/@yuants/vendor-okx/2025-12-05-19-09.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-okx\",\n-      \"comment\": \"1\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-okx\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/{main_2025-12-05-19-07.json => main_2025-12-05-19-11.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        }
+      ]
+    }
+  ],
+  "analysis": {
+    "domains": [
+      {
+        "name": "API请求优化与限速",
+        "commits": [
+          "6f0d6e65c",
+          "60338d133",
+          "ec771df32",
+          "af56c8e8a",
+          "4ecf8af00",
+          "1e77d860a",
+          "8aa2e3f9d",
+          "9d30c323a"
+        ],
+        "files": [
+          "apps/vendor-okx/src/experimental/submitOrder.ts",
+          "apps/vendor-okx/src/orders/submitOrder.ts",
+          "common/changes/@yuants/vendor-okx/2025-12-05-05-38.json",
+          "apps/vendor-okx/src/services.ts",
+          "common/changes/@yuants/vendor-okx/2025-12-05-05-42.json",
+          "apps/vendor-aster/src/services/markets/quote.ts",
+          "common/changes/@yuants/vendor-aster/2025-12-05-09-26.json",
+          "apps/vendor-okx/src/public-data/quote.ts",
+          "apps/vendor-okx/src/ws.ts",
+          "common/changes/@yuants/vendor-okx/2025-12-05-14-21.json"
+        ]
+      },
+      {
+        "name": "安全与鉴权",
+        "commits": [
+          "6f0d6e65c",
+          "60338d133",
+          "af56c8e8a",
+          "4ecf8af00",
+          "1e77d860a",
+          "8aa2e3f9d",
+          "c79ad8cf3",
+          "9d30c323a",
+          "fff872a17",
+          "4bc38e98f"
+        ],
+        "files": [
+          "apps/vendor-okx/src/experimental/submitOrder.ts",
+          "apps/vendor-okx/src/orders/submitOrder.ts",
+          "common/changes/@yuants/vendor-okx/2025-12-05-05-38.json",
+          "apps/vendor-okx/src/services.ts",
+          "common/changes/@yuants/vendor-okx/2025-12-05-05-42.json",
+          "apps/vendor-okx/src/public-data/quote.ts",
+          "apps/vendor-okx/src/ws.ts",
+          "common/changes/@yuants/vendor-okx/2025-12-05-14-21.json",
+          "apps/vendor-okx/src/index.ts",
+          "apps/vendor-okx/src/public-data/new-quote.ts"
+        ]
+      },
+      {
+        "name": "订单与交易",
+        "commits": [
+          "6f0d6e65c",
+          "60338d133",
+          "ac108ab9d",
+          "af56c8e8a",
+          "4ecf8af00",
+          "1e77d860a",
+          "8aa2e3f9d",
+          "c79ad8cf3",
+          "9d30c323a",
+          "fff872a17",
+          "4bc38e98f"
+        ],
+        "files": [
+          "apps/vendor-okx/src/experimental/submitOrder.ts",
+          "apps/vendor-okx/src/orders/submitOrder.ts",
+          "common/changes/@yuants/vendor-okx/2025-12-05-05-38.json",
+          "apps/vendor-okx/src/services.ts",
+          "common/changes/@yuants/vendor-okx/2025-12-05-05-42.json",
+          "apps/vendor-okx/src/experimental/cancelOrder.ts",
+          "apps/vendor-okx/src/experimental/exchange.ts",
+          "apps/vendor-okx/src/experimental/modifyOrder.ts",
+          "apps/vendor-okx/src/orders/cancelOrder.ts",
+          "apps/vendor-okx/src/orders/modifyOrder.ts"
+        ]
+      },
+      {
+        "name": "账户管理",
+        "commits": [
+          "6f0d6e65c",
+          "60338d133",
+          "af56c8e8a",
+          "4ecf8af00",
+          "1e77d860a",
+          "8aa2e3f9d",
+          "c79ad8cf3",
+          "9d30c323a",
+          "fff872a17",
+          "4bc38e98f"
+        ],
+        "files": [
+          "apps/vendor-okx/src/experimental/submitOrder.ts",
+          "apps/vendor-okx/src/orders/submitOrder.ts",
+          "common/changes/@yuants/vendor-okx/2025-12-05-05-38.json",
+          "apps/vendor-okx/src/services.ts",
+          "common/changes/@yuants/vendor-okx/2025-12-05-05-42.json",
+          "apps/vendor-okx/src/public-data/quote.ts",
+          "apps/vendor-okx/src/ws.ts",
+          "common/changes/@yuants/vendor-okx/2025-12-05-14-21.json",
+          "apps/vendor-okx/src/index.ts",
+          "apps/vendor-okx/src/public-data/new-quote.ts"
+        ]
+      },
+      {
+        "name": "市场数据",
+        "commits": [
+          "6f0d6e65c",
+          "60338d133",
+          "ec771df32",
+          "af56c8e8a",
+          "4ecf8af00",
+          "1e77d860a",
+          "8aa2e3f9d",
+          "c79ad8cf3",
+          "9d30c323a",
+          "fff872a17",
+          "4bc38e98f"
+        ],
+        "files": [
+          "apps/vendor-okx/src/experimental/submitOrder.ts",
+          "apps/vendor-okx/src/orders/submitOrder.ts",
+          "common/changes/@yuants/vendor-okx/2025-12-05-05-38.json",
+          "apps/vendor-okx/src/services.ts",
+          "common/changes/@yuants/vendor-okx/2025-12-05-05-42.json",
+          "apps/vendor-aster/src/services/markets/quote.ts",
+          "common/changes/@yuants/vendor-aster/2025-12-05-09-26.json",
+          "apps/vendor-okx/src/public-data/quote.ts",
+          "apps/vendor-okx/src/ws.ts",
+          "common/changes/@yuants/vendor-okx/2025-12-05-14-21.json"
+        ]
+      },
+      {
+        "name": "配置与环境",
+        "commits": [
+          "6f0d6e65c",
+          "60338d133",
+          "624436a6e",
+          "ac108ab9d",
+          "d8d60c1f2",
+          "ec771df32",
+          "82809689b",
+          "af56c8e8a",
+          "4ecf8af00",
+          "b7e210168",
+          "1e77d860a",
+          "c840c382e",
+          "8aa2e3f9d",
+          "4f88a860d",
+          "c79ad8cf3",
+          "9d30c323a",
+          "250b6c5d7",
+          "fff872a17",
+          "80a3e6962",
+          "4bc38e98f",
+          "c3b9a3726"
+        ],
+        "files": [
+          "apps/vendor-okx/src/experimental/submitOrder.ts",
+          "apps/vendor-okx/src/orders/submitOrder.ts",
+          "common/changes/@yuants/vendor-okx/2025-12-05-05-38.json",
+          "apps/vendor-okx/src/services.ts",
+          "common/changes/@yuants/vendor-okx/2025-12-05-05-42.json",
+          "apps/vendor-okx/CHANGELOG.json",
+          "apps/vendor-okx/CHANGELOG.md",
+          "apps/vendor-okx/package.json",
+          "common/changes/@yuants/vendor-okx/{main_2025-12-04-16-51.json => main_2025-12-05-05-46.json}",
+          "apps/vendor-okx/src/experimental/cancelOrder.ts"
+        ]
+      },
+      {
+        "name": "文档",
+        "commits": [
+          "624436a6e",
+          "d8d60c1f2",
+          "82809689b",
+          "b7e210168",
+          "c840c382e",
+          "4f88a860d",
+          "250b6c5d7",
+          "80a3e6962",
+          "c3b9a3726"
+        ],
+        "files": [
+          "apps/vendor-okx/CHANGELOG.json",
+          "apps/vendor-okx/CHANGELOG.md",
+          "apps/vendor-okx/package.json",
+          "common/changes/@yuants/vendor-okx/2025-12-05-05-38.json",
+          "common/changes/@yuants/vendor-okx/2025-12-05-05-42.json",
+          "common/changes/@yuants/vendor-okx/{main_2025-12-04-16-51.json => main_2025-12-05-05-46.json}",
+          "common/changes/@yuants/vendor-okx/2025-12-05-06-24.json",
+          "common/changes/@yuants/vendor-okx/{main_2025-12-05-05-46.json => main_2025-12-05-06-30.json}",
+          "apps/vendor-aster/CHANGELOG.json",
+          "apps/vendor-aster/CHANGELOG.md"
+        ]
+      },
+      {
+        "name": "错误处理与观测",
+        "commits": [
+          "ac108ab9d",
+          "c79ad8cf3",
+          "9d30c323a",
+          "fff872a17",
+          "4bc38e98f"
+        ],
+        "files": [
+          "apps/vendor-okx/src/experimental/cancelOrder.ts",
+          "apps/vendor-okx/src/experimental/exchange.ts",
+          "apps/vendor-okx/src/experimental/modifyOrder.ts",
+          "apps/vendor-okx/src/experimental/submitOrder.ts",
+          "apps/vendor-okx/src/orders/cancelOrder.ts",
+          "apps/vendor-okx/src/orders/modifyOrder.ts",
+          "apps/vendor-okx/src/orders/submitOrder.ts",
+          "apps/vendor-okx/src/services.ts",
+          "common/changes/@yuants/vendor-okx/2025-12-05-06-24.json",
+          "apps/vendor-okx/src/public-data/new-quote.ts"
+        ]
+      },
+      {
+        "name": "接口重构",
+        "commits": [
+          "ac108ab9d",
+          "8aa2e3f9d"
+        ],
+        "files": [
+          "apps/vendor-okx/src/experimental/cancelOrder.ts",
+          "apps/vendor-okx/src/experimental/exchange.ts",
+          "apps/vendor-okx/src/experimental/modifyOrder.ts",
+          "apps/vendor-okx/src/experimental/submitOrder.ts",
+          "apps/vendor-okx/src/orders/cancelOrder.ts",
+          "apps/vendor-okx/src/orders/modifyOrder.ts",
+          "apps/vendor-okx/src/orders/submitOrder.ts",
+          "apps/vendor-okx/src/services.ts",
+          "common/changes/@yuants/vendor-okx/2025-12-05-06-24.json",
+          "apps/vendor-aster/src/api/public-api.ts"
+        ]
+      }
+    ],
+    "riskIndicators": [
+      {
+        "type": "large_refactor",
+        "severity": "medium",
+        "details": "1 个大规模重构提交（删除超过100行）",
+        "commits": [
+          "ac108ab9d"
+        ]
+      },
+      {
+        "type": "no_tests",
+        "severity": "medium",
+        "details": "包含功能或修复提交但未见测试文件更新",
+        "commits": []
+      }
+    ]
+  },
+  "metadata": {
+    "tool": "git-changes-reporter",
+    "version": "2.0.0",
+    "repository": "/home/runner/work/Yuan/Yuan"
+  }
+}
