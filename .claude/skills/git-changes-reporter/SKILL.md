@@ -5,311 +5,269 @@ description: 生成结构化 git 变更报告，包含原始 JSON 数据和语�
 
 # Git Changes Reporter
 
-## 概述
+## 何时使用本 Skill
 
-本技能提供两阶段 git 变更分析工作流：首先生成结构化 JSON 原始数据，然后基于 JSON 和代码解读生成语义化 Markdown 报告。JSON 数据为 Agent 提供完整上下文，Markdown 报告为工程师提供可读摘要。
+满足以下任一条件时，应使用本 Skill：
 
-## 工作流决策树
+- 需要为人类工程师生成可读的变更摘要（团队同步、代码审查、发布说明）
+- 需要为 Agent 提供完整 git 变更上下文以回答后续问题
+- CI/CD 流水线中需要存储和分析变更记录
+- 用户提到"近期改动"、"commit 摘要"、"release note"等需求
 
-```mermaid
-graph TD
-    A[用户请求变更报告] --> B{需要原始数据还是语义报告?}
-    B -->|仅需原始数据| C[运行 generate-json.js]
-    B -->|需要语义报告| D[运行 generate-json.js]
-    D --> E[基于 JSON 生成 Markdown 报告]
-    C --> F[输出 JSON 文件]
-    E --> G[输出 Markdown 报告]
-```
+**不要使用本 Skill 的情况**：
 
-## 第一阶段：生成结构化 JSON 数据
+- 仅需列出 commit 列表（直接用 `git log`）
+- 单个 commit 的详细分析（直接用 `git show`）
 
-### 何时使用
+## 核心原则
 
-- 需要为 Agent 提供完整 git 变更上下文
-- 需要原始数据用于进一步处理或分析
-- CI/CD 流水线中存储变更记录
+### Agent 主导判断
 
-### 使用方法
+- **脚本**：只负责数据收集，不做内容选择
+- **Agent**：阅读数据，判断重要性，选择展示内容，撰写分析
 
-运行脚本生成 JSON：
+### 简洁至上
+
+上下文是共享资源。报告应该：
+
+- **聚焦意图**：不仅说"做了什么"，更要说"为什么"
+- **代码片段优先**：5-15 行核心代码胜过长篇解释
+- **结构化呈现**：用列表和表格而非段落堆砌
+
+### 渐进式披露
+
+三个分析深度级别：
+
+- **Level 1 (基础)**：统计信息、目录热度、贡献者分析
+- **Level 2 (中级)**：含代码片段、风险识别、领域聚类（**默认**）
+- **Level 3 (深度)**：含调用关系、完整风险评估、详细影响分析
+
+## 工作流程
+
+### 阶段一：生成结构化 JSON
+
+**目的**：收集原始数据，自动提取代码片段和风险指标
 
 ```bash
 .claude/skills/git-changes-reporter/scripts/generate-json.js <old_commit> <new_commit> [output_path]
 ```
 
-**参数说明**：
+**输出内容**：
 
-- `<old_commit>`：起始提交引用（commit hash、tag、branch）
-- `<new_commit>`：结束提交引用
-- `[output_path]`：可选输出路径，默认 `docs/reports/git-changes-YYYY-MM-DD.json`
+- `commits[]`：每个 commit 的详细信息
+  - `short`：短哈希（用于引用）
+  - `subject`：提交主题
+  - `conventionalCommit`：解析的 feat/fix/refactor 等类型
+  - `files[]`：变更文件列表
+    - `path`：文件路径
+    - `changeType`：added/modified/deleted/renamed
+    - `codeSnippets[]`：自动提取的函数/类/接口定义（最多 15 行）
+- `analysis.domains[]`：自动识别的技术领域
+- `analysis.riskIndicators[]`：风险指标（breaking_change/large_refactor/no_tests/api_change）
+- `contributors[]`：贡献者统计
 
-**示例**：
+### 阶段二：Agent 阅读 JSON 并生成报告
+
+**Agent 职责**：
+
+1. 分段读取 JSON 文件（按需读取，避免超出 token 限制）
+2. 理解变更的技术意图和业务影响
+3. 选择重要的代码片段展示
+4. 按照下方模板格式输出最终 Markdown 报告
+
+**读取策略**（JSON 文件可能较大）：
 
 ```bash
-# 分析最近 10 个提交
-.claude/skills/git-changes-reporter/scripts/generate-json.js HEAD~10 HEAD
+# 读取概览信息
+Read JSON offset=0 limit=100  # meta, contributors, analysis 部分
 
-# 指定输出路径
-.claude/skills/git-changes-reporter/scripts/generate-json.js v1.0.0 HEAD ./reports/changes.json
+# 按需读取具体 commit
+Read JSON offset=X limit=200  # 特定 commit 的详细信息
 ```
 
-### JSON 数据结构
+### 阶段三：质量验证
 
-生成的 JSON 包含以下字段：
+**目的**：确保报告符合质量要求
 
-```json
-{
-  "range": {
-    "old": "起始提交引用",
-    "new": "结束提交引用",
-    "label": "显示标签",
-    "startDate": "起始日期",
-    "endDate": "结束日期",
-    "commitCount": "提交数量",
-    "generatedAt": "生成时间"
-  },
-  "contributors": [{ "name": "作者名", "email": "邮箱", "commits": "提交数" }],
-  "topDirs": [{ "dir": "目录名", "fileCount": "文件数" }],
-  "commits": [
-    {
-      "hash": "完整提交哈希",
-      "short": "短哈希",
-      "author": "作者",
-      "email": "邮箱",
-      "authoredAt": "提交时间",
-      "subject": "提交信息",
-      "files": [
-        {
-          "path": "文件路径",
-          "additions": "新增行数",
-          "deletions": "删除行数",
-          "patch": "差异内容"
-        }
-      ]
-    }
-  ]
-}
+```bash
+.claude/skills/git-changes-reporter/scripts/validate-report.js <markdown_file>
 ```
 
-### 脚本详情
+## 报告模板
 
-参见 [scripts/generate-json.js](scripts/generate-json.js) 了解实现细节。该脚本：
+Agent 应按以下结构输出报告：
 
-- 验证 git 仓库状态
-- 收集提交范围信息
-- 提取每个提交的文件变更和 patch
-- 生成结构化 JSON 输出
+> 详细模板见 [references/report-template.md](references/report-template.md)
 
-## 第二阶段：生成语义化 Markdown 报告
+````markdown
+# Git 变更报告（<old_commit>..<new_commit>）
 
-### 何时使用
-
-- 需要人类可读的变更摘要
-- 团队同步或代码审查
-- 发布说明或变更日志
-- 为工程师提供快速概览
-
-### 工作流程
-
-1. **加载 JSON 数据**：首先运行 `generate-json.js` 生成或加载现有 JSON 文件
-2. **分析代码变更**：读取 JSON 中的 commits 和 files，必要时查看实际代码文件
-3. **语义聚类**：按技术领域分组提交（错误处理、安全、功能、重构等）
-4. **生成报告**：基于分析结果撰写 Markdown
-
-### 报告结构模板
-
-报告应包含以下部分：
-
-```markdown
-# Git 变更报告（<提交范围>）
+> **时间范围**：YYYY-MM-DD 至 YYYY-MM-DD
+> **分析深度**：Level 2
 
 ## 1. 概览
 
-- 时间范围：<startDate> 至 <endDate>
-- 提交数量：<commitCount>
-- 主要贡献者：<前 3 位作者>
-- 热点目录：<前 3 个目录>
+- **提交数量**：N
+- **主要贡献者**：Author1 (X commits), Author2 (Y commits)
+- **热点目录**：`apps` (N 文件), `common` (M 文件)
+- **风险指标**：⚠️ N 个高风险项
 
-## 2. 改动聚焦领域
+## 2. 核心变更
 
-### 2.1 <领域 1：如错误处理与观测>
+### 2.1 [变更主题/领域名称]
 
-- **涉及目录**：<目录列表>
-- **关键提交**：<短哈希列表及主题>
-- **核心改动**：
-  - <文件路径>：<改动描述>
-  - <文件路径>：<改动描述>
-- **设计意图**：<从代码和提交信息推断>
+**相关提交**：`hash1`, `hash2`
+**作者**：Author Name
 
-### 2.2 <领域 2：如安全与鉴权>
+**设计意图**：
+[解释为什么做这个改动，业务背景，技术动机。至少 50 字。]
+
+**核心代码**：
+[file.ts:L42-L58](path/to/file.ts#L42-L58)
+
+```typescript
+// 选择最能体现设计意图的 5-15 行代码
+const example = () => {
+  // ...
+};
+```
+````
+
+**影响范围**：
+
+- 影响模块：`module-a`, `module-b`
+- 需要关注：[具体的注意事项]
+
+### 2.2 [下一个变更主题]
 
 ...
 
-## 3. 贡献者分析
+## 3. 贡献者
 
-| 作者   | 提交数 | 主要领域 |
-| ------ | ------ | -------- |
-| <作者> | <数量> | <领域>   |
+| 作者 | 提交数 | 主要工作 | 关键提交 |
+| ---- | ------ | -------- | -------- |
+| Name | N      | 简述贡献 | `hash`   |
 
-## 4. 技术影响与风险
+## 4. 风险评估
 
-- **兼容性影响**：<描述>
-- **配置变更**：<描述>
-- **性能影响**：<描述>
-- **测试覆盖**：<描述>
+### 兼容性影响
 
-## 5. 单提交摘要（附录）
+[具体描述 API 变更、配置格式变化，列出受影响的模块/服务]
 
-### <短哈希> <作者> | <日期> | <标签>
+### 配置变更
 
-**主题**：<原提交主题>
+[新增、修改或删除的配置项]
 
-**变更要点**：
+### 性能影响
 
-- <文件/目录>：<具体改动与目的>
-- <接口/协议>：<变更描述>
-- <行为/数据流>：<运行时影响>
+[可能影响性能的变更]
 
-**风险/影响**：
+### 测试覆盖
 
-- <兼容性/配置/依赖影响>
+[测试文件变更情况，是否有测试覆盖]
 
-**测试**：<测试文件或"未见测试记录">
-```
+````
 
-### 写作指南
+## 关键要求
 
-#### 语义聚类原则
+### 1. 代码片段
 
-- **错误处理与观测**：异常处理、日志、监控、指标
-- **安全与鉴权**：认证、授权、加密、输入验证
-- **功能开发**：新特性、API 扩展、业务逻辑
-- **重构与优化**：代码整理、性能优化、架构调整
-- **运维与部署**：配置、脚本、CI/CD、文档
-- **依赖更新**：包版本升级、第三方库变更
+- 每个核心变更**必须**包含代码片段或带行号的文件引用
+- 代码片段长度：5-15 行
+- **选择标准**：最能体现设计意图的代码，而非随机选取
 
-#### 文件引用格式
+### 2. 设计意图
 
-- 使用完整路径：`apps/vendor-aster/src/quote.ts`
-- 包含行号范围：`libraries/protocol/src/terminal.ts:138-143`
-- 链接到代码：在 IDE 环境中使用可点击链接格式
+- **必须**回答"为什么做这个改动"
+- **禁止**仅描述"做了什么"
+- 至少 50 个字符的实质性内容
 
-#### 提交引用格式
+### 3. 引用格式
 
-- 短哈希：`03a48cfc4`
-- 带主题：`03a48cfc4 (feat: enforce terminal_id...)`
-- 在描述中显式关联：`在 03a48cfc4 中，CZ 改进了...`
+**文件引用**：`[file.ts:L42-L58](path/to/file.ts#L42-L58)`
 
-**⚠️ 重要警告：不要使用 JSON 文件行号作为 commit ID**
+**Commit 引用**：使用 JSON 中的 `short` 字段（如 `a9300e76f`）
 
-- JSON 文件中的行号（如 `1279`、`703`）只是文件位置，不是 commit 标识符
-- 正确的 commit ID 在 JSON 的 `"short"` 字段中（如 `"a9300e76f"`）
-- 错误示例：`1279`（行号） ❌
-- 正确示例：`a9300e76f`（短哈希） ✅
+### 4. 内容选择原则
 
-#### 语气与风格
+Agent 应根据以下优先级选择展示内容：
 
-- **客观专业**：面向工程同事，基于事实
-- **简明扼要**：短段落，列表优先，表格用于比较
-- **中英混合**：正文使用中文，代码/命令使用英文
-- **聚焦意图**：不仅描述"做了什么"，还要解释"为什么"
+1. **Breaking changes**：API 变更、接口删除
+2. **新功能**：feat 类型的核心实现
+3. **重要修复**：影响用户的 bug fix
+4. **架构变更**：refactor 涉及多文件的改动
 
-### 质量检查清单
+**可以省略**：
+- 版本号更新（chore: bump version）
+- 纯文档变更
+- 自动生成的 CHANGELOG
 
-生成报告后检查：
+## 示例
 
-- [ ] 范围正确，起止提交无误
-- [ ] 每个技术领域有具体文件引用
-- [ ] 作者贡献分析完整
-- [ ] 识别了潜在风险和建议
-- [ ] 单提交摘要覆盖关键点
-- [ ] 报告结构清晰，易于导航
-- [ ] **commit 引用使用正确的短哈希，而不是 JSON 文件行号**
+### 好的报告示例
 
-## 高级用法
+```markdown
+### 2.1 Binance 请求间隔优化
 
-### GitHub Commit 链接生成
+**相关提交**：`b285cde59`
+**作者**：Siyuan Wang
 
-对于 GitHub 仓库，可以使用附加脚本生成 commit 链接：
+**设计意图**：
+通过动态计算 API 限速参数，自动调整请求间隔，避免触发交易所限速机制。
+此前使用固定间隔 500ms，在高频场景下仍会触发限速；现在根据交易所返回的
+rateLimits 配置动态计算安全间隔（duration/limit），确保稳定性。
 
-```bash
-.claude/skills/git-changes-reporter/scripts/generate-github-links.js <json_file> <repo_url>
-```
+**核心代码**：
+[quote.ts:L65-L78](apps/vendor-binance/src/public-data/quote.ts#L65-L78)
+```typescript
+const getRequestIntervalMs = (rateLimits: IRateLimit[], fallbackMs: number) => {
+  const intervals: number[] = [];
+  for (const item of rateLimits ?? []) {
+    if (item.rateLimitType !== 'REQUEST_WEIGHT') continue;
+    const duration = toIntervalMs(item.interval, item.intervalNum);
+    const limit = item.limit;
+    if (duration == null || limit == null) continue;
+    intervals.push(Math.ceil(duration / limit));
+  }
+  return Math.max(fallbackMs, Math.max(...intervals));
+};
+````
 
-该脚本会为 JSON 中的每个 commit 添加 `githubUrl` 字段，格式为：`https://github.com/<owner>/<repo>/commit/<hash>`
+**影响范围**：
 
-### CI/CD 集成示例
+- 影响模块：`vendor-binance`, `vendor-aster`（使用相同模式）
+- 期货和现货数据流均受益
 
-在 GitHub Actions 中每日生成报告：
+````
 
-```yaml
-name: Daily Change Report
-on:
-  schedule:
-    - cron: '0 9 * * *' # 每天 9:00 UTC
-  workflow_dispatch:
+### 差的报告示例（避免）
 
-jobs:
-  generate-report:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # 获取完整历史
+```markdown
+### 2.1 更新代码
 
-      - name: Generate JSON data
-        run: |
-          .claude/skills/git-changes-reporter/scripts/generate-json.js \
-            "$(git rev-list -n 1 --before='24 hours ago' HEAD)" \
-            HEAD \
-            ./reports/daily-changes.json
+**相关提交**：`1279`, `703`  ❌ 使用了行号而非 commit hash
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: daily-change-report
-          path: ./reports/
-```
+**设计意图**：
+添加了 getRequestIntervalMs 函数。  ❌ 只说了做什么，没说为什么
 
-> **完整自动化工作流**：项目中包含完整的 GitHub Actions 工作流文件 `.github/workflows/daily-git-report.yml`，使用 `claude-code-action` 配置 DeepSeek API 自动生成报告并创建 PR。
-
-### 与现有工具集成
-
-- **JIRA/GitHub Issues**：在报告中引用相关 issue ID
-- **Slack/Teams**：生成简要摘要发送到聊天频道
-- **文档系统**：将报告集成到内部 wiki 或文档站点
+**核心改动**：优化了请求间隔逻辑  ❌ 没有代码片段
+````
 
 ## 故障排除
 
-### 常见问题
+| 问题                      | 解决方案                                          |
+| ------------------------- | ------------------------------------------------- |
+| JSON 文件太大无法一次读取 | 分段读取：先读 meta/analysis，再按需读具体 commit |
+| 不确定哪些变更重要        | 优先看 riskIndicators 和 conventionalCommit 类型  |
+| Commit 数量太多           | 按领域分组，相似变更合并描述                      |
 
-1. **无提交找到**：检查提交引用是否存在，确认仓库有足够历史
-2. **JSON 解析错误**：确保脚本在 git 仓库根目录运行
-3. **权限问题**：确认有权限创建输出目录
-4. **内存不足**：对于大量提交，考虑增加 Node.js 内存限制
+## 参考资源
 
-### 性能优化
+- [references/report-template.md](references/report-template.md)：完整模板示例
+- [references/bad-examples.md](references/bad-examples.md)：反面示例
+- [scripts/README.md](scripts/README.md)：脚本使用文档
 
-- 对于大型提交范围（>100 commits），考虑：
-  - 使用 `--no-patch` 选项减少内存使用
-  - 分批处理提交
-  - 仅分析关键目录
+---
 
-## 资源
-
-### 脚本文件
-
-- [generate-json.js](scripts/generate-json.js) - 生成结构化 JSON 数据
-- [generate-github-links.js](scripts/generate-github-links.js) - 为 commit 添加 GitHub 链接
-
-### 报告模板
-
-- [report-template.md](references/report-template.md) - 详细的报告结构、写作指南和示例
-
-### 脚本文档
-
-- [scripts/README.md](scripts/README.md) - 脚本使用说明和示例
-
-### 参考实现
-
-基于现有 `recent-changes-digest` 技能改进，提供更规范的接口和更清晰的文档。
+**版本**：3.0.0
+**上次更新**：2025-12-06
