@@ -59,7 +59,10 @@ else
 fi
 
 PR_TITLE="Daily Git Change Report ${REPORT_DATE}"
-read -r -d '' PR_BODY <<'EOF' || true
+PR_BODY_FILE="$(mktemp)"
+trap 'rm -f "$PR_BODY_FILE"' EXIT
+
+cat > "$PR_BODY_FILE" <<EOF
 ## 每日 Git 变更报告
 
 ### 报告信息
@@ -69,33 +72,22 @@ read -r -d '' PR_BODY <<'EOF' || true
 - **生成时间**: $(date -Iseconds)
 
 ### 包含文件
-1. `${JSON_PATH}` - 结构化 JSON 数据
-2. `${REPORT_PATH}` - 完整的语义化报告
-
-### 报告特点
-- 使用 Claude Code 的 git-changes-reporter skill 生成
-- 包含技术领域分析
-- 贡献者统计和分析
-- 风险评估和建议
-- 具体的文件引用和代码位置
+1. ${JSON_PATH} - 结构化 JSON 数据
+2. ${REPORT_PATH} - 完整的语义化报告
 
 ### 自动化
 此 PR 由 GitHub Actions 自动生成，计划每天东八区早上8点运行。
 
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
+### 报告正文
 EOF
 
-PR_BODY=${PR_BODY//\$\{REPORT_DATE\}/${REPORT_DATE}}
-PR_BODY=${PR_BODY//\$\{OLD_SHORT\}/${OLD_SHORT}}
-PR_BODY=${PR_BODY//\$\{NEW_SHORT\}/${NEW_SHORT}}
-PR_BODY=${PR_BODY//\$\{COMMIT_COUNT\}/${COMMIT_COUNT}}
-PR_BODY=${PR_BODY//\$\{JSON_PATH\}/${JSON_PATH}}
-PR_BODY=${PR_BODY//\$\{REPORT_PATH\}/${REPORT_PATH}}
+cat "$REPORT_PATH" >> "$PR_BODY_FILE"
+printf "\n\n🤖 Generated with Claude Code\n" >> "$PR_BODY_FILE"
 
 if [[ "${DRY_RUN:-0}" != "1" ]]; then
   gh pr create \
     --title "$PR_TITLE" \
-    --body "$PR_BODY" \
+    --body-file "$PR_BODY_FILE" \
     --base main \
     --head "$BRANCH_NAME" \
     --label skip-ci || echo "PR 创建失败，可能已存在"
