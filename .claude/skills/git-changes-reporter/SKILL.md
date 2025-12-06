@@ -97,6 +97,8 @@ Read JSON offset=X limit=200  # 特定 commit 的详细信息
 
 Agent 应按以下结构输出报告：
 
+> 详细模板见 [references/report-template.md](references/report-template.md)
+
 ````markdown
 # Git 变更报告（<old_commit>..<new_commit>）
 
@@ -262,6 +264,7 @@ const getRequestIntervalMs = (rateLimits: IRateLimit[], fallbackMs: number) => {
 ## 参考资源
 
 - [references/report-template.md](references/report-template.md)：完整模板示例
+- [references/bad-examples.md](references/bad-examples.md)：反面示例
 - [scripts/README.md](scripts/README.md)：脚本使用文档
 
 ---
