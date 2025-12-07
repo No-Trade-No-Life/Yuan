@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-huobi",
+      "comment": "fix api",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-huobi"
+}

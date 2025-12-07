@@ -54,7 +54,7 @@ export const getFuturesContracts = (
     create_time: number;
     funding_cap_ratio: string;
   }[]
-> => requestPublic('GET', `/api/v4/futures/${settle}/contracts`, params);
+> => requestPublic('GET', `/futures/${settle}/contracts`, params);
 
 /**
  * 合约市场历史资金费率
@@ -73,7 +73,7 @@ export const getFutureFundingRate = (
     t: number;
     r: string;
   }[]
-> => requestPublic('GET', `/api/v4/futures/${settle}/funding_rate`, params);
+> => requestPublic('GET', `/futures/${settle}/funding_rate`, params);
 
 /**
  * 查询合约市场深度信息
@@ -102,7 +102,7 @@ export const getFuturesOrderBook = async (
   }[];
 }> =>
   rateLimiter.schedule(`futures-order-book:${settle}`, 200, 10_000, () =>
-    requestPublic('GET', `/api/v4/futures/${settle}/order_book`, params),
+    requestPublic('GET', `/futures/${settle}/order_book`, params),
   );
 
 /**
@@ -137,7 +137,7 @@ export const getFuturesTickers = (
     lowest_ask: string;
     highest_bid: string;
   }[]
-> => requestPublic('GET', `/api/v4/futures/${settle}/tickers`, params);
+> => requestPublic('GET', `/futures/${settle}/tickers`, params);
 
 /**
  * 获取交易对 ticker 信息
@@ -167,7 +167,7 @@ export const getSpotTickers = (params: {
     etf_pre_timestamp: string;
     etf_leverage: string;
   }>
-> => requestPublic('GET', `/api/v4/spot/tickers`, params);
+> => requestPublic('GET', `/spot/tickers`, params);
 
 /**
  * 查询支持的所有现货交易对

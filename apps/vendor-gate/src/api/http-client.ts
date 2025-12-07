@@ -1,6 +1,7 @@
 import { encodeHex, formatTime, HmacSHA512, sha512 } from '@yuants/utils';
+import { join } from 'path';
 
-const BASE_URL = 'https://api.gateio.ws';
+const BASE_URL = 'https://api.gateio.ws/api/v4';
 
 export type HttpMethod = 'GET' | 'POST' | 'DELETE' | 'PUT';
 
@@ -27,7 +28,7 @@ const serializeQueryParams = (params?: GateParams): Record<string, string> | und
 
 const createRequestArtifacts = (method: HttpMethod, path: string, params?: GateParams): IRequestArtifacts => {
   const url = new URL(BASE_URL);
-  url.pathname = path;
+  url.pathname = join(url.pathname, path);
   const searchParams = serializeQueryParams(params);
   if (method === 'GET' && searchParams) {
     Object.entries(searchParams).forEach(([key, value]) => url.searchParams.set(key, value));
@@ -57,7 +58,7 @@ const parseJSON = async <TResponse>(
   try {
     return JSON.parse(text) as TResponse;
   } catch (error) {
-    console.error(formatTime(Date.now()), 'GateRequestFailed', path, JSON.stringify(params ?? {}), text, {
+    console.info(formatTime(Date.now()), 'GateRequestFailed', path, JSON.stringify(params ?? {}), text, {
       status: response.status,
       headers: toHeaderObject(response.headers),
     });
