@@ -1,7 +1,9 @@
-import { GlobalPrometheusRegistry } from '@yuants/protocol';
+import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import { encodeHex, formatTime, HmacSHA256, newError } from '@yuants/utils';
 
 const MetricBinanceApiUsedWeight = GlobalPrometheusRegistry.gauge('binance_api_used_weight', '');
+const MetricBinanceApiCounter = GlobalPrometheusRegistry.counter('binance_api_request_total', '');
+const terminal = Terminal.fromNodeEnv();
 
 type HttpMethod = 'GET' | 'POST' | 'DELETE' | 'PUT';
 
@@ -87,6 +89,8 @@ const callApi = async <T>(
     retryAfterUntil = null;
   }
 
+  MetricBinanceApiCounter.labels({ path: url.pathname, terminal_id: terminal.terminal_id }).inc();
+
   const res = await fetch(url.href, {
     method,
     headers,
@@ -106,7 +110,7 @@ const callApi = async <T>(
     `usedWeight1M=${usedWeight1M ?? 'N/A'}`,
   );
   if (usedWeight1M) {
-    MetricBinanceApiUsedWeight.set(+usedWeight1M);
+    MetricBinanceApiUsedWeight.labels({ terminal_id: terminal.terminal_id }).set(+usedWeight1M);
   }
   return res.json() as Promise<T>;
 };
