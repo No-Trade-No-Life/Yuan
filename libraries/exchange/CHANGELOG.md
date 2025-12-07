@@ -1,6 +1,13 @@
 # Change Log - @yuants/exchange
 
-This log was last generated on Wed, 03 Dec 2025 18:20:00 GMT and should not be manually modified.
+This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.
+
+## 0.4.0
+Sun, 07 Dec 2025 16:38:10 GMT
+
+### Minor changes
+
+- add polyfill to position
 
 ## 0.3.1
 Wed, 03 Dec 2025 18:20:00 GMT

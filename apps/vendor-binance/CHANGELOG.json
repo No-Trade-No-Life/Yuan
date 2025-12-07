@@ -2,6 +2,26 @@
   "name": "@yuants/vendor-binance",
   "entries": [
     {
+      "version": "0.10.11",
+      "tag": "@yuants/vendor-binance_v0.10.11",
+      "date": "Sun, 07 Dec 2025 16:38:10 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.9.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.4.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.10.10",
       "tag": "@yuants/vendor-binance_v0.10.10",
       "date": "Thu, 04 Dec 2025 10:36:34 GMT",
