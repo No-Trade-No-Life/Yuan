@@ -1,26 +1,33 @@
 import { IProduct } from '@yuants/data-product';
-import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
-import { getFApiV1ExchangeInfo } from '../../api/public-api';
-
-const terminal = Terminal.fromNodeEnv();
+import { getApiV1ExchangeInfo, getFApiV1ExchangeInfo } from '../../api/public-api';
 
 export const listProducts = async (): Promise<IProduct[]> => {
-  // Fetch exchange info from ASTER API
-  const exchangeInfo = await getFApiV1ExchangeInfo({});
-  // Convert symbols to IProduct format
-  return exchangeInfo.symbols
-    .filter((symbol) => symbol.status === 'TRADING') // Only include active trading symbols
-    .map((symbol): IProduct => {
-      // Find price filter for price step
-      const priceFilter = symbol.filters.find((filter) => filter.filterType === 'PRICE_FILTER');
-      const priceStep = priceFilter ? +priceFilter.tickSize : 1e-2;
+  const [perpExchangeInfo, spotExchangeInfo] = await Promise.all([
+    getFApiV1ExchangeInfo({}),
+    getApiV1ExchangeInfo({}),
+  ]);
 
-      // Find lot size filter for volume step
-      const lotSizeFilter = symbol.filters.find((filter) => filter.filterType === 'LOT_SIZE');
-      const volumeStep = lotSizeFilter ? +lotSizeFilter.stepSize : Number(`1e-${symbol.quantityPrecision}`);
+  const pickPriceStep = (symbol: {
+    filters: { filterType: string; tickSize?: string }[];
+    pricePrecision: number;
+  }) => {
+    const priceFilter = symbol.filters.find((filter) => filter.filterType === 'PRICE_FILTER');
+    return priceFilter ? +priceFilter.tickSize! : Number(`1e-${symbol.pricePrecision}`);
+  };
 
-      return {
+  const pickVolumeStep = (symbol: {
+    filters: { filterType: string; stepSize?: string }[];
+    quantityPrecision: number;
+  }) => {
+    const lotSizeFilter = symbol.filters.find((filter) => filter.filterType === 'LOT_SIZE');
+    return lotSizeFilter ? +lotSizeFilter.stepSize! : Number(`1e-${symbol.quantityPrecision}`);
+  };
+
+  const perpProducts: IProduct[] = perpExchangeInfo.symbols
+    .filter((symbol) => symbol.status === 'TRADING')
+    .map(
+      (symbol): IProduct => ({
         datasource_id: 'ASTER',
         product_id: encodePath('ASTER', 'PERP', symbol.symbol),
         name: `${symbol.baseAsset}/${symbol.quoteAsset} PERP`,
@@ -30,15 +37,42 @@ export const listProducts = async (): Promise<IProduct[]> => {
         value_based_cost: 0,
         volume_based_cost: 0,
         max_volume: 0,
-        price_step: priceStep,
-        volume_step: volumeStep,
+        price_step: pickPriceStep(symbol),
+        volume_step: pickVolumeStep(symbol),
         value_scale: 1,
         allow_long: true,
         allow_short: true,
-        margin_rate: 0.1, // Default margin rate, can be adjusted based on actual requirements
+        margin_rate: 0.1,
         max_position: 0,
         market_id: 'ASTER/PERPETUAL',
         no_interest_rate: false,
-      };
-    });
+      }),
+    );
+
+  const spotProducts: IProduct[] = spotExchangeInfo.symbols
+    .filter((symbol) => symbol.status === 'TRADING')
+    .map(
+      (symbol): IProduct => ({
+        datasource_id: 'ASTER',
+        product_id: encodePath('ASTER', 'SPOT', symbol.symbol),
+        name: `${symbol.baseAsset}/${symbol.quoteAsset} SPOT`,
+        quote_currency: symbol.quoteAsset,
+        base_currency: symbol.baseAsset,
+        value_scale_unit: '',
+        value_based_cost: 0,
+        volume_based_cost: 0,
+        max_volume: 0,
+        price_step: pickPriceStep(symbol),
+        volume_step: pickVolumeStep(symbol),
+        value_scale: 1,
+        allow_long: true,
+        allow_short: false,
+        margin_rate: 1,
+        max_position: 0,
+        market_id: 'ASTER/SPOT',
+        no_interest_rate: true,
+      }),
+    );
+
+  return [...perpProducts, ...spotProducts];
 };

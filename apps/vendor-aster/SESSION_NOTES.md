@@ -123,6 +123,14 @@
 - **运行的测试 / 检查**：
   - `./node_modules/.bin/tsc --noEmit --project apps/vendor-aster/tsconfig.json`
 
+### 2025-12-08 — Codex
+
+- **本轮摘要**：
+  - `services/markets/product.ts` 同时输出永续与现货产品目录，新增 Spot exchangeInfo 拉取逻辑，保持价格/数量步长与 Aster 过滤器一致。
+  - `api/public-api.ts` 引入 Spot exchangeInfo 公共接口，分离期货与现货的 base URL。
+- **运行的测试 / 检查**：
+  - `npx tsc --noEmit --project apps/vendor-aster/tsconfig.json`
+
 ### 2025-11-19 — GitHub Copilot
 
 - **本轮摘要**：
