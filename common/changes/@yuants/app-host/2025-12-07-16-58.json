@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-host",
+      "comment": "support HTTP call service",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/app-host"
+}
