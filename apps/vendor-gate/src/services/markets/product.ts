@@ -1,9 +1,9 @@
-import { createProductCache } from '@yuants/data-product';
+import { createClientProductCache } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
 import { getFuturesContracts, getSpotCurrencyPairs } from '../../api/public-api';
 
-export const productCache = createProductCache(Terminal.fromNodeEnv());
+export const productCache = createClientProductCache(Terminal.fromNodeEnv());
 
 export const listProducts = async () => {
   const [futureProducts, spotProducts] = await Promise.all([
