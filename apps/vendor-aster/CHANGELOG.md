@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-aster
 
-This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.
+This log was last generated on Sun, 07 Dec 2025 20:31:33 GMT and should not be manually modified.
+
+## 0.7.22
+Sun, 07 Dec 2025 20:31:33 GMT
+
+### Patches
+
+- add aster spot product
 
 ## 0.7.21
 Sun, 07 Dec 2025 16:38:10 GMT

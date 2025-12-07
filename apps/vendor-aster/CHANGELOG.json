@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-aster",
   "entries": [
     {
+      "version": "0.7.22",
+      "tag": "@yuants/vendor-aster_v0.7.22",
+      "date": "Sun, 07 Dec 2025 20:31:33 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add aster spot product"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.7.21",
       "tag": "@yuants/vendor-aster_v0.7.21",
       "date": "Sun, 07 Dec 2025 16:38:10 GMT",
