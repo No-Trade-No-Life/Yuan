@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-account",
+      "comment": "add more fields to position",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-account"
+}

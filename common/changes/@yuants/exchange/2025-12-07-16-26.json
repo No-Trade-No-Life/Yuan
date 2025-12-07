@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/exchange",
+      "comment": "add polyfill to position",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/exchange"
+}
