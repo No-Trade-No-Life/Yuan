@@ -1,5 +1,5 @@
-import { GlobalPrometheusRegistry, ITerminalInfo, Terminal } from '@yuants/protocol';
-import { formatTime, UUID, verifyMessage } from '@yuants/utils';
+import { GlobalPrometheusRegistry, ITerminalInfo, ITerminalMessage, Terminal } from '@yuants/protocol';
+import { formatTime, newError, observableToAsyncIterable, UUID, verifyMessage } from '@yuants/utils';
 import { readFileSync } from 'fs';
 import { createServer, IncomingMessage, RequestListener } from 'http';
 import { createServer as createHttpsServer } from 'https';
@@ -25,6 +25,7 @@ import {
   timeout,
 } from 'rxjs';
 import WebSocket from 'ws';
+import { parseBodyText } from './utils/parseBodyText';
 
 interface IHostTerminalConnection {
   terminal_id: string;
@@ -339,36 +340,67 @@ export const createNodeJSHostManager = () => {
   };
 
   const handleRequest: RequestListener = async (req, res): Promise<void> => {
-    const theUrl = new URL(req.url || '', 'http://localhost:8888');
-    const x = resolveHost(req);
-    if (!x) {
-      MetricsHostManagerConnectionErrorCounter.add(1);
-      res.writeHead(401);
-      res.end('Unauthorized: ' + req.url);
-      return;
-    }
-    if (theUrl.pathname.startsWith('/external/')) {
-      const reqBody = await new Promise<string>((resolve) => {
-        const body: Uint8Array[] = [];
-        req.on('data', (chunk) => {
-          body.push(chunk);
-        });
-        req.on('end', () => {
-          const reqBody = Buffer.concat(body).toString();
-          resolve(reqBody);
-        });
-      });
+    try {
+      console.info(formatTime(Date.now()), 'HTTP Request', req.method, req.url);
+      const theUrl = new URL(req.url || '', 'http://localhost:8888');
+      const x = resolveHost(req);
+      if (!x) {
+        MetricsHostManagerConnectionErrorCounter.add(1);
+        res.writeHead(401);
+        res.end('Unauthorized: ' + req.url);
+        return;
+      }
 
-      const reqJson = {
-        method: req.method,
-        url: req.url,
-        pathname: theUrl.pathname,
-        headers: req.headers,
-        body: reqBody,
-        host_id: x?.host.host_id,
-      };
+      // 内部 API 请求 (POST /request)，路由到内部服务
+      if (theUrl.pathname === '/request') {
+        if (req.method === 'OPTIONS') {
+          res.writeHead(204, {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': '*',
+            'Access-Control-Allow-Methods': '*',
+          });
+          res.end();
+          return;
+        }
+        if (req.method === 'POST') {
+          const _reqMsg = await parseBodyText(req);
+          const reqMsg = JSON.parse(_reqMsg) as ITerminalMessage;
+          if (!reqMsg.method) throw newError('INVALID_REQUEST', { reason: 'method is required' });
+          if (!reqMsg.req) throw newError('INVALID_REQUEST', { reason: 'req is required' });
 
-      try {
+          res.writeHead(200, {
+            'Content-Type': 'application/x-ndjson',
+            'Cache-Control': 'no-cache',
+            Connection: 'keep-alive',
+            'Access-Control-Allow-Origin': '*',
+          });
+
+          // 按照 NDJSON 格式封装请求消息
+          for await (const msg of observableToAsyncIterable(
+            x.host.host_terminal.client.requestService(reqMsg.method, reqMsg.req),
+          )) {
+            res.write(JSON.stringify(msg) + '\n');
+          }
+          res.end();
+
+          return;
+        }
+        return;
+      }
+
+      // 外部请求 (/external/) 格式由外部系统决定，直接转发给 Host 处理 (例如 WebHook)
+      if (theUrl.pathname.startsWith('/external/')) {
+        const reqBody = await parseBodyText(req);
+
+        const reqJson = {
+          method: req.method,
+          url: req.url,
+          pathname: theUrl.pathname,
+          headers: req.headers,
+          body: reqBody,
+          host_id: x?.host.host_id,
+        };
+
         const response = await x!.host.host_terminal.client.requestForResponse(reqJson.pathname, reqJson);
         const { status = 200, headers, body } = response.data as any;
         if (headers) {
@@ -380,11 +412,10 @@ export const createNodeJSHostManager = () => {
         res.end(body);
 
         return;
-      } catch (e) {
-        res.writeHead(500);
-        res.end(`${e}`);
-        return;
       }
+    } catch (err) {
+      res.writeHead(500);
+      res.end(`Internal Server Error: ${err}`);
     }
   };
 
