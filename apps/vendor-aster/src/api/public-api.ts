@@ -1,4 +1,3 @@
-const BASE_URL = 'https://fapi.asterdex.com';
 import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 
 const MetricsAsterApiCallCounter = GlobalPrometheusRegistry.counter(
@@ -6,8 +5,13 @@ const MetricsAsterApiCallCounter = GlobalPrometheusRegistry.counter(
   'Number of aster api call',
 );
 const terminal = Terminal.fromNodeEnv();
-const request = async <T>(method: string, endpoint: string, params: any = {}): Promise<T> => {
-  const url = new URL(BASE_URL);
+const request = async <T>(
+  method: string,
+  baseUrl: string,
+  endpoint: string,
+  params: any = {},
+): Promise<T> => {
+  const url = new URL(baseUrl);
   url.pathname = endpoint;
   for (const [key, value] of Object.entries(params)) {
     if (value === undefined) continue;
@@ -26,16 +30,20 @@ const request = async <T>(method: string, endpoint: string, params: any = {}): P
 };
 
 const createApi =
+  (baseUrl: string) =>
   <TReq, TRes>(method: string, endpoint: string) =>
   (params: TReq) =>
-    request<TRes>(method, endpoint, params);
+    request<TRes>(method, baseUrl, endpoint, params);
+
+const createFutureApi = createApi('https://fapi.asterdex.com');
+const createSpotApi = createApi('https://sapi.asterdex.com');
 
 /**
  * 获取资金费率历史
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#%E6%9F%A5%E8%AF%A2%E8%B5%84%E9%87%91%E8%B4%B9%E7%8E%87%E5%8E%86%E5%8F%B2
  */
-export const getFApiV1FundingRate = createApi<
+export const getFApiV1FundingRate = createFutureApi<
   {
     symbol?: string;
     startTime?: number;
@@ -79,14 +87,21 @@ export interface IAsterExchangeInfo {
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#%E4%BA%A4%E6%98%93%E5%AF%B9%E4%BF%A1%E6%81%AF
  */
-export const getFApiV1ExchangeInfo = createApi<{}, IAsterExchangeInfo>('GET', '/fapi/v1/exchangeInfo');
+export const getFApiV1ExchangeInfo = createFutureApi<{}, IAsterExchangeInfo>('GET', '/fapi/v1/exchangeInfo');
+
+/**
+ * 获取现货交易对信息
+ *
+ * https://github.com/asterdex/api-docs/blob/master/aster-finance-spot-api_CN.md#L1080-L1145
+ */
+export const getApiV1ExchangeInfo = createSpotApi<{}, IAsterExchangeInfo>('GET', '/api/v1/exchangeInfo');
 
 /**
  * 获取未平仓合约数量
  *
  * 无 API 文档 (weird)
  */
-export const getFApiV1OpenInterest = createApi<
+export const getFApiV1OpenInterest = createFutureApi<
   {
     symbol: string;
   },
@@ -102,7 +117,7 @@ export const getFApiV1OpenInterest = createApi<
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#%E6%9C%80%E6%96%B0%E4%BB%B7%E6%A0%BC
  */
-export const getFApiV1TickerPrice = createApi<
+export const getFApiV1TickerPrice = createFutureApi<
   {},
   {
     symbol: string;
@@ -115,7 +130,7 @@ export const getFApiV1TickerPrice = createApi<
  * 获取资金费率
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md
  */
-export const getFApiV1PremiumIndex = createApi<
+export const getFApiV1PremiumIndex = createFutureApi<
   {
     symbol?: string;
   },
