@@ -23,6 +23,7 @@ export const getPerpPositions = async (credential: ICredential) => {
       closable_price: Math.abs(+position.position.positionValue / +position.position.szi || 0),
       floating_profit: +position.position.unrealizedPnl,
       valuation: +position.position.positionValue,
+      liquidation_price: position.position.liquidationPx,
       margin: +position.position.marginUsed,
     }),
   );

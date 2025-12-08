@@ -32,6 +32,7 @@ export const loadFuturePositions = async (credential: ICredential): Promise<IPos
       position_price: Number(position.entry_price),
       closable_price,
       floating_profit: Number(position.unrealised_pnl),
+      liquidation_price: position.liq_price,
       valuation,
     });
   }
