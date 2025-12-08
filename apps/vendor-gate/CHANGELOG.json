@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-gate",
   "entries": [
     {
+      "version": "0.4.22",
+      "tag": "@yuants/vendor-gate_v0.4.22",
+      "date": "Mon, 08 Dec 2025 17:24:52 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "feat: 统一账户服务，整合现货与期货逻辑，移除冗余代码"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.21",
       "tag": "@yuants/vendor-gate_v0.4.21",
       "date": "Mon, 08 Dec 2025 16:38:57 GMT",
