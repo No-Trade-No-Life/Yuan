@@ -199,6 +199,15 @@
   - 命令：`npx tsc --noEmit --project apps/vendor-hyperliquid/tsconfig.json`
   - 结果：Passed
 
+### 2025-12-08 — Codex
+
+- **本轮摘要**：
+  - spot 账户在生成 position 前读取最新 spot product 列表，构建 base → product_id 的映射，用余额资产匹配 product_id，避免硬编码 `${asset}-USDC`。
+- **修改的文件**：
+  - `apps/vendor-hyperliquid/src/services/accounts/spot.ts`
+- **运行的测试 / 检查**：
+  - `npx tsc --noEmit --project apps/vendor-hyperliquid/tsconfig.json`
+
 ### 2025-11-26 — Codex Agent
 
 - **本轮摘要**：

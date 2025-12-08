@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-hyperliquid",
+      "comment": "更新 spot 账户产品映射逻辑，避免硬编码并支持动态产品列表",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-hyperliquid"
+}
