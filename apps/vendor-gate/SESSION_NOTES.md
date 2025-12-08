@@ -109,9 +109,11 @@
 ### 2025-12-08 — Codex
 
 - **本轮摘要**：
-  - spot 账户在生成 position 前获取并缓存（24 小时 TTL）最新 spot 产品列表，构建 base → product_id 映射，用余额资产匹配 product_id，缺失时回退旧路径，避免硬编码。
+  - 统一账户服务内获取并缓存（24 小时 TTL）最新 spot 产品列表，构建 base → product_id 映射并应用于 spot 余额；同时内联永续持仓逻辑，移除单独的 spot/future 账户实现，统一从 `getUnifiedAccountInfo` 输出头寸。
 - **修改的文件**：
-  - `apps/vendor-gate/src/services/accounts/spot.ts`
+  - `apps/vendor-gate/src/services/accounts/unified.ts`
+  - 删除：`apps/vendor-gate/src/services/accounts/{spot,future}.ts`
+  - `apps/vendor-gate/src/services/exchange.ts`
 - **运行的测试 / 检查**：
   - `npx tsc --noEmit --project apps/vendor-gate/tsconfig.json`
 

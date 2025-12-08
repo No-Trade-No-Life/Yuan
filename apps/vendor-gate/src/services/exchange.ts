@@ -2,12 +2,10 @@ import { IPosition } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { provideExchangeServices } from '@yuants/exchange';
 import { Terminal } from '@yuants/protocol';
-import { decodePath } from '@yuants/utils';
 import { getCredentialId } from './accounts/profile';
 import { getUnifiedAccountInfo } from './accounts/unified';
 import { cancelOrder } from './orders/cancelOrder';
 import { submitOrder } from './orders/submitOrder';
-import { getFutureAccountInfo } from './accounts/future';
 import { ICredential } from '../api/private-api';
 import { listOrders, getOrdersByProductId } from './orders/listOrders';
 import { listProducts } from './markets/product';
@@ -27,10 +25,7 @@ provideExchangeServices<ICredential>(terminal, {
   getCredentialId,
   listProducts,
   getPositions: async function (credential: ICredential): Promise<IPosition[]> {
-    const [unifiedPositions] = await Promise.all([
-      // getFutureAccountInfo(credential),
-      getUnifiedAccountInfo(credential),
-    ]);
+    const unifiedPositions = await getUnifiedAccountInfo(credential);
     return [...unifiedPositions];
   },
   getOrders: async function (credential: ICredential): Promise<IOrder[]> {
@@ -44,16 +39,8 @@ provideExchangeServices<ICredential>(terminal, {
     credential: ICredential,
     product_id: string,
   ): Promise<IPosition[]> {
-    const [_, instType] = decodePath(product_id); // BINANCE/USDT-FUTURE/ADAUSDT
-    // if (instType === 'SPOT') {
-    //   const positions = await getSpotAccountInfoSnapshot(credential);
-    //   return positions.filter((position) => position.product_id === product_id);
-    // }
-    if (instType === 'FUTURE') {
-      const positions = await getFutureAccountInfo(credential);
-      return positions.filter((position) => position.product_id === product_id);
-    }
-    throw new Error(`Unsupported instType: ${instType}`);
+    const positions = await getUnifiedAccountInfo(credential);
+    return positions.filter((position) => position.product_id === product_id);
   },
   getOrdersByProductId,
   submitOrder,
