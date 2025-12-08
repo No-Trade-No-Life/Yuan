@@ -3,8 +3,8 @@ import { createSeriesProvider } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
 import { decodePath, formatTime } from '@yuants/utils';
 import { firstValueFrom, timer } from 'rxjs';
-import { getFutureFundingRate } from '../api/public-api';
 import { getMarginInterestRateHistory } from '../api/private-api';
+import { getFutureFundingRate } from '../api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -53,12 +53,7 @@ createSeriesProvider<IInterestRate>(terminal, {
           limit: 100,
         });
         yield res.map(
-          (v: {
-            asset: string;
-            dailyInterestRate: string;
-            timestamp: number;
-            vipLevel: number;
-          }): IInterestRate => ({
+          (v): IInterestRate => ({
             series_id,
             created_at: formatTime(v.timestamp),
             datasource_id: 'BINANCE',
