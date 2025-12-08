@@ -7,8 +7,8 @@ const parseProductId = (productId?: string) => {
     return { category: undefined as string | undefined, symbol: undefined as string | undefined };
   }
   const parts = decodePath(productId);
-  if (parts.length >= 2) {
-    return { category: parts[0], symbol: parts.slice(1).join('/') };
+  if (parts.length >= 3) {
+    return { category: parts[1], symbol: parts.slice(2).join('/') };
   }
   return { category: undefined, symbol: parts[0] };
 };
