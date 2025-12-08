@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-aster",
+      "comment": "fix position side",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-aster"
+}

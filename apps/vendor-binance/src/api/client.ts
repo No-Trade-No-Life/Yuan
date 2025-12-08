@@ -119,7 +119,9 @@ const callApi = async <T>(
     `usedWeight1M=${usedWeight1M ?? 'N/A'}`,
   );
   if (usedWeight1M) {
-    MetricBinanceApiUsedWeight.labels({ endpoint, terminal_id: terminal.terminal_id }).set(+usedWeight1M);
+    MetricBinanceApiUsedWeight.labels({ path: endpoint, terminal_id: terminal.terminal_id }).set(
+      +usedWeight1M,
+    );
   }
   return res.json() as Promise<T>;
 };
