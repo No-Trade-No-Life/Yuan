@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-aster
 
-This log was last generated on Mon, 08 Dec 2025 15:50:21 GMT and should not be manually modified.
+This log was last generated on Mon, 08 Dec 2025 16:38:57 GMT and should not be manually modified.
+
+## 0.7.24
+Mon, 08 Dec 2025 16:38:57 GMT
+
+### Patches
+
+- 增加 Spot 账户产品映射缓存，优化产品列表查询逻辑
 
 ## 0.7.23
 Mon, 08 Dec 2025 15:50:21 GMT
