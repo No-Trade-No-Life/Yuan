@@ -18,6 +18,7 @@ createSeriesProvider<IInterestRate>(terminal, {
     const [, instType, symbol] = decodePath(series_id);
     if (instType === 'USDT-FUTURE') {
       while (true) {
+        await firstValueFrom(timer(1000));
         // 向前翻页，时间降序
         const res = await getFutureFundingRate({
           symbol: symbol,
@@ -40,12 +41,12 @@ createSeriesProvider<IInterestRate>(terminal, {
           break;
         }
         current_start = +res[res.length - 1].fundingTime;
-        await firstValueFrom(timer(1000));
       }
       return;
     }
     if (instType === 'MARGIN') {
       while (true) {
+        await firstValueFrom(timer(1000));
         const res = await getMarginInterestRateHistory({
           asset: symbol,
           startTime: current_start,
@@ -67,7 +68,6 @@ createSeriesProvider<IInterestRate>(terminal, {
           break;
         }
         current_start = +res[res.length - 1].timestamp;
-        await firstValueFrom(timer(1000));
       }
     }
     return;
