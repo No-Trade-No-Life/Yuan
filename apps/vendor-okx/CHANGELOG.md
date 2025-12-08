@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Sun, 07 Dec 2025 16:38:11 GMT and should not be manually modified.
+This log was last generated on Mon, 08 Dec 2025 15:50:21 GMT and should not be manually modified.
+
+## 0.29.11
+Mon, 08 Dec 2025 15:50:21 GMT
+
+### Patches
+
+- add liq price
 
 ## 0.29.10
 Sun, 07 Dec 2025 16:38:11 GMT
