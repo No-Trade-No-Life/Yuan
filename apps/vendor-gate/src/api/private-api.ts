@@ -89,6 +89,7 @@ export const getFuturePositions = (
     unrealised_pnl: string;
     realised_pnl: string;
     mode: string;
+    liq_price: string;
   }[]
 > => callPrivate(credential, 'GET', `/futures/${quote_currency}/positions`, params);
 
