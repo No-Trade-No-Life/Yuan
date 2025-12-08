@@ -1,4 +1,4 @@
-import { encodeHex, HmacSHA256 } from '@yuants/utils';
+import { encodeHex, HmacSHA256, newError } from '@yuants/utils';
 
 import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 
@@ -96,7 +96,16 @@ const request = async <T>(
     }
     return res;
   } catch (e) {
-    throw `APIError: ${response.status} ${response.statusText} ${resText}`;
+    throw newError(
+      'ASTER_API_ERROR',
+      {
+        status: response.status,
+        statusText: response.statusText,
+        resText,
+        params,
+      },
+      e,
+    );
   }
 };
 

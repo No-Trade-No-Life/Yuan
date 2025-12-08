@@ -77,18 +77,22 @@ const handleSubmitOrderOfPerp: IActionHandlerOfSubmitOrder<ICredential> = async 
   const quantity = order.volume;
   const price = order.price;
 
-  const positionSide =
-    order.order_direction === 'OPEN_LONG' || order.order_direction === 'CLOSE_LONG'
-      ? 'LONG'
-      : order.order_direction === 'OPEN_SHORT' || order.order_direction === 'CLOSE_SHORT'
-      ? 'SHORT'
-      : undefined;
+  const isPositionSingleSide = true; // FIXME: Aster 永续合约仅支持单向持仓模式
+
+  const positionSide = isPositionSingleSide
+    ? undefined
+    : order.order_direction === 'OPEN_LONG' || order.order_direction === 'CLOSE_LONG'
+    ? 'LONG'
+    : order.order_direction === 'OPEN_SHORT' || order.order_direction === 'CLOSE_SHORT'
+    ? 'SHORT'
+    : undefined;
 
   const reduceOnly =
     order.order_direction === 'CLOSE_LONG' || order.order_direction === 'CLOSE_SHORT' ? 'true' : undefined;
 
   const timeInForce = order.order_type === 'MAKER' ? 'GTX' : order.order_type === 'LIMIT' ? 'GTC' : undefined;
 
+  //
   const res = await postFApiV1Order(credential, {
     symbol,
     side,
