@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-binance",
   "entries": [
     {
+      "version": "0.10.13",
+      "tag": "@yuants/vendor-binance_v0.10.13",
+      "date": "Mon, 08 Dec 2025 15:50:21 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix active rate limit"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.10.12",
       "tag": "@yuants/vendor-binance_v0.10.12",
       "date": "Sun, 07 Dec 2025 20:31:33 GMT",
