@@ -105,7 +105,7 @@ export const getFutureExchangeInfo = (): Promise<IFutureExchangeInfo> =>
 /**
  * 查询资金费率历史
  *
- * https://binance-docs.github.io/apidocs/futures/cn/#31dbeb24c4
+ * https://developers.binance.com/docs/zh-CN/derivatives/usds-margined-futures/market-data/rest-api/Get-Funding-Rate-History
  */
 export const getFutureFundingRate = (params: {
   symbol?: string;
