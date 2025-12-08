@@ -202,6 +202,15 @@
 ### 2025-12-08 — Codex
 
 - **本轮摘要**：
+  - spot 账户的产品映射增加缓存（24 小时 TTL），避免每次查询 positions 都重新拉产品列表；产品列表加载失败时仍会回退旧的 product_id 生成逻辑。
+- **修改的文件**：
+  - `apps/vendor-hyperliquid/src/services/accounts/spot.ts`
+- **运行的测试 / 检查**：
+  - `npx tsc --noEmit --project apps/vendor-hyperliquid/tsconfig.json`
+
+### 2025-12-08 — Codex
+
+- **本轮摘要**：
   - spot 账户在生成 position 前读取最新 spot product 列表，构建 base → product_id 的映射，用余额资产匹配 product_id，避免硬编码 `${asset}-USDC`。
 - **修改的文件**：
   - `apps/vendor-hyperliquid/src/services/accounts/spot.ts`

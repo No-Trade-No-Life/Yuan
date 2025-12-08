@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-hyperliquid",
+      "comment": "增加 Spot 账户产品映射缓存，优化产品列表查询逻辑",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-hyperliquid"
+}

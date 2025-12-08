@@ -15,17 +15,20 @@ const asBNBPrice = createCache(
   },
 );
 
-const buildSpotProductMap = async () => {
-  const products = await listProducts();
-  const map = new Map<string, string>();
-  for (const product of products) {
-    const [, instType] = product.product_id.split('/');
-    if (instType === 'SPOT') {
-      map.set(product.base_currency, product.product_id);
+const spotProductMapCache = createCache(
+  async () => {
+    const products = await listProducts();
+    const map = new Map<string, string>();
+    for (const product of products) {
+      const [, instType] = product.product_id.split('/');
+      if (instType === 'SPOT') {
+        map.set(product.base_currency, product.product_id);
+      }
     }
-  }
-  return map;
-};
+    return map;
+  },
+  { expire: 86_400_000 },
+);
 
 export const getPositions = async (credential: ICredential) => {
   const positions: IPosition[] = [];
@@ -33,8 +36,10 @@ export const getPositions = async (credential: ICredential) => {
     getApiV1Account(credential, {}),
     getApiV1TickerPrice(credential, {}),
     getFApiV4Account(credential, {}),
-    buildSpotProductMap(),
+    spotProductMapCache.query(''),
   ]);
+
+  const resolvedSpotProductMap = spotProductMap ?? new Map<string, string>();
 
   for (const b of x.balances) {
     const thePrice = b.asset === 'USDT' ? 1 : prices.find((p) => p.symbol === b.asset + 'USDT')?.price ?? 0;
@@ -42,7 +47,7 @@ export const getPositions = async (credential: ICredential) => {
       makeSpotPosition({
         position_id: b.asset,
         datasource_id: 'ASTER',
-        product_id: spotProductMap.get(b.asset) ?? encodePath('ASTER', 'SPOT', b.asset),
+        product_id: resolvedSpotProductMap.get(b.asset) ?? encodePath('ASTER', 'SPOT', b.asset),
         volume: +b.free + +b.locked,
         free_volume: +b.free,
         closable_price: +thePrice,
