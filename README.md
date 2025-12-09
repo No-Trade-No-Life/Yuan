@@ -40,6 +40,9 @@
 
 ## English
 
+[![Run in Smithery](https://smithery.ai/badge/skills/no-trade-no-life)](https://smithery.ai/skills?ns=no-trade-no-life&utm_source=github&utm_medium=badge)
+
+
 Yuan is a "Personal Investment Operating System" that includes all the basic software and infrastructure needed for various personal investment activities.
 Yuan provides foundational platform support for many quantitative trading projects. The revenue from these projects is used to maintain Yuan's development, and some of the code is contributed back to the Yuan project to enhance the platform's capabilities.
 For project design philosophy and motivation, please refer to: [Project Motivation](docs/en/motivation.md).
