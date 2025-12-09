@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-virtual-exchange
 
-This log was last generated on Tue, 09 Dec 2025 16:52:23 GMT and should not be manually modified.
+This log was last generated on Tue, 09 Dec 2025 17:23:12 GMT and should not be manually modified.
+
+## 0.7.1
+Tue, 09 Dec 2025 17:23:12 GMT
+
+### Patches
+
+- fix VEX/GetPositions polyfill
 
 ## 0.7.0
 Tue, 09 Dec 2025 16:52:23 GMT
