@@ -1,0 +1,2222 @@
+{
+  "range": {
+    "old": "e44fdfa6c14e001dbe5c89d96e42b08a9694ecf4",
+    "new": "4d9c58da83752ba00f09e32e2bebbfd6e9c63a34",
+    "label": "e44fdfa6c..4d9c58da8",
+    "startDate": "2025-12-07",
+    "endDate": "2025-12-08",
+    "commitCount": 13,
+    "generatedAt": "2025-12-08T00:06:14.374Z"
+  },
+  "contributors": [
+    {
+      "name": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "commits": 6
+    },
+    {
+      "name": "CZ",
+      "email": "zheng.chen@no-trade-no.life",
+      "commits": 5
+    },
+    {
+      "name": "Siyuan Wang",
+      "email": "c.one@thrimbda.com",
+      "commits": 1
+    },
+    {
+      "name": "Ryan",
+      "email": "stayrealrhr@gmail.com",
+      "commits": 1
+    }
+  ],
+  "directoryAnalysis": {
+    "topLevel": [
+      {
+        "dir": "apps",
+        "fileCount": 69
+      },
+      {
+        "dir": "common",
+        "fileCount": 25
+      },
+      {
+        "dir": "libraries",
+        "fileCount": 21
+      },
+      {
+        "dir": "distributions",
+        "fileCount": 3
+      }
+    ],
+    "projects": [
+      {
+        "project": "common",
+        "fileCount": 25,
+        "marker": null
+      },
+      {
+        "project": "apps/vendor-gate",
+        "fileCount": 8,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-aster",
+        "fileCount": 6,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/host",
+        "fileCount": 5,
+        "marker": "package.json"
+      },
+      {
+        "project": "libraries/data-account",
+        "fileCount": 5,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/account-composer",
+        "fileCount": 4,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-binance",
+        "fileCount": 4,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-huobi",
+        "fileCount": 4,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-okx",
+        "fileCount": 4,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/virtual-exchange",
+        "fileCount": 4,
+        "marker": "package.json"
+      },
+      {
+        "project": "libraries/exchange",
+        "fileCount": 4,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/agent",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/fund",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/risk-manager",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/trade-copier",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-bitget",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-ctp",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-hyperliquid",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-okx-web3",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-solana",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-turboflow",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "distributions/origin",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "libraries/account-info-resolver",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "libraries/agent",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "libraries/kernel",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "libraries/order",
+        "fileCount": 3,
+        "marker": "package.json"
+      }
+    ],
+    "markersUsed": [
+      "package.json",
+      "Cargo.toml",
+      "go.mod",
+      "requirements.txt",
+      "pyproject.toml",
+      "setup.py",
+      "pom.xml",
+      "build.gradle",
+      "build.gradle.kts",
+      "CMakeLists.txt",
+      "Makefile",
+      "pubspec.yaml",
+      "mix.exs",
+      "Gemfile",
+      "composer.json"
+    ]
+  },
+  "commits": [
+    {
+      "hash": "790b62bff10f863e7d94786341b85c72c946c8e9",
+      "short": "790b62bff",
+      "author": "CZ",
+      "email": "zheng.chen@no-trade-no.life",
+      "authoredAt": "2025-12-07 22:54:41 +0800",
+      "subject": "feat: implement credential ID caching and update credential retrieval logic (#2241)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 10,
+          "deletions": 3,
+          "path": "apps/virtual-exchange/src/credential.ts",
+          "changeType": "modified",
+          "patch": "commit 790b62bff10f863e7d94786341b85c72c946c8e9\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Sun Dec 7 22:54:41 2025 +0800\n\n    feat: implement credential ID caching and update credential retrieval logic (#2241)\n\ndiff --git a/apps/virtual-exchange/src/credential.ts b/apps/virtual-exchange/src/credential.ts\nindex e03200075..f83924675 100644\n--- a/apps/virtual-exchange/src/credential.ts\n+++ b/apps/virtual-exchange/src/credential.ts\n@@ -24,0 +25,6 @@ interface ICredentialResolvedStatus {\n+const credentialIdCache = createCache(async (credentialKey: string) => {\n+  const credential = JSON.parse(credentialKey) as IExchangeCredential;\n+  const res = await getCredentialId(terminal, credential);\n+  return res.data;\n+});\n+\n@@ -42,3 +48,4 @@ export const listAllCredentials = async () => {\n-        const res = await getCredentialId(terminal, credential);\n-        const credentialId = res.data;\n-        result.credentialId = credentialId;\n+        const res = await credentialIdCache.query(JSON.stringify(credential));\n+        if (res) {\n+          result.credentialId = res;\n+        }\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "credentialIdCache",
+              "code": "const credentialIdCache = createCache(async (credentialKey: string) => {",
+              "lineStart": 25,
+              "lineEnd": 25
+            },
+            {
+              "type": "function",
+              "name": "credential",
+              "code": "const credential = JSON.parse(credentialKey) as IExchangeCredential;",
+              "lineStart": 26,
+              "lineEnd": 26
+            },
+            {
+              "type": "function",
+              "name": "res",
+              "code": "  const res = await getCredentialId(terminal, credential);\n  return res.data;\n});\n",
+              "lineStart": 27,
+              "lineEnd": 47
+            },
+            {
+              "type": "function",
+              "name": "res",
+              "code": "const res = await credentialIdCache.query(JSON.stringify(credential));\nif (res) {\n  result.credentialId = res;\n}",
+              "lineStart": 48,
+              "lineEnd": 52
+            }
+          ]
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/app-virtual-exchange/2025-12-07-14-45.json",
+          "changeType": "added",
+          "patch": "commit 790b62bff10f863e7d94786341b85c72c946c8e9\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Sun Dec 7 22:54:41 2025 +0800\n\n    feat: implement credential ID caching and update credential retrieval logic (#2241)\n\ndiff --git a/common/changes/@yuants/app-virtual-exchange/2025-12-07-14-45.json b/common/changes/@yuants/app-virtual-exchange/2025-12-07-14-45.json\nnew file mode 100644\nindex 000000000..6bf18df2e\n--- /dev/null\n+++ b/common/changes/@yuants/app-virtual-exchange/2025-12-07-14-45.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/app-virtual-exchange\",\n+      \"comment\": \"fix\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/app-virtual-exchange\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "39712dbdd9afc78e851ce5d47bdb61b38da0bcba",
+      "short": "39712dbdd",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2025-12-07 22:56:38 +0800",
+      "subject": "chore: bump version (#2242)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/virtual-exchange/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 39712dbdd9afc78e851ce5d47bdb61b38da0bcba\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Dec 7 22:56:38 2025 +0800\n\n    chore: bump version (#2242)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/virtual-exchange/CHANGELOG.json b/apps/virtual-exchange/CHANGELOG.json\nindex ed8d1d46a..ef5ad2bcf 100644\n--- a/apps/virtual-exchange/CHANGELOG.json\n+++ b/apps/virtual-exchange/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.5.4\",\n+      \"tag\": \"@yuants/app-virtual-exchange_v0.5.4\",\n+      \"date\": \"Sun, 07 Dec 2025 14:55:28 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"fix\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/virtual-exchange/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 39712dbdd9afc78e851ce5d47bdb61b38da0bcba\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Dec 7 22:56:38 2025 +0800\n\n    chore: bump version (#2242)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/virtual-exchange/CHANGELOG.md b/apps/virtual-exchange/CHANGELOG.md\nindex 590da04f5..400250891 100644\n--- a/apps/virtual-exchange/CHANGELOG.md\n+++ b/apps/virtual-exchange/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Thu, 04 Dec 2025 07:31:18 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 14:55:28 GMT and should not be manually modified.\n+\n+## 0.5.4\n+Sun, 07 Dec 2025 14:55:28 GMT\n+\n+### Patches\n+\n+- fix\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/virtual-exchange/package.json",
+          "changeType": "modified",
+          "patch": "commit 39712dbdd9afc78e851ce5d47bdb61b38da0bcba\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Dec 7 22:56:38 2025 +0800\n\n    chore: bump version (#2242)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/virtual-exchange/package.json b/apps/virtual-exchange/package.json\nindex 7c18e3358..9847730b1 100644\n--- a/apps/virtual-exchange/package.json\n+++ b/apps/virtual-exchange/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.5.3\",\n+  \"version\": \"0.5.4\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/app-virtual-exchange/2025-12-07-14-45.json",
+          "changeType": "deleted",
+          "patch": "commit 39712dbdd9afc78e851ce5d47bdb61b38da0bcba\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Dec 7 22:56:38 2025 +0800\n\n    chore: bump version (#2242)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/app-virtual-exchange/2025-12-07-14-45.json b/common/changes/@yuants/app-virtual-exchange/2025-12-07-14-45.json\ndeleted file mode 100644\nindex 6bf18df2e..000000000\n--- a/common/changes/@yuants/app-virtual-exchange/2025-12-07-14-45.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/app-virtual-exchange\",\n-      \"comment\": \"fix\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/app-virtual-exchange\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/app-virtual-exchange/{main_2025-12-04-07-31.json => main_2025-12-07-14-55.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "1c8dab3257f773379b3858a869a9c125aa71b5f6",
+      "short": "1c8dab325",
+      "author": "Ryan",
+      "email": "stayrealrhr@gmail.com",
+      "authoredAt": "2025-12-07 23:12:15 +0800",
+      "subject": "feat: fix trade (#2243)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 1,
+          "deletions": 2,
+          "path": "apps/vendor-okx/src/trade.ts",
+          "changeType": "modified",
+          "patch": "commit 1c8dab3257f773379b3858a869a9c125aa71b5f6\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sun Dec 7 23:12:15 2025 +0800\n\n    feat: fix trade (#2243)\n\ndiff --git a/apps/vendor-okx/src/trade.ts b/apps/vendor-okx/src/trade.ts\nindex dac18a969..17a2afcdb 100644\n--- a/apps/vendor-okx/src/trade.ts\n+++ b/apps/vendor-okx/src/trade.ts\n@@ -21 +21 @@ const tradeParser = async (accountId: string, params: Record<string, string>): P\n-      productIdSet.add(encodePath(item.instType, item.instId));\n+      productIdSet.add(encodePath('OKX', item.instType, item.instId));\n@@ -39 +38,0 @@ const tradeParser = async (accountId: string, params: Record<string, string>): P\n-\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-07-15-10.json",
+          "changeType": "added",
+          "patch": "commit 1c8dab3257f773379b3858a869a9c125aa71b5f6\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sun Dec 7 23:12:15 2025 +0800\n\n    feat: fix trade (#2243)\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-07-15-10.json b/common/changes/@yuants/vendor-okx/2025-12-07-15-10.json\nnew file mode 100644\nindex 000000000..872ae24fd\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-okx/2025-12-07-15-10.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-okx\",\n+      \"comment\": \"fix trade\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-okx\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "6e9af0f2ae1d3b01fa5441d3fbb726cf28008a94",
+      "short": "6e9af0f2a",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2025-12-07 23:23:37 +0800",
+      "subject": "chore: bump version (#2244)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-okx/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 6e9af0f2ae1d3b01fa5441d3fbb726cf28008a94\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Dec 7 23:23:37 2025 +0800\n\n    chore: bump version (#2244)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.json b/apps/vendor-okx/CHANGELOG.json\nindex 476462034..b91132858 100644\n--- a/apps/vendor-okx/CHANGELOG.json\n+++ b/apps/vendor-okx/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.29.9\",\n+      \"tag\": \"@yuants/vendor-okx_v0.29.9\",\n+      \"date\": \"Sun, 07 Dec 2025 15:23:14 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"fix trade\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-okx/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 6e9af0f2ae1d3b01fa5441d3fbb726cf28008a94\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Dec 7 23:23:37 2025 +0800\n\n    chore: bump version (#2244)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.md b/apps/vendor-okx/CHANGELOG.md\nindex 3f789dccc..1b5d46d36 100644\n--- a/apps/vendor-okx/CHANGELOG.md\n+++ b/apps/vendor-okx/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Sat, 06 Dec 2025 17:00:15 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 15:23:14 GMT and should not be manually modified.\n+\n+## 0.29.9\n+Sun, 07 Dec 2025 15:23:14 GMT\n+\n+### Patches\n+\n+- fix trade\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-okx/package.json",
+          "changeType": "modified",
+          "patch": "commit 6e9af0f2ae1d3b01fa5441d3fbb726cf28008a94\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Dec 7 23:23:37 2025 +0800\n\n    chore: bump version (#2244)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/package.json b/apps/vendor-okx/package.json\nindex f44b810af..c9596c806 100644\n--- a/apps/vendor-okx/package.json\n+++ b/apps/vendor-okx/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.29.8\",\n+  \"version\": \"0.29.9\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-07-15-10.json",
+          "changeType": "deleted",
+          "patch": "commit 6e9af0f2ae1d3b01fa5441d3fbb726cf28008a94\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Dec 7 23:23:37 2025 +0800\n\n    chore: bump version (#2244)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-07-15-10.json b/common/changes/@yuants/vendor-okx/2025-12-07-15-10.json\ndeleted file mode 100644\nindex 872ae24fd..000000000\n--- a/common/changes/@yuants/vendor-okx/2025-12-07-15-10.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-okx\",\n-      \"comment\": \"fix trade\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-okx\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/{main_2025-12-06-17-00.json => main_2025-12-07-15-23.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "94b0fdc8489c9d7fcbc344c5ab96fe832afe4d17",
+      "short": "94b0fdc84",
+      "author": "CZ",
+      "email": "zheng.chen@no-trade-no.life",
+      "authoredAt": "2025-12-08 00:32:46 +0800",
+      "subject": "feat: enhance IPosition interface with additional fields and update exchange logic for position handling (#2245)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/data-account/2025-12-07-16-26.json",
+          "changeType": "added",
+          "patch": "commit 94b0fdc8489c9d7fcbc344c5ab96fe832afe4d17\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 00:32:46 2025 +0800\n\n    feat: enhance IPosition interface with additional fields and update exchange logic for position handling (#2245)\n\ndiff --git a/common/changes/@yuants/data-account/2025-12-07-16-26.json b/common/changes/@yuants/data-account/2025-12-07-16-26.json\nnew file mode 100644\nindex 000000000..1ceedc6cb\n--- /dev/null\n+++ b/common/changes/@yuants/data-account/2025-12-07-16-26.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/data-account\",\n+      \"comment\": \"add more fields to position\",\n+      \"type\": \"minor\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/data-account\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/exchange/2025-12-07-16-26.json",
+          "changeType": "added",
+          "patch": "commit 94b0fdc8489c9d7fcbc344c5ab96fe832afe4d17\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 00:32:46 2025 +0800\n\n    feat: enhance IPosition interface with additional fields and update exchange logic for position handling (#2245)\n\ndiff --git a/common/changes/@yuants/exchange/2025-12-07-16-26.json b/common/changes/@yuants/exchange/2025-12-07-16-26.json\nnew file mode 100644\nindex 000000000..bff513a53\n--- /dev/null\n+++ b/common/changes/@yuants/exchange/2025-12-07-16-26.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/exchange\",\n+      \"comment\": \"add polyfill to position\",\n+      \"type\": \"minor\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/exchange\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 5,
+          "deletions": 0,
+          "path": "libraries/data-account/etc/data-account.api.md",
+          "changeType": "added",
+          "patch": "commit 94b0fdc8489c9d7fcbc344c5ab96fe832afe4d17\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 00:32:46 2025 +0800\n\n    feat: enhance IPosition interface with additional fields and update exchange logic for position handling (#2245)\n\ndiff --git a/libraries/data-account/etc/data-account.api.md b/libraries/data-account/etc/data-account.api.md\nindex 1606ae578..6e7e56eff 100644\n--- a/libraries/data-account/etc/data-account.api.md\n+++ b/libraries/data-account/etc/data-account.api.md\n@@ -62,0 +63 @@ export interface IPosition {\n+    base_currency?: string;\r\n@@ -68,0 +70 @@ export interface IPosition {\n+    free_size?: string;\r\n@@ -70,0 +73 @@ export interface IPosition {\n+    liquidation_price?: string;\r\n@@ -74,0 +78 @@ export interface IPosition {\n+    quote_currency?: string;\r\n@@ -76,0 +81 @@ export interface IPosition {\n+    size?: string;\r\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 27,
+          "deletions": 0,
+          "path": "libraries/data-account/src/interface.ts",
+          "changeType": "added",
+          "patch": "commit 94b0fdc8489c9d7fcbc344c5ab96fe832afe4d17\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 00:32:46 2025 +0800\n\n    feat: enhance IPosition interface with additional fields and update exchange logic for position handling (#2245)\n\ndiff --git a/libraries/data-account/src/interface.ts b/libraries/data-account/src/interface.ts\nindex 55743add4..521041595 100644\n--- a/libraries/data-account/src/interface.ts\n+++ b/libraries/data-account/src/interface.ts\n@@ -41,0 +42,27 @@ export interface IPosition {\n+\n+  /**\n+   * Base currency of the position.\n+   * 头寸的基础货币\n+   */\n+  base_currency?: string;\n+  /**\n+   * Quote currency of the position.\n+   * 头寸的报价货币\n+   */\n+  quote_currency?: string;\n+  /**\n+   * Size of the position. negative for short positions. Normalized by value_scale.\n+   * 净头寸的大小，已经按照 value_scale 归一化。空头为负数\n+   */\n+  size?: string;\n+  /**\n+   * Free size of the position. Negative for short positions. Normalized by value_scale.\n+   * 净头寸的可用大小，已经按照 value_scale 归一化。空头为负数\n+   */\n+  free_size?: string;\n+\n+  /**\n+   * Liquidation price of the position. (Approximate value). Due to the complexity of margin calculation mechanisms, it is usually provided by the exchange.\n+   * 持仓的强平价格 (预估值)，由于保证金计算机制复杂，通常由交易所给出。\n+   */\n+  liquidation_price?: string;\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 13,
+          "deletions": 0,
+          "path": "libraries/exchange/src/index.ts",
+          "changeType": "added",
+          "patch": "commit 94b0fdc8489c9d7fcbc344c5ab96fe832afe4d17\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 00:32:46 2025 +0800\n\n    feat: enhance IPosition interface with additional fields and update exchange logic for position handling (#2245)\n\ndiff --git a/libraries/exchange/src/index.ts b/libraries/exchange/src/index.ts\nindex be6004e00..b5451e10d 100644\n--- a/libraries/exchange/src/index.ts\n+++ b/libraries/exchange/src/index.ts\n@@ -185,0 +186,13 @@ export const provideExchangeServices = <T>(terminal: Terminal, exchange: IExchan\n+          if (theProduct.base_currency) {\n+            pos.base_currency = theProduct.base_currency;\n+          }\n+          if (theProduct.quote_currency) {\n+            pos.quote_currency = theProduct.quote_currency;\n+          }\n+          if (pos.size === undefined && pos.volume !== undefined && pos.direction !== undefined) {\n+            pos.size = (pos.direction === 'LONG' ? 1 : -1) * pos.volume * (theProduct.value_scale || 1) + '';\n+          }\n+          if (pos.free_size === undefined && pos.free_volume !== undefined && pos.direction !== undefined) {\n+            pos.free_size =\n+              (pos.direction === 'LONG' ? 1 : -1) * pos.free_volume * (theProduct.value_scale || 1) + '';\n+          }\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "88cf1511d83591dc886853517ec08e080eb23c13",
+      "short": "88cf1511d",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2025-12-08 00:45:54 +0800",
+      "subject": "chore: bump version (#2246)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/account-composer/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/account-composer/CHANGELOG.json b/apps/account-composer/CHANGELOG.json\nindex 2b08a69b3..e19c039ba 100644\n--- a/apps/account-composer/CHANGELOG.json\n+++ b/apps/account-composer/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.7.9\",\n+      \"tag\": \"@yuants/app-account-composer_v0.7.9\",\n+      \"date\": \"Sun, 07 Dec 2025 16:38:10 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/data-account\\\" to `0.9.0`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "apps/account-composer/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/account-composer/CHANGELOG.md b/apps/account-composer/CHANGELOG.md\nindex fbff5bf45..17fbe1f65 100644\n--- a/apps/account-composer/CHANGELOG.md\n+++ b/apps/account-composer/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Wed, 03 Dec 2025 10:25:12 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.\n+\n+## 0.7.9\n+Sun, 07 Dec 2025 16:38:10 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/account-composer/package.json",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/account-composer/package.json b/apps/account-composer/package.json\nindex bc62e1f62..ad86d0372 100644\n--- a/apps/account-composer/package.json\n+++ b/apps/account-composer/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.7.8\",\n+  \"version\": \"0.7.9\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 23,
+          "deletions": 0,
+          "path": "apps/agent/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/agent/CHANGELOG.json b/apps/agent/CHANGELOG.json\nindex 27b8a2f32..c4a77ee67 100644\n--- a/apps/agent/CHANGELOG.json\n+++ b/apps/agent/CHANGELOG.json\n@@ -3,0 +4,23 @@\n+    {\n+      \"version\": \"0.8.21\",\n+      \"tag\": \"@yuants/app-agent_v0.8.21\",\n+      \"date\": \"Sun, 07 Dec 2025 16:38:10 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/agent\\\" to `0.13.144`\"\n+          },\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/data-account\\\" to `0.9.0`\"\n+          },\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/kernel\\\" to `0.15.61`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "apps/agent/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/agent/CHANGELOG.md b/apps/agent/CHANGELOG.md\nindex 7fbddaed7..ec5cfb617 100644\n--- a/apps/agent/CHANGELOG.md\n+++ b/apps/agent/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Wed, 03 Dec 2025 10:25:12 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.\n+\n+## 0.8.21\n+Sun, 07 Dec 2025 16:38:10 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/agent/package.json",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/agent/package.json b/apps/agent/package.json\nindex dc8ba55a1..df1c8f18c 100644\n--- a/apps/agent/package.json\n+++ b/apps/agent/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.8.20\",\n+  \"version\": \"0.8.21\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/fund/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/fund/CHANGELOG.json b/apps/fund/CHANGELOG.json\nindex df274966f..87cc96e34 100644\n--- a/apps/fund/CHANGELOG.json\n+++ b/apps/fund/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.1.34\",\n+      \"tag\": \"@yuants/app-fund_v0.1.34\",\n+      \"date\": \"Sun, 07 Dec 2025 16:38:10 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/data-account\\\" to `0.9.0`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "apps/fund/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/fund/CHANGELOG.md b/apps/fund/CHANGELOG.md\nindex c27a7160f..01fff9fd4 100644\n--- a/apps/fund/CHANGELOG.md\n+++ b/apps/fund/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Sat, 29 Nov 2025 01:30:37 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.\n+\n+## 0.1.34\n+Sun, 07 Dec 2025 16:38:10 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/fund/package.json",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/fund/package.json b/apps/fund/package.json\nindex a8c6166cb..a56e6485a 100644\n--- a/apps/fund/package.json\n+++ b/apps/fund/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.1.33\",\n+  \"version\": \"0.1.34\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/risk-manager/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/risk-manager/CHANGELOG.json b/apps/risk-manager/CHANGELOG.json\nindex c81bcb162..d0cd81ff2 100644\n--- a/apps/risk-manager/CHANGELOG.json\n+++ b/apps/risk-manager/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.6.50\",\n+      \"tag\": \"@yuants/app-risk-manager_v0.6.50\",\n+      \"date\": \"Sun, 07 Dec 2025 16:38:10 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/data-account\\\" to `0.9.0`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "apps/risk-manager/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/risk-manager/CHANGELOG.md b/apps/risk-manager/CHANGELOG.md\nindex 251d719ca..2e6c7e8a6 100644\n--- a/apps/risk-manager/CHANGELOG.md\n+++ b/apps/risk-manager/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Sat, 29 Nov 2025 01:30:37 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.\n+\n+## 0.6.50\n+Sun, 07 Dec 2025 16:38:10 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/risk-manager/package.json",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/risk-manager/package.json b/apps/risk-manager/package.json\nindex 1f872a304..cf0522ecd 100644\n--- a/apps/risk-manager/package.json\n+++ b/apps/risk-manager/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.6.49\",\n+  \"version\": \"0.6.50\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 23,
+          "deletions": 0,
+          "path": "apps/trade-copier/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/trade-copier/CHANGELOG.json b/apps/trade-copier/CHANGELOG.json\nindex 71bb9e019..59363aa2a 100644\n--- a/apps/trade-copier/CHANGELOG.json\n+++ b/apps/trade-copier/CHANGELOG.json\n@@ -3,0 +4,23 @@\n+    {\n+      \"version\": \"0.11.35\",\n+      \"tag\": \"@yuants/app-trade-copier_v0.11.35\",\n+      \"date\": \"Sun, 07 Dec 2025 16:38:10 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/data-account\\\" to `0.9.0`\"\n+          },\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/kernel\\\" to `0.15.61`\"\n+          },\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/order\\\" to `0.3.53`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "apps/trade-copier/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/trade-copier/CHANGELOG.md b/apps/trade-copier/CHANGELOG.md\nindex f86025ef6..1e006b932 100644\n--- a/apps/trade-copier/CHANGELOG.md\n+++ b/apps/trade-copier/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Wed, 03 Dec 2025 10:25:12 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.\n+\n+## 0.11.35\n+Sun, 07 Dec 2025 16:38:10 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/trade-copier/package.json",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/trade-copier/package.json b/apps/trade-copier/package.json\nindex 722b8c775..df230b39b 100644\n--- a/apps/trade-copier/package.json\n+++ b/apps/trade-copier/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.11.34\",\n+  \"version\": \"0.11.35\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 20,
+          "deletions": 0,
+          "path": "apps/vendor-aster/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/CHANGELOG.json b/apps/vendor-aster/CHANGELOG.json\nindex ed645a9b9..6316855cc 100644\n--- a/apps/vendor-aster/CHANGELOG.json\n+++ b/apps/vendor-aster/CHANGELOG.json\n@@ -3,0 +4,20 @@\n+    {\n+      \"version\": \"0.7.21\",\n+      \"tag\": \"@yuants/vendor-aster_v0.7.21\",\n+      \"date\": \"Sun, 07 Dec 2025 16:38:10 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/data-account\\\" to `0.9.0`\"\n+          },\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.4.0`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "apps/vendor-aster/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/CHANGELOG.md b/apps/vendor-aster/CHANGELOG.md\nindex 7fe7f275a..a0ac55442 100644\n--- a/apps/vendor-aster/CHANGELOG.md\n+++ b/apps/vendor-aster/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Fri, 05 Dec 2025 17:11:30 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.\n+\n+## 0.7.21\n+Sun, 07 Dec 2025 16:38:10 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-aster/package.json",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/package.json b/apps/vendor-aster/package.json\nindex 1976fd5c4..1bcc0a90d 100644\n--- a/apps/vendor-aster/package.json\n+++ b/apps/vendor-aster/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.7.20\",\n+  \"version\": \"0.7.21\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 20,
+          "deletions": 0,
+          "path": "apps/vendor-binance/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-binance/CHANGELOG.json b/apps/vendor-binance/CHANGELOG.json\nindex 3c0f26e0c..2047208c4 100644\n--- a/apps/vendor-binance/CHANGELOG.json\n+++ b/apps/vendor-binance/CHANGELOG.json\n@@ -3,0 +4,20 @@\n+    {\n+      \"version\": \"0.10.11\",\n+      \"tag\": \"@yuants/vendor-binance_v0.10.11\",\n+      \"date\": \"Sun, 07 Dec 2025 16:38:10 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/data-account\\\" to `0.9.0`\"\n+          },\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.4.0`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "apps/vendor-binance/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-binance/CHANGELOG.md b/apps/vendor-binance/CHANGELOG.md\nindex eda868de2..61c93fef7 100644\n--- a/apps/vendor-binance/CHANGELOG.md\n+++ b/apps/vendor-binance/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Thu, 04 Dec 2025 10:36:34 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.\n+\n+## 0.10.11\n+Sun, 07 Dec 2025 16:38:10 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-binance/package.json",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-binance/package.json b/apps/vendor-binance/package.json\nindex 2a11fca6e..5057f45e3 100644\n--- a/apps/vendor-binance/package.json\n+++ b/apps/vendor-binance/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.10.10\",\n+  \"version\": \"0.10.11\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 20,
+          "deletions": 0,
+          "path": "apps/vendor-bitget/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-bitget/CHANGELOG.json b/apps/vendor-bitget/CHANGELOG.json\nindex 7246ddf96..11b9c7d6d 100644\n--- a/apps/vendor-bitget/CHANGELOG.json\n+++ b/apps/vendor-bitget/CHANGELOG.json\n@@ -3,0 +4,20 @@\n+    {\n+      \"version\": \"0.11.2\",\n+      \"tag\": \"@yuants/vendor-bitget_v0.11.2\",\n+      \"date\": \"Sun, 07 Dec 2025 16:38:10 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/data-account\\\" to `0.9.0`\"\n+          },\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.4.0`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "apps/vendor-bitget/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-bitget/CHANGELOG.md b/apps/vendor-bitget/CHANGELOG.md\nindex 4801566cf..4e673b394 100644\n--- a/apps/vendor-bitget/CHANGELOG.md\n+++ b/apps/vendor-bitget/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Thu, 04 Dec 2025 10:36:34 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.\n+\n+## 0.11.2\n+Sun, 07 Dec 2025 16:38:10 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-bitget/package.json",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-bitget/package.json b/apps/vendor-bitget/package.json\nindex 7d2107e02..af4bc3af7 100644\n--- a/apps/vendor-bitget/package.json\n+++ b/apps/vendor-bitget/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.11.1\",\n+  \"version\": \"0.11.2\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-ctp/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-ctp/CHANGELOG.json b/apps/vendor-ctp/CHANGELOG.json\nindex a9541dc67..92a87df08 100644\n--- a/apps/vendor-ctp/CHANGELOG.json\n+++ b/apps/vendor-ctp/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.10.34\",\n+      \"tag\": \"@yuants/vendor-ctp_v0.10.34\",\n+      \"date\": \"Sun, 07 Dec 2025 16:38:10 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/data-account\\\" to `0.9.0`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "apps/vendor-ctp/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-ctp/CHANGELOG.md b/apps/vendor-ctp/CHANGELOG.md\nindex 84a6d41a9..3e3497494 100644\n--- a/apps/vendor-ctp/CHANGELOG.md\n+++ b/apps/vendor-ctp/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Wed, 03 Dec 2025 10:25:12 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.\n+\n+## 0.10.34\n+Sun, 07 Dec 2025 16:38:10 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-ctp/package.json",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-ctp/package.json b/apps/vendor-ctp/package.json\nindex 9d5bfdea5..05455b479 100644\n--- a/apps/vendor-ctp/package.json\n+++ b/apps/vendor-ctp/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.10.33\",\n+  \"version\": \"0.10.34\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 20,
+          "deletions": 0,
+          "path": "apps/vendor-gate/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-gate/CHANGELOG.json b/apps/vendor-gate/CHANGELOG.json\nindex 32fa927ca..8d8cedc67 100644\n--- a/apps/vendor-gate/CHANGELOG.json\n+++ b/apps/vendor-gate/CHANGELOG.json\n@@ -3,0 +4,20 @@\n+    {\n+      \"version\": \"0.4.19\",\n+      \"tag\": \"@yuants/vendor-gate_v0.4.19\",\n+      \"date\": \"Sun, 07 Dec 2025 16:38:10 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/data-account\\\" to `0.9.0`\"\n+          },\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.4.0`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "apps/vendor-gate/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-gate/CHANGELOG.md b/apps/vendor-gate/CHANGELOG.md\nindex 1ce1276a5..5fe2460d9 100644\n--- a/apps/vendor-gate/CHANGELOG.md\n+++ b/apps/vendor-gate/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Sat, 06 Dec 2025 20:05:18 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.\n+\n+## 0.4.19\n+Sun, 07 Dec 2025 16:38:10 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-gate/package.json",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-gate/package.json b/apps/vendor-gate/package.json\nindex c89d41b5b..cca4b3c50 100644\n--- a/apps/vendor-gate/package.json\n+++ b/apps/vendor-gate/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.4.18\",\n+  \"version\": \"0.4.19\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 20,
+          "deletions": 0,
+          "path": "apps/vendor-huobi/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-huobi/CHANGELOG.json b/apps/vendor-huobi/CHANGELOG.json\nindex b0daaaea7..c1e50492b 100644\n--- a/apps/vendor-huobi/CHANGELOG.json\n+++ b/apps/vendor-huobi/CHANGELOG.json\n@@ -3,0 +4,20 @@\n+    {\n+      \"version\": \"0.15.9\",\n+      \"tag\": \"@yuants/vendor-huobi_v0.15.9\",\n+      \"date\": \"Sun, 07 Dec 2025 16:38:10 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/data-account\\\" to `0.9.0`\"\n+          },\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.4.0`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "apps/vendor-huobi/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-huobi/CHANGELOG.md b/apps/vendor-huobi/CHANGELOG.md\nindex a6964ecbf..e5cc40aa4 100644\n--- a/apps/vendor-huobi/CHANGELOG.md\n+++ b/apps/vendor-huobi/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Sat, 06 Dec 2025 20:13:27 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.\n+\n+## 0.15.9\n+Sun, 07 Dec 2025 16:38:10 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-huobi/package.json",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-huobi/package.json b/apps/vendor-huobi/package.json\nindex e0f4cf88a..ca4859ed2 100644\n--- a/apps/vendor-huobi/package.json\n+++ b/apps/vendor-huobi/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.15.8\",\n+  \"version\": \"0.15.9\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 20,
+          "deletions": 0,
+          "path": "apps/vendor-hyperliquid/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-hyperliquid/CHANGELOG.json b/apps/vendor-hyperliquid/CHANGELOG.json\nindex bb50049e2..505c2aba8 100644\n--- a/apps/vendor-hyperliquid/CHANGELOG.json\n+++ b/apps/vendor-hyperliquid/CHANGELOG.json\n@@ -3,0 +4,20 @@\n+    {\n+      \"version\": \"0.7.10\",\n+      \"tag\": \"@yuants/vendor-hyperliquid_v0.7.10\",\n+      \"date\": \"Sun, 07 Dec 2025 16:38:10 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/data-account\\\" to `0.9.0`\"\n+          },\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.4.0`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "apps/vendor-hyperliquid/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-hyperliquid/CHANGELOG.md b/apps/vendor-hyperliquid/CHANGELOG.md\nindex ca255f704..5764f6cb3 100644\n--- a/apps/vendor-hyperliquid/CHANGELOG.md\n+++ b/apps/vendor-hyperliquid/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Fri, 05 Dec 2025 15:22:22 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.\n+\n+## 0.7.10\n+Sun, 07 Dec 2025 16:38:10 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-hyperliquid/package.json",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-hyperliquid/package.json b/apps/vendor-hyperliquid/package.json\nindex 07748d229..04995e5ed 100644\n--- a/apps/vendor-hyperliquid/package.json\n+++ b/apps/vendor-hyperliquid/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.7.9\",\n+  \"version\": \"0.7.10\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-okx-web3/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx-web3/CHANGELOG.json b/apps/vendor-okx-web3/CHANGELOG.json\nindex f34c13d5d..afa49d5da 100644\n--- a/apps/vendor-okx-web3/CHANGELOG.json\n+++ b/apps/vendor-okx-web3/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.1.34\",\n+      \"tag\": \"@yuants/vendor-okx-web3_v0.1.34\",\n+      \"date\": \"Sun, 07 Dec 2025 16:38:11 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/data-account\\\" to `0.9.0`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "apps/vendor-okx-web3/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx-web3/CHANGELOG.md b/apps/vendor-okx-web3/CHANGELOG.md\nindex 7e756250c..aa698da46 100644\n--- a/apps/vendor-okx-web3/CHANGELOG.md\n+++ b/apps/vendor-okx-web3/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Sat, 29 Nov 2025 01:30:37 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 16:38:11 GMT and should not be manually modified.\n+\n+## 0.1.34\n+Sun, 07 Dec 2025 16:38:11 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-okx-web3/package.json",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx-web3/package.json b/apps/vendor-okx-web3/package.json\nindex 0607fc1e6..bcee2f5c2 100644\n--- a/apps/vendor-okx-web3/package.json\n+++ b/apps/vendor-okx-web3/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.1.33\",\n+  \"version\": \"0.1.34\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 20,
+          "deletions": 0,
+          "path": "apps/vendor-okx/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.json b/apps/vendor-okx/CHANGELOG.json\nindex b91132858..83199cff4 100644\n--- a/apps/vendor-okx/CHANGELOG.json\n+++ b/apps/vendor-okx/CHANGELOG.json\n@@ -3,0 +4,20 @@\n+    {\n+      \"version\": \"0.29.10\",\n+      \"tag\": \"@yuants/vendor-okx_v0.29.10\",\n+      \"date\": \"Sun, 07 Dec 2025 16:38:11 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/data-account\\\" to `0.9.0`\"\n+          },\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.4.0`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "apps/vendor-okx/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.md b/apps/vendor-okx/CHANGELOG.md\nindex 1b5d46d36..f1b41b247 100644\n--- a/apps/vendor-okx/CHANGELOG.md\n+++ b/apps/vendor-okx/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Sun, 07 Dec 2025 15:23:14 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 16:38:11 GMT and should not be manually modified.\n+\n+## 0.29.10\n+Sun, 07 Dec 2025 16:38:11 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-okx/package.json",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/package.json b/apps/vendor-okx/package.json\nindex c9596c806..682caf361 100644\n--- a/apps/vendor-okx/package.json\n+++ b/apps/vendor-okx/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.29.9\",\n+  \"version\": \"0.29.10\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-solana/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-solana/CHANGELOG.json b/apps/vendor-solana/CHANGELOG.json\nindex 3b8c4426e..17fdcff1d 100644\n--- a/apps/vendor-solana/CHANGELOG.json\n+++ b/apps/vendor-solana/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.1.119\",\n+      \"tag\": \"@yuants/vendor-solana_v0.1.119\",\n+      \"date\": \"Sun, 07 Dec 2025 16:38:11 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/data-account\\\" to `0.9.0`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "apps/vendor-solana/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-solana/CHANGELOG.md b/apps/vendor-solana/CHANGELOG.md\nindex bd8674bd1..9c15fb5dc 100644\n--- a/apps/vendor-solana/CHANGELOG.md\n+++ b/apps/vendor-solana/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Sat, 29 Nov 2025 01:30:37 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 16:38:11 GMT and should not be manually modified.\n+\n+## 0.1.119\n+Sun, 07 Dec 2025 16:38:11 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-solana/package.json",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-solana/package.json b/apps/vendor-solana/package.json\nindex 66536a2f8..d61a664bd 100644\n--- a/apps/vendor-solana/package.json\n+++ b/apps/vendor-solana/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.1.118\",\n+  \"version\": \"0.1.119\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 20,
+          "deletions": 0,
+          "path": "apps/vendor-turboflow/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-turboflow/CHANGELOG.json b/apps/vendor-turboflow/CHANGELOG.json\nindex 530f445eb..911ca368e 100644\n--- a/apps/vendor-turboflow/CHANGELOG.json\n+++ b/apps/vendor-turboflow/CHANGELOG.json\n@@ -3,0 +4,20 @@\n+    {\n+      \"version\": \"1.2.10\",\n+      \"tag\": \"@yuants/vendor-turboflow_v1.2.10\",\n+      \"date\": \"Sun, 07 Dec 2025 16:38:11 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.4.0`\"\n+          },\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/data-account\\\" to `0.9.0`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "apps/vendor-turboflow/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-turboflow/CHANGELOG.md b/apps/vendor-turboflow/CHANGELOG.md\nindex f5095878f..cbdfde29b 100644\n--- a/apps/vendor-turboflow/CHANGELOG.md\n+++ b/apps/vendor-turboflow/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Thu, 04 Dec 2025 03:10:55 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 16:38:11 GMT and should not be manually modified.\n+\n+## 1.2.10\n+Sun, 07 Dec 2025 16:38:11 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-turboflow/package.json",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-turboflow/package.json b/apps/vendor-turboflow/package.json\nindex 36afa6ee1..f0b244e3d 100644\n--- a/apps/vendor-turboflow/package.json\n+++ b/apps/vendor-turboflow/package.json\n@@ -3 +3 @@\n-  \"version\": \"1.2.9\",\n+  \"version\": \"1.2.10\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 20,
+          "deletions": 0,
+          "path": "apps/virtual-exchange/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/virtual-exchange/CHANGELOG.json b/apps/virtual-exchange/CHANGELOG.json\nindex ef5ad2bcf..939a712ac 100644\n--- a/apps/virtual-exchange/CHANGELOG.json\n+++ b/apps/virtual-exchange/CHANGELOG.json\n@@ -3,0 +4,20 @@\n+    {\n+      \"version\": \"0.5.5\",\n+      \"tag\": \"@yuants/app-virtual-exchange_v0.5.5\",\n+      \"date\": \"Sun, 07 Dec 2025 16:38:10 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/data-account\\\" to `0.9.0`\"\n+          },\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.4.0`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "apps/virtual-exchange/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/virtual-exchange/CHANGELOG.md b/apps/virtual-exchange/CHANGELOG.md\nindex 400250891..1b60229f3 100644\n--- a/apps/virtual-exchange/CHANGELOG.md\n+++ b/apps/virtual-exchange/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Sun, 07 Dec 2025 14:55:28 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.\n+\n+## 0.5.5\n+Sun, 07 Dec 2025 16:38:10 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/virtual-exchange/package.json",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/virtual-exchange/package.json b/apps/virtual-exchange/package.json\nindex 9847730b1..9c691cf9e 100644\n--- a/apps/virtual-exchange/package.json\n+++ b/apps/virtual-exchange/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.5.4\",\n+  \"version\": \"0.5.5\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/account-info-resolver/{main_2025-12-03-10-25.json => main_2025-12-07-16-38.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/agent/{main_2025-12-03-10-25.json => main_2025-12-07-16-38.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/app-account-composer/{main_2025-12-03-10-25.json => main_2025-12-07-16-38.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/app-agent/{main_2025-12-03-10-25.json => main_2025-12-07-16-38.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/app-fund/{main_2025-11-29-01-31.json => main_2025-12-07-16-38.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/app-risk-manager/{main_2025-11-29-01-31.json => main_2025-12-07-16-38.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/app-trade-copier/{main_2025-12-03-10-25.json => main_2025-12-07-16-38.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/app-virtual-exchange/{main_2025-12-07-14-55.json => main_2025-12-07-16-38.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/data-account/2025-12-07-16-26.json",
+          "changeType": "deleted",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/data-account/2025-12-07-16-26.json b/common/changes/@yuants/data-account/2025-12-07-16-26.json\ndeleted file mode 100644\nindex 1ceedc6cb..000000000\n--- a/common/changes/@yuants/data-account/2025-12-07-16-26.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/data-account\",\n-      \"comment\": \"add more fields to position\",\n-      \"type\": \"minor\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/data-account\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/data-account/{main_2025-11-29-01-31.json => main_2025-12-07-16-38.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/dist-origin/{main_2025-12-03-10-25.json => main_2025-12-07-16-38.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/exchange/2025-12-07-16-26.json",
+          "changeType": "deleted",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/exchange/2025-12-07-16-26.json b/common/changes/@yuants/exchange/2025-12-07-16-26.json\ndeleted file mode 100644\nindex bff513a53..000000000\n--- a/common/changes/@yuants/exchange/2025-12-07-16-26.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/exchange\",\n-      \"comment\": \"add polyfill to position\",\n-      \"type\": \"minor\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/exchange\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/exchange/{main_2025-12-03-18-20.json => main_2025-12-07-16-38.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/kernel/{main_2025-12-03-10-25.json => main_2025-12-07-16-38.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/order/{main_2025-12-03-10-25.json => main_2025-12-07-16-38.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-aster/{main_2025-12-05-17-11.json => main_2025-12-07-16-38.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-binance/{main_2025-12-04-10-36.json => main_2025-12-07-16-38.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-bitget/{main_2025-12-04-10-36.json => main_2025-12-07-16-38.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-ctp/{main_2025-12-03-10-25.json => main_2025-12-07-16-38.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-gate/{main_2025-12-06-20-05.json => main_2025-12-07-16-38.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-huobi/{main_2025-12-06-20-13.json => main_2025-12-07-16-38.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-hyperliquid/{main_2025-12-05-15-22.json => main_2025-12-07-16-38.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx-web3/{main_2025-11-29-01-31.json => main_2025-12-07-16-38.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/{main_2025-12-07-15-23.json => main_2025-12-07-16-38.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-solana/{main_2025-11-29-01-31.json => main_2025-12-07-16-38.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-turboflow/{main_2025-12-04-03-10.json => main_2025-12-07-16-38.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "distributions/origin/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/distributions/origin/CHANGELOG.json b/distributions/origin/CHANGELOG.json\nindex 0f413af87..50225a35c 100644\n--- a/distributions/origin/CHANGELOG.json\n+++ b/distributions/origin/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.1.120\",\n+      \"tag\": \"@yuants/dist-origin_v0.1.120\",\n+      \"date\": \"Sun, 07 Dec 2025 16:38:10 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/agent\\\" to `0.13.144`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "distributions/origin/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/distributions/origin/CHANGELOG.md b/distributions/origin/CHANGELOG.md\nindex 670325d9d..583b0cdb7 100644\n--- a/distributions/origin/CHANGELOG.md\n+++ b/distributions/origin/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Wed, 03 Dec 2025 10:25:12 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.\n+\n+## 0.1.120\n+Sun, 07 Dec 2025 16:38:10 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "distributions/origin/package.json",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/distributions/origin/package.json b/distributions/origin/package.json\nindex c1f79f220..3b6678498 100644\n--- a/distributions/origin/package.json\n+++ b/distributions/origin/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.1.119\",\n+  \"version\": \"0.1.120\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "libraries/account-info-resolver/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/libraries/account-info-resolver/CHANGELOG.json b/libraries/account-info-resolver/CHANGELOG.json\nindex 4fede2857..763539c23 100644\n--- a/libraries/account-info-resolver/CHANGELOG.json\n+++ b/libraries/account-info-resolver/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.2.78\",\n+      \"tag\": \"@yuants/account-info-resolver_v0.2.78\",\n+      \"date\": \"Sun, 07 Dec 2025 16:38:10 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/data-account\\\" to `0.9.0`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "libraries/account-info-resolver/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/libraries/account-info-resolver/CHANGELOG.md b/libraries/account-info-resolver/CHANGELOG.md\nindex e767cf983..50bf266a4 100644\n--- a/libraries/account-info-resolver/CHANGELOG.md\n+++ b/libraries/account-info-resolver/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Wed, 03 Dec 2025 10:25:12 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.\n+\n+## 0.2.78\n+Sun, 07 Dec 2025 16:38:10 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "libraries/account-info-resolver/package.json",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/libraries/account-info-resolver/package.json b/libraries/account-info-resolver/package.json\nindex 6a5c10362..7bff8a092 100644\n--- a/libraries/account-info-resolver/package.json\n+++ b/libraries/account-info-resolver/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.2.77\",\n+  \"version\": \"0.2.78\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 20,
+          "deletions": 0,
+          "path": "libraries/agent/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/libraries/agent/CHANGELOG.json b/libraries/agent/CHANGELOG.json\nindex 53a58a13d..ef2c757f5 100644\n--- a/libraries/agent/CHANGELOG.json\n+++ b/libraries/agent/CHANGELOG.json\n@@ -3,0 +4,20 @@\n+    {\n+      \"version\": \"0.13.144\",\n+      \"tag\": \"@yuants/agent_v0.13.144\",\n+      \"date\": \"Sun, 07 Dec 2025 16:38:10 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/data-account\\\" to `0.9.0`\"\n+          },\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/kernel\\\" to `0.15.61`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "libraries/agent/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/libraries/agent/CHANGELOG.md b/libraries/agent/CHANGELOG.md\nindex 1ed9da9e0..fe43dcdfc 100644\n--- a/libraries/agent/CHANGELOG.md\n+++ b/libraries/agent/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Wed, 03 Dec 2025 10:25:12 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.\n+\n+## 0.13.144\n+Sun, 07 Dec 2025 16:38:10 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "libraries/agent/package.json",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/libraries/agent/package.json b/libraries/agent/package.json\nindex 5ed7669fa..bb2804521 100644\n--- a/libraries/agent/package.json\n+++ b/libraries/agent/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.13.143\",\n+  \"version\": \"0.13.144\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "libraries/data-account/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/libraries/data-account/CHANGELOG.json b/libraries/data-account/CHANGELOG.json\nindex 2dea92f28..dfca2a9d5 100644\n--- a/libraries/data-account/CHANGELOG.json\n+++ b/libraries/data-account/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.9.0\",\n+      \"tag\": \"@yuants/data-account_v0.9.0\",\n+      \"date\": \"Sun, 07 Dec 2025 16:38:10 GMT\",\n+      \"comments\": {\n+        \"minor\": [\n+          {\n+            \"comment\": \"add more fields to position\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "libraries/data-account/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/libraries/data-account/CHANGELOG.md b/libraries/data-account/CHANGELOG.md\nindex bc90eda68..8d85cec31 100644\n--- a/libraries/data-account/CHANGELOG.md\n+++ b/libraries/data-account/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Sat, 29 Nov 2025 01:30:37 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.\n+\n+## 0.9.0\n+Sun, 07 Dec 2025 16:38:10 GMT\n+\n+### Minor changes\n+\n+- add more fields to position\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "libraries/data-account/package.json",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/libraries/data-account/package.json b/libraries/data-account/package.json\nindex 75ca8816f..ce0760b5c 100644\n--- a/libraries/data-account/package.json\n+++ b/libraries/data-account/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.8.4\",\n+  \"version\": \"0.9.0\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 22,
+          "deletions": 0,
+          "path": "libraries/exchange/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/libraries/exchange/CHANGELOG.json b/libraries/exchange/CHANGELOG.json\nindex a4a044688..623ab17c6 100644\n--- a/libraries/exchange/CHANGELOG.json\n+++ b/libraries/exchange/CHANGELOG.json\n@@ -3,0 +4,22 @@\n+    {\n+      \"version\": \"0.4.0\",\n+      \"tag\": \"@yuants/exchange_v0.4.0\",\n+      \"date\": \"Sun, 07 Dec 2025 16:38:10 GMT\",\n+      \"comments\": {\n+        \"minor\": [\n+          {\n+            \"comment\": \"add polyfill to position\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/data-account\\\" to `0.9.0`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "libraries/exchange/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/libraries/exchange/CHANGELOG.md b/libraries/exchange/CHANGELOG.md\nindex d437a484f..6bbf4f8f8 100644\n--- a/libraries/exchange/CHANGELOG.md\n+++ b/libraries/exchange/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Wed, 03 Dec 2025 18:20:00 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.\n+\n+## 0.4.0\n+Sun, 07 Dec 2025 16:38:10 GMT\n+\n+### Minor changes\n+\n+- add polyfill to position\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "libraries/exchange/package.json",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/libraries/exchange/package.json b/libraries/exchange/package.json\nindex a6810b2dc..616aa64e8 100644\n--- a/libraries/exchange/package.json\n+++ b/libraries/exchange/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.3.1\",\n+  \"version\": \"0.4.0\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "libraries/kernel/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/libraries/kernel/CHANGELOG.json b/libraries/kernel/CHANGELOG.json\nindex 44f7da043..96b39ad03 100644\n--- a/libraries/kernel/CHANGELOG.json\n+++ b/libraries/kernel/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.15.61\",\n+      \"tag\": \"@yuants/kernel_v0.15.61\",\n+      \"date\": \"Sun, 07 Dec 2025 16:38:10 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/data-account\\\" to `0.9.0`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "libraries/kernel/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/libraries/kernel/CHANGELOG.md b/libraries/kernel/CHANGELOG.md\nindex f2a8d4e9e..8ad6917cb 100644\n--- a/libraries/kernel/CHANGELOG.md\n+++ b/libraries/kernel/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Wed, 03 Dec 2025 10:25:12 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.\n+\n+## 0.15.61\n+Sun, 07 Dec 2025 16:38:10 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "libraries/kernel/package.json",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/libraries/kernel/package.json b/libraries/kernel/package.json\nindex 417614c8e..1acc4f1bf 100644\n--- a/libraries/kernel/package.json\n+++ b/libraries/kernel/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.15.60\",\n+  \"version\": \"0.15.61\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "libraries/order/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/libraries/order/CHANGELOG.json b/libraries/order/CHANGELOG.json\nindex f80720f78..e47d76011 100644\n--- a/libraries/order/CHANGELOG.json\n+++ b/libraries/order/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.3.53\",\n+      \"tag\": \"@yuants/order_v0.3.53\",\n+      \"date\": \"Sun, 07 Dec 2025 16:38:10 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/data-account\\\" to `0.9.0`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "libraries/order/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/libraries/order/CHANGELOG.md b/libraries/order/CHANGELOG.md\nindex 0c2870cfd..d3ad2f54a 100644\n--- a/libraries/order/CHANGELOG.md\n+++ b/libraries/order/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Wed, 03 Dec 2025 10:25:12 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.\n+\n+## 0.3.53\n+Sun, 07 Dec 2025 16:38:10 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "libraries/order/package.json",
+          "changeType": "modified",
+          "patch": "commit 88cf1511d83591dc886853517ec08e080eb23c13\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 00:45:54 2025 +0800\n\n    chore: bump version (#2246)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/libraries/order/package.json b/libraries/order/package.json\nindex add109887..77aa21821 100644\n--- a/libraries/order/package.json\n+++ b/libraries/order/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.3.52\",\n+  \"version\": \"0.3.53\",\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "82990304e1bd1b2c86bb9237c236598ce5522a42",
+      "short": "82990304e",
+      "author": "CZ",
+      "email": "zheng.chen@no-trade-no.life",
+      "authoredAt": "2025-12-08 00:59:53 +0800",
+      "subject": "feat: support HTTP call service and add parseBodyText utility function (#2247)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 65,
+          "deletions": 34,
+          "path": "apps/host/src/host-manager.ts",
+          "changeType": "modified",
+          "patch": "commit 82990304e1bd1b2c86bb9237c236598ce5522a42\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 00:59:53 2025 +0800\n\n    feat: support HTTP call service and add parseBodyText utility function (#2247)\n\ndiff --git a/apps/host/src/host-manager.ts b/apps/host/src/host-manager.ts\nindex 529c8a156..a558402b7 100644\n--- a/apps/host/src/host-manager.ts\n+++ b/apps/host/src/host-manager.ts\n@@ -1,2 +1,2 @@\n-import { GlobalPrometheusRegistry, ITerminalInfo, Terminal } from '@yuants/protocol';\n-import { formatTime, UUID, verifyMessage } from '@yuants/utils';\n+import { GlobalPrometheusRegistry, ITerminalInfo, ITerminalMessage, Terminal } from '@yuants/protocol';\n+import { formatTime, newError, observableToAsyncIterable, UUID, verifyMessage } from '@yuants/utils';\n@@ -27,0 +28 @@ import WebSocket from 'ws';\n+import { parseBodyText } from './utils/parseBodyText';\n@@ -342,19 +343,10 @@ export const createNodeJSHostManager = () => {\n-    const theUrl = new URL(req.url || '', 'http://localhost:8888');\n-    const x = resolveHost(req);\n-    if (!x) {\n-      MetricsHostManagerConnectionErrorCounter.add(1);\n-      res.writeHead(401);\n-      res.end('Unauthorized: ' + req.url);\n-      return;\n-    }\n-    if (theUrl.pathname.startsWith('/external/')) {\n-      const reqBody = await new Promise<string>((resolve) => {\n-        const body: Uint8Array[] = [];\n-        req.on('data', (chunk) => {\n-          body.push(chunk);\n-        });\n-        req.on('end', () => {\n-          const reqBody = Buffer.concat(body).toString();\n-          resolve(reqBody);\n-        });\n-      });\n+    try {\n+      console.info(formatTime(Date.now()), 'HTTP Request', req.method, req.url);\n+      const theUrl = new URL(req.url || '', 'http://localhost:8888');\n+      const x = resolveHost(req);\n+      if (!x) {\n+        MetricsHostManagerConnectionErrorCounter.add(1);\n+        res.writeHead(401);\n+        res.end('Unauthorized: ' + req.url);\n+        return;\n+      }\n@@ -362,8 +354,49 @@ export const createNodeJSHostManager = () => {\n-      const reqJson = {\n-        method: req.method,\n-        url: req.url,\n-        pathname: theUrl.pathname,\n-        headers: req.headers,\n-        body: reqBody,\n-        host_id: x?.host.host_id,\n-      };\n+      // 内部 API 请求 (POST /request)，路由到内部服务\n+      if (theUrl.pathname === '/request') {\n+        if (req.method === 'OPTIONS') {\n+          res.writeHead(204, {\n+            'Access-Control-Allow-Origin': '*',\n+            'Access-Control-Allow-Headers': '*',\n+            'Access-Control-Allow-Methods': '*',\n+          });\n+          res.end();\n+          return;\n+        }\n+        if (req.method === 'POST') {\n+          const _reqMsg = await parseBodyText(req);\n+          const reqMsg = JSON.parse(_reqMsg) as ITerminalMessage;\n+          if (!reqMsg.method) throw newError('INVALID_REQUEST', { reason: 'method is required' });\n+          if (!reqMsg.req) throw newError('INVALID_REQUEST', { reason: 'req is required' });\n+\n+          res.writeHead(200, {\n+            'Content-Type': 'application/x-ndjson',\n+            'Cache-Control': 'no-cache',\n+            Connection: 'keep-alive',\n+            'Access-Control-Allow-Origin': '*',\n+          });\n+\n+          // 按照 NDJSON 格式封装请求消息\n+          for await (const msg of observableToAsyncIterable(\n+            x.host.host_terminal.client.requestService(reqMsg.method, reqMsg.req),\n+          )) {\n+            res.write(JSON.stringify(msg) + '\\n');\n+          }\n+          res.end();\n+\n+          return;\n+        }\n+        return;\n+      }\n+\n+      // 外部请求 (/external/) 格式由外部系统决定，直接转发给 Host 处理 (例如 WebHook)\n+      if (theUrl.pathname.startsWith('/external/')) {\n+        const reqBody = await parseBodyText(req);\n+\n+        const reqJson = {\n+          method: req.method,\n+          url: req.url,\n+          pathname: theUrl.pathname,\n+          headers: req.headers,\n+          body: reqBody,\n+          host_id: x?.host.host_id,\n+        };\n@@ -371 +403,0 @@ export const createNodeJSHostManager = () => {\n-      try {\n@@ -382,4 +413,0 @@ export const createNodeJSHostManager = () => {\n-        return;\n-      } catch (e) {\n-        res.writeHead(500);\n-        res.end(`${e}`);\n@@ -387,0 +416,3 @@ export const createNodeJSHostManager = () => {\n+    } catch (err) {\n+      res.writeHead(500);\n+      res.end(`Internal Server Error: ${err}`);\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "theUrl",
+              "code": "const theUrl = new URL(req.url || '', 'http://localhost:8888');",
+              "lineStart": 345,
+              "lineEnd": 345
+            },
+            {
+              "type": "function",
+              "name": "x",
+              "code": "const x = resolveHost(req);\nif (!x) {\n  MetricsHostManagerConnectionErrorCounter.add(1);\n  res.writeHead(401);\n  res.end('Unauthorized: ' + req.url);\n  return;\n}\n// 内部 API 请求 (POST /request)，路由到内部服务\nif (theUrl.pathname === '/request') {\n  if (req.method === 'OPTIONS') {\n    res.writeHead(204, {\n      'Access-Control-Allow-Origin': '*',\n      'Access-Control-Allow-Headers': '*',\n      'Access-Control-Allow-Methods': '*',\n    });",
+              "lineStart": 346,
+              "lineEnd": 365
+            },
+            {
+              "type": "function",
+              "name": "_reqMsg",
+              "code": "const _reqMsg = await parseBodyText(req);",
+              "lineStart": 366,
+              "lineEnd": 366
+            },
+            {
+              "type": "function",
+              "name": "reqMsg",
+              "code": "const reqMsg = JSON.parse(_reqMsg) as ITerminalMessage;\nif (!reqMsg.method) throw newError('INVALID_REQUEST', { reason: 'method is required' });\nif (!reqMsg.req) throw newError('INVALID_REQUEST', { reason: 'req is required' });\n\nres.writeHead(200, {\n  'Content-Type': 'application/x-ndjson',\n  'Cache-Control': 'no-cache',\n  Connection: 'keep-alive',\n  'Access-Control-Allow-Origin': '*',\n});\n\n// 按照 NDJSON 格式封装请求消息",
+              "lineStart": 367,
+              "lineEnd": 378
+            },
+            {
+              "type": "function",
+              "name": "msg",
+              "code": "    for await (const msg of observableToAsyncIterable(\n      x.host.host_terminal.client.requestService(reqMsg.method, reqMsg.req),\n    )) {\n      res.write(JSON.stringify(msg) + '\\n');\n    }\n    res.end();\n\n    return;\n  }\n  return;\n}\n\n// 外部请求 (/external/) 格式由外部系统决定，直接转发给 Host 处理 (例如 WebHook)\nif (theUrl.pathname.startsWith('/external/')) {",
+              "lineStart": 379,
+              "lineEnd": 392
+            },
+            {
+              "type": "function",
+              "name": "reqBody",
+              "code": "const reqBody = await parseBodyText(req);\n",
+              "lineStart": 393,
+              "lineEnd": 394
+            },
+            {
+              "type": "function",
+              "name": "reqJson",
+              "code": "    const reqJson = {\n      method: req.method,\n      url: req.url,\n      pathname: theUrl.pathname,\n      headers: req.headers,\n      body: reqBody,\n      host_id: x?.host.host_id,\n    };\n} catch (err) {\n  res.writeHead(500);\n  res.end(`Internal Server Error: ${err}`);",
+              "lineStart": 395,
+              "lineEnd": 419
+            }
+          ]
+        },
+        {
+          "additions": 14,
+          "deletions": 0,
+          "path": "apps/host/src/utils/parseBodyText.ts",
+          "changeType": "added",
+          "patch": "commit 82990304e1bd1b2c86bb9237c236598ce5522a42\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 00:59:53 2025 +0800\n\n    feat: support HTTP call service and add parseBodyText utility function (#2247)\n\ndiff --git a/apps/host/src/utils/parseBodyText.ts b/apps/host/src/utils/parseBodyText.ts\nnew file mode 100644\nindex 000000000..518422d74\n--- /dev/null\n+++ b/apps/host/src/utils/parseBodyText.ts\n@@ -0,0 +1,14 @@\n+import type { IncomingMessage } from 'http';\n+\n+export const parseBodyText = async (req: IncomingMessage): Promise<string> => {\n+  return new Promise<string>((resolve) => {\n+    const body: Uint8Array[] = [];\n+    req.on('data', (chunk) => {\n+      body.push(chunk);\n+    });\n+    req.on('end', () => {\n+      const reqBody = Buffer.concat(body).toString();\n+      resolve(reqBody);\n+    });\n+  });\n+};\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "parseBodyText",
+              "code": "export const parseBodyText = async (req: IncomingMessage): Promise<string> => {\n  return new Promise<string>((resolve) => {",
+              "lineStart": 3,
+              "lineEnd": 4
+            },
+            {
+              "type": "function",
+              "name": "body",
+              "code": "const body: Uint8Array[] = [];\nreq.on('data', (chunk) => {\n  body.push(chunk);\n});\nreq.on('end', () => {",
+              "lineStart": 5,
+              "lineEnd": 9
+            },
+            {
+              "type": "function",
+              "name": "reqBody",
+              "code": "      const reqBody = Buffer.concat(body).toString();\n      resolve(reqBody);\n    });\n  });\n};",
+              "lineStart": 10,
+              "lineEnd": 15
+            }
+          ]
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/app-host/2025-12-07-16-58.json",
+          "changeType": "added",
+          "patch": "commit 82990304e1bd1b2c86bb9237c236598ce5522a42\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 00:59:53 2025 +0800\n\n    feat: support HTTP call service and add parseBodyText utility function (#2247)\n\ndiff --git a/common/changes/@yuants/app-host/2025-12-07-16-58.json b/common/changes/@yuants/app-host/2025-12-07-16-58.json\nnew file mode 100644\nindex 000000000..f9a60eaaa\n--- /dev/null\n+++ b/common/changes/@yuants/app-host/2025-12-07-16-58.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/app-host\",\n+      \"comment\": \"support HTTP call service\",\n+      \"type\": \"minor\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/app-host\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "efe8a5925300779b98ea6210ccefde28d05fe063",
+      "short": "efe8a5925",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2025-12-08 01:18:22 +0800",
+      "subject": "chore: bump version (#2248)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/host/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit efe8a5925300779b98ea6210ccefde28d05fe063\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 01:18:22 2025 +0800\n\n    chore: bump version (#2248)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/host/CHANGELOG.json b/apps/host/CHANGELOG.json\nindex 0172bc7b0..36db053a5 100644\n--- a/apps/host/CHANGELOG.json\n+++ b/apps/host/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.11.0\",\n+      \"tag\": \"@yuants/app-host_v0.11.0\",\n+      \"date\": \"Sun, 07 Dec 2025 17:06:02 GMT\",\n+      \"comments\": {\n+        \"minor\": [\n+          {\n+            \"comment\": \"support HTTP call service\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/host/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit efe8a5925300779b98ea6210ccefde28d05fe063\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 01:18:22 2025 +0800\n\n    chore: bump version (#2248)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/host/CHANGELOG.md b/apps/host/CHANGELOG.md\nindex 1936b779c..bec04478c 100644\n--- a/apps/host/CHANGELOG.md\n+++ b/apps/host/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Sat, 29 Nov 2025 01:30:37 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 17:06:02 GMT and should not be manually modified.\n+\n+## 0.11.0\n+Sun, 07 Dec 2025 17:06:02 GMT\n+\n+### Minor changes\n+\n+- support HTTP call service\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/host/package.json",
+          "changeType": "modified",
+          "patch": "commit efe8a5925300779b98ea6210ccefde28d05fe063\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 01:18:22 2025 +0800\n\n    chore: bump version (#2248)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/host/package.json b/apps/host/package.json\nindex 0c6219d69..8d789c40f 100644\n--- a/apps/host/package.json\n+++ b/apps/host/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.10.6\",\n+  \"version\": \"0.11.0\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/app-host/2025-12-07-16-58.json",
+          "changeType": "deleted",
+          "patch": "commit efe8a5925300779b98ea6210ccefde28d05fe063\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 01:18:22 2025 +0800\n\n    chore: bump version (#2248)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/app-host/2025-12-07-16-58.json b/common/changes/@yuants/app-host/2025-12-07-16-58.json\ndeleted file mode 100644\nindex f9a60eaaa..000000000\n--- a/common/changes/@yuants/app-host/2025-12-07-16-58.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/app-host\",\n-      \"comment\": \"support HTTP call service\",\n-      \"type\": \"minor\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/app-host\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/app-host/{main_2025-11-29-01-31.json => main_2025-12-07-17-06.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "540b69760084c1e6e7beb50e4014364733f445b0",
+      "short": "540b69760",
+      "author": "Siyuan Wang",
+      "email": "c.one@thrimbda.com",
+      "authoredAt": "2025-12-08 02:02:30 +0800",
+      "subject": "feat(vendor-aster): 添加现货产品支持，更新 API 接口以获取现货和永续交易对信息 (#2249)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": "vendor-aster",
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 8,
+          "deletions": 0,
+          "path": "apps/vendor-aster/SESSION_NOTES.md",
+          "changeType": "added",
+          "patch": "commit 540b69760084c1e6e7beb50e4014364733f445b0\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 8 02:02:30 2025 +0800\n\n    feat(vendor-aster): 添加现货产品支持，更新 API 接口以获取现货和永续交易对信息 (#2249)\n\ndiff --git a/apps/vendor-aster/SESSION_NOTES.md b/apps/vendor-aster/SESSION_NOTES.md\nindex 8a7aaa694..6d9df0bc0 100644\n--- a/apps/vendor-aster/SESSION_NOTES.md\n+++ b/apps/vendor-aster/SESSION_NOTES.md\n@@ -125,0 +126,8 @@\n+### 2025-12-08 — Codex\n+\n+- **本轮摘要**：\n+  - `services/markets/product.ts` 同时输出永续与现货产品目录，新增 Spot exchangeInfo 拉取逻辑，保持价格/数量步长与 Aster 过滤器一致。\n+  - `api/public-api.ts` 引入 Spot exchangeInfo 公共接口，分离期货与现货的 base URL。\n+- **运行的测试 / 检查**：\n+  - `npx tsc --noEmit --project apps/vendor-aster/tsconfig.json`\n+\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 24,
+          "deletions": 9,
+          "path": "apps/vendor-aster/src/api/public-api.ts",
+          "changeType": "modified",
+          "patch": "commit 540b69760084c1e6e7beb50e4014364733f445b0\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 8 02:02:30 2025 +0800\n\n    feat(vendor-aster): 添加现货产品支持，更新 API 接口以获取现货和永续交易对信息 (#2249)\n\ndiff --git a/apps/vendor-aster/src/api/public-api.ts b/apps/vendor-aster/src/api/public-api.ts\nindex 4cd51f4b6..ced2ae976 100644\n--- a/apps/vendor-aster/src/api/public-api.ts\n+++ b/apps/vendor-aster/src/api/public-api.ts\n@@ -1 +0,0 @@\n-const BASE_URL = 'https://fapi.asterdex.com';\n@@ -9,2 +8,7 @@ const terminal = Terminal.fromNodeEnv();\n-const request = async <T>(method: string, endpoint: string, params: any = {}): Promise<T> => {\n-  const url = new URL(BASE_URL);\n+const request = async <T>(\n+  method: string,\n+  baseUrl: string,\n+  endpoint: string,\n+  params: any = {},\n+): Promise<T> => {\n+  const url = new URL(baseUrl);\n@@ -28,0 +33 @@ const createApi =\n+  (baseUrl: string) =>\n@@ -31 +36,4 @@ const createApi =\n-    request<TRes>(method, endpoint, params);\n+    request<TRes>(method, baseUrl, endpoint, params);\n+\n+const createFutureApi = createApi('https://fapi.asterdex.com');\n+const createSpotApi = createApi('https://sapi.asterdex.com');\n@@ -38 +46 @@ const createApi =\n-export const getFApiV1FundingRate = createApi<\n+export const getFApiV1FundingRate = createFutureApi<\n@@ -82 +90,8 @@ export interface IAsterExchangeInfo {\n-export const getFApiV1ExchangeInfo = createApi<{}, IAsterExchangeInfo>('GET', '/fapi/v1/exchangeInfo');\n+export const getFApiV1ExchangeInfo = createFutureApi<{}, IAsterExchangeInfo>('GET', '/fapi/v1/exchangeInfo');\n+\n+/**\n+ * 获取现货交易对信息\n+ *\n+ * https://github.com/asterdex/api-docs/blob/master/aster-finance-spot-api_CN.md#L1080-L1145\n+ */\n+export const getApiV1ExchangeInfo = createSpotApi<{}, IAsterExchangeInfo>('GET', '/api/v1/exchangeInfo');\n@@ -89 +104 @@ export const getFApiV1ExchangeInfo = createApi<{}, IAsterExchangeInfo>('GET', '/\n-export const getFApiV1OpenInterest = createApi<\n+export const getFApiV1OpenInterest = createFutureApi<\n@@ -105 +120 @@ export const getFApiV1OpenInterest = createApi<\n-export const getFApiV1TickerPrice = createApi<\n+export const getFApiV1TickerPrice = createFutureApi<\n@@ -118 +133 @@ export const getFApiV1TickerPrice = createApi<\n-export const getFApiV1PremiumIndex = createApi<\n+export const getFApiV1PremiumIndex = createFutureApi<\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "request",
+              "code": "const request = async <T>(\n  method: string,\n  baseUrl: string,\n  endpoint: string,\n  params: any = {},\n): Promise<T> => {",
+              "lineStart": 8,
+              "lineEnd": 13
+            },
+            {
+              "type": "function",
+              "name": "url",
+              "code": "const url = new URL(baseUrl);\n(baseUrl: string) =>\n  request<TRes>(method, baseUrl, endpoint, params);\n",
+              "lineStart": 14,
+              "lineEnd": 37
+            },
+            {
+              "type": "function",
+              "name": "createFutureApi",
+              "code": "const createFutureApi = createApi('https://fapi.asterdex.com');",
+              "lineStart": 38,
+              "lineEnd": 38
+            },
+            {
+              "type": "function",
+              "name": "createSpotApi",
+              "code": "const createSpotApi = createApi('https://sapi.asterdex.com');",
+              "lineStart": 39,
+              "lineEnd": 45
+            },
+            {
+              "type": "function",
+              "name": "getFApiV1FundingRate",
+              "code": "export const getFApiV1FundingRate = createFutureApi<",
+              "lineStart": 46,
+              "lineEnd": 89
+            },
+            {
+              "type": "function",
+              "name": "getFApiV1ExchangeInfo",
+              "code": "export const getFApiV1ExchangeInfo = createFutureApi<{}, IAsterExchangeInfo>('GET', '/fapi/v1/exchangeInfo');\n\n/**\n * 获取现货交易对信息\n *\n * https://github.com/asterdex/api-docs/blob/master/aster-finance-spot-api_CN.md#L1080-L1145\n */",
+              "lineStart": 90,
+              "lineEnd": 96
+            },
+            {
+              "type": "function",
+              "name": "getApiV1ExchangeInfo",
+              "code": "export const getApiV1ExchangeInfo = createSpotApi<{}, IAsterExchangeInfo>('GET', '/api/v1/exchangeInfo');",
+              "lineStart": 97,
+              "lineEnd": 103
+            },
+            {
+              "type": "function",
+              "name": "getFApiV1OpenInterest",
+              "code": "export const getFApiV1OpenInterest = createFutureApi<",
+              "lineStart": 104,
+              "lineEnd": 119
+            },
+            {
+              "type": "function",
+              "name": "getFApiV1TickerPrice",
+              "code": "export const getFApiV1TickerPrice = createFutureApi<",
+              "lineStart": 120,
+              "lineEnd": 132
+            },
+            {
+              "type": "function",
+              "name": "getFApiV1PremiumIndex",
+              "code": "export const getFApiV1PremiumIndex = createFutureApi<",
+              "lineStart": 133,
+              "lineEnd": 134
+            }
+          ]
+        },
+        {
+          "additions": 56,
+          "deletions": 22,
+          "path": "apps/vendor-aster/src/services/markets/product.ts",
+          "changeType": "modified",
+          "patch": "commit 540b69760084c1e6e7beb50e4014364733f445b0\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 8 02:02:30 2025 +0800\n\n    feat(vendor-aster): 添加现货产品支持，更新 API 接口以获取现货和永续交易对信息 (#2249)\n\ndiff --git a/apps/vendor-aster/src/services/markets/product.ts b/apps/vendor-aster/src/services/markets/product.ts\nindex 027646b5a..cae86f69c 100644\n--- a/apps/vendor-aster/src/services/markets/product.ts\n+++ b/apps/vendor-aster/src/services/markets/product.ts\n@@ -2 +1,0 @@ import { IProduct } from '@yuants/data-product';\n-import { Terminal } from '@yuants/protocol';\n@@ -4,3 +3 @@ import { encodePath } from '@yuants/utils';\n-import { getFApiV1ExchangeInfo } from '../../api/public-api';\n-\n-const terminal = Terminal.fromNodeEnv();\n+import { getApiV1ExchangeInfo, getFApiV1ExchangeInfo } from '../../api/public-api';\n@@ -9,9 +6,12 @@ export const listProducts = async (): Promise<IProduct[]> => {\n-  // Fetch exchange info from ASTER API\n-  const exchangeInfo = await getFApiV1ExchangeInfo({});\n-  // Convert symbols to IProduct format\n-  return exchangeInfo.symbols\n-    .filter((symbol) => symbol.status === 'TRADING') // Only include active trading symbols\n-    .map((symbol): IProduct => {\n-      // Find price filter for price step\n-      const priceFilter = symbol.filters.find((filter) => filter.filterType === 'PRICE_FILTER');\n-      const priceStep = priceFilter ? +priceFilter.tickSize : 1e-2;\n+  const [perpExchangeInfo, spotExchangeInfo] = await Promise.all([\n+    getFApiV1ExchangeInfo({}),\n+    getApiV1ExchangeInfo({}),\n+  ]);\n+\n+  const pickPriceStep = (symbol: {\n+    filters: { filterType: string; tickSize?: string }[];\n+    pricePrecision: number;\n+  }) => {\n+    const priceFilter = symbol.filters.find((filter) => filter.filterType === 'PRICE_FILTER');\n+    return priceFilter ? +priceFilter.tickSize! : Number(`1e-${symbol.pricePrecision}`);\n+  };\n@@ -19,3 +19,7 @@ export const listProducts = async (): Promise<IProduct[]> => {\n-      // Find lot size filter for volume step\n-      const lotSizeFilter = symbol.filters.find((filter) => filter.filterType === 'LOT_SIZE');\n-      const volumeStep = lotSizeFilter ? +lotSizeFilter.stepSize : Number(`1e-${symbol.quantityPrecision}`);\n+  const pickVolumeStep = (symbol: {\n+    filters: { filterType: string; stepSize?: string }[];\n+    quantityPrecision: number;\n+  }) => {\n+    const lotSizeFilter = symbol.filters.find((filter) => filter.filterType === 'LOT_SIZE');\n+    return lotSizeFilter ? +lotSizeFilter.stepSize! : Number(`1e-${symbol.quantityPrecision}`);\n+  };\n@@ -23 +27,4 @@ export const listProducts = async (): Promise<IProduct[]> => {\n-      return {\n+  const perpProducts: IProduct[] = perpExchangeInfo.symbols\n+    .filter((symbol) => symbol.status === 'TRADING')\n+    .map(\n+      (symbol): IProduct => ({\n@@ -33,2 +40,2 @@ export const listProducts = async (): Promise<IProduct[]> => {\n-        price_step: priceStep,\n-        volume_step: volumeStep,\n+        price_step: pickPriceStep(symbol),\n+        volume_step: pickVolumeStep(symbol),\n@@ -38 +45 @@ export const listProducts = async (): Promise<IProduct[]> => {\n-        margin_rate: 0.1, // Default margin rate, can be adjusted based on actual requirements\n+        margin_rate: 0.1,\n@@ -42,2 +49,29 @@ export const listProducts = async (): Promise<IProduct[]> => {\n-      };\n-    });\n+      }),\n+    );\n+\n+  const spotProducts: IProduct[] = spotExchangeInfo.symbols\n+    .filter((symbol) => symbol.status === 'TRADING')\n+    .map(\n+      (symbol): IProduct => ({\n+        datasource_id: 'ASTER',\n+        product_id: encodePath('ASTER', 'SPOT', symbol.symbol),\n+        name: `${symbol.baseAsset}/${symbol.quoteAsset} SPOT`,\n+        quote_currency: symbol.quoteAsset,\n+        base_currency: symbol.baseAsset,\n+        value_scale_unit: '',\n+        value_based_cost: 0,\n+        volume_based_cost: 0,\n+        max_volume: 0,\n+        price_step: pickPriceStep(symbol),\n+        volume_step: pickVolumeStep(symbol),\n+        value_scale: 1,\n+        allow_long: true,\n+        allow_short: false,\n+        margin_rate: 1,\n+        max_position: 0,\n+        market_id: 'ASTER/SPOT',\n+        no_interest_rate: true,\n+      }),\n+    );\n+\n+  return [...perpProducts, ...spotProducts];\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "pickPriceStep",
+              "code": "const pickPriceStep = (symbol: {\n  filters: { filterType: string; tickSize?: string }[];\n  pricePrecision: number;\n}) => {",
+              "lineStart": 11,
+              "lineEnd": 14
+            },
+            {
+              "type": "function",
+              "name": "priceFilter",
+              "code": "  const priceFilter = symbol.filters.find((filter) => filter.filterType === 'PRICE_FILTER');\n  return priceFilter ? +priceFilter.tickSize! : Number(`1e-${symbol.pricePrecision}`);\n};",
+              "lineStart": 15,
+              "lineEnd": 18
+            },
+            {
+              "type": "function",
+              "name": "pickVolumeStep",
+              "code": "const pickVolumeStep = (symbol: {\n  filters: { filterType: string; stepSize?: string }[];\n  quantityPrecision: number;\n}) => {",
+              "lineStart": 19,
+              "lineEnd": 22
+            },
+            {
+              "type": "function",
+              "name": "lotSizeFilter",
+              "code": "  const lotSizeFilter = symbol.filters.find((filter) => filter.filterType === 'LOT_SIZE');\n  return lotSizeFilter ? +lotSizeFilter.stepSize! : Number(`1e-${symbol.quantityPrecision}`);\n};",
+              "lineStart": 23,
+              "lineEnd": 26
+            },
+            {
+              "type": "function",
+              "name": "perpProducts",
+              "code": "const perpProducts: IProduct[] = perpExchangeInfo.symbols\n  .filter((symbol) => symbol.status === 'TRADING')\n  .map(\n    (symbol): IProduct => ({\n      price_step: pickPriceStep(symbol),\n      volume_step: pickVolumeStep(symbol),\n      margin_rate: 0.1,\n    }),\n  );\n",
+              "lineStart": 27,
+              "lineEnd": 51
+            },
+            {
+              "type": "function",
+              "name": "spotProducts",
+              "code": "const spotProducts: IProduct[] = spotExchangeInfo.symbols\n  .filter((symbol) => symbol.status === 'TRADING')\n  .map(\n    (symbol): IProduct => ({\n      datasource_id: 'ASTER',\n      product_id: encodePath('ASTER', 'SPOT', symbol.symbol),\n      name: `${symbol.baseAsset}/${symbol.quoteAsset} SPOT`,\n      quote_currency: symbol.quoteAsset,\n      base_currency: symbol.baseAsset,\n      value_scale_unit: '',\n      value_based_cost: 0,\n      volume_based_cost: 0,\n      max_volume: 0,\n      price_step: pickPriceStep(symbol),\n      volume_step: pickVolumeStep(symbol),",
+              "lineStart": 52,
+              "lineEnd": 78
+            }
+          ]
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-aster/2025-12-07-17-51.json",
+          "changeType": "added",
+          "patch": "commit 540b69760084c1e6e7beb50e4014364733f445b0\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 8 02:02:30 2025 +0800\n\n    feat(vendor-aster): 添加现货产品支持，更新 API 接口以获取现货和永续交易对信息 (#2249)\n\ndiff --git a/common/changes/@yuants/vendor-aster/2025-12-07-17-51.json b/common/changes/@yuants/vendor-aster/2025-12-07-17-51.json\nnew file mode 100644\nindex 000000000..9b77e5d36\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-aster/2025-12-07-17-51.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-aster\",\n+      \"comment\": \"add aster spot product\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-aster\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "a083a19a31fea4b33b6bdbce30e31ed8946d58da",
+      "short": "a083a19a3",
+      "author": "CZ",
+      "email": "zheng.chen@no-trade-no.life",
+      "authoredAt": "2025-12-08 04:12:56 +0800",
+      "subject": "feat: add metrics for API usage tracking in Binance client (#2250)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 6,
+          "deletions": 2,
+          "path": "apps/vendor-binance/src/api/client.ts",
+          "changeType": "modified",
+          "patch": "commit a083a19a31fea4b33b6bdbce30e31ed8946d58da\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 04:12:56 2025 +0800\n\n    feat: add metrics for API usage tracking in Binance client (#2250)\n\ndiff --git a/apps/vendor-binance/src/api/client.ts b/apps/vendor-binance/src/api/client.ts\nindex 4d853dcbc..ed027929c 100644\n--- a/apps/vendor-binance/src/api/client.ts\n+++ b/apps/vendor-binance/src/api/client.ts\n@@ -1 +1 @@\n-import { GlobalPrometheusRegistry } from '@yuants/protocol';\n+import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';\n@@ -4,0 +5,2 @@ const MetricBinanceApiUsedWeight = GlobalPrometheusRegistry.gauge('binance_api_u\n+const MetricBinanceApiCounter = GlobalPrometheusRegistry.counter('binance_api_request_total', '');\n+const terminal = Terminal.fromNodeEnv();\n@@ -89,0 +92,2 @@ const callApi = async <T>(\n+  MetricBinanceApiCounter.labels({ path: url.pathname, terminal_id: terminal.terminal_id }).inc();\n+\n@@ -109 +113 @@ const callApi = async <T>(\n-    MetricBinanceApiUsedWeight.set(+usedWeight1M);\n+    MetricBinanceApiUsedWeight.labels({ terminal_id: terminal.terminal_id }).set(+usedWeight1M);\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "MetricBinanceApiCounter",
+              "code": "const MetricBinanceApiCounter = GlobalPrometheusRegistry.counter('binance_api_request_total', '');",
+              "lineStart": 5,
+              "lineEnd": 5
+            },
+            {
+              "type": "function",
+              "name": "terminal",
+              "code": "const terminal = Terminal.fromNodeEnv();\n  MetricBinanceApiCounter.labels({ path: url.pathname, terminal_id: terminal.terminal_id }).inc();\n\n    MetricBinanceApiUsedWeight.labels({ terminal_id: terminal.terminal_id }).set(+usedWeight1M);",
+              "lineStart": 6,
+              "lineEnd": 114
+            }
+          ]
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-binance/2025-12-07-20-11.json",
+          "changeType": "added",
+          "patch": "commit a083a19a31fea4b33b6bdbce30e31ed8946d58da\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 04:12:56 2025 +0800\n\n    feat: add metrics for API usage tracking in Binance client (#2250)\n\ndiff --git a/common/changes/@yuants/vendor-binance/2025-12-07-20-11.json b/common/changes/@yuants/vendor-binance/2025-12-07-20-11.json\nnew file mode 100644\nindex 000000000..13a8097ec\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-binance/2025-12-07-20-11.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-binance\",\n+      \"comment\": \"add metric\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-binance\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "88632ee3cfec022b78d8f904532da0d3d285b18a",
+      "short": "88632ee3c",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2025-12-08 04:32:30 +0800",
+      "subject": "chore: bump version (#2251)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-aster/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 88632ee3cfec022b78d8f904532da0d3d285b18a\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 04:32:30 2025 +0800\n\n    chore: bump version (#2251)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/CHANGELOG.json b/apps/vendor-aster/CHANGELOG.json\nindex 6316855cc..e1e7142b3 100644\n--- a/apps/vendor-aster/CHANGELOG.json\n+++ b/apps/vendor-aster/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.7.22\",\n+      \"tag\": \"@yuants/vendor-aster_v0.7.22\",\n+      \"date\": \"Sun, 07 Dec 2025 20:31:33 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"add aster spot product\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-aster/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 88632ee3cfec022b78d8f904532da0d3d285b18a\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 04:32:30 2025 +0800\n\n    chore: bump version (#2251)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/CHANGELOG.md b/apps/vendor-aster/CHANGELOG.md\nindex a0ac55442..84df4f698 100644\n--- a/apps/vendor-aster/CHANGELOG.md\n+++ b/apps/vendor-aster/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 20:31:33 GMT and should not be manually modified.\n+\n+## 0.7.22\n+Sun, 07 Dec 2025 20:31:33 GMT\n+\n+### Patches\n+\n+- add aster spot product\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-aster/package.json",
+          "changeType": "modified",
+          "patch": "commit 88632ee3cfec022b78d8f904532da0d3d285b18a\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 04:32:30 2025 +0800\n\n    chore: bump version (#2251)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/package.json b/apps/vendor-aster/package.json\nindex 1bcc0a90d..111b87f24 100644\n--- a/apps/vendor-aster/package.json\n+++ b/apps/vendor-aster/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.7.21\",\n+  \"version\": \"0.7.22\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-binance/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 88632ee3cfec022b78d8f904532da0d3d285b18a\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 04:32:30 2025 +0800\n\n    chore: bump version (#2251)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-binance/CHANGELOG.json b/apps/vendor-binance/CHANGELOG.json\nindex 2047208c4..38df98c49 100644\n--- a/apps/vendor-binance/CHANGELOG.json\n+++ b/apps/vendor-binance/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.10.12\",\n+      \"tag\": \"@yuants/vendor-binance_v0.10.12\",\n+      \"date\": \"Sun, 07 Dec 2025 20:31:33 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"add metric\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-binance/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 88632ee3cfec022b78d8f904532da0d3d285b18a\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 04:32:30 2025 +0800\n\n    chore: bump version (#2251)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-binance/CHANGELOG.md b/apps/vendor-binance/CHANGELOG.md\nindex 61c93fef7..04ea881b6 100644\n--- a/apps/vendor-binance/CHANGELOG.md\n+++ b/apps/vendor-binance/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 20:31:33 GMT and should not be manually modified.\n+\n+## 0.10.12\n+Sun, 07 Dec 2025 20:31:33 GMT\n+\n+### Patches\n+\n+- add metric\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-binance/package.json",
+          "changeType": "modified",
+          "patch": "commit 88632ee3cfec022b78d8f904532da0d3d285b18a\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 04:32:30 2025 +0800\n\n    chore: bump version (#2251)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-binance/package.json b/apps/vendor-binance/package.json\nindex 5057f45e3..9586b42d0 100644\n--- a/apps/vendor-binance/package.json\n+++ b/apps/vendor-binance/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.10.11\",\n+  \"version\": \"0.10.12\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-aster/2025-12-07-17-51.json",
+          "changeType": "deleted",
+          "patch": "commit 88632ee3cfec022b78d8f904532da0d3d285b18a\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 04:32:30 2025 +0800\n\n    chore: bump version (#2251)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-aster/2025-12-07-17-51.json b/common/changes/@yuants/vendor-aster/2025-12-07-17-51.json\ndeleted file mode 100644\nindex 9b77e5d36..000000000\n--- a/common/changes/@yuants/vendor-aster/2025-12-07-17-51.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-aster\",\n-      \"comment\": \"add aster spot product\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-aster\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-aster/{main_2025-12-07-16-38.json => main_2025-12-07-20-31.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-binance/2025-12-07-20-11.json",
+          "changeType": "deleted",
+          "patch": "commit 88632ee3cfec022b78d8f904532da0d3d285b18a\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 04:32:30 2025 +0800\n\n    chore: bump version (#2251)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-binance/2025-12-07-20-11.json b/common/changes/@yuants/vendor-binance/2025-12-07-20-11.json\ndeleted file mode 100644\nindex 13a8097ec..000000000\n--- a/common/changes/@yuants/vendor-binance/2025-12-07-20-11.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-binance\",\n-      \"comment\": \"add metric\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-binance\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-binance/{main_2025-12-07-16-38.json => main_2025-12-07-20-31.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "1b048f71fb673cabca8b51ba49495d0a91c35680",
+      "short": "1b048f71f",
+      "author": "CZ",
+      "email": "zheng.chen@no-trade-no.life",
+      "authoredAt": "2025-12-08 05:39:58 +0800",
+      "subject": "feat: update API endpoints and improve error handling across vendor-gate and huobi (#2252)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 7,
+          "deletions": 8,
+          "path": "apps/account-composer/src/index.ts",
+          "changeType": "modified",
+          "patch": "commit 1b048f71fb673cabca8b51ba49495d0a91c35680\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 05:39:58 2025 +0800\n\n    feat: update API endpoints and improve error handling across vendor-gate and huobi (#2252)\n\ndiff --git a/apps/account-composer/src/index.ts b/apps/account-composer/src/index.ts\nindex fbf7bab5d..7174777d6 100644\n--- a/apps/account-composer/src/index.ts\n+++ b/apps/account-composer/src/index.ts\n@@ -2 +2 @@ import { IAccountInfo, publishAccountInfo } from '@yuants/data-account';\n-import { createProductCache, getProfit } from '@yuants/data-product';\n+import { createClientProductCache, getProfit } from '@yuants/data-product';\n@@ -5 +5 @@ import { requestSQL } from '@yuants/sql';\n-import { encodePath, formatTime, listWatch } from '@yuants/utils';\n+import { formatTime, listWatch, newError } from '@yuants/utils';\n@@ -25 +25 @@ const mapAccountIdToAccountInfo$: Record<string, Observable<IAccountInfo>> = {};\n-const cacheOfProduct = createProductCache(terminal);\n+const cacheOfProduct = createClientProductCache(terminal);\n@@ -99,3 +99,2 @@ defer(() =>\n-                            const productKey = encodePath(theDatasourceId, theProductId);\n-                            cacheOfProduct.query(productKey, false); // SWR (Stale While Revalidate, Sync Mode)\n-                            const theProduct = cacheOfProduct.get(productKey);\n+                            cacheOfProduct.query(theProductId, false); // SWR (Stale While Revalidate, Sync Mode)\n+                            const theProduct = cacheOfProduct.get(theProductId);\n@@ -104 +103 @@ defer(() =>\n-                            if (!theProduct) throw new Error('ProductNotFound ' + productKey);\n+                            if (!theProduct) throw newError('ProductNotFound', { productKey: theProductId });\n@@ -115 +114 @@ defer(() =>\n-                                throw new Error('ExchangeRateNotFound');\n+                                throw newError('ExchangeRateNotFound', { theProduct });\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "cacheOfProduct",
+              "code": "const cacheOfProduct = createClientProductCache(terminal);\n                            cacheOfProduct.query(theProductId, false); // SWR (Stale While Revalidate, Sync Mode)",
+              "lineStart": 25,
+              "lineEnd": 99
+            },
+            {
+              "type": "function",
+              "name": "theProduct",
+              "code": "const theProduct = cacheOfProduct.get(theProductId);\nif (!theProduct) throw newError('ProductNotFound', { productKey: theProductId });\n    throw newError('ExchangeRateNotFound', { theProduct });",
+              "lineStart": 100,
+              "lineEnd": 115
+            }
+          ]
+        },
+        {
+          "additions": 4,
+          "deletions": 3,
+          "path": "apps/vendor-gate/src/api/http-client.ts",
+          "changeType": "modified",
+          "patch": "commit 1b048f71fb673cabca8b51ba49495d0a91c35680\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 05:39:58 2025 +0800\n\n    feat: update API endpoints and improve error handling across vendor-gate and huobi (#2252)\n\ndiff --git a/apps/vendor-gate/src/api/http-client.ts b/apps/vendor-gate/src/api/http-client.ts\nindex 013dcdfeb..97e0e7045 100644\n--- a/apps/vendor-gate/src/api/http-client.ts\n+++ b/apps/vendor-gate/src/api/http-client.ts\n@@ -1,0 +2 @@ import { encodeHex, formatTime, HmacSHA512, sha512 } from '@yuants/utils';\n+import { join } from 'path';\n@@ -3 +4 @@ import { encodeHex, formatTime, HmacSHA512, sha512 } from '@yuants/utils';\n-const BASE_URL = 'https://api.gateio.ws';\n+const BASE_URL = 'https://api.gateio.ws/api/v4';\n@@ -30 +31 @@ const createRequestArtifacts = (method: HttpMethod, path: string, params?: GateP\n-  url.pathname = path;\n+  url.pathname = join(url.pathname, path);\n@@ -60 +61 @@ const parseJSON = async <TResponse>(\n-    console.error(formatTime(Date.now()), 'GateRequestFailed', path, JSON.stringify(params ?? {}), text, {\n+    console.info(formatTime(Date.now()), 'GateRequestFailed', path, JSON.stringify(params ?? {}), text, {\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "BASE_URL",
+              "code": "const BASE_URL = 'https://api.gateio.ws/api/v4';\n  url.pathname = join(url.pathname, path);\n    console.info(formatTime(Date.now()), 'GateRequestFailed', path, JSON.stringify(params ?? {}), text, {",
+              "lineStart": 4,
+              "lineEnd": 62
+            }
+          ]
+        },
+        {
+          "additions": 15,
+          "deletions": 15,
+          "path": "apps/vendor-gate/src/api/private-api.ts",
+          "changeType": "modified",
+          "patch": "commit 1b048f71fb673cabca8b51ba49495d0a91c35680\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 05:39:58 2025 +0800\n\n    feat: update API endpoints and improve error handling across vendor-gate and huobi (#2252)\n\ndiff --git a/apps/vendor-gate/src/api/private-api.ts b/apps/vendor-gate/src/api/private-api.ts\nindex 644570bc1..23714cd97 100644\n--- a/apps/vendor-gate/src/api/private-api.ts\n+++ b/apps/vendor-gate/src/api/private-api.ts\n@@ -28 +28 @@ export const getAccountDetail = (\n-}> => callPrivate(credential, 'GET', '/api/v4/account/detail');\n+}> => callPrivate(credential, 'GET', '/account/detail');\n@@ -65 +65 @@ export const getUnifiedAccounts = (\n-}> => callPrivate(credential, 'GET', '/api/v4/unified/accounts', params);\n+}> => callPrivate(credential, 'GET', '/unified/accounts', params);\n@@ -93 +93 @@ export const getFuturePositions = (\n-> => callPrivate(credential, 'GET', `/api/v4/futures/${quote_currency}/positions`, params);\n+> => callPrivate(credential, 'GET', `/futures/${quote_currency}/positions`, params);\n@@ -123 +123 @@ export const getFuturesOrders = (\n-> => callPrivate(credential, 'GET', `/api/v4/futures/${settle}/orders`, params);\n+> => callPrivate(credential, 'GET', `/futures/${settle}/orders`, params);\n@@ -157 +157 @@ export const getFuturesAccounts = (\n-}> => callPrivate(credential, 'GET', `/api/v4/futures/${settle}/accounts`);\n+}> => callPrivate(credential, 'GET', `/futures/${settle}/accounts`);\n@@ -218 +218 @@ export const postFutureOrders = (\n-}> => callPrivate(credential, 'POST', `/api/v4/futures/${settle}/orders`, params);\n+}> => callPrivate(credential, 'POST', `/futures/${settle}/orders`, params);\n@@ -226 +226 @@ export const deleteFutureOrders = (credential: ICredential, settle: string, orde\n-  callPrivate(credential, 'DELETE', `/api/v4/futures/${settle}/orders/${order_id}`);\n+  callPrivate(credential, 'DELETE', `/futures/${settle}/orders/${order_id}`);\n@@ -256 +256 @@ export const postWithdrawals = (\n-}> => callPrivate(credential, 'POST', '/api/v4/withdrawals', params);\n+}> => callPrivate(credential, 'POST', '/withdrawals', params);\n@@ -278 +278 @@ export const getDepositAddress = (\n-}> => callPrivate(credential, 'GET', '/api/v4/wallet/deposit_address', params);\n+}> => callPrivate(credential, 'GET', '/wallet/deposit_address', params);\n@@ -301 +301 @@ export const getSubAccountList = (\n-> => callPrivate(credential, 'GET', '/api/v4/sub_accounts', params);\n+> => callPrivate(credential, 'GET', '/sub_accounts', params);\n@@ -332 +332 @@ export const getDepositHistory = (\n-> => callPrivate(credential, 'GET', '/api/v4/wallet/deposits', params);\n+> => callPrivate(credential, 'GET', '/wallet/deposits', params);\n@@ -363 +363 @@ export const getWithdrawalHistory = (\n-> => callPrivate(credential, 'GET', '/api/v4/wallet/withdrawals', params);\n+> => callPrivate(credential, 'GET', '/wallet/withdrawals', params);\n@@ -382 +382 @@ export const getSpotAccounts = (\n-> => callPrivate(credential, 'GET', '/api/v4/spot/accounts', params);\n+> => callPrivate(credential, 'GET', '/spot/accounts', params);\n@@ -403 +403 @@ export const postWalletTransfer = (\n-}> => callPrivate(credential, 'POST', '/api/v4/wallet/transfers', params);\n+}> => callPrivate(credential, 'POST', '/wallet/transfers', params);\n@@ -418 +418 @@ export const getUnifiedTransferable = (\n-}> => callPrivate(credential, 'GET', `/api/v4/unified/transferable`, params);\n+}> => callPrivate(credential, 'GET', `/unified/transferable`, params);\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 5,
+          "deletions": 5,
+          "path": "apps/vendor-gate/src/api/public-api.ts",
+          "changeType": "modified",
+          "patch": "commit 1b048f71fb673cabca8b51ba49495d0a91c35680\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 05:39:58 2025 +0800\n\n    feat: update API endpoints and improve error handling across vendor-gate and huobi (#2252)\n\ndiff --git a/apps/vendor-gate/src/api/public-api.ts b/apps/vendor-gate/src/api/public-api.ts\nindex faaad3eee..ee1a246a8 100644\n--- a/apps/vendor-gate/src/api/public-api.ts\n+++ b/apps/vendor-gate/src/api/public-api.ts\n@@ -57 +57 @@ export const getFuturesContracts = (\n-> => requestPublic('GET', `/api/v4/futures/${settle}/contracts`, params);\n+> => requestPublic('GET', `/futures/${settle}/contracts`, params);\n@@ -76 +76 @@ export const getFutureFundingRate = (\n-> => requestPublic('GET', `/api/v4/futures/${settle}/funding_rate`, params);\n+> => requestPublic('GET', `/futures/${settle}/funding_rate`, params);\n@@ -105 +105 @@ export const getFuturesOrderBook = async (\n-    requestPublic('GET', `/api/v4/futures/${settle}/order_book`, params),\n+    requestPublic('GET', `/futures/${settle}/order_book`, params),\n@@ -140 +140 @@ export const getFuturesTickers = (\n-> => requestPublic('GET', `/api/v4/futures/${settle}/tickers`, params);\n+> => requestPublic('GET', `/futures/${settle}/tickers`, params);\n@@ -170 +170 @@ export const getSpotTickers = (params: {\n-> => requestPublic('GET', `/api/v4/spot/tickers`, params);\n+> => requestPublic('GET', `/spot/tickers`, params);\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 2,
+          "deletions": 2,
+          "path": "apps/vendor-gate/src/services/markets/product.ts",
+          "changeType": "modified",
+          "patch": "commit 1b048f71fb673cabca8b51ba49495d0a91c35680\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 05:39:58 2025 +0800\n\n    feat: update API endpoints and improve error handling across vendor-gate and huobi (#2252)\n\ndiff --git a/apps/vendor-gate/src/services/markets/product.ts b/apps/vendor-gate/src/services/markets/product.ts\nindex 64b6c0758..217bf64b3 100644\n--- a/apps/vendor-gate/src/services/markets/product.ts\n+++ b/apps/vendor-gate/src/services/markets/product.ts\n@@ -1 +1 @@\n-import { createProductCache } from '@yuants/data-product';\n+import { createClientProductCache } from '@yuants/data-product';\n@@ -6 +6 @@ import { getFuturesContracts, getSpotCurrencyPairs } from '../../api/public-api'\n-export const productCache = createProductCache(Terminal.fromNodeEnv());\n+export const productCache = createClientProductCache(Terminal.fromNodeEnv());\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "productCache",
+              "code": "export const productCache = createClientProductCache(Terminal.fromNodeEnv());",
+              "lineStart": 6,
+              "lineEnd": 7
+            }
+          ]
+        },
+        {
+          "additions": 2,
+          "deletions": 1,
+          "path": "apps/vendor-gate/src/services/orders/listOrders.ts",
+          "changeType": "modified",
+          "patch": "commit 1b048f71fb673cabca8b51ba49495d0a91c35680\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 05:39:58 2025 +0800\n\n    feat: update API endpoints and improve error handling across vendor-gate and huobi (#2252)\n\ndiff --git a/apps/vendor-gate/src/services/orders/listOrders.ts b/apps/vendor-gate/src/services/orders/listOrders.ts\nindex 9e4bd2c53..cc59845c6 100644\n--- a/apps/vendor-gate/src/services/orders/listOrders.ts\n+++ b/apps/vendor-gate/src/services/orders/listOrders.ts\n@@ -3 +3 @@ import { getFuturesOrders, ICredential } from '../../api/private-api';\n-import { decodePath } from '@yuants/utils';\n+import { decodePath, newError } from '@yuants/utils';\n@@ -16,0 +17 @@ export const listOrders = async (credential: ICredential) => {\n+  if (Array.isArray(orders) === false) throw newError('InvalidResponse', { orders });\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 2,
+          "deletions": 2,
+          "path": "apps/vendor-huobi/src/services/product.ts",
+          "changeType": "modified",
+          "patch": "commit 1b048f71fb673cabca8b51ba49495d0a91c35680\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 05:39:58 2025 +0800\n\n    feat: update API endpoints and improve error handling across vendor-gate and huobi (#2252)\n\ndiff --git a/apps/vendor-huobi/src/services/product.ts b/apps/vendor-huobi/src/services/product.ts\nindex 314f35055..096feb6e1 100644\n--- a/apps/vendor-huobi/src/services/product.ts\n+++ b/apps/vendor-huobi/src/services/product.ts\n@@ -1 +1 @@\n-import { createProductCache, IProduct } from '@yuants/data-product';\n+import { createClientProductCache, IProduct } from '@yuants/data-product';\n@@ -90 +90 @@ export const listProducts = async (): Promise<IProduct[]> => {\n-export const productCache = createProductCache(terminal);\n+export const productCache = createClientProductCache(terminal);\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "productCache",
+              "code": "export const productCache = createClientProductCache(terminal);",
+              "lineStart": 90,
+              "lineEnd": 91
+            }
+          ]
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/app-account-composer/2025-12-07-21-35.json",
+          "changeType": "added",
+          "patch": "commit 1b048f71fb673cabca8b51ba49495d0a91c35680\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 05:39:58 2025 +0800\n\n    feat: update API endpoints and improve error handling across vendor-gate and huobi (#2252)\n\ndiff --git a/common/changes/@yuants/app-account-composer/2025-12-07-21-35.json b/common/changes/@yuants/app-account-composer/2025-12-07-21-35.json\nnew file mode 100644\nindex 000000000..c43f1f90c\n--- /dev/null\n+++ b/common/changes/@yuants/app-account-composer/2025-12-07-21-35.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/app-account-composer\",\n+      \"comment\": \"fix\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/app-account-composer\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-gate/2025-12-07-21-35.json",
+          "changeType": "added",
+          "patch": "commit 1b048f71fb673cabca8b51ba49495d0a91c35680\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 05:39:58 2025 +0800\n\n    feat: update API endpoints and improve error handling across vendor-gate and huobi (#2252)\n\ndiff --git a/common/changes/@yuants/vendor-gate/2025-12-07-21-35.json b/common/changes/@yuants/vendor-gate/2025-12-07-21-35.json\nnew file mode 100644\nindex 000000000..37363017b\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-gate/2025-12-07-21-35.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-gate\",\n+      \"comment\": \"fix api\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-gate\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-huobi/2025-12-07-21-35.json",
+          "changeType": "added",
+          "patch": "commit 1b048f71fb673cabca8b51ba49495d0a91c35680\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 05:39:58 2025 +0800\n\n    feat: update API endpoints and improve error handling across vendor-gate and huobi (#2252)\n\ndiff --git a/common/changes/@yuants/vendor-huobi/2025-12-07-21-35.json b/common/changes/@yuants/vendor-huobi/2025-12-07-21-35.json\nnew file mode 100644\nindex 000000000..8e509e28d\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-huobi/2025-12-07-21-35.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-huobi\",\n+      \"comment\": \"fix api\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-huobi\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "4d9c58da83752ba00f09e32e2bebbfd6e9c63a34",
+      "short": "4d9c58da8",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2025-12-08 07:10:24 +0800",
+      "subject": "chore: bump version (#2253)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/account-composer/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 4d9c58da83752ba00f09e32e2bebbfd6e9c63a34\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 07:10:24 2025 +0800\n\n    chore: bump version (#2253)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/account-composer/CHANGELOG.json b/apps/account-composer/CHANGELOG.json\nindex e19c039ba..e71e6097d 100644\n--- a/apps/account-composer/CHANGELOG.json\n+++ b/apps/account-composer/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.7.10\",\n+      \"tag\": \"@yuants/app-account-composer_v0.7.10\",\n+      \"date\": \"Sun, 07 Dec 2025 22:20:53 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"fix\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/account-composer/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 4d9c58da83752ba00f09e32e2bebbfd6e9c63a34\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 07:10:24 2025 +0800\n\n    chore: bump version (#2253)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/account-composer/CHANGELOG.md b/apps/account-composer/CHANGELOG.md\nindex 17fbe1f65..eb98f70b3 100644\n--- a/apps/account-composer/CHANGELOG.md\n+++ b/apps/account-composer/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 22:20:53 GMT and should not be manually modified.\n+\n+## 0.7.10\n+Sun, 07 Dec 2025 22:20:53 GMT\n+\n+### Patches\n+\n+- fix\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/account-composer/package.json",
+          "changeType": "modified",
+          "patch": "commit 4d9c58da83752ba00f09e32e2bebbfd6e9c63a34\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 07:10:24 2025 +0800\n\n    chore: bump version (#2253)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/account-composer/package.json b/apps/account-composer/package.json\nindex ad86d0372..9e720cf14 100644\n--- a/apps/account-composer/package.json\n+++ b/apps/account-composer/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.7.9\",\n+  \"version\": \"0.7.10\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-gate/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 4d9c58da83752ba00f09e32e2bebbfd6e9c63a34\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 07:10:24 2025 +0800\n\n    chore: bump version (#2253)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-gate/CHANGELOG.json b/apps/vendor-gate/CHANGELOG.json\nindex 8d8cedc67..0963c4a2a 100644\n--- a/apps/vendor-gate/CHANGELOG.json\n+++ b/apps/vendor-gate/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.4.20\",\n+      \"tag\": \"@yuants/vendor-gate_v0.4.20\",\n+      \"date\": \"Sun, 07 Dec 2025 22:20:53 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"fix api\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-gate/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 4d9c58da83752ba00f09e32e2bebbfd6e9c63a34\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 07:10:24 2025 +0800\n\n    chore: bump version (#2253)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-gate/CHANGELOG.md b/apps/vendor-gate/CHANGELOG.md\nindex 5fe2460d9..4b4bddf54 100644\n--- a/apps/vendor-gate/CHANGELOG.md\n+++ b/apps/vendor-gate/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 22:20:53 GMT and should not be manually modified.\n+\n+## 0.4.20\n+Sun, 07 Dec 2025 22:20:53 GMT\n+\n+### Patches\n+\n+- fix api\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-gate/package.json",
+          "changeType": "modified",
+          "patch": "commit 4d9c58da83752ba00f09e32e2bebbfd6e9c63a34\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 07:10:24 2025 +0800\n\n    chore: bump version (#2253)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-gate/package.json b/apps/vendor-gate/package.json\nindex cca4b3c50..edbe9859e 100644\n--- a/apps/vendor-gate/package.json\n+++ b/apps/vendor-gate/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.4.19\",\n+  \"version\": \"0.4.20\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-huobi/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 4d9c58da83752ba00f09e32e2bebbfd6e9c63a34\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 07:10:24 2025 +0800\n\n    chore: bump version (#2253)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-huobi/CHANGELOG.json b/apps/vendor-huobi/CHANGELOG.json\nindex c1e50492b..ba0f8c513 100644\n--- a/apps/vendor-huobi/CHANGELOG.json\n+++ b/apps/vendor-huobi/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.15.10\",\n+      \"tag\": \"@yuants/vendor-huobi_v0.15.10\",\n+      \"date\": \"Sun, 07 Dec 2025 22:20:53 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"fix api\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-huobi/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 4d9c58da83752ba00f09e32e2bebbfd6e9c63a34\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 07:10:24 2025 +0800\n\n    chore: bump version (#2253)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-huobi/CHANGELOG.md b/apps/vendor-huobi/CHANGELOG.md\nindex e5cc40aa4..6e5c9a104 100644\n--- a/apps/vendor-huobi/CHANGELOG.md\n+++ b/apps/vendor-huobi/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.\n+This log was last generated on Sun, 07 Dec 2025 22:20:53 GMT and should not be manually modified.\n+\n+## 0.15.10\n+Sun, 07 Dec 2025 22:20:53 GMT\n+\n+### Patches\n+\n+- fix api\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-huobi/package.json",
+          "changeType": "modified",
+          "patch": "commit 4d9c58da83752ba00f09e32e2bebbfd6e9c63a34\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 07:10:24 2025 +0800\n\n    chore: bump version (#2253)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-huobi/package.json b/apps/vendor-huobi/package.json\nindex ca4859ed2..243b3378c 100644\n--- a/apps/vendor-huobi/package.json\n+++ b/apps/vendor-huobi/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.15.9\",\n+  \"version\": \"0.15.10\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/app-account-composer/2025-12-07-21-35.json",
+          "changeType": "deleted",
+          "patch": "commit 4d9c58da83752ba00f09e32e2bebbfd6e9c63a34\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 07:10:24 2025 +0800\n\n    chore: bump version (#2253)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/app-account-composer/2025-12-07-21-35.json b/common/changes/@yuants/app-account-composer/2025-12-07-21-35.json\ndeleted file mode 100644\nindex c43f1f90c..000000000\n--- a/common/changes/@yuants/app-account-composer/2025-12-07-21-35.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/app-account-composer\",\n-      \"comment\": \"fix\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/app-account-composer\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/app-account-composer/{main_2025-12-07-16-38.json => main_2025-12-07-22-20.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-gate/2025-12-07-21-35.json",
+          "changeType": "deleted",
+          "patch": "commit 4d9c58da83752ba00f09e32e2bebbfd6e9c63a34\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 07:10:24 2025 +0800\n\n    chore: bump version (#2253)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-gate/2025-12-07-21-35.json b/common/changes/@yuants/vendor-gate/2025-12-07-21-35.json\ndeleted file mode 100644\nindex 37363017b..000000000\n--- a/common/changes/@yuants/vendor-gate/2025-12-07-21-35.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-gate\",\n-      \"comment\": \"fix api\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-gate\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-gate/{main_2025-12-07-16-38.json => main_2025-12-07-22-20.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-huobi/2025-12-07-21-35.json",
+          "changeType": "deleted",
+          "patch": "commit 4d9c58da83752ba00f09e32e2bebbfd6e9c63a34\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 07:10:24 2025 +0800\n\n    chore: bump version (#2253)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-huobi/2025-12-07-21-35.json b/common/changes/@yuants/vendor-huobi/2025-12-07-21-35.json\ndeleted file mode 100644\nindex 8e509e28d..000000000\n--- a/common/changes/@yuants/vendor-huobi/2025-12-07-21-35.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-huobi\",\n-      \"comment\": \"fix api\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-huobi\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-huobi/{main_2025-12-07-16-38.json => main_2025-12-07-22-20.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        }
+      ]
+    }
+  ],
+  "analysis": {
+    "domains": [
+      {
+        "name": "API请求优化与限速",
+        "commits": [
+          "790b62bff",
+          "1c8dab325",
+          "94b0fdc84",
+          "82990304e",
+          "540b69760",
+          "a083a19a3",
+          "1b048f71f"
+        ],
+        "files": [
+          "apps/virtual-exchange/src/credential.ts",
+          "common/changes/@yuants/app-virtual-exchange/2025-12-07-14-45.json",
+          "apps/vendor-okx/src/trade.ts",
+          "common/changes/@yuants/vendor-okx/2025-12-07-15-10.json",
+          "common/changes/@yuants/data-account/2025-12-07-16-26.json",
+          "common/changes/@yuants/exchange/2025-12-07-16-26.json",
+          "libraries/data-account/etc/data-account.api.md",
+          "libraries/data-account/src/interface.ts",
+          "libraries/exchange/src/index.ts",
+          "apps/host/src/host-manager.ts"
+        ]
+      },
+      {
+        "name": "安全与鉴权",
+        "commits": [
+          "790b62bff",
+          "1c8dab325",
+          "94b0fdc84",
+          "82990304e",
+          "540b69760",
+          "a083a19a3",
+          "1b048f71f"
+        ],
+        "files": [
+          "apps/virtual-exchange/src/credential.ts",
+          "common/changes/@yuants/app-virtual-exchange/2025-12-07-14-45.json",
+          "apps/vendor-okx/src/trade.ts",
+          "common/changes/@yuants/vendor-okx/2025-12-07-15-10.json",
+          "common/changes/@yuants/data-account/2025-12-07-16-26.json",
+          "common/changes/@yuants/exchange/2025-12-07-16-26.json",
+          "libraries/data-account/etc/data-account.api.md",
+          "libraries/data-account/src/interface.ts",
+          "libraries/exchange/src/index.ts",
+          "apps/host/src/host-manager.ts"
+        ]
+      },
+      {
+        "name": "订单与交易",
+        "commits": [
+          "790b62bff",
+          "1c8dab325",
+          "94b0fdc84",
+          "88cf1511d",
+          "82990304e",
+          "540b69760",
+          "a083a19a3",
+          "1b048f71f"
+        ],
+        "files": [
+          "apps/virtual-exchange/src/credential.ts",
+          "common/changes/@yuants/app-virtual-exchange/2025-12-07-14-45.json",
+          "apps/vendor-okx/src/trade.ts",
+          "common/changes/@yuants/vendor-okx/2025-12-07-15-10.json",
+          "common/changes/@yuants/data-account/2025-12-07-16-26.json",
+          "common/changes/@yuants/exchange/2025-12-07-16-26.json",
+          "libraries/data-account/etc/data-account.api.md",
+          "libraries/data-account/src/interface.ts",
+          "libraries/exchange/src/index.ts",
+          "apps/account-composer/CHANGELOG.json"
+        ]
+      },
+      {
+        "name": "账户管理",
+        "commits": [
+          "790b62bff",
+          "1c8dab325",
+          "94b0fdc84",
+          "88cf1511d",
+          "82990304e",
+          "540b69760",
+          "a083a19a3",
+          "1b048f71f",
+          "4d9c58da8"
+        ],
+        "files": [
+          "apps/virtual-exchange/src/credential.ts",
+          "common/changes/@yuants/app-virtual-exchange/2025-12-07-14-45.json",
+          "apps/vendor-okx/src/trade.ts",
+          "common/changes/@yuants/vendor-okx/2025-12-07-15-10.json",
+          "common/changes/@yuants/data-account/2025-12-07-16-26.json",
+          "common/changes/@yuants/exchange/2025-12-07-16-26.json",
+          "libraries/data-account/etc/data-account.api.md",
+          "libraries/data-account/src/interface.ts",
+          "libraries/exchange/src/index.ts",
+          "apps/account-composer/CHANGELOG.json"
+        ]
+      },
+      {
+        "name": "市场数据",
+        "commits": [
+          "790b62bff",
+          "1c8dab325",
+          "94b0fdc84",
+          "82990304e",
+          "540b69760",
+          "a083a19a3",
+          "1b048f71f"
+        ],
+        "files": [
+          "apps/virtual-exchange/src/credential.ts",
+          "common/changes/@yuants/app-virtual-exchange/2025-12-07-14-45.json",
+          "apps/vendor-okx/src/trade.ts",
+          "common/changes/@yuants/vendor-okx/2025-12-07-15-10.json",
+          "common/changes/@yuants/data-account/2025-12-07-16-26.json",
+          "common/changes/@yuants/exchange/2025-12-07-16-26.json",
+          "libraries/data-account/etc/data-account.api.md",
+          "libraries/data-account/src/interface.ts",
+          "libraries/exchange/src/index.ts",
+          "apps/host/src/host-manager.ts"
+        ]
+      },
+      {
+        "name": "配置与环境",
+        "commits": [
+          "790b62bff",
+          "39712dbdd",
+          "1c8dab325",
+          "6e9af0f2a",
+          "94b0fdc84",
+          "88cf1511d",
+          "82990304e",
+          "efe8a5925",
+          "540b69760",
+          "a083a19a3",
+          "88632ee3c",
+          "1b048f71f",
+          "4d9c58da8"
+        ],
+        "files": [
+          "apps/virtual-exchange/src/credential.ts",
+          "common/changes/@yuants/app-virtual-exchange/2025-12-07-14-45.json",
+          "apps/virtual-exchange/CHANGELOG.json",
+          "apps/virtual-exchange/CHANGELOG.md",
+          "apps/virtual-exchange/package.json",
+          "common/changes/@yuants/app-virtual-exchange/{main_2025-12-04-07-31.json => main_2025-12-07-14-55.json}",
+          "apps/vendor-okx/src/trade.ts",
+          "common/changes/@yuants/vendor-okx/2025-12-07-15-10.json",
+          "apps/vendor-okx/CHANGELOG.json",
+          "apps/vendor-okx/CHANGELOG.md"
+        ]
+      },
+      {
+        "name": "文档",
+        "commits": [
+          "39712dbdd",
+          "6e9af0f2a",
+          "94b0fdc84",
+          "88cf1511d",
+          "efe8a5925",
+          "540b69760",
+          "88632ee3c",
+          "4d9c58da8"
+        ],
+        "files": [
+          "apps/virtual-exchange/CHANGELOG.json",
+          "apps/virtual-exchange/CHANGELOG.md",
+          "apps/virtual-exchange/package.json",
+          "common/changes/@yuants/app-virtual-exchange/2025-12-07-14-45.json",
+          "common/changes/@yuants/app-virtual-exchange/{main_2025-12-04-07-31.json => main_2025-12-07-14-55.json}",
+          "apps/vendor-okx/CHANGELOG.json",
+          "apps/vendor-okx/CHANGELOG.md",
+          "apps/vendor-okx/package.json",
+          "common/changes/@yuants/vendor-okx/2025-12-07-15-10.json",
+          "common/changes/@yuants/vendor-okx/{main_2025-12-06-17-00.json => main_2025-12-07-15-23.json}"
+        ]
+      },
+      {
+        "name": "接口重构",
+        "commits": [
+          "94b0fdc84",
+          "540b69760",
+          "a083a19a3",
+          "1b048f71f"
+        ],
+        "files": [
+          "common/changes/@yuants/data-account/2025-12-07-16-26.json",
+          "common/changes/@yuants/exchange/2025-12-07-16-26.json",
+          "libraries/data-account/etc/data-account.api.md",
+          "libraries/data-account/src/interface.ts",
+          "libraries/exchange/src/index.ts",
+          "apps/vendor-aster/SESSION_NOTES.md",
+          "apps/vendor-aster/src/api/public-api.ts",
+          "apps/vendor-aster/src/services/markets/product.ts",
+          "common/changes/@yuants/vendor-aster/2025-12-07-17-51.json",
+          "apps/vendor-binance/src/api/client.ts"
+        ]
+      }
+    ],
+    "riskIndicators": [
+      {
+        "type": "no_tests",
+        "severity": "medium",
+        "details": "包含功能或修复提交但未见测试文件更新",
+        "commits": []
+      },
+      {
+        "type": "api_change",
+        "severity": "high",
+        "details": "3 个提交修改了API或接口定义",
+        "commits": [
+          "540b69760",
+          "a083a19a3",
+          "1b048f71f"
+        ]
+      }
+    ]
+  },
+  "metadata": {
+    "tool": "git-changes-reporter",
+    "version": "3.0.0",
+    "repository": "/home/runner/work/Yuan/Yuan"
+  }
+}

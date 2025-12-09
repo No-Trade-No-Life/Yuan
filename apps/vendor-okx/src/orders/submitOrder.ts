@@ -1,6 +1,7 @@
 import { IOrder } from '@yuants/data-order';
-import { decodePath, formatTime, roundToStep } from '@yuants/utils';
+import { decodePath, formatTime, newError, roundToStep } from '@yuants/utils';
 import { firstValueFrom, map } from 'rxjs';
+import { accountConfigCache } from '../accountInfos/uid';
 import { ICredential, postTradeOrder } from '../api/private-api';
 import { productService } from '../public-data/product';
 import { spotMarketTickers$ } from '../public-data/quote';
@@ -13,18 +14,6 @@ const mapOrderDirectionToSide = (direction?: string) => {
     case 'OPEN_SHORT':
     case 'CLOSE_LONG':
       return 'sell';
-  }
-  throw new Error(`Unknown direction: ${direction}`);
-};
-
-const mapOrderDirectionToPosSide = (direction?: string) => {
-  switch (direction) {
-    case 'OPEN_LONG':
-    case 'CLOSE_LONG':
-      return 'long';
-    case 'CLOSE_SHORT':
-    case 'OPEN_SHORT':
-      return 'short';
   }
   throw new Error(`Unknown direction: ${direction}`);
 };
@@ -42,7 +31,16 @@ const mapOrderTypeToOrdType = (order_type?: string) => {
 };
 
 export const submitOrder = async (credential: ICredential, order: IOrder): Promise<{ order_id: string }> => {
-  const [instType, instId] = decodePath(order.product_id);
+  const accountConfigRes = await accountConfigCache.query(JSON.stringify(credential));
+  if (!accountConfigRes) throw newError('ACCOUNT_CONFIG_FETCH_ERROR', { accountConfigRes });
+  if (!accountConfigRes.data?.[0]) throw newError('ACCOUNT_CONFIG_FETCH_ERROR', { accountConfigRes });
+
+  /**
+   * 是否为组合保证金模式
+   */
+  const isPortfolioMarginMode = accountConfigRes.data[0].acctLv === '4';
+
+  const [instType, instId] = decodePath(order.product_id).slice(-2);
 
   // 交易数量，表示要购买或者出售的数量。
   // 当币币/币币杠杆以限价买入和卖出时，指交易货币数量。
@@ -98,6 +96,19 @@ export const submitOrder = async (credential: ICredential, order: IOrder): Promi
     throw new Error(`Unknown instType: ${instType}`);
   };
 
+  const mapOrderDirectionToPosSide = (direction?: string) => {
+    if (isPortfolioMarginMode) return undefined;
+    switch (direction) {
+      case 'OPEN_LONG':
+      case 'CLOSE_LONG':
+        return 'long';
+      case 'CLOSE_SHORT':
+      case 'OPEN_SHORT':
+        return 'short';
+    }
+    throw new Error(`Unknown direction: ${direction}`);
+  };
+
   const params = {
     instId,
     tdMode: instType === 'SPOT' ? 'cash' : 'cross',
@@ -115,6 +126,7 @@ export const submitOrder = async (credential: ICredential, order: IOrder): Promi
         : undefined,
     px: order.order_type === 'LIMIT' || order.order_type === 'MAKER' ? order.price!.toString() : undefined,
     ccy: instType === 'MARGIN' ? 'USDT' : undefined,
+    tag: process.env.BROKER_CODE,
   };
   console.info(formatTime(Date.now()), 'SubmitOrder', 'params', JSON.stringify(params));
   const res = await postTradeOrder(credential, params);

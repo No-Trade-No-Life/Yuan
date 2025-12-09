@@ -1,6 +1,27 @@
 # Change Log - @yuants/vendor-hyperliquid
 
-This log was last generated on Thu, 04 Dec 2025 16:51:07 GMT and should not be manually modified.
+This log was last generated on Mon, 08 Dec 2025 16:38:57 GMT and should not be manually modified.
+
+## 0.7.11
+Mon, 08 Dec 2025 16:38:57 GMT
+
+### Patches
+
+- 更新 spot 账户产品映射逻辑，避免硬编码并支持动态产品列表
+- add liq price
+- 增加 Spot 账户产品映射缓存，优化产品列表查询逻辑
+
+## 0.7.10
+Sun, 07 Dec 2025 16:38:10 GMT
+
+_Version update only_
+
+## 0.7.9
+Fri, 05 Dec 2025 15:22:22 GMT
+
+### Patches
+
+- add hl interest rate
 
 ## 0.7.8
 Thu, 04 Dec 2025 16:51:07 GMT

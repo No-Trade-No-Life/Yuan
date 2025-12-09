@@ -1,6 +1,32 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Wed, 03 Dec 2025 18:20:00 GMT and should not be manually modified.
+This log was last generated on Mon, 08 Dec 2025 15:50:21 GMT and should not be manually modified.
+
+## 0.15.11
+Mon, 08 Dec 2025 15:50:21 GMT
+
+### Patches
+
+- add liq price
+
+## 0.15.10
+Sun, 07 Dec 2025 22:20:53 GMT
+
+### Patches
+
+- fix api
+
+## 0.15.9
+Sun, 07 Dec 2025 16:38:10 GMT
+
+_Version update only_
+
+## 0.15.8
+Sat, 06 Dec 2025 20:13:27 GMT
+
+### Patches
+
+- fix submit order
 
 ## 0.15.7
 Wed, 03 Dec 2025 18:20:00 GMT

@@ -1,7 +1,7 @@
 import { Terminal } from '@yuants/protocol';
 import { defer } from 'rxjs';
-import { getDefaultCredential, postGridAlgoOrder } from './api/private-api';
 import { getTradingAccountId } from './accountInfos/uid';
+import { getDefaultCredential, postGridAlgoOrder } from './api/private-api';
 
 const terminal = Terminal.fromNodeEnv();
 const credential = getDefaultCredential();
@@ -9,7 +9,9 @@ const credential = getDefaultCredential();
 defer(async () => {
   const tradingAccountId = await getTradingAccountId(credential);
 
-  terminal.server.provideService(
+  type Request = Parameters<typeof postGridAlgoOrder>[1];
+
+  terminal.server.provideService<Request, any>(
     'Grid/Algo-Order',
     {
       required: ['account_id'],
@@ -19,7 +21,8 @@ defer(async () => {
     },
     async (msg) => {
       if (msg.req) {
-        const result = await postGridAlgoOrder(credential, msg.req as any);
+        msg.req.tag = process.env.BROKER_CODE;
+        const result = await postGridAlgoOrder(credential, msg.req);
         return { res: { code: 0, message: 'OK', data: result } };
       }
       return { res: { code: 0, message: 'No Params' } };

@@ -65,6 +65,7 @@ export const getPositions = async (credential: ICredential): Promise<IPosition[]
       closable_price,
       position_price: +x.avgPx,
       floating_profit: +x.upl,
+      liquidation_price: x.liqPx,
       valuation,
     });
   }

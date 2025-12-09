@@ -1,6 +1,16 @@
 import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import { encodePath, formatTime } from '@yuants/utils';
-import { catchError, defer, EMPTY, filter, interval, Observable, Subscription, tap, timeout } from 'rxjs';
+import {
+  catchError,
+  EMPTY,
+  filter,
+  interval,
+  Observable,
+  shareReplay,
+  Subscription,
+  tap,
+  timeout,
+} from 'rxjs';
 import { IWSOrderBook } from './public-data/market-order';
 
 const MetricsWebSocketConnectionsGauge = GlobalPrometheusRegistry.gauge(
@@ -256,27 +266,39 @@ class OKXWsClient {
   }
 }
 
-const fromWsChannelAndInstId = <T>(path: string, channel: string, instId: string) =>
-  defer(
-    () =>
-      new Observable<T>((subscriber) => {
-        const client = OKXWsClient.GetWsClient(path);
-        client.subscribe(channel, instId, (data: T) => {
-          subscriber.next(data);
-        });
-        const removeError = client.addConnectionListener('error', (err) => {
-          subscriber.error(err);
-        });
-        const removeClose = client.addConnectionListener('close', () => {
-          subscriber.error('WS Connection Closed');
-        });
-        subscriber.add(() => {
-          removeError();
-          removeClose();
-          client.unsubscribe(channel, instId);
-        });
-      }),
-  ).pipe(
+// 全局缓存：存储已创建的 WebSocket Observable，实现订阅复用
+// key: encodePath(path, channel, instId)
+// value: shared Observable
+const wsObservableCache = new Map<string, Observable<any>>();
+
+const fromWsChannelAndInstId = <T>(path: string, channel: string, instId: string) => {
+  const cacheKey = encodePath(path, channel, instId);
+
+  // 检查缓存中是否已存在该订阅
+  const cached = wsObservableCache.get(cacheKey);
+  if (cached) {
+    console.info(formatTime(Date.now()), `♻️ Reusing cached subscription: ${cacheKey}`);
+    return cached as Observable<T>;
+  }
+
+  // 创建新的 Observable
+  const observable$ = new Observable<T>((subscriber) => {
+    const client = OKXWsClient.GetWsClient(path);
+    client.subscribe(channel, instId, (data: T) => {
+      subscriber.next(data);
+    });
+    const removeError = client.addConnectionListener('error', (err) => {
+      subscriber.error(err);
+    });
+    const removeClose = client.addConnectionListener('close', () => {
+      subscriber.error('WS Connection Closed');
+    });
+    subscriber.add(() => {
+      removeError();
+      removeClose();
+      client.unsubscribe(channel, instId);
+    });
+  }).pipe(
     // 防止单个连接断开导致数据流关闭
     timeout(60_000),
     tap({
@@ -287,7 +309,25 @@ const fromWsChannelAndInstId = <T>(path: string, channel: string, instId: string
     // 暂时不太确定是否能支持 retry
     // retry({ delay: 1000 }),
     catchError(() => EMPTY),
+    // 🔑 关键：使用 shareReplay 实现订阅复用
+    // - bufferSize: 1 - 缓存最新的一个值，新订阅者可以立即获得最新数据
+    // - refCount: true - 当所有订阅者都取消订阅时，自动取消上游订阅并清理资源
+    shareReplay({ bufferSize: 1, refCount: true }),
+    // 当订阅完全结束时，从缓存中移除
+    tap({
+      finalize: () => {
+        console.info(formatTime(Date.now()), `🗑️ Removing from cache: ${cacheKey}`);
+        wsObservableCache.delete(cacheKey);
+      },
+    }),
   );
+
+  // 存入缓存
+  wsObservableCache.set(cacheKey, observable$);
+  console.info(formatTime(Date.now()), `📦 Cached new subscription: ${cacheKey}`);
+
+  return observable$;
+};
 
 export const useTicker = (instId: string) =>
   fromWsChannelAndInstId<
@@ -326,6 +366,28 @@ export const useMarketBooks = (
   instId: string,
 ) =>
   fromWsChannelAndInstId<IWSOrderBook[]>('ws/v5/public', channel, instId).pipe(
+    //
+    filter((data) => data.length > 0),
+  );
+
+export const useFundingRate = (instId: string) =>
+  fromWsChannelAndInstId<
+    {
+      fundingRate: string;
+      fundingTime: string;
+      instId: string;
+      instType: string;
+      method: string;
+      maxFundingRate: string;
+      minFundingRate: string;
+      nextFundingRate: string;
+      nextFundingTime: string;
+      premium: string;
+      settFundingRate: string;
+      settState: string;
+      ts: string;
+    }[]
+  >('ws/v5/public', 'funding-rate', instId).pipe(
     //
     filter((data) => data.length > 0),
   );

@@ -2,12 +2,12 @@ import { provideExchangeServices } from '@yuants/exchange';
 import { Terminal } from '@yuants/protocol';
 import { encodePath, newError } from '@yuants/utils';
 import { getAccountConfig, ICredential } from '../api/private-api';
-import { cancelOrder } from './cancelOrder';
+import { cancelOrder } from '../orders/cancelOrder';
+import { modifyOrder } from '../orders/modifyOrder';
+import { submitOrder } from '../orders/submitOrder';
 import { getOrders } from './getOrders';
 import { getPositions } from './getPositions';
-import { modifyOrder } from './modifyOrder';
 import { listProducts } from './product';
-import { submitOrder } from './submitOrder';
 
 const terminal = Terminal.fromNodeEnv();
 
