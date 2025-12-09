@@ -2,6 +2,43 @@
   "name": "@yuants/app-virtual-exchange",
   "entries": [
     {
+      "version": "0.5.5",
+      "tag": "@yuants/app-virtual-exchange_v0.5.5",
+      "date": "Sun, 07 Dec 2025 16:38:10 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.9.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.4.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.5.4",
+      "tag": "@yuants/app-virtual-exchange_v0.5.4",
+      "date": "Sun, 07 Dec 2025 14:55:28 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.3",
       "tag": "@yuants/app-virtual-exchange_v0.5.3",
       "date": "Thu, 04 Dec 2025 07:31:18 GMT",

@@ -9,7 +9,7 @@
 #   6) report path (optional, default docs/reports/git-changes-report-<date>.md)
 #
 # Env:
-#   GITHUB_TOKEN (required)
+#   APP_TOKEN (required)
 #   DRY_RUN=1 to skip push/PR for local testing.
 
 set -euo pipefail
@@ -26,8 +26,8 @@ if [[ -z "$REPORT_DATE" || -z "$OLD_SHORT" || -z "$NEW_SHORT" || -z "$COMMIT_COU
   exit 1
 fi
 
-if [[ -z "${GITHUB_TOKEN:-}" ]]; then
-  echo "GITHUB_TOKEN is required"
+if [[ -z "${APP_TOKEN:-}" ]]; then
+  echo "APP_TOKEN is required"
   exit 1
 fi
 
@@ -36,7 +36,7 @@ if [[ "${DRY_RUN:-0}" == "1" ]]; then
   exit 0
 fi
 
-export GH_TOKEN="$GITHUB_TOKEN"
+export GH_TOKEN="$APP_TOKEN"
 
 git config --global user.name "github-actions[bot]"
 git config --global user.email "github-actions[bot]@users.noreply.github.com"

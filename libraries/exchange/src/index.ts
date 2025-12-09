@@ -183,6 +183,19 @@ export const provideExchangeServices = <T>(terminal: Terminal, exchange: IExchan
 
         // 估值 = value_scale * volume * closable_price
         if (theProduct) {
+          if (theProduct.base_currency) {
+            pos.base_currency = theProduct.base_currency;
+          }
+          if (theProduct.quote_currency) {
+            pos.quote_currency = theProduct.quote_currency;
+          }
+          if (pos.size === undefined && pos.volume !== undefined && pos.direction !== undefined) {
+            pos.size = (pos.direction === 'LONG' ? 1 : -1) * pos.volume * (theProduct.value_scale || 1) + '';
+          }
+          if (pos.free_size === undefined && pos.free_volume !== undefined && pos.direction !== undefined) {
+            pos.free_size =
+              (pos.direction === 'LONG' ? 1 : -1) * pos.free_volume * (theProduct.value_scale || 1) + '';
+          }
           pos.valuation = Math.abs((theProduct.value_scale || 1) * pos.volume * pos.closable_price);
         }
 

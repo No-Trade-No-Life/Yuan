@@ -1,7 +1,9 @@
-import { GlobalPrometheusRegistry } from '@yuants/protocol';
+import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import { encodeHex, formatTime, HmacSHA256, newError } from '@yuants/utils';
 
 const MetricBinanceApiUsedWeight = GlobalPrometheusRegistry.gauge('binance_api_used_weight', '');
+const MetricBinanceApiCounter = GlobalPrometheusRegistry.counter('binance_api_request_total', '');
+const terminal = Terminal.fromNodeEnv();
 
 type HttpMethod = 'GET' | 'POST' | 'DELETE' | 'PUT';
 
@@ -17,7 +19,8 @@ export interface IApiError {
   msg: string;
 }
 
-let retryAfterUntil: number | null = null;
+// 每个接口单独进行主动限流控制
+const mapPathToRetryAfterUntil: Record<string, number> = {};
 
 export const isApiError = <T>(value: T | IApiError): value is IApiError =>
   typeof (value as IApiError)?.code === 'number' && typeof (value as IApiError)?.msg === 'string';
@@ -80,12 +83,22 @@ const callApi = async <T>(
     console.info(formatTime(Date.now()), method, url.href);
   }
 
+  const retryAfterUntil = mapPathToRetryAfterUntil[endpoint];
+
   if (retryAfterUntil) {
     if (Date.now() <= retryAfterUntil) {
-      throw newError('ACTIVE_RATE_LIMIT', { retryAfterUntil, now: Date.now(), url: url.href });
+      // 主动限流
+      throw newError('ACTIVE_RATE_LIMIT', {
+        wait_time: `${retryAfterUntil - Date.now()}ms`,
+        retryAfterUntil,
+        url: url.href,
+        endpoint,
+      });
     }
-    retryAfterUntil = null;
+    delete mapPathToRetryAfterUntil[endpoint];
   }
+
+  MetricBinanceApiCounter.labels({ path: url.pathname, terminal_id: terminal.terminal_id }).inc();
 
   const res = await fetch(url.href, {
     method,
@@ -94,7 +107,7 @@ const callApi = async <T>(
   const usedWeight1M = res.headers.get('x-mbx-used-weight-1m');
   const retryAfter = res.headers.get('Retry-After');
   if (retryAfter) {
-    retryAfterUntil = Date.now() + parseInt(retryAfter, 10) * 1000;
+    mapPathToRetryAfterUntil[endpoint] = Date.now() + parseInt(retryAfter, 10) * 1000;
   }
   console.info(
     formatTime(Date.now()),
@@ -106,7 +119,9 @@ const callApi = async <T>(
     `usedWeight1M=${usedWeight1M ?? 'N/A'}`,
   );
   if (usedWeight1M) {
-    MetricBinanceApiUsedWeight.set(+usedWeight1M);
+    MetricBinanceApiUsedWeight.labels({ path: endpoint, terminal_id: terminal.terminal_id }).set(
+      +usedWeight1M,
+    );
   }
   return res.json() as Promise<T>;
 };

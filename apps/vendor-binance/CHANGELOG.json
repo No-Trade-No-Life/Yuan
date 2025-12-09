@@ -2,6 +2,94 @@
   "name": "@yuants/vendor-binance",
   "entries": [
     {
+      "version": "0.10.15",
+      "tag": "@yuants/vendor-binance_v0.10.15",
+      "date": "Mon, 08 Dec 2025 18:12:20 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix api too fast"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.10.14",
+      "tag": "@yuants/vendor-binance_v0.10.14",
+      "date": "Mon, 08 Dec 2025 17:52:18 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix metric "
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.10.13",
+      "tag": "@yuants/vendor-binance_v0.10.13",
+      "date": "Mon, 08 Dec 2025 15:50:21 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix active rate limit"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.10.12",
+      "tag": "@yuants/vendor-binance_v0.10.12",
+      "date": "Sun, 07 Dec 2025 20:31:33 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add metric"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.10.11",
+      "tag": "@yuants/vendor-binance_v0.10.11",
+      "date": "Sun, 07 Dec 2025 16:38:10 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.9.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.4.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.10.10",
       "tag": "@yuants/vendor-binance_v0.10.10",
       "date": "Thu, 04 Dec 2025 10:36:34 GMT",

@@ -25,7 +25,7 @@ export const getAccountDetail = (
     mode: number;
   };
   tier: number;
-}> => callPrivate(credential, 'GET', '/api/v4/account/detail');
+}> => callPrivate(credential, 'GET', '/account/detail');
 
 export const getUnifiedAccounts = (
   credential: ICredential,
@@ -62,7 +62,7 @@ export const getUnifiedAccounts = (
   leverage: string;
   spot_order_loss: string;
   spot_hedge: boolean;
-}> => callPrivate(credential, 'GET', '/api/v4/unified/accounts', params);
+}> => callPrivate(credential, 'GET', '/unified/accounts', params);
 
 /**
  * 获取用户仓位列表
@@ -89,8 +89,9 @@ export const getFuturePositions = (
     unrealised_pnl: string;
     realised_pnl: string;
     mode: string;
+    liq_price: string;
   }[]
-> => callPrivate(credential, 'GET', `/api/v4/futures/${quote_currency}/positions`, params);
+> => callPrivate(credential, 'GET', `/futures/${quote_currency}/positions`, params);
 
 /**
  * 查询合约订单列表
@@ -120,7 +121,7 @@ export const getFuturesOrders = (
     status?: string;
     text: string;
   }[]
-> => callPrivate(credential, 'GET', `/api/v4/futures/${settle}/orders`, params);
+> => callPrivate(credential, 'GET', `/futures/${settle}/orders`, params);
 
 /**
  * 获取合约账号
@@ -154,7 +155,7 @@ export const getFuturesAccounts = (
     bonus_dnw: string;
     bonus_offset: string;
   };
-}> => callPrivate(credential, 'GET', `/api/v4/futures/${settle}/accounts`);
+}> => callPrivate(credential, 'GET', `/futures/${settle}/accounts`);
 
 /**
  * 合约交易下单
@@ -215,7 +216,7 @@ export const postFutureOrders = (
   stp_id: number;
   stp_act: string;
   amend_text: string;
-}> => callPrivate(credential, 'POST', `/api/v4/futures/${settle}/orders`, params);
+}> => callPrivate(credential, 'POST', `/futures/${settle}/orders`, params);
 
 /**
  * 撤销单个订单
@@ -223,7 +224,7 @@ export const postFutureOrders = (
  * https://www.gate.io/docs/developers/apiv4/zh_CN/#%E6%92%A4%E9%94%80%E5%8D%95%E4%B8%AA%E8%AE%A2%E5%8D%95-2
  */
 export const deleteFutureOrders = (credential: ICredential, settle: string, order_id: string): Promise<{}> =>
-  callPrivate(credential, 'DELETE', `/api/v4/futures/${settle}/orders/${order_id}`);
+  callPrivate(credential, 'DELETE', `/futures/${settle}/orders/${order_id}`);
 
 /**
  * 提现
@@ -253,7 +254,7 @@ export const postWithdrawals = (
   memo: string;
   status: string;
   chain: string;
-}> => callPrivate(credential, 'POST', '/api/v4/withdrawals', params);
+}> => callPrivate(credential, 'POST', '/withdrawals', params);
 
 /**
  * 获取币种充值地址
@@ -275,7 +276,7 @@ export const getDepositAddress = (
     payment_name: string;
     obtain_failed: boolean;
   }[];
-}> => callPrivate(credential, 'GET', '/api/v4/wallet/deposit_address', params);
+}> => callPrivate(credential, 'GET', '/wallet/deposit_address', params);
 
 /**
  * 创建新的子账户
@@ -298,7 +299,7 @@ export const getSubAccountList = (
     user_id: number;
     create_time: number;
   }[]
-> => callPrivate(credential, 'GET', '/api/v4/sub_accounts', params);
+> => callPrivate(credential, 'GET', '/sub_accounts', params);
 
 /**
  * 获取充值记录
@@ -329,7 +330,7 @@ export const getDepositHistory = (
     status: string;
     chain: string;
   }[]
-> => callPrivate(credential, 'GET', '/api/v4/wallet/deposits', params);
+> => callPrivate(credential, 'GET', '/wallet/deposits', params);
 
 /**
  * 获取提现记录
@@ -360,7 +361,7 @@ export const getWithdrawalHistory = (
     status: string;
     chain: string;
   }[]
-> => callPrivate(credential, 'GET', '/api/v4/wallet/withdrawals', params);
+> => callPrivate(credential, 'GET', '/wallet/withdrawals', params);
 
 /**
  * 获取现货交易账户列表
@@ -379,7 +380,7 @@ export const getSpotAccounts = (
     locked: string;
     update_id: string;
   }[]
-> => callPrivate(credential, 'GET', '/api/v4/spot/accounts', params);
+> => callPrivate(credential, 'GET', '/spot/accounts', params);
 
 /**
  * 交易账户互转
@@ -400,7 +401,7 @@ export const postWalletTransfer = (
   },
 ): Promise<{
   tx_id: string;
-}> => callPrivate(credential, 'POST', '/api/v4/wallet/transfers', params);
+}> => callPrivate(credential, 'POST', '/wallet/transfers', params);
 
 /**
  * 获取统一账户最多可转出
@@ -415,4 +416,4 @@ export const getUnifiedTransferable = (
 ): Promise<{
   currency: string;
   amount: string;
-}> => callPrivate(credential, 'GET', `/api/v4/unified/transferable`, params);
+}> => callPrivate(credential, 'GET', `/unified/transferable`, params);

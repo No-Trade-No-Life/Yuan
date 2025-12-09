@@ -1,6 +1,33 @@
 # Change Log - @yuants/vendor-gate
 
-This log was last generated on Sat, 06 Dec 2025 20:05:18 GMT and should not be manually modified.
+This log was last generated on Mon, 08 Dec 2025 17:24:52 GMT and should not be manually modified.
+
+## 0.4.22
+Mon, 08 Dec 2025 17:24:52 GMT
+
+### Patches
+
+- feat: 统一账户服务，整合现货与期货逻辑，移除冗余代码
+
+## 0.4.21
+Mon, 08 Dec 2025 16:38:57 GMT
+
+### Patches
+
+- add liq price
+- 增加 Spot 账户产品映射缓存，优化产品列表查询逻辑
+
+## 0.4.20
+Sun, 07 Dec 2025 22:20:53 GMT
+
+### Patches
+
+- fix api
+
+## 0.4.19
+Sun, 07 Dec 2025 16:38:10 GMT
+
+_Version update only_
 
 ## 0.4.18
 Sat, 06 Dec 2025 20:05:18 GMT

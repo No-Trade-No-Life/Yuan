@@ -18,7 +18,7 @@ const tradeParser = async (accountId: string, params: Record<string, string>): P
     const data = result.data;
     const mapTradeIdToBillList = new Map<string, typeof data>();
     data.forEach((item) => {
-      productIdSet.add(encodePath(item.instType, item.instId));
+      productIdSet.add(encodePath('OKX', item.instType, item.instId));
       mapTradeIdToBillList.set(item.tradeId, [...(mapTradeIdToBillList.get(item.tradeId) ?? []), item]);
     });
     if (productIdSet.size > 0) {
@@ -36,7 +36,6 @@ const tradeParser = async (accountId: string, params: Record<string, string>): P
     }
     for (const [tradeId, v] of mapTradeIdToBillList) {
       if (!((v[0].instType === 'SPOT' && v.length === 2) || v[0].instType === 'SWAP')) continue;
-
       const trade: ITrade = {
         id: tradeId,
         account_id: accountId,

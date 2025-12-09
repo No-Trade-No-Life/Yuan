@@ -3,8 +3,8 @@ import { createSeriesProvider } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
 import { decodePath, formatTime } from '@yuants/utils';
 import { firstValueFrom, timer } from 'rxjs';
-import { getFutureFundingRate } from '../api/public-api';
 import { getMarginInterestRateHistory } from '../api/private-api';
+import { getFutureFundingRate } from '../api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -18,6 +18,7 @@ createSeriesProvider<IInterestRate>(terminal, {
     const [, instType, symbol] = decodePath(series_id);
     if (instType === 'USDT-FUTURE') {
       while (true) {
+        await firstValueFrom(timer(1000));
         // 向前翻页，时间降序
         const res = await getFutureFundingRate({
           symbol: symbol,
@@ -40,12 +41,12 @@ createSeriesProvider<IInterestRate>(terminal, {
           break;
         }
         current_start = +res[res.length - 1].fundingTime;
-        await firstValueFrom(timer(1000));
       }
       return;
     }
     if (instType === 'MARGIN') {
       while (true) {
+        await firstValueFrom(timer(1000));
         const res = await getMarginInterestRateHistory({
           asset: symbol,
           startTime: current_start,
@@ -53,12 +54,7 @@ createSeriesProvider<IInterestRate>(terminal, {
           limit: 100,
         });
         yield res.map(
-          (v: {
-            asset: string;
-            dailyInterestRate: string;
-            timestamp: number;
-            vipLevel: number;
-          }): IInterestRate => ({
+          (v): IInterestRate => ({
             series_id,
             created_at: formatTime(v.timestamp),
             datasource_id: 'BINANCE',
@@ -72,7 +68,6 @@ createSeriesProvider<IInterestRate>(terminal, {
           break;
         }
         current_start = +res[res.length - 1].timestamp;
-        await firstValueFrom(timer(1000));
       }
     }
     return;
