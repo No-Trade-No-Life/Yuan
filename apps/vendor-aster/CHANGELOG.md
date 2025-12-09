@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-aster
 
-This log was last generated on Tue, 09 Dec 2025 16:52:23 GMT and should not be manually modified.
+This log was last generated on Tue, 09 Dec 2025 19:21:54 GMT and should not be manually modified.
+
+## 0.7.27
+Tue, 09 Dec 2025 19:21:54 GMT
+
+### Patches
+
+- fix liq price
 
 ## 0.7.26
 Tue, 09 Dec 2025 16:52:23 GMT
