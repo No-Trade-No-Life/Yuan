@@ -33,7 +33,8 @@ export const getUnifiedAccountInfo = async (credential: ICredential): Promise<IP
       volume: Math.abs(+position.positionAmt),
       free_volume: Math.abs(+position.positionAmt),
       position_price: +position.entryPrice,
-      closable_price: +position.entryPrice + +position.unrealizedProfit / Math.abs(+position.positionAmt),
+      // ISSUE: positionAmt 有正负，这里计算有个 trick，不需要区分仓位方向
+      closable_price: +position.entryPrice + +position.unrealizedProfit / +position.positionAmt,
       floating_profit: +position.unrealizedProfit,
       valuation:
         +position.positionAmt *
