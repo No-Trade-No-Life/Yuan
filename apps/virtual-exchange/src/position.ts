@@ -16,12 +16,22 @@ const quoteCache = createCache<IQuote>(
   { expire: 30_000 },
 );
 
+const interestRateIntervalCache = createCache(async (product_id: string) => {
+  const sql = `select created_at from interest_rate where series_id = ${escapeSQL(
+    product_id,
+  )} order by created_at desc limit 2`;
+  const rates = await requestSQL<{ created_at: string }[]>(terminal, sql);
+  if (rates.length < 2) return undefined;
+  return new Date(rates[0].created_at).getTime() - new Date(rates[1].created_at).getTime();
+});
+
 export const polyfillPosition = async (positions: IPosition[]): Promise<IPosition[]> => {
   // TODO: 使用 batch query SQL 优化 product / quote 查询性能
   for (const pos of positions) {
-    const [theProduct, quote] = await Promise.all([
+    const [theProduct, quote, interestRateInterval] = await Promise.all([
       productCache.query(pos.product_id),
       quoteCache.query(pos.product_id),
+      interestRateIntervalCache.query(pos.product_id),
     ]);
 
     // 估值 = value_scale * volume * closable_price
@@ -57,6 +67,10 @@ export const polyfillPosition = async (positions: IPosition[]): Promise<IPositio
           pos.interest_to_settle = +quote.interest_rate_short * pos.valuation;
         }
       }
+    }
+
+    if (interestRateInterval) {
+      pos.settlement_interval = interestRateInterval;
     }
   }
   return positions;
