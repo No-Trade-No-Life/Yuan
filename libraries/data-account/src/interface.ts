@@ -39,6 +39,33 @@ export interface IPosition {
    * - `"SHORT"`: Short position
    */
   direction?: string;
+
+  /**
+   * Base currency of the position.
+   * 头寸的基础货币
+   */
+  base_currency?: string;
+  /**
+   * Quote currency of the position.
+   * 头寸的报价货币
+   */
+  quote_currency?: string;
+  /**
+   * Size of the position. negative for short positions. Normalized by value_scale.
+   * 净头寸的大小，已经按照 value_scale 归一化。空头为负数
+   */
+  size?: string;
+  /**
+   * Free size of the position. Negative for short positions. Normalized by value_scale.
+   * 净头寸的可用大小，已经按照 value_scale 归一化。空头为负数
+   */
+  free_size?: string;
+
+  /**
+   * Liquidation price of the position. (Approximate value). Due to the complexity of margin calculation mechanisms, it is usually provided by the exchange.
+   * 持仓的强平价格 (预估值)，由于保证金计算机制复杂，通常由交易所给出。
+   */
+  liquidation_price?: string;
   /**
    * Position volume (non-negative).
    * 持仓量 (非负)

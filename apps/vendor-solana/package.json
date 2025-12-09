@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-solana",
-  "version": "0.1.118",
+  "version": "0.1.119",
   "main": "lib/index.js",
   "files": [
     "dist",

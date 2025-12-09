@@ -1,6 +1,6 @@
 {
   "name": "@yuants/data-account",
-  "version": "0.8.4",
+  "version": "0.9.0",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [

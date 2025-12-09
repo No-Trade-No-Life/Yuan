@@ -22,6 +22,12 @@ interface ICredentialResolvedStatus {
   reason?: string;
 }
 
+const credentialIdCache = createCache(async (credentialKey: string) => {
+  const credential = JSON.parse(credentialKey) as IExchangeCredential;
+  const res = await getCredentialId(terminal, credential);
+  return res.data;
+});
+
 export const listAllCredentials = async () => {
   const secrets = await requestSQL<ISecret[]>(
     terminal,
@@ -39,9 +45,10 @@ export const listAllCredentials = async () => {
         const credential = JSON.parse(new TextDecoder().decode(decrypted)) as IExchangeCredential;
         result.credential = credential;
 
-        const res = await getCredentialId(terminal, credential);
-        const credentialId = res.data;
-        result.credentialId = credentialId;
+        const res = await credentialIdCache.query(JSON.stringify(credential));
+        if (res) {
+          result.credentialId = res;
+        }
       } catch (e) {
         result.reason = `${e}`;
       }

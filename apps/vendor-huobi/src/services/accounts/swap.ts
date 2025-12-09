@@ -43,6 +43,7 @@ export const getSwapAccountInfo = async (credential: ICredential): Promise<IPosi
       position_price: v.cost_hold,
       closable_price: v.last_price,
       floating_profit: v.profit_unreal,
+      liquidation_price: v.liquidation_price ? `${v.liquidation_price}` : undefined,
       valuation,
     });
   }

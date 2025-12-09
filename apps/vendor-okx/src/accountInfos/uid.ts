@@ -1,9 +1,9 @@
 import { createCache } from '@yuants/cache';
 import { getAccountConfig, ICredential } from '../api/private-api';
 
-const accountConfigCache = createCache((key) => getAccountConfig(JSON.parse(key)), {
-  expire: 100_000,
-  swrAfter: 10_000,
+export const accountConfigCache = createCache((key) => getAccountConfig(JSON.parse(key)), {
+  expire: 1000_000, // 缓存 1000 秒
+  swrAfter: 100_000, // 100 秒后后台刷新
 });
 
 const accountUidCache = createCache(async (key) => {

@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-account
 
-This log was last generated on Sat, 29 Nov 2025 01:30:37 GMT and should not be manually modified.
+This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.
+
+## 0.9.0
+Sun, 07 Dec 2025 16:38:10 GMT
+
+### Minor changes
+
+- add more fields to position
 
 ## 0.8.4
 Sat, 29 Nov 2025 01:30:37 GMT

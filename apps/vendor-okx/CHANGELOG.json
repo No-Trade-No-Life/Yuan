@@ -2,6 +2,111 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.29.12",
+      "tag": "@yuants/vendor-okx_v0.29.12",
+      "date": "Mon, 08 Dec 2025 16:38:57 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix liq price"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.29.11",
+      "tag": "@yuants/vendor-okx_v0.29.11",
+      "date": "Mon, 08 Dec 2025 15:50:21 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add liq price"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.29.10",
+      "tag": "@yuants/vendor-okx_v0.29.10",
+      "date": "Sun, 07 Dec 2025 16:38:11 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.9.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.4.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.29.9",
+      "tag": "@yuants/vendor-okx_v0.29.9",
+      "date": "Sun, 07 Dec 2025 15:23:14 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix trade"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.29.8",
+      "tag": "@yuants/vendor-okx_v0.29.8",
+      "date": "Sat, 06 Dec 2025 17:00:15 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix trade product id"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.29.7",
+      "tag": "@yuants/vendor-okx_v0.29.7",
+      "date": "Sat, 06 Dec 2025 07:51:30 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix portfolio submitOrder"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.29.6",
       "tag": "@yuants/vendor-okx_v0.29.6",
       "date": "Fri, 05 Dec 2025 19:11:57 GMT",
