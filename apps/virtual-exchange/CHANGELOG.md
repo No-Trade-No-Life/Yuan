@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-virtual-exchange
 
-This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.
+This log was last generated on Tue, 09 Dec 2025 10:38:26 GMT and should not be manually modified.
+
+## 0.6.0
+Tue, 09 Dec 2025 10:38:26 GMT
+
+### Minor changes
+
+- add polyfill positions and slow down getOrders
 
 ## 0.5.5
 Sun, 07 Dec 2025 16:38:10 GMT
