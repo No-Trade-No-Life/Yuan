@@ -7,8 +7,8 @@ const parseProductId = (productId?: string) => {
     return { category: undefined as string | undefined, symbol: undefined as string | undefined };
   }
   const parts = decodePath(productId);
-  if (parts.length >= 2) {
-    return { category: parts[0], symbol: parts.slice(1).join('/') };
+  if (parts.length >= 3) {
+    return { category: parts[1], symbol: parts.slice(2).join('/') };
   }
   return { category: undefined, symbol: parts[0] };
 };
@@ -77,18 +77,22 @@ const handleSubmitOrderOfPerp: IActionHandlerOfSubmitOrder<ICredential> = async 
   const quantity = order.volume;
   const price = order.price;
 
-  const positionSide =
-    order.order_direction === 'OPEN_LONG' || order.order_direction === 'CLOSE_LONG'
-      ? 'LONG'
-      : order.order_direction === 'OPEN_SHORT' || order.order_direction === 'CLOSE_SHORT'
-      ? 'SHORT'
-      : undefined;
+  const isPositionSingleSide = true; // FIXME: Aster 永续合约仅支持单向持仓模式
+
+  const positionSide = isPositionSingleSide
+    ? undefined
+    : order.order_direction === 'OPEN_LONG' || order.order_direction === 'CLOSE_LONG'
+    ? 'LONG'
+    : order.order_direction === 'OPEN_SHORT' || order.order_direction === 'CLOSE_SHORT'
+    ? 'SHORT'
+    : undefined;
 
   const reduceOnly =
     order.order_direction === 'CLOSE_LONG' || order.order_direction === 'CLOSE_SHORT' ? 'true' : undefined;
 
   const timeInForce = order.order_type === 'MAKER' ? 'GTX' : order.order_type === 'LIMIT' ? 'GTC' : undefined;
 
+  //
   const res = await postFApiV1Order(credential, {
     symbol,
     side,

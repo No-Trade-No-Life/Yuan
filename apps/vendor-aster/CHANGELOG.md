@@ -1,6 +1,61 @@
 # Change Log - @yuants/vendor-aster
 
-This log was last generated on Wed, 03 Dec 2025 18:20:00 GMT and should not be manually modified.
+This log was last generated on Mon, 08 Dec 2025 17:52:18 GMT and should not be manually modified.
+
+## 0.7.25
+Mon, 08 Dec 2025 17:52:18 GMT
+
+### Patches
+
+- fix position side
+
+## 0.7.24
+Mon, 08 Dec 2025 16:38:57 GMT
+
+### Patches
+
+- 增加 Spot 账户产品映射缓存，优化产品列表查询逻辑
+
+## 0.7.23
+Mon, 08 Dec 2025 15:50:21 GMT
+
+### Patches
+
+- fix symbol
+- aster position product
+
+## 0.7.22
+Sun, 07 Dec 2025 20:31:33 GMT
+
+### Patches
+
+- add aster spot product
+
+## 0.7.21
+Sun, 07 Dec 2025 16:38:10 GMT
+
+_Version update only_
+
+## 0.7.20
+Fri, 05 Dec 2025 17:11:30 GMT
+
+### Patches
+
+- add aster interest rate
+
+## 0.7.19
+Fri, 05 Dec 2025 09:35:39 GMT
+
+### Patches
+
+- temp remove code sick
+
+## 0.7.18
+Thu, 04 Dec 2025 10:36:34 GMT
+
+### Patches
+
+- 添加请求间隔处理以优化 Aster 数据请求
 
 ## 0.7.17
 Wed, 03 Dec 2025 18:20:00 GMT

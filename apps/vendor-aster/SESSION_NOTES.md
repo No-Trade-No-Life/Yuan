@@ -112,6 +112,26 @@
 
 ## 6. 最近几轮工作记录（Recent Sessions）
 
+### 2025-12-04 — Codex
+
+- **本轮摘要**：
+  - quote 服务按 `exchangeInfo` 的限频信息（若缺失则用默认 500ms）推算请求间隔，串行查询 open interest，避免过快轮询导致封禁。
+  - ticker 与 open interest 通过 `groupBy + scan` 合并，持续输出同一 product 的增量字段；exchangeInfo 类型增加可选 `rateLimits`。
+- **修改的文件**：
+  - `apps/vendor-aster/src/api/public-api.ts`
+  - `apps/vendor-aster/src/services/markets/quote.ts`
+- **运行的测试 / 检查**：
+  - `./node_modules/.bin/tsc --noEmit --project apps/vendor-aster/tsconfig.json`
+
+### 2025-12-08 — Codex
+
+- **本轮摘要**：
+  - `services/markets/product.ts` 同时输出永续与现货产品目录，新增 Spot exchangeInfo 拉取逻辑，保持价格/数量步长与 Aster 过滤器一致；永续 `margin_rate` 支持从 `/fapi/v1/leverageBracket` 获取最大杠杆并反算，缺失时回落 0.1。
+  - `api/public-api.ts` 引入 Spot exchangeInfo 公共接口，分离期货与现货的 base URL；`api/private-api.ts` 增补 leverageBracket 调用类型。
+  - Spot 账户生成 position 前读取最新 spot product 列表并缓存（24 小时 TTL），构建 base → product_id 映射，用余额资产匹配 product_id，缺失时回退旧逻辑。
+- **运行的测试 / 检查**：
+  - `npx tsc --noEmit --project apps/vendor-aster/tsconfig.json`
+
 ### 2025-11-19 — GitHub Copilot
 
 - **本轮摘要**：

@@ -2,6 +2,60 @@
   "name": "@yuants/vendor-bitget",
   "entries": [
     {
+      "version": "0.11.2",
+      "tag": "@yuants/vendor-bitget_v0.11.2",
+      "date": "Sun, 07 Dec 2025 16:38:10 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.9.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.4.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.11.1",
+      "tag": "@yuants/vendor-bitget_v0.11.1",
+      "date": "Thu, 04 Dec 2025 10:36:34 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix product of spot"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.11.0",
+      "tag": "@yuants/vendor-bitget_v0.11.0",
+      "date": "Thu, 04 Dec 2025 06:30:10 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Refactor Bitget API integration for futures and spot markets"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.10.4",
       "tag": "@yuants/vendor-bitget_v0.10.4",
       "date": "Wed, 03 Dec 2025 18:20:00 GMT",

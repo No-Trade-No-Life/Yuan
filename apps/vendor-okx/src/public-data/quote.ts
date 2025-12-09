@@ -175,7 +175,7 @@ const swapOpenInterests$ = defer(() => getOpenInterest({ instType: 'SWAP' })).pi
   shareReplay(1),
 );
 
-const interestRateOfSwapFromWS$ = swapInstruments$.pipe(
+const openInterestOfSwapFromWS$ = swapInstruments$.pipe(
   listWatch(
     (x) => x.instId,
     (x) => useOpenInterest(x.instId),
@@ -292,11 +292,9 @@ const marginOpenInterest$ = spotInstIds$.pipe(
   share(),
 );
 
-marginOpenInterest$.subscribe();
-
 const quoteSources$ = [
   quoteOfSwapFromWs$,
-  interestRateOfSwapFromWS$,
+  openInterestOfSwapFromWS$,
   quoteOfSwapFromRest$,
   quoteOfSpotAndMarginFromWs$,
   quoteOfSpotAndMarginFromRest$,

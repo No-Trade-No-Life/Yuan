@@ -54,7 +54,7 @@ export const getFuturesContracts = (
     create_time: number;
     funding_cap_ratio: string;
   }[]
-> => requestPublic('GET', `/api/v4/futures/${settle}/contracts`, params);
+> => requestPublic('GET', `/futures/${settle}/contracts`, params);
 
 /**
  * 合约市场历史资金费率
@@ -73,7 +73,7 @@ export const getFutureFundingRate = (
     t: number;
     r: string;
   }[]
-> => requestPublic('GET', `/api/v4/futures/${settle}/funding_rate`, params);
+> => requestPublic('GET', `/futures/${settle}/funding_rate`, params);
 
 /**
  * 查询合约市场深度信息
@@ -102,7 +102,7 @@ export const getFuturesOrderBook = async (
   }[];
 }> =>
   rateLimiter.schedule(`futures-order-book:${settle}`, 200, 10_000, () =>
-    requestPublic('GET', `/api/v4/futures/${settle}/order_book`, params),
+    requestPublic('GET', `/futures/${settle}/order_book`, params),
   );
 
 /**
@@ -137,12 +137,12 @@ export const getFuturesTickers = (
     lowest_ask: string;
     highest_bid: string;
   }[]
-> => requestPublic('GET', `/api/v4/futures/${settle}/tickers`, params);
+> => requestPublic('GET', `/futures/${settle}/tickers`, params);
 
 /**
  * 获取交易对 ticker 信息
  *
- * https://www.gate.io/docs/developers/apiv4/zh_CN/#%E6%9F%A5%E8%AF%A2%E5%8D%95%E4%B8%AA%E4%BA%A4%E6%98%93%E5%AF%B9%E8%AF%A6%E6%83%85
+ * https://www.gate.com/docs/developers/apiv4/zh_CN/#%E8%8E%B7%E5%8F%96%E4%BA%A4%E6%98%93%E5%AF%B9-ticker-%E4%BF%A1%E6%81%AF
  */
 export const getSpotTickers = (params: {
   currency_pair?: string;
@@ -167,7 +167,7 @@ export const getSpotTickers = (params: {
     etf_pre_timestamp: string;
     etf_leverage: string;
   }>
-> => requestPublic('GET', `/api/v4/spot/tickers`, params);
+> => requestPublic('GET', `/spot/tickers`, params);
 
 /**
  * 查询支持的所有现货交易对

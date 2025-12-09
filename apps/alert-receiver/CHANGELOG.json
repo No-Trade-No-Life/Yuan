@@ -2,6 +2,23 @@
   "name": "@yuants/app-alert-receiver",
   "entries": [
     {
+      "version": "0.5.13",
+      "tag": "@yuants/app-alert-receiver_v0.5.13",
+      "date": "Sat, 06 Dec 2025 06:31:30 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "reduce number of elements in alert details"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.12",
       "tag": "@yuants/app-alert-receiver_v0.5.12",
       "date": "Sat, 29 Nov 2025 01:30:37 GMT",

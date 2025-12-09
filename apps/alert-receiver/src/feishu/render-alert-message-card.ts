@@ -5,6 +5,7 @@ import type { IAlertGroup } from '../types';
  */
 const SEVERITY_ORDER = ['UNKNOWN', 'CRITICAL', 'ERROR', 'WARNING', 'INFO'] as const;
 const getSeverityIndex = (value: string) => SEVERITY_ORDER.indexOf(value as (typeof SEVERITY_ORDER)[number]);
+const MAX_ALERT_ITEMS = 30; // 避免超过 Feishu 2.0 卡片 200 元素上限
 
 export const renderAlertMessageCard = (group: IAlertGroup) => {
   const margin = '0px 0px 0px 0px';
@@ -15,7 +16,9 @@ export const renderAlertMessageCard = (group: IAlertGroup) => {
     if (prevIndex === -1 || currentIndex < prevIndex) return alert.severity;
     return prev;
   }, 'INFO');
-  const detailElements = group.alerts.flatMap((alert) => {
+  const visibleAlerts = group.alerts.slice(0, MAX_ALERT_ITEMS);
+  const hiddenCount = Math.max(group.alerts.length - visibleAlerts.length, 0);
+  const detailElements = visibleAlerts.map((alert, index) => {
     const isFiring = alert.status === 'firing';
     const endTime =
       alert.end_time ??
@@ -24,123 +27,15 @@ export const renderAlertMessageCard = (group: IAlertGroup) => {
         : alert.end_time === undefined || alert.end_time === null
         ? '已解决'
         : alert.end_time);
-    return [
-      { tag: 'hr', margin },
-      {
-        tag: 'column_set',
-        horizontal_spacing: '8px',
-        horizontal_align: 'left',
-        columns: [
-          {
-            tag: 'column',
-            width: 'weighted',
-            elements: [
-              {
-                tag: 'markdown',
-                content: `<font color="grey">当前状态</font>：<font color="${isFiring ? 'red' : 'green'}">${
-                  isFiring ? '告警中' : '已解决'
-                }</font>`,
-                text_align: 'left',
-                text_size: 'normal_v2',
-                margin,
-              },
-            ],
-            vertical_align: 'top',
-            weight: 1,
-          },
-        ],
-        margin,
-      },
-      {
-        tag: 'column_set',
-        horizontal_spacing: '8px',
-        horizontal_align: 'left',
-        columns: [
-          {
-            tag: 'column',
-            width: 'weighted',
-            elements: [
-              {
-                tag: 'markdown',
-                content: `<font color="grey">告警时间</font>\n${alert.start_time}`,
-                text_align: 'left',
-                text_size: 'normal_v2',
-                margin,
-              },
-            ],
-            vertical_spacing: '8px',
-            horizontal_align: 'left',
-            vertical_align: 'top',
-            weight: 1,
-          },
-          {
-            tag: 'column',
-            width: 'weighted',
-            elements: [
-              {
-                tag: 'markdown',
-                content: `<font color="grey">结束时间</font>\n${endTime}`,
-                text_align: 'left',
-                text_size: 'normal_v2',
-                margin,
-              },
-            ],
-            vertical_align: 'top',
-            weight: 1,
-          },
-        ],
-        margin,
-      },
-      {
-        tag: 'column_set',
-        horizontal_spacing: '8px',
-        horizontal_align: 'left',
-        columns: [
-          {
-            tag: 'column',
-            width: 'weighted',
-            elements: [
-              {
-                tag: 'markdown',
-                content: `<font color="grey">告警详情</font>：${alert.description ?? 'No description'}`,
-                text_align: 'left',
-                text_size: 'normal_v2',
-                margin,
-              },
-            ],
-            vertical_spacing: '8px',
-            horizontal_align: 'left',
-            vertical_align: 'top',
-            weight: 1,
-          },
-        ],
-        margin,
-      },
-      {
-        tag: 'column_set',
-        horizontal_spacing: '8px',
-        horizontal_align: 'left',
-        columns: [
-          {
-            tag: 'column',
-            width: 'weighted',
-            elements: [
-              {
-                tag: 'markdown',
-                content: `<font color="grey">当前值</font>：${alert.current_value ?? 'N/A'}`,
-                text_align: 'left',
-                text_size: 'normal_v2',
-                margin,
-              },
-            ],
-            vertical_align: 'top',
-            weight: 1,
-          },
-        ],
-        margin,
-      },
-      { tag: 'hr', margin },
-    ];
+    const prefix = `${index + 1}. ${isFiring ? '[告警中]' : '[已解决]'}`;
+    const summary = alert.summary ?? alert.description ?? 'No description';
+    return {
+      tag: 'markdown',
+      content: `${prefix} ${alert.start_time} → ${endTime}\n${summary}`,
+      text_align: 'left',
+      text_size: 'normal_v2',
+      margin,
+    };
   });
 
   return {
@@ -271,6 +166,17 @@ export const renderAlertMessageCard = (group: IAlertGroup) => {
             margin,
           },
           ...detailElements,
+          ...(hiddenCount > 0
+            ? [
+                {
+                  tag: 'markdown',
+                  content: `其余 ${hiddenCount} 条已隐藏，查看 Runbook 或链接获取完整列表。`,
+                  text_align: 'left',
+                  text_size: 'normal_v2',
+                  margin,
+                },
+              ]
+            : []),
         ],
       },
       header: {

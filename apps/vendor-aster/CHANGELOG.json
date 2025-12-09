@@ -2,6 +2,148 @@
   "name": "@yuants/vendor-aster",
   "entries": [
     {
+      "version": "0.7.25",
+      "tag": "@yuants/vendor-aster_v0.7.25",
+      "date": "Mon, 08 Dec 2025 17:52:18 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix position side"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.7.24",
+      "tag": "@yuants/vendor-aster_v0.7.24",
+      "date": "Mon, 08 Dec 2025 16:38:57 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "增加 Spot 账户产品映射缓存，优化产品列表查询逻辑"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.7.23",
+      "tag": "@yuants/vendor-aster_v0.7.23",
+      "date": "Mon, 08 Dec 2025 15:50:21 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix symbol"
+          },
+          {
+            "comment": "aster position product"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.7.22",
+      "tag": "@yuants/vendor-aster_v0.7.22",
+      "date": "Sun, 07 Dec 2025 20:31:33 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add aster spot product"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.7.21",
+      "tag": "@yuants/vendor-aster_v0.7.21",
+      "date": "Sun, 07 Dec 2025 16:38:10 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.9.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.4.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.7.20",
+      "tag": "@yuants/vendor-aster_v0.7.20",
+      "date": "Fri, 05 Dec 2025 17:11:30 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add aster interest rate"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.7.19",
+      "tag": "@yuants/vendor-aster_v0.7.19",
+      "date": "Fri, 05 Dec 2025 09:35:39 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "temp remove code sick"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.7.18",
+      "tag": "@yuants/vendor-aster_v0.7.18",
+      "date": "Thu, 04 Dec 2025 10:36:34 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "添加请求间隔处理以优化 Aster 数据请求"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.7.17",
       "tag": "@yuants/vendor-aster_v0.7.17",
       "date": "Wed, 03 Dec 2025 18:20:00 GMT",

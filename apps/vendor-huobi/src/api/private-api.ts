@@ -128,16 +128,29 @@ export const getSwapCrossPositionInfo = (
   status: string;
   ts: number;
   data: {
+    symbol: string;
     contract_code: string;
-    contract_type: string;
-    direction: string;
-    margin_mode: string;
     volume: number;
     available: number;
+    frozen: number;
+    cost_open: number;
     cost_hold: number;
-    last_price: number;
     profit_unreal: number;
+    profit_rate: number;
     lever_rate: number;
+    position_margin: number;
+    direction: string;
+    profit: number;
+    last_price: number;
+    margin_asset: string;
+    margin_mode: string;
+    margin_account: string;
+    contract_type: string;
+    pair: string;
+    business_type: string;
+    position_mode: string;
+    adl_risk_percent: string;
+    liquidation_price?: number;
   }[];
 }> => {
   return privateRequest(

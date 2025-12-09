@@ -91,6 +91,7 @@ jobs:
             2) 必须使用短哈希引用提交，绝对不要使用 JSON 行号。
             3) 按技能文档的语义聚类和报告结构输出，包含具体文件引用和代码位置。
             4) 将最终 Markdown 报告写入指定输出文件。
+            5) 必须运行 validate-report.js 脚本以确保报告格式正确。
 
       - name: Check if report was generated
         id: check_report
@@ -104,11 +105,18 @@ jobs:
             echo "report_generated=false" >> $GITHUB_OUTPUT
           fi
 
+      - uses: actions/create-github-app-token@v1
+        id: generate-token
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - name: Create or update PR
         id: create_pr
         if: steps.check_report.outputs.report_generated == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APP_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           REPORT_DATE=${{ steps.report_date.outputs.value }}
           JSON_PATH="${{ steps.generate_json.outputs.json_file }}"

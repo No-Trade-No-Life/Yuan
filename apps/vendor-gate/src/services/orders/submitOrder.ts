@@ -37,10 +37,10 @@ export const submitOrder: IActionHandlerOfSubmitOrder<ICredential> = async (cred
   if (price === undefined) {
     throw new Error('Limit/Maker order requires price');
   }
-  const [, TYPE] = decodePath(order.product_id);
+  const [, TYPE, contract] = decodePath(order.product_id);
   if (TYPE === 'FUTURE') {
     const res = await postFutureOrders(credential, 'usdt', {
-      contract: order.product_id,
+      contract,
       size,
       price,
       tif,

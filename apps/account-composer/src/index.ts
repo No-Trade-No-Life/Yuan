@@ -1,8 +1,8 @@
 import { IAccountInfo, publishAccountInfo } from '@yuants/data-account';
-import { createProductCache, getProfit } from '@yuants/data-product';
+import { createClientProductCache, getProfit } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
 import { requestSQL } from '@yuants/sql';
-import { encodePath, formatTime, listWatch } from '@yuants/utils';
+import { formatTime, listWatch, newError } from '@yuants/utils';
 import {
   combineLatest,
   defer,
@@ -22,7 +22,7 @@ const terminal = Terminal.fromNodeEnv();
 
 const mapAccountIdToAccountInfo$: Record<string, Observable<IAccountInfo>> = {};
 
-const cacheOfProduct = createProductCache(terminal);
+const cacheOfProduct = createClientProductCache(terminal);
 
 defer(() =>
   requestSQL<IAccountComposerConfig[]>(
@@ -96,12 +96,11 @@ defer(() =>
                               : p.datasource_id;
                             const theProductId = y.target_product_id ? y.target_product_id : p.product_id;
 
-                            const productKey = encodePath(theDatasourceId, theProductId);
-                            cacheOfProduct.query(productKey, false); // SWR (Stale While Revalidate, Sync Mode)
-                            const theProduct = cacheOfProduct.get(productKey);
+                            cacheOfProduct.query(theProductId, false); // SWR (Stale While Revalidate, Sync Mode)
+                            const theProduct = cacheOfProduct.get(theProductId);
                             const theVolume = p.volume * multiple;
 
-                            if (!theProduct) throw new Error('ProductNotFound ' + productKey);
+                            if (!theProduct) throw newError('ProductNotFound', { productKey: theProductId });
 
                             const theProfit = getProfit(
                               theProduct,
@@ -112,7 +111,7 @@ defer(() =>
                               // ISSUE: 先忽略了交叉盘的货币转换
                               theProduct.quote_currency!,
                               () => {
-                                throw new Error('ExchangeRateNotFound');
+                                throw newError('ExchangeRateNotFound', { theProduct });
                               },
                             );
 

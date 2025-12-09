@@ -2,6 +2,7 @@ import { createCache } from '@yuants/cache';
 import { IPosition, makeSpotPosition } from '@yuants/data-account';
 import { encodePath } from '@yuants/utils';
 import { getApiV1Account, getApiV1TickerPrice, getFApiV4Account, ICredential } from '../../api/private-api';
+import { listProducts } from '../markets/product';
 
 // ISSUE: ASBNB price is not available in the price API, need to fetch from coingecko
 const asBNBPrice = createCache(
@@ -14,13 +15,31 @@ const asBNBPrice = createCache(
   },
 );
 
+const spotProductMapCache = createCache(
+  async () => {
+    const products = await listProducts();
+    const map = new Map<string, string>();
+    for (const product of products) {
+      const [, instType] = product.product_id.split('/');
+      if (instType === 'SPOT') {
+        map.set(product.base_currency, product.product_id);
+      }
+    }
+    return map;
+  },
+  { expire: 86_400_000 },
+);
+
 export const getPositions = async (credential: ICredential) => {
   const positions: IPosition[] = [];
-  const [x, prices, prep] = await Promise.all([
+  const [x, prices, prep, spotProductMap] = await Promise.all([
     getApiV1Account(credential, {}),
     getApiV1TickerPrice(credential, {}),
     getFApiV4Account(credential, {}),
+    spotProductMapCache.query(''),
   ]);
+
+  const resolvedSpotProductMap = spotProductMap ?? new Map<string, string>();
 
   for (const b of x.balances) {
     const thePrice = b.asset === 'USDT' ? 1 : prices.find((p) => p.symbol === b.asset + 'USDT')?.price ?? 0;
@@ -28,7 +47,7 @@ export const getPositions = async (credential: ICredential) => {
       makeSpotPosition({
         position_id: b.asset,
         datasource_id: 'ASTER',
-        product_id: encodePath('ASTER', 'SPOT', b.asset),
+        product_id: resolvedSpotProductMap.get(b.asset) ?? encodePath('ASTER', 'SPOT', b.asset),
         volume: +b.free + +b.locked,
         free_volume: +b.free,
         closable_price: +thePrice,

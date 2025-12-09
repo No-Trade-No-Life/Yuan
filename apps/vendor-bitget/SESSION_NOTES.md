@@ -99,6 +99,32 @@
 
 > 仅记录已结束的会话；进行中的内容放在第 11 节，收尾后再搬运；最新记录置顶。
 
+### 2025-12-04 — Codex
+
+- **本轮摘要**：
+  - product 服务新增对 SPOT 产品的获取与写库，`listProducts` 现在返回 futures + spot 并定期写入 `product` 表。
+  - 账户服务合并 futures/spot，统一通过 `getAccountAssets` + `getCurrentPosition` 获取资产与持仓，并用 SPOT tickers 估算 `closable_price`。
+  - 修正 UTA 下单参数：去除 futures 下单的 `reduceOnly`，避免与 `posSide` 并存触发 25238 错误。
+  - 支持下单 Post-only（MAKER）：当 `order_type === 'MAKER'` 时传 `timeInForce: post_only`；product margin_rate 使用 `maxLeverage`，修正 coin futures `market_id`。
+- **运行的测试 / 检查**：
+  - 命令：`npx -y typescript@5.6.3 --noEmit --project apps/vendor-bitget/tsconfig.json`
+  - 结果：失败（npm 报错 could not determine executable to run；本地未能通过 npx 拉起 tsc）
+
+### 2025-12-09 — Codex
+
+- **本轮摘要**：
+  - 全量切换到 UTA v3 API：删除旧版 `api/private-api.ts`、`api/public-api.ts`，用新版 UTA 接口（账户/订单/行情/资金费率/产品）替代并重命名。
+  - 重构账户、订单、行情服务以适配 UTA：账户配置改用 `getAccountSettings`，持仓/挂单改用 `getCurrentPosition`/`getUnfilledOrders`，下撤改单统一走 `postPlaceOrder`/`postCancelOrder`/`postModifyOrder`，现货资产用 `getAccountFundingAssets`，行情/产品/利率改用 UTA 公共端点。
+  - 清理根目录 `node_modules`，用 `npx -y node@22.12.0 common/scripts/install-run-rush.js build --to @yuants/vendor-bitget` 通过构建。
+  - 补充合约账户余额为 position：`services/accounts/futures.ts` 将 UTA 账户资产（USDT 等）映射为 balance position，与持仓列表合并输出。
+- **修改的文件**：
+  - 删除 `apps/vendor-bitget/src/api/private-api.ts`, `apps/vendor-bitget/src/api/public-api.ts`；重命名并扩充 UTA 版本。
+  - 更新 `services/accounts/*`, `services/orders/*`, `services/markets/*` 依赖新的 UTA API。
+  - `apps/vendor-bitget/SESSION_NOTES.md`, `apps/vendor-bitget/AGENTS.md`（指令同步）。
+- **运行的测试 / 检查**：
+  - 命令：`npx -y node@22.12.0 common/scripts/install-run-rush.js build --to @yuants/vendor-bitget`
+  - 结果：通过
+
 ### 2025-11-26 — Antigravity
 
 - **本轮摘要**：
@@ -322,6 +348,10 @@
 
 ## 11. 当前会话草稿 / Scratchpad
 
-### 2025-11-17 12:21 — Codex
+### 2025-12-08 — Codex
 
-- 草稿内容已结算至各章节，本节暂留空。
+- 新增 UTA “Get Account Assets” API helper（GET `/api/v3/account/assets`，20/s UID），类型对齐文档，仅返回非零余额；已从 `private-api.ts` 拆出单独文件 `src/api/uta-account-api.ts`，尚未接入账户服务。
+- 在 `src/api/private-api` 中补充 UTA 资产/交易接口：资金账户资产 `getAccountFundingAssets`、持仓 `getCurrentPosition`、未成交订单 `getUnfilledOrders`、下单 `postPlaceOrder`、改单 `postModifyOrder`、撤单 `postCancelOrder`、账户设置 `getAccountSettings`；保留转账/提现相关接口以兼容 transfer 服务。
+- 新增 `src/api/public-api` 覆盖 UTA 公共接口：`getInstruments`、`getTickers`、`getOpenInterestV3`、`getCurrentFundingRate`、`getHistoryFundingRate`、`getHistoryCandles`。
+- 删除老版 `api/private-api.ts`、`api/public-api.ts`，并重构账户/订单/行情服务依赖 UTA 接口。
+- 运行 `npx tsc --noEmit --project apps/vendor-bitget/tsconfig.json` ✅。

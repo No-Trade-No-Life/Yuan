@@ -6,18 +6,18 @@ import { decodePath, formatTime } from '@yuants/utils';
 import { firstValueFrom, timer } from 'rxjs';
 import { getDefaultCredential } from '../../api/client';
 import { getSpotCrossInterestRate } from '../../api/private-api';
-import { IHistoricalFundingRate, getHistoricalFundingRate, getSpotSymbols } from '../../api/public-api';
+import { IUtaHistoricalFundingRate, getHistoryFundingRate, getInstruments } from '../../api/public-api';
 
 const spotSymbolCache = createCache(
   async () => {
-    const res = await getSpotSymbols();
+    const res = await getInstruments({ category: 'SPOT' });
     if (res.msg !== 'success') {
-      throw new Error(`Bitget getSpotSymbols failed: ${res.code} ${res.msg}`);
+      throw new Error(`Bitget getInstruments failed: ${res.code} ${res.msg}`);
     }
-    return res.data.reduce((acc, v) => {
+    return res.data.reduce((acc: Record<string, { baseCoin: string; quoteCoin: string }>, v) => {
       acc[v.symbol] = { baseCoin: v.baseCoin, quoteCoin: v.quoteCoin };
       return acc;
-    }, {} as Record<string, { baseCoin: string; quoteCoin: string }>);
+    }, {});
   },
   { expire: 86400_000 },
 );
@@ -33,28 +33,29 @@ createSeriesProvider<IInterestRate>(Terminal.fromNodeEnv(), {
     if (instType === 'USDT-FUTURES') {
       while (true) {
         // 向前翻页，时间降序
-        const res = await getHistoricalFundingRate({
+        const res = await getHistoryFundingRate({
+          category: 'USDT-FUTURES',
           symbol: instId,
-          productType: instType,
-          pageSize: '100',
-          pageNo: '' + current_page,
+          limit: '100',
+          cursor: '' + current_page,
         });
         if (res.msg !== 'success') {
           throw new Error(`API failed: ${res.code} ${res.msg}`);
         }
-        if (res.data.length === 0) break;
-        yield res.data.map(
-          (v: IHistoricalFundingRate): IInterestRate => ({
+        const list = res.data?.resultList ?? [];
+        if (list.length === 0) break;
+        yield list.map(
+          (v: IUtaHistoricalFundingRate): IInterestRate => ({
             series_id,
             datasource_id: 'BITGET',
             product_id: series_id,
-            created_at: formatTime(+v.fundingTime),
+            created_at: formatTime(+v.fundingRateTimestamp),
             long_rate: `${-Number(v.fundingRate)}`,
             short_rate: `${Number(v.fundingRate)}`,
             settlement_price: '',
           }),
         );
-        if (+res.data[res.data.length - 1].fundingTime <= started_at) break;
+        if (+list[list.length - 1].fundingRateTimestamp <= started_at) break;
         current_page++;
         await firstValueFrom(timer(1000));
       }

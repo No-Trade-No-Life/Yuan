@@ -7,272 +7,176 @@ type ApiResponse<T> = {
   data: T;
 };
 
-export interface IMixMarketContract {
+export interface IUtaInstrument {
+  category: string;
   symbol: string;
+  isRwa?: string;
   baseCoin: string;
   quoteCoin: string;
   buyLimitPriceRatio: string;
   sellLimitPriceRatio: string;
-  feeRateUpRatio: string;
-  makerFeeRate: string;
-  takerFeeRate: string;
-  openCostUpRatio: string;
-  supportMarginCoins: string[];
-  minTradeNum: string;
-  priceEndStep: string;
-  volumePlace: string;
-  pricePlace: string;
-  sizeMultiplier: string;
-  symbolType: string;
-  minTradeUSDT: string;
-  maxSymbolOrderNum: string;
-  maxProductOrderNum: string;
-  maxPositionNum: string;
-  symbolStatus: string;
-  offTime: string;
-  limitOpenTime: string;
-  deliveryTime: string;
-  deliveryStartTime: string;
-  deliveryPeriod: string;
-  launchTime: string;
-  fundInterval: string;
-  minLever: string;
-  maxLever: string;
-  posLimit: string;
-  maintainTime: string;
-  openTime: string;
-  maxMarketOrderQty: string;
-  maxOrderQty: string;
-  isRwa: string;
-}
-
-export interface IMixMarketSymbol {
-  symbol: string;
-  baseCoin: string;
-  quoteCoin: string;
-}
-
-export interface IMarginCurrency {
-  symbol: string;
-  baseCoin: string;
-  quoteCoin: string;
-  maxCrossedLeverage: string;
-  maxIsolatedLeverage: string;
-  warningRiskRatio: string;
-  liquidationRiskRatio: string;
-  minTradeAmount: string;
-  maxTradeAmount: string;
-  takerFeeRate: string;
-  makerFeeRate: string;
+  feeRateUpRatio?: string;
+  openCostUpRatio?: string;
+  minOrderQty?: string;
+  maxOrderQty?: string;
+  minOrderAmount?: string;
   pricePrecision: string;
   quantityPrecision: string;
-  minTradeUSDT: string;
-  isBorrowable: boolean;
-  userMinBorrow: string;
+  quotePrecision?: string;
+  priceMultiplier?: string;
+  quantityMultiplier?: string;
+  symbolType?: string;
+  maxSymbolOrderNum?: string;
+  maxProductOrderNum?: string;
+  maxPositionNum?: string;
   status: string;
-  isIsolatedBaseBorrowable: boolean;
-  isIsolatedQuoteBorrowable: boolean;
-  isCrossBorrowable: boolean;
+  offTime?: string;
+  limitOpenTime?: string;
+  deliveryTime?: string;
+  deliveryStartTime?: string;
+  deliveryPeriod?: string;
+  launchTime?: string;
+  fundInterval?: string;
+  minLeverage?: string;
+  maxLeverage?: string;
+  maintainTime?: string;
+  maxMarketOrderQty?: string;
+  isIsolatedBaseBorrowable?: string;
+  isIsolatedQuotedBorrowable?: string;
+  warningRiskRatio?: string;
+  liquidationRiskRatio?: string;
+  maxCrossedLeverage?: string;
+  maxIsolatedLeverage?: string;
+  userMinBorrow?: string;
+  areaSymbol?: string;
 }
 
-export interface IFutureMarketTicker {
+export interface IUtaTicker {
+  category: string;
   symbol: string;
-  productType: string;
-  lastPr: string;
-  askPr: string;
-  askSz: string;
-  bidPr: string;
-  bidSz: string;
-  fundingRate: string;
-  holdingAmount: string;
-  high24h?: string;
-  low24h?: string;
+  lastPrice: string;
+  openPrice24h: string;
+  highPrice24h: string;
+  lowPrice24h: string;
+  ask1Price: string;
+  bid1Price: string;
+  bid1Size: string;
+  ask1Size: string;
+  price24hPcnt: string;
+  volume24h: string;
+  turnover24h: string;
+  indexPrice?: string;
+  markPrice?: string;
+  fundingRate?: string;
+  openInterest?: string;
+  deliveryStartTime?: string;
+  deliveryTime?: string;
+  deliveryStatus?: string;
   ts?: string;
 }
 
-export interface IFundingTimeInfo {
+export interface IUtaOpenInterestRow {
   symbol: string;
-  productType: string;
-  nextFundingTime: string;
-  ratePeriod: string;
+  openInterest: string;
 }
 
-export interface IHistoricalFundingRate {
+export interface IUtaCurrentFundingRate {
   symbol: string;
-  productType: string;
   fundingRate: string;
-  fundingTime: string;
-  ratePeriod: string;
+  fundingRateInterval: string;
+  nextUpdate: string;
+  minFundingRate: string;
+  maxFundingRate: string;
+}
+
+export interface IUtaHistoricalFundingRate {
+  symbol: string;
+  fundingRate: string;
+  fundingRateTimestamp: string;
 }
 
 /**
- * 获取合约信息
- *
- * 20次/S 根据ip限频
- *
- * 获取合约详情信息。
- *
- * https://www.bitget.com/zh-CN/api-doc/contract/market/Get-All-Symbols-Contracts
- */
-export const getMarketContracts = (params: {
-  symbol?: string;
-  productType: string;
-}): Promise<ApiResponse<IMixMarketContract[]>> =>
-  requestPublic<ApiResponse<IMixMarketContract[]>>('GET', '/api/v2/mix/market/contracts', params);
-
-/**
- * 获取支持杠杆的所有交易对
- * 限速规则 10次/1s (IP)
- *
- * https://www.bitget.com/zh-CN/api-doc/margin/common/support-currencies
- */
-export const getMarginCurrencies = (): Promise<ApiResponse<IMarginCurrency[]>> =>
-  requestPublic<ApiResponse<IMarginCurrency[]>>('GET', '/api/v2/margin/currencies');
-
-/**
- * 获取单个交易对行情
+ * 获取交易产品
  *
  * 限速规则: 20次/1s (IP)
  *
- * 获取指定产品类型下，单个交易对的行情数据
- *
- * https://www.bitget.com/zh-CN/api-doc/contract/market/Get-Ticker
+ * https://www.bitget.com/zh-CN/api-doc/uta/public/Instruments
  */
-export const getFutureMarketTicker = (params: {
-  symbol: string;
-  productType: string;
-}): Promise<ApiResponse<IFutureMarketTicker>> =>
-  requestPublic<ApiResponse<IFutureMarketTicker>>('GET', '/api/v2/mix/market/ticker', params);
+export const getInstruments = (params: { category: string; symbol?: string }) =>
+  requestPublic<ApiResponse<IUtaInstrument[]>>('GET', '/api/v3/market/instruments', params);
 
 /**
- * 获取全部交易对行情
+ * 获取行情 Tickers
  *
  * 限速规则: 20次/1s (IP)
  *
- * 获取指定产品类型下，全部交易对的行情数据
- *
- * https://www.bitget.com/zh-CN/api-doc/contract/market/Get-All-Symbol-Ticker
+ * https://www.bitget.com/zh-CN/api-doc/uta/public/Tickers
  */
-export const getFutureMarketTickers = (params: {
-  productType: string;
-}): Promise<ApiResponse<IFutureMarketTicker[]>> =>
-  requestPublic<ApiResponse<IFutureMarketTicker[]>>('GET', '/api/v2/mix/market/tickers', params);
+export const getTickers = (params: { category: string; symbol?: string }) =>
+  requestPublic<ApiResponse<IUtaTicker[]>>('GET', '/api/v3/market/tickers', params);
 
 /**
- * 获取平台总持仓量
+ * 获取持仓量
  *
  * 限速规则: 20次/1s (IP)
  *
- * 获取某交易对在平台的总持仓量
- *
- * https://www.bitget.com/zh-CN/api-doc/contract/market/Get-Open-Interest
+ * https://www.bitget.com/zh-CN/api-doc/uta/public/Get-Open-Interest
  */
-export const getOpenInterest = (params: {
-  symbol: string;
-  productType: string;
-}): Promise<ApiResponse<{ symbol: string; amount: string }[]>> =>
-  requestPublic<ApiResponse<{ symbol: string; amount: string }[]>>(
+export const getOpenInterestV3 = (params: { category: string; symbol?: string }) =>
+  requestPublic<ApiResponse<{ list: IUtaOpenInterestRow[]; ts: string }>>(
     'GET',
-    '/api/v2/mix/market/open-interest',
+    '/api/v3/market/open-interest',
     params,
   );
 
 /**
- * 获取下次资金费结算时间
+ * 获取当前资金费率
  *
  * 限速规则: 20次/1s (IP)
  *
- * 获取合约下一次的结算时间以及该合约的结算周期
- *
- * https://www.bitget.com/zh-CN/api-doc/contract/market/Get-Symbol-Next-Funding-Time
+ * https://www.bitget.com/zh-CN/api-doc/uta/public/Get-Current-Funding-Rate
  */
-export const getNextFundingTime = (params: {
-  symbol: string;
-  productType: string;
-}): Promise<ApiResponse<IFundingTimeInfo[]>> =>
-  requestPublicWithFlowControl<ApiResponse<IFundingTimeInfo[]>>(
-    'GET',
-    '/api/v2/mix/market/funding-time',
-    { period: 1000, limit: 20 },
-    params,
-  );
+export const getCurrentFundingRate = (params: { symbol: string }) =>
+  requestPublic<ApiResponse<IUtaCurrentFundingRate[]>>('GET', '/api/v3/market/current-fund-rate', params);
 
 /**
  * 获取历史资金费率
  *
  * 限速规则: 20次/1s (IP)
  *
- * 获取合约的历史资金费率
- *
- * https://www.bitget.com/zh-CN/api-doc/contract/market/Get-History-Funding-Rate
+ * https://www.bitget.com/zh-CN/api-doc/uta/public/Get-History-Funding-Rate
  */
-export const getHistoricalFundingRate = (params: {
+export const getHistoryFundingRate = (params: {
+  category: string;
   symbol: string;
-  productType: string;
-  pageSize?: string;
-  pageNo?: string;
-}): Promise<ApiResponse<IHistoricalFundingRate[]>> =>
-  requestPublicWithFlowControl<ApiResponse<IHistoricalFundingRate[]>>(
+  cursor?: string;
+  limit?: string;
+}) =>
+  requestPublicWithFlowControl<ApiResponse<{ resultList: IUtaHistoricalFundingRate[] }>>(
     'GET',
-    '/api/v2/mix/market/history-fund-rate',
+    '/api/v3/market/history-fund-rate',
     { period: 1000, limit: 20 },
     params,
   );
 
 /**
- * 获取合约 K 线数据
+ * 获取历史 K 线
  *
  * 限速规则: 20次/1s (IP)
  *
- * https://www.bitget.com/zh-CN/api-doc/contract/market/Get-Candle-Data
+ * https://www.bitget.com/zh-CN/api-doc/uta/public/Get-History-Candle-Data
  */
-export const getMixCandles = (params: {
+export const getHistoryCandles = (params: {
+  category: string;
   symbol: string;
-  productType: string;
-  granularity: string;
+  interval: string;
   startTime?: string;
   endTime?: string;
+  type?: string;
   limit?: string;
-}): Promise<ApiResponse<[string, string, string, string, string, string, string][]>> =>
+}) =>
   requestPublic<ApiResponse<[string, string, string, string, string, string, string][]>>(
     'GET',
-    '/api/v2/mix/market/candles',
+    '/api/v3/market/history-candles',
     params,
   );
-
-/**
- * 获取现货 K 线数据
- *
- * 限速规则: 20次/1s (IP)
- *
- * https://www.bitget.com/zh-CN/api-doc/spot/market/Get-Candle-Data
- */
-export const getSpotCandles = (params: {
-  symbol: string;
-  granularity: string;
-  startTime?: string;
-  endTime?: string;
-  limit?: string;
-}): Promise<ApiResponse<[string, string, string, string, string, string, string][]>> =>
-  requestPublic<ApiResponse<[string, string, string, string, string, string, string][]>>(
-    'GET',
-    '/api/v2/spot/market/candles',
-    params,
-  );
-
-export interface ISpotSymbol {
-  symbol: string;
-  baseCoin: string;
-  quoteCoin: string;
-  status: string;
-}
-
-/**
- * 获取所有现货交易对
- *
- * 限速规则: 20次/1s (IP)
- *
- * https://www.bitget.com/zh-CN/api-doc/spot/market/Get-Symbols
- */
-export const getSpotSymbols = (): Promise<ApiResponse<ISpotSymbol[]>> =>
-  requestPublic<ApiResponse<ISpotSymbol[]>>('GET', '/api/v2/spot/public/symbols');

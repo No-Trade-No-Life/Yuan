@@ -1,6 +1,115 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Wed, 03 Dec 2025 18:20:00 GMT and should not be manually modified.
+This log was last generated on Mon, 08 Dec 2025 16:38:57 GMT and should not be manually modified.
+
+## 0.29.12
+Mon, 08 Dec 2025 16:38:57 GMT
+
+### Patches
+
+- fix liq price
+
+## 0.29.11
+Mon, 08 Dec 2025 15:50:21 GMT
+
+### Patches
+
+- add liq price
+
+## 0.29.10
+Sun, 07 Dec 2025 16:38:11 GMT
+
+_Version update only_
+
+## 0.29.9
+Sun, 07 Dec 2025 15:23:14 GMT
+
+### Patches
+
+- fix trade
+
+## 0.29.8
+Sat, 06 Dec 2025 17:00:15 GMT
+
+### Patches
+
+- fix trade product id
+
+## 0.29.7
+Sat, 06 Dec 2025 07:51:30 GMT
+
+### Patches
+
+- fix portfolio submitOrder
+
+## 0.29.6
+Fri, 05 Dec 2025 19:11:57 GMT
+
+### Patches
+
+- 1
+
+## 0.29.5
+Fri, 05 Dec 2025 19:07:36 GMT
+
+### Patches
+
+- 1
+
+## 0.29.4
+Fri, 05 Dec 2025 18:43:51 GMT
+
+### Patches
+
+- fix ws 
+- 1
+
+## 0.29.3
+Fri, 05 Dec 2025 15:22:22 GMT
+
+### Patches
+
+- fix
+
+## 0.29.2
+Fri, 05 Dec 2025 14:34:29 GMT
+
+### Patches
+
+- add interest rate for okx
+- add new quote
+
+## 0.29.1
+Fri, 05 Dec 2025 06:30:56 GMT
+
+### Patches
+
+- fix order actions
+
+## 0.29.0
+Fri, 05 Dec 2025 05:46:23 GMT
+
+### Minor changes
+
+- add broker tag
+
+### Patches
+
+- add broker tag to algo order
+
+## 0.28.4
+Thu, 04 Dec 2025 16:51:07 GMT
+
+### Patches
+
+- remove series_collector_task writer
+
+## 0.28.3
+Thu, 04 Dec 2025 10:36:34 GMT
+
+### Patches
+
+- fix interest rate
 
 ## 0.28.2
 Wed, 03 Dec 2025 18:20:00 GMT

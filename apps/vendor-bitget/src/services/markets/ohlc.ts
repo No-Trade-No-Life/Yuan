@@ -3,7 +3,7 @@ import { createSeriesProvider } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
 import { convertDurationToOffset, decodePath, formatTime } from '@yuants/utils';
 import { firstValueFrom, timer } from 'rxjs';
-import { getMixCandles, getSpotCandles } from '../../api/public-api';
+import { getHistoryCandles } from '../../api/public-api';
 
 // Bitget granularity mapping
 // Bitget supports: 1m, 5m, 15m, 30m, 1H, 4H, 12H, 1D, 1W
@@ -38,28 +38,15 @@ createSeriesProvider<IOHLC>(Terminal.fromNodeEnv(), {
     while (true) {
       let candles: [string, string, string, string, string, string, string][] = [];
 
-      if (instType === 'USDT-FUTURES') {
-        const res = await getMixCandles({
-          symbol: instId,
-          productType: instType,
-          granularity,
-          endTime: '' + currentEndTime,
-          limit: '100',
-        });
-        if (res.msg !== 'success') throw new Error(`Bitget get mix candles failed: ${res.code} ${res.msg}`);
-        candles = res.data;
-      } else if (instType === 'SPOT') {
-        const res = await getSpotCandles({
-          symbol: instId,
-          granularity,
-          endTime: '' + currentEndTime,
-          limit: '100',
-        });
-        if (res.msg !== 'success') throw new Error(`Bitget get spot candles failed: ${res.code} ${res.msg}`);
-        candles = res.data;
-      } else {
-        throw new Error(`Unsupported product type: ${instType}`);
-      }
+      const res = await getHistoryCandles({
+        category: instType,
+        symbol: instId,
+        interval: granularity,
+        endTime: '' + currentEndTime,
+        limit: '100',
+      });
+      if (res.msg !== 'success') throw new Error(`Bitget get history candles failed: ${res.code} ${res.msg}`);
+      candles = res.data;
 
       if (candles.length === 0) break;
 

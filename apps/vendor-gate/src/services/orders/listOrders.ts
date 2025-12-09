@@ -1,6 +1,6 @@
 import { IOrder } from '@yuants/data-order';
 import { getFuturesOrders, ICredential } from '../../api/private-api';
-import { decodePath } from '@yuants/utils';
+import { decodePath, newError } from '@yuants/utils';
 
 type OrderDirection = 'OPEN_LONG' | 'OPEN_SHORT' | 'CLOSE_LONG' | 'CLOSE_SHORT';
 
@@ -14,6 +14,7 @@ const resolveOrderDirection = (order: { size: number; is_close: boolean }): Orde
 
 export const listOrders = async (credential: ICredential) => {
   const orders = await getFuturesOrders(credential, 'usdt', { status: 'open' });
+  if (Array.isArray(orders) === false) throw newError('InvalidResponse', { orders });
   return orders.map((order): IOrder => {
     const volume = Math.abs(order.size);
     const leftVolume = typeof order.left === 'number' ? Math.abs(order.left) : undefined;

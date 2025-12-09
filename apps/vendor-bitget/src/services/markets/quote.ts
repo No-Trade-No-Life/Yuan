@@ -3,21 +3,16 @@ import { Terminal } from '@yuants/protocol';
 import { requestSQL, writeToSQL } from '@yuants/sql';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { defer, groupBy, map, merge, mergeMap, repeat, retry, scan, shareReplay, Subject, tap } from 'rxjs';
-import {
-  IFundingTimeInfo,
-  IFutureMarketTicker,
-  getFutureMarketTickers,
-  getNextFundingTime,
-} from '../../api/public-api';
+import { IUtaCurrentFundingRate, IUtaTicker, getCurrentFundingRate, getTickers } from '../../api/public-api';
 import { createCyclicTask } from './utils/cyclic-task';
 
-const usdtFuturesTickers$ = defer(() => getFutureMarketTickers({ productType: 'USDT-FUTURES' })).pipe(
+const usdtFuturesTickers$ = defer(() => getTickers({ category: 'USDT-FUTURES' })).pipe(
   retry({ delay: 5000 }),
   repeat({ delay: 5000 }),
   shareReplay(1),
 );
 
-const coinFuturesTickers$ = defer(() => getFutureMarketTickers({ productType: 'COIN-FUTURES' })).pipe(
+const coinFuturesTickers$ = defer(() => getTickers({ category: 'COIN-FUTURES' })).pipe(
   retry({ delay: 5000 }),
   repeat({ delay: 5000 }),
   shareReplay(1),
@@ -25,17 +20,17 @@ const coinFuturesTickers$ = defer(() => getFutureMarketTickers({ productType: 'C
 
 const mapTickerToQuote =
   (instType: string) =>
-  (ticker: IFutureMarketTicker): Partial<IQuote> => ({
+  (ticker: IUtaTicker): Partial<IQuote> => ({
     datasource_id: 'BITGET',
-    product_id: encodePath(instType, ticker.symbol),
-    last_price: ticker.lastPr,
-    ask_price: ticker.askPr,
-    ask_volume: ticker.askSz,
-    bid_price: ticker.bidPr,
-    bid_volume: ticker.bidSz,
-    interest_rate_long: `${-Number(ticker.fundingRate)}`,
-    interest_rate_short: `${Number(ticker.fundingRate)}`,
-    open_interest: ticker.holdingAmount,
+    product_id: encodePath('BITGET', instType, ticker.symbol),
+    last_price: ticker.lastPrice,
+    ask_price: ticker.ask1Price,
+    ask_volume: ticker.ask1Size,
+    bid_price: ticker.bid1Price,
+    bid_volume: ticker.bid1Size,
+    interest_rate_long: ticker.fundingRate ? `${-Number(ticker.fundingRate)}` : undefined,
+    interest_rate_short: ticker.fundingRate ? `${Number(ticker.fundingRate)}` : undefined,
+    open_interest: ticker.openInterest,
   });
 
 const usdtFuturesQuote$ = usdtFuturesTickers$.pipe(
@@ -94,27 +89,28 @@ createCyclicTask({
   interval: 1000,
   task: async (product_id) => {
     const [instType, instId] = decodePath(product_id);
-    const res = await getNextFundingTime({
+    const res = await getCurrentFundingRate({
       symbol: instId,
-      productType: instType,
     });
 
     if (res.msg !== 'success') {
       throw new Error(res.msg);
     }
 
-    console.info(formatTime(Date.now()), 'FundingTime', product_id, res.data[0].nextFundingTime);
-
-    const data: IFundingTimeInfo | undefined = res.data[0];
+    const data: IUtaCurrentFundingRate | undefined = res.data?.[0];
     if (!data) {
       return;
     }
 
+    console.info(formatTime(Date.now()), 'FundingTime', product_id, data.nextUpdate);
+
+    const nextUpdateTs = +data.nextUpdate;
+
     fundingTimeQuote$.next({
       datasource_id: 'BITGET',
       product_id,
-      interest_rate_next_settled_at: formatTime(+data.nextFundingTime),
-      interest_rate_prev_settled_at: formatTime(+data.nextFundingTime - +data.ratePeriod * 3600_000),
+      interest_rate_next_settled_at: formatTime(nextUpdateTs),
+      interest_rate_prev_settled_at: formatTime(nextUpdateTs - +data.fundingRateInterval * 3600_000),
     });
   },
   dispose$: Terminal.fromNodeEnv().dispose$,

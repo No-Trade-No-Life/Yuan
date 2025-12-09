@@ -21,7 +21,22 @@
       "Bash(DEEPSEEK_API_KEY=\"test_key\" node .claude/skills/git-changes-reporter/scripts/deepseek-skill-runner.js:*)",
       "Bash(node .claude/skills/git-changes-reporter/scripts/deepseek-skill-runner.js:*)",
       "Bash(npm install:*)",
-      "Bash(DEEPSEEK_API_KEY=\"$DEEPSEEK_API_KEY\" node:*)"
+      "Bash(DEEPSEEK_API_KEY=\"$DEEPSEEK_API_KEY\" node:*)",
+      "Bash(git rev-list:*)",
+      "Bash(.claude/skills/git-changes-reporter/scripts/generate-json.js a126bbb4025a5e602bf4f1f50f6ca225c5f96573 c36262caddee5b4ee9ada840501c81e554b5de6a docs/reports/git-changes-2025-12-04-to-2025-12-05.json)",
+      "Bash(cat:*)",
+      "Bash(node -e:*)",
+      "Bash(node .claude/skills/git-changes-reporter/scripts/generate-markdown.js:*)",
+      "Bash(node .claude/skills/git-changes-reporter/scripts/validate-report.js:*)",
+      "Bash(.claude/skills/git-changes-reporter/scripts/generate-json.js a126bbb4025a5e602bf4f1f50f6ca225c5f96573 c36262caddee5b4ee9ada840501c81e554b5de6a docs/reports/git-changes-2025-12-04-to-2025-12-05-v2.json)",
+      "Bash(.claude/skills/git-changes-reporter/scripts/generate-json.js a126bbb4025a5e602bf4f1f50f6ca225c5f96573 c36262caddee5b4ee9ada840501c81e554b5de6a /tmp/test-fixed.json)",
+      "Bash(grep:*)",
+      "Bash(node /home/c1/Work/Yuan/.claude/skills/git-changes-reporter/scripts/generate-markdown.js:*)",
+      "Bash(.claude/skills/git-changes-reporter/scripts/generate-json.js 52651345f c36262cad docs/reports/git-changes-2025-12-04-to-2025-12-05-daily.json)",
+      "Bash(node /home/c1/Work/Yuan/.claude/skills/git-changes-reporter/scripts/generate-json.js:*)",
+      "Bash(.claude/skills/git-changes-reporter/scripts/generate-json.js 52651345f c36262cad docs/reports/git-changes-2025-12-04-to-2025-12-05.json)",
+      "Bash(node /home/c1/Work/Yuan/.claude/skills/git-changes-reporter/scripts/validate-report.js:*)",
+      "mcp__ide__getDiagnostics"
     ],
     "deny": [],
     "ask": []

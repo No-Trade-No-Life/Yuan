@@ -1,30 +1,9 @@
 import { IInterestRate } from '@yuants/data-interest-rate';
-import { createSeriesProvider, ISeriesCollectingTask } from '@yuants/data-series';
+import { createSeriesProvider } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
-import { createSQLWriter } from '@yuants/sql';
-import { decodePath, encodePath, formatTime } from '@yuants/utils';
-import { firstValueFrom, map, mergeAll, timer } from 'rxjs';
+import { decodePath, formatTime } from '@yuants/utils';
+import { firstValueFrom, timer } from 'rxjs';
 import { getFundingRateHistory, getLendingRateHistory } from '../api/public-api';
-import { productService } from './product';
-
-createSQLWriter<ISeriesCollectingTask>(Terminal.fromNodeEnv(), {
-  data$: productService.products$.pipe(
-    mergeAll(),
-    map(
-      (x): ISeriesCollectingTask => ({
-        series_id: encodePath(x.datasource_id, x.product_id),
-        table_name: 'interest_rate',
-        cron_pattern: '0 * * * *', // 每小时执行一次
-        cron_timezone: 'UTC',
-        disabled: false,
-        replay_count: 0,
-      }),
-    ),
-  ),
-  tableName: 'series_collecting_task',
-  writeInterval: 1000,
-  conflictKeys: ['series_id', 'table_name'],
-});
 
 createSeriesProvider<IInterestRate>(Terminal.fromNodeEnv(), {
   tableName: 'interest_rate',
@@ -34,8 +13,7 @@ createSeriesProvider<IInterestRate>(Terminal.fromNodeEnv(), {
   queryFn: async function* ({ series_id, started_at, ended_at }) {
     const start = started_at || 0;
     const end = ended_at || Date.now();
-    const [datasource_id, product_id] = decodePath(series_id);
-    const [instType, instId] = decodePath(product_id);
+    const [, instType, instId] = decodePath(series_id);
 
     if (instType === 'SWAP') {
       let current_end = end;
@@ -56,8 +34,8 @@ createSeriesProvider<IInterestRate>(Terminal.fromNodeEnv(), {
         const data = res.data.map(
           (v): IInterestRate => ({
             series_id: series_id,
-            product_id,
-            datasource_id,
+            product_id: series_id,
+            datasource_id: 'OKX',
             created_at: formatTime(+v.fundingTime),
             long_rate: `${-v.fundingRate}`,
             short_rate: `${v.fundingRate}`,
@@ -114,8 +92,8 @@ createSeriesProvider<IInterestRate>(Terminal.fromNodeEnv(), {
           const short_rate = +mapTsToBaseRate.get(v.ts)! / 365 / 24; // 转换为小时利率
           data.push({
             series_id,
-            product_id,
-            datasource_id,
+            product_id: series_id,
+            datasource_id: 'OKX',
             created_at: formatTime(+v.ts),
             long_rate: `${-long_rate}`,
             short_rate: `${-short_rate}`,
