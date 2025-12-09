@@ -30,10 +30,10 @@ export const getUnifiedAccountInfo = async (credential: ICredential): Promise<IP
           : position.positionSide === 'BOTH'
           ? 'BOTH'
           : 'UNKNOWN',
-      volume: +position.positionAmt,
-      free_volume: +position.positionAmt,
+      volume: Math.abs(+position.positionAmt),
+      free_volume: Math.abs(+position.positionAmt),
       position_price: +position.entryPrice,
-      closable_price: +position.entryPrice + +position.unrealizedProfit / +position.positionAmt,
+      closable_price: +position.entryPrice + +position.unrealizedProfit / Math.abs(+position.positionAmt),
       floating_profit: +position.unrealizedProfit,
       valuation:
         +position.positionAmt *
