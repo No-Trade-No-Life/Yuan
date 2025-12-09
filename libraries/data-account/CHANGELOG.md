@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-account
 
-This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.
+This log was last generated on Tue, 09 Dec 2025 16:52:23 GMT and should not be manually modified.
+
+## 0.10.0
+Tue, 09 Dec 2025 16:52:23 GMT
+
+### Minor changes
+
+- add settlement_interval to IPosition
 
 ## 0.9.0
 Sun, 07 Dec 2025 16:38:10 GMT

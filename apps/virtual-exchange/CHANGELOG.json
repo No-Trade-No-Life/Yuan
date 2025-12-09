@@ -2,6 +2,31 @@
   "name": "@yuants/app-virtual-exchange",
   "entries": [
     {
+      "version": "0.7.0",
+      "tag": "@yuants/app-virtual-exchange_v0.7.0",
+      "date": "Tue, 09 Dec 2025 16:52:23 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add settlement_interval polyfill"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.10.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.5.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.6.0",
       "tag": "@yuants/app-virtual-exchange_v0.6.0",
       "date": "Tue, 09 Dec 2025 10:38:26 GMT",

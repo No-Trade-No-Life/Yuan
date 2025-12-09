@@ -2,6 +2,28 @@
   "name": "@yuants/exchange",
   "entries": [
     {
+      "version": "0.5.0",
+      "tag": "@yuants/exchange_v0.5.0",
+      "date": "Tue, 09 Dec 2025 16:52:23 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "remove position polyfills"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.10.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.0",
       "tag": "@yuants/exchange_v0.4.0",
       "date": "Sun, 07 Dec 2025 16:38:10 GMT",
