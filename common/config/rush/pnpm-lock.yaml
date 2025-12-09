@@ -1251,7 +1251,6 @@ importers:
       '@yuants/exchange': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
-      '@yuants/secret': workspace:*
       '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/transfer': workspace:*
@@ -1272,7 +1271,6 @@ importers:
       '@yuants/data-trade': link:../../libraries/data-trade
       '@yuants/exchange': link:../../libraries/exchange
       '@yuants/protocol': link:../../libraries/protocol
-      '@yuants/secret': link:../../libraries/secret
       '@yuants/sql': link:../../libraries/sql
       '@yuants/transfer': link:../../libraries/transfer
       '@yuants/utils': link:../../libraries/utils

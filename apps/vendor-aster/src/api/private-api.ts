@@ -178,6 +178,32 @@ export const getFApiV4Account = createFutureApi<
   }
 >('GET', '/fapi/v4/account');
 
+/**
+ * 用户持仓风险V2 (USER_DATA)
+ *
+ * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#%E7%94%A8%E6%88%B7%E6%8C%81%E4%BB%93%E9%A3%8E%E9%99%A9v2-user_data
+ */
+export const getFApiV2PositionRisk = createFutureApi<
+  {
+    symbol?: string;
+  },
+  {
+    entryPrice: string;
+    marginType: string;
+    isAutoAddMargin: string;
+    isolatedMargin: string;
+    leverage: string;
+    liquidationPrice: string;
+    markPrice: string;
+    maxNotionalValue: string;
+    positionAmt: string;
+    symbol: string;
+    unRealizedProfit: string;
+    positionSide: string;
+    updateTime: number;
+  }[]
+>('GET', '/fapi/v2/positionRisk');
+
 export const getFApiV2Balance = createFutureApi<
   {},
   {
