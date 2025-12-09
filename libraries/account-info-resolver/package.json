@@ -1,6 +1,6 @@
 {
   "name": "@yuants/account-info-resolver",
-  "version": "0.2.78",
+  "version": "0.2.79",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [
