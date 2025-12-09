@@ -3,6 +3,7 @@ import { IOrder } from '@yuants/data-order';
 import { cancelOrder, getOrders, getPositions, modifyOrder, submitOrder } from '@yuants/exchange';
 import { Terminal } from '@yuants/protocol';
 import { getCredentialBySecretId } from './credential';
+import { polyfillPosition } from './position';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -19,7 +20,9 @@ terminal.server.provideService<{ secret_id: string; product_id?: string }, IPosi
   async (msg) => {
     const credential = await getCredentialBySecretId(msg.req.secret_id);
     const res = await getPositions(terminal, credential.credential, msg.req.product_id);
-    return { res };
+    if (!res.data) return { res };
+    const positions = await polyfillPosition(res.data);
+    return { res: { code: 0, message: 'OK', data: positions } };
   },
 );
 
