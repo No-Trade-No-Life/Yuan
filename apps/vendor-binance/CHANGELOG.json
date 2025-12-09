@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-binance",
   "entries": [
     {
+      "version": "0.10.17",
+      "tag": "@yuants/vendor-binance_v0.10.17",
+      "date": "Tue, 09 Dec 2025 20:27:01 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix closable price and submit order"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.10.16",
       "tag": "@yuants/vendor-binance_v0.10.16",
       "date": "Tue, 09 Dec 2025 16:52:23 GMT",
