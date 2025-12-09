@@ -1521,6 +1521,7 @@ importers:
       '@yuants/data-account': workspace:*
       '@yuants/data-order': workspace:*
       '@yuants/data-product': workspace:*
+      '@yuants/data-quote': workspace:*
       '@yuants/exchange': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/secret': workspace:*
@@ -1535,6 +1536,7 @@ importers:
       '@yuants/data-account': link:../../libraries/data-account
       '@yuants/data-order': link:../../libraries/data-order
       '@yuants/data-product': link:../../libraries/data-product
+      '@yuants/data-quote': link:../../libraries/data-quote
       '@yuants/exchange': link:../../libraries/exchange
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/secret': link:../../libraries/secret
