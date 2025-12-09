@@ -119,6 +119,11 @@ export interface IPosition {
    */
   valuation: number;
   /**
+   * Settlement interval in milliseconds.
+   * 结算间隔时间，单位毫秒
+   */
+  settlement_interval?: number;
+  /**
    * Next timestamp for settlement
    * 下次结算时间戳
    */

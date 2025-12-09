@@ -77,6 +77,7 @@ export interface IPosition {
     product_id: string;
     quote_currency?: string;
     realized_pnl?: number;
+    settlement_interval?: number;
     settlement_scheduled_at?: number;
     size?: string;
     total_closed_volume?: number;
