@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-aster",
+      "comment": "fix liq price",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-aster"
+}

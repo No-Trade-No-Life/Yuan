@@ -1,7 +1,13 @@
 import { createCache } from '@yuants/cache';
 import { IPosition, makeSpotPosition } from '@yuants/data-account';
 import { encodePath } from '@yuants/utils';
-import { getApiV1Account, getApiV1TickerPrice, getFApiV4Account, ICredential } from '../../api/private-api';
+import {
+  getApiV1Account,
+  getApiV1TickerPrice,
+  getFApiV2PositionRisk,
+  getFApiV4Account,
+  ICredential,
+} from '../../api/private-api';
 import { listProducts } from '../markets/product';
 
 // ISSUE: ASBNB price is not available in the price API, need to fetch from coingecko
@@ -32,10 +38,11 @@ const spotProductMapCache = createCache(
 
 export const getPositions = async (credential: ICredential) => {
   const positions: IPosition[] = [];
-  const [x, prices, prep, spotProductMap] = await Promise.all([
+  const [x, prices, prep, positionRisk, spotProductMap] = await Promise.all([
     getApiV1Account(credential, {}),
     getApiV1TickerPrice(credential, {}),
     getFApiV4Account(credential, {}),
+    getFApiV2PositionRisk(credential, {}),
     spotProductMapCache.query(''),
   ]);
 
@@ -93,6 +100,8 @@ export const getPositions = async (credential: ICredential) => {
       position_price: +p.entryPrice,
       closable_price: Math.abs(+p.notional / +p.positionAmt),
       floating_profit: +p.unrealizedProfit,
+      // TODO: optimize find performance
+      liquidation_price: positionRisk.find((r) => r.symbol === p.symbol)?.liquidationPrice,
       valuation: Math.abs(+p.notional),
     });
   }

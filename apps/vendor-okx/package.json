@@ -19,7 +19,6 @@
     "@yuants/utils": "workspace:*",
     "@yuants/cache": "workspace:*",
     "@yuants/sql": "workspace:*",
-    "@yuants/secret": "workspace:*",
     "@yuants/data-series": "workspace:*",
     "@yuants/data-product": "workspace:*",
     "@yuants/data-ohlc": "workspace:*",
