@@ -5,6 +5,7 @@ import { Terminal } from '@yuants/protocol';
 import { listWatch, newError } from '@yuants/utils';
 import { map, Observable } from 'rxjs';
 import { validCredentials$ } from './credential';
+import { polyfillPosition } from './position';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -23,10 +24,9 @@ validCredentials$
               credential_id,
               async () => {
                 const res = await getPositions(terminal, credential);
-                if (res.code === 0 && res.data) {
-                  return res.data;
-                }
-                throw newError('FETCH_POSITIONS_FAILED', { credential_id, reason: res.message });
+                if (!res.data) throw newError('FETCH_POSITIONS_FAILED', { credential_id, res });
+                const polyfilledPositions = await polyfillPosition(res.data);
+                return polyfilledPositions;
               },
               {
                 auto_refresh_interval: 1000,
@@ -52,7 +52,7 @@ validCredentials$
                 return res.data;
               },
               {
-                auto_refresh_interval: 1000,
+                auto_refresh_interval: 10000,
               },
             );
             sub.add(() => {
