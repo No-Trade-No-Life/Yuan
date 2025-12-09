@@ -106,6 +106,17 @@
 
 ## 6. 最近几轮工作记录（Recent Sessions）
 
+### 2025-12-08 — Codex
+
+- **本轮摘要**：
+  - 统一账户服务内获取并缓存（24 小时 TTL）最新 spot 产品列表，构建 base → product_id 映射并应用于 spot 余额；同时内联永续持仓逻辑，移除单独的 spot/future 账户实现，统一从 `getUnifiedAccountInfo` 输出头寸。
+- **修改的文件**：
+  - `apps/vendor-gate/src/services/accounts/unified.ts`
+  - 删除：`apps/vendor-gate/src/services/accounts/{spot,future}.ts`
+  - `apps/vendor-gate/src/services/exchange.ts`
+- **运行的测试 / 检查**：
+  - `npx tsc --noEmit --project apps/vendor-gate/tsconfig.json`
+
 ### 2025-11-17 — Codex
 
 - 按 checklist 重构目录：新增 `api/http-client.ts`、`api/public-api.ts`、`api/private-api.ts`、`services/accounts/*`、`services/orders/*`、`services/markets/*`、`services/legacy.ts`、`services/transfer.ts`，并移除旧 `api.ts` / `product.ts` / `interest_rate.ts` / 旧 `index.ts`。

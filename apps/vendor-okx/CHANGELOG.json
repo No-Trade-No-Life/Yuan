@@ -2,6 +2,40 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.29.12",
+      "tag": "@yuants/vendor-okx_v0.29.12",
+      "date": "Mon, 08 Dec 2025 16:38:57 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix liq price"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.29.11",
+      "tag": "@yuants/vendor-okx_v0.29.11",
+      "date": "Mon, 08 Dec 2025 15:50:21 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add liq price"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.29.10",
       "tag": "@yuants/vendor-okx_v0.29.10",
       "date": "Sun, 07 Dec 2025 16:38:11 GMT",

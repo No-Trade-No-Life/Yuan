@@ -76,6 +76,7 @@ export const getTradingAccountInfo: IActionHandlerOfGetAccountInfo<ICredential> 
       closable_price,
       position_price: +x.avgPx,
       floating_profit: +x.upl,
+      liquidation_price: x.liqPx,
       valuation,
     });
   });

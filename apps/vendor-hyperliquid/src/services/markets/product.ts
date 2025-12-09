@@ -57,37 +57,3 @@ export const listProducts = async (): Promise<IProduct[]> => {
   );
   return [...spotProducts, ...perpetualProducts];
 };
-
-const refresh$ = defer(listProducts).pipe(
-  tap((products) => {
-    latestProducts = products;
-    products.forEach((product) => product$.next(product));
-  }),
-  tap({
-    error: (err) => console.error(formatTime(Date.now()), 'ProductRefreshFailed', err),
-  }),
-  retry({ delay: 5000 }),
-  repeat({ delay: 86400_000 }),
-  shareReplay(1),
-);
-
-refresh$.subscribe();
-
-createSQLWriter<IProduct>(terminal, {
-  data$: product$,
-  tableName: 'product',
-  writeInterval: 1000,
-  conflictKeys: ['datasource_id', 'product_id'],
-});
-
-provideQueryProductsService(
-  terminal,
-  'HYPERLIQUID',
-  async (_req: IQueryProductsRequest) => {
-    if (!latestProducts.length) {
-      latestProducts = await listProducts();
-    }
-    return latestProducts;
-  },
-  { auto_refresh_interval: 86400_000 },
-);
