@@ -1,0 +1,1786 @@
+{
+  "range": {
+    "old": "4d9c58da83752ba00f09e32e2bebbfd6e9c63a34",
+    "new": "4a65d80af6fa6088c5c6e695c8a73777e6f217df",
+    "label": "4d9c58da8..4a65d80af",
+    "startDate": "2025-12-08",
+    "endDate": "2025-12-09",
+    "commitCount": 15,
+    "generatedAt": "2025-12-09T00:06:04.721Z"
+  },
+  "contributors": [
+    {
+      "name": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "commits": 5
+    },
+    {
+      "name": "CZ",
+      "email": "zheng.chen@no-trade-no.life",
+      "commits": 5
+    },
+    {
+      "name": "Siyuan Wang",
+      "email": "c.one@thrimbda.com",
+      "commits": 4
+    },
+    {
+      "name": "Ryan",
+      "email": "stayrealrhr@gmail.com",
+      "commits": 1
+    }
+  ],
+  "directoryAnalysis": {
+    "topLevel": [
+      {
+        "dir": "apps",
+        "fileCount": 39
+      },
+      {
+        "dir": "common",
+        "fileCount": 6
+      },
+      {
+        "dir": "ui",
+        "fileCount": 1
+      }
+    ],
+    "projects": [
+      {
+        "project": "apps/vendor-gate",
+        "fileCount": 9,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-aster",
+        "fileCount": 7,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-hyperliquid",
+        "fileCount": 7,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-binance",
+        "fileCount": 6,
+        "marker": "package.json"
+      },
+      {
+        "project": "common",
+        "fileCount": 6,
+        "marker": null
+      },
+      {
+        "project": "apps/vendor-huobi",
+        "fileCount": 5,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-okx",
+        "fileCount": 5,
+        "marker": "package.json"
+      },
+      {
+        "project": "ui/web",
+        "fileCount": 1,
+        "marker": "package.json"
+      }
+    ],
+    "markersUsed": [
+      "package.json",
+      "Cargo.toml",
+      "go.mod",
+      "requirements.txt",
+      "pyproject.toml",
+      "setup.py",
+      "pom.xml",
+      "build.gradle",
+      "build.gradle.kts",
+      "CMakeLists.txt",
+      "Makefile",
+      "pubspec.yaml",
+      "mix.exs",
+      "Gemfile",
+      "composer.json"
+    ]
+  },
+  "commits": [
+    {
+      "hash": "fbb85da27991cc62afe8aa6baa510f21b294c025",
+      "short": "fbb85da27",
+      "author": "Ryan",
+      "email": "stayrealrhr@gmail.com",
+      "authoredAt": "2025-12-08 22:57:39 +0800",
+      "subject": "feat: fix symbol (#2255)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 2,
+          "deletions": 2,
+          "path": "apps/vendor-aster/src/services/orders/submitOrder.ts",
+          "changeType": "modified",
+          "patch": "commit fbb85da27991cc62afe8aa6baa510f21b294c025\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Mon Dec 8 22:57:39 2025 +0800\n\n    feat: fix symbol (#2255)\n\ndiff --git a/apps/vendor-aster/src/services/orders/submitOrder.ts b/apps/vendor-aster/src/services/orders/submitOrder.ts\nindex 9e99af753..37791f5bf 100644\n--- a/apps/vendor-aster/src/services/orders/submitOrder.ts\n+++ b/apps/vendor-aster/src/services/orders/submitOrder.ts\n@@ -10,2 +10,2 @@ const parseProductId = (productId?: string) => {\n-  if (parts.length >= 2) {\n-    return { category: parts[0], symbol: parts.slice(1).join('/') };\n+  if (parts.length >= 3) {\n+    return { category: parts[1], symbol: parts.slice(2).join('/') };\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-aster/2025-12-08-14-54.json",
+          "changeType": "added",
+          "patch": "commit fbb85da27991cc62afe8aa6baa510f21b294c025\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Mon Dec 8 22:57:39 2025 +0800\n\n    feat: fix symbol (#2255)\n\ndiff --git a/common/changes/@yuants/vendor-aster/2025-12-08-14-54.json b/common/changes/@yuants/vendor-aster/2025-12-08-14-54.json\nnew file mode 100644\nindex 000000000..ef9f41ad7\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-aster/2025-12-08-14-54.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-aster\",\n+      \"comment\": \"fix symbol\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-aster\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "ec638fca239e77b09a7ca453956b7d1f334a1515",
+      "short": "ec638fca2",
+      "author": "CZ",
+      "email": "zheng.chen@no-trade-no.life",
+      "authoredAt": "2025-12-08 23:19:08 +0800",
+      "subject": "feat: add liquidation price to position info and account summary (#2256)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 17,
+          "deletions": 4,
+          "path": "apps/vendor-huobi/src/api/private-api.ts",
+          "changeType": "modified",
+          "patch": "commit ec638fca239e77b09a7ca453956b7d1f334a1515\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 23:19:08 2025 +0800\n\n    feat: add liquidation price to position info and account summary (#2256)\n\ndiff --git a/apps/vendor-huobi/src/api/private-api.ts b/apps/vendor-huobi/src/api/private-api.ts\nindex 644260e67..6c9422f76 100644\n--- a/apps/vendor-huobi/src/api/private-api.ts\n+++ b/apps/vendor-huobi/src/api/private-api.ts\n@@ -130,0 +131 @@ export const getSwapCrossPositionInfo = (\n+    symbol: string;\n@@ -132,3 +132,0 @@ export const getSwapCrossPositionInfo = (\n-    contract_type: string;\n-    direction: string;\n-    margin_mode: string;\n@@ -136,0 +135,2 @@ export const getSwapCrossPositionInfo = (\n+    frozen: number;\n+    cost_open: number;\n@@ -138 +137,0 @@ export const getSwapCrossPositionInfo = (\n-    last_price: number;\n@@ -139,0 +139 @@ export const getSwapCrossPositionInfo = (\n+    profit_rate: number;\n@@ -140,0 +141,13 @@ export const getSwapCrossPositionInfo = (\n+    position_margin: number;\n+    direction: string;\n+    profit: number;\n+    last_price: number;\n+    margin_asset: string;\n+    margin_mode: string;\n+    margin_account: string;\n+    contract_type: string;\n+    pair: string;\n+    business_type: string;\n+    position_mode: string;\n+    adl_risk_percent: string;\n+    liquidation_price?: number;\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 0,
+          "path": "apps/vendor-huobi/src/services/accounts/swap.ts",
+          "changeType": "added",
+          "patch": "commit ec638fca239e77b09a7ca453956b7d1f334a1515\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 23:19:08 2025 +0800\n\n    feat: add liquidation price to position info and account summary (#2256)\n\ndiff --git a/apps/vendor-huobi/src/services/accounts/swap.ts b/apps/vendor-huobi/src/services/accounts/swap.ts\nindex c847a74db..91ef044f0 100644\n--- a/apps/vendor-huobi/src/services/accounts/swap.ts\n+++ b/apps/vendor-huobi/src/services/accounts/swap.ts\n@@ -45,0 +46 @@ export const getSwapAccountInfo = async (credential: ICredential): Promise<IPosi\n+      liquidation_price: v.liquidation_price ? `${v.liquidation_price}` : undefined,\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 0,
+          "path": "apps/vendor-okx/src/accountInfos/trading.ts",
+          "changeType": "added",
+          "patch": "commit ec638fca239e77b09a7ca453956b7d1f334a1515\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 23:19:08 2025 +0800\n\n    feat: add liquidation price to position info and account summary (#2256)\n\ndiff --git a/apps/vendor-okx/src/accountInfos/trading.ts b/apps/vendor-okx/src/accountInfos/trading.ts\nindex 60ded8fde..57ba84894 100644\n--- a/apps/vendor-okx/src/accountInfos/trading.ts\n+++ b/apps/vendor-okx/src/accountInfos/trading.ts\n@@ -78,0 +79 @@ export const getTradingAccountInfo: IActionHandlerOfGetAccountInfo<ICredential>\n+      liquidation_price: x.liqPx,\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-huobi/2025-12-08-15-15.json",
+          "changeType": "added",
+          "patch": "commit ec638fca239e77b09a7ca453956b7d1f334a1515\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 23:19:08 2025 +0800\n\n    feat: add liquidation price to position info and account summary (#2256)\n\ndiff --git a/common/changes/@yuants/vendor-huobi/2025-12-08-15-15.json b/common/changes/@yuants/vendor-huobi/2025-12-08-15-15.json\nnew file mode 100644\nindex 000000000..f9a107c99\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-huobi/2025-12-08-15-15.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-huobi\",\n+      \"comment\": \"add liq price\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-huobi\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-08-15-15.json",
+          "changeType": "added",
+          "patch": "commit ec638fca239e77b09a7ca453956b7d1f334a1515\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 23:19:08 2025 +0800\n\n    feat: add liquidation price to position info and account summary (#2256)\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-08-15-15.json b/common/changes/@yuants/vendor-okx/2025-12-08-15-15.json\nnew file mode 100644\nindex 000000000..0f80c4818\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-okx/2025-12-08-15-15.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-okx\",\n+      \"comment\": \"add liq price\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-okx\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 4,
+          "deletions": 0,
+          "path": "ui/web/src/modules/AccountInfo/AccountInfoPanel.tsx",
+          "changeType": "added",
+          "patch": "commit ec638fca239e77b09a7ca453956b7d1f334a1515\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 23:19:08 2025 +0800\n\n    feat: add liquidation price to position info and account summary (#2256)\n\ndiff --git a/ui/web/src/modules/AccountInfo/AccountInfoPanel.tsx b/ui/web/src/modules/AccountInfo/AccountInfoPanel.tsx\nindex 74840cfe8..4319b97f3 100644\n--- a/ui/web/src/modules/AccountInfo/AccountInfoPanel.tsx\n+++ b/ui/web/src/modules/AccountInfo/AccountInfoPanel.tsx\n@@ -307,0 +308,3 @@ registerPage('AccountInfoPanel', () => {\n+      helper.accessor('base_currency', { header: () => '基础货币' }),\n+      helper.accessor('quote_currency', { header: () => '计价货币' }),\n+      helper.accessor((pos) => +(pos.size || 0), { id: 'size', header: () => '净持仓' }),\n@@ -313,0 +317 @@ registerPage('AccountInfoPanel', () => {\n+      helper.accessor('liquidation_price', { header: () => '清算价' }),\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "0e69317d18450ae59a82fcc6d191a05d0f5c8fbe",
+      "short": "0e69317d1",
+      "author": "CZ",
+      "email": "zheng.chen@no-trade-no.life",
+      "authoredAt": "2025-12-08 23:45:39 +0800",
+      "subject": "feat: implement active rate limit control for API requests (#2258)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 14,
+          "deletions": 5,
+          "path": "apps/vendor-binance/src/api/client.ts",
+          "changeType": "modified",
+          "patch": "commit 0e69317d18450ae59a82fcc6d191a05d0f5c8fbe\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 23:45:39 2025 +0800\n\n    feat: implement active rate limit control for API requests (#2258)\n\ndiff --git a/apps/vendor-binance/src/api/client.ts b/apps/vendor-binance/src/api/client.ts\nindex ed027929c..4435ec16c 100644\n--- a/apps/vendor-binance/src/api/client.ts\n+++ b/apps/vendor-binance/src/api/client.ts\n@@ -22 +22,2 @@ export interface IApiError {\n-let retryAfterUntil: number | null = null;\n+// 每个接口单独进行主动限流控制\n+const mapPathToRetryAfterUntil: Record<string, number> = {};\n@@ -84,0 +86,2 @@ const callApi = async <T>(\n+  const retryAfterUntil = mapPathToRetryAfterUntil[endpoint];\n+\n@@ -87 +90,7 @@ const callApi = async <T>(\n-      throw newError('ACTIVE_RATE_LIMIT', { retryAfterUntil, now: Date.now(), url: url.href });\n+      // 主动限流\n+      throw newError('ACTIVE_RATE_LIMIT', {\n+        wait_time: `${retryAfterUntil - Date.now()}ms`,\n+        retryAfterUntil,\n+        url: url.href,\n+        endpoint,\n+      });\n@@ -89 +98 @@ const callApi = async <T>(\n-    retryAfterUntil = null;\n+    delete mapPathToRetryAfterUntil[endpoint];\n@@ -101 +110 @@ const callApi = async <T>(\n-    retryAfterUntil = Date.now() + parseInt(retryAfter, 10) * 1000;\n+    mapPathToRetryAfterUntil[endpoint] = Date.now() + parseInt(retryAfter, 10) * 1000;\n@@ -113 +122 @@ const callApi = async <T>(\n-    MetricBinanceApiUsedWeight.labels({ terminal_id: terminal.terminal_id }).set(+usedWeight1M);\n+    MetricBinanceApiUsedWeight.labels({ endpoint, terminal_id: terminal.terminal_id }).set(+usedWeight1M);\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "mapPathToRetryAfterUntil",
+              "code": "const mapPathToRetryAfterUntil: Record<string, number> = {};",
+              "lineStart": 23,
+              "lineEnd": 85
+            },
+            {
+              "type": "function",
+              "name": "retryAfterUntil",
+              "code": "const retryAfterUntil = mapPathToRetryAfterUntil[endpoint];\n\n    // 主动限流\n    throw newError('ACTIVE_RATE_LIMIT', {\n      wait_time: `${retryAfterUntil - Date.now()}ms`,\n      retryAfterUntil,\n      url: url.href,\n      endpoint,\n    });\n  delete mapPathToRetryAfterUntil[endpoint];\n  mapPathToRetryAfterUntil[endpoint] = Date.now() + parseInt(retryAfter, 10) * 1000;\n  MetricBinanceApiUsedWeight.labels({ endpoint, terminal_id: terminal.terminal_id }).set(+usedWeight1M);",
+              "lineStart": 86,
+              "lineEnd": 123
+            }
+          ]
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-binance/src/api/public-api.ts",
+          "changeType": "modified",
+          "patch": "commit 0e69317d18450ae59a82fcc6d191a05d0f5c8fbe\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 23:45:39 2025 +0800\n\n    feat: implement active rate limit control for API requests (#2258)\n\ndiff --git a/apps/vendor-binance/src/api/public-api.ts b/apps/vendor-binance/src/api/public-api.ts\nindex 07546b44b..70dc33214 100644\n--- a/apps/vendor-binance/src/api/public-api.ts\n+++ b/apps/vendor-binance/src/api/public-api.ts\n@@ -108 +108 @@ export const getFutureExchangeInfo = (): Promise<IFutureExchangeInfo> =>\n- * https://binance-docs.github.io/apidocs/futures/cn/#31dbeb24c4\n+ * https://developers.binance.com/docs/zh-CN/derivatives/usds-margined-futures/market-data/rest-api/Get-Funding-Rate-History\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 2,
+          "deletions": 7,
+          "path": "apps/vendor-binance/src/public-data/interest_rate.ts",
+          "changeType": "modified",
+          "patch": "commit 0e69317d18450ae59a82fcc6d191a05d0f5c8fbe\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 23:45:39 2025 +0800\n\n    feat: implement active rate limit control for API requests (#2258)\n\ndiff --git a/apps/vendor-binance/src/public-data/interest_rate.ts b/apps/vendor-binance/src/public-data/interest_rate.ts\nindex ab9b57f1a..920a2d3ce 100644\n--- a/apps/vendor-binance/src/public-data/interest_rate.ts\n+++ b/apps/vendor-binance/src/public-data/interest_rate.ts\n@@ -6 +5,0 @@ import { firstValueFrom, timer } from 'rxjs';\n-import { getFutureFundingRate } from '../api/public-api';\n@@ -7,0 +7 @@ import { getMarginInterestRateHistory } from '../api/private-api';\n+import { getFutureFundingRate } from '../api/public-api';\n@@ -56,6 +56 @@ createSeriesProvider<IInterestRate>(terminal, {\n-          (v: {\n-            asset: string;\n-            dailyInterestRate: string;\n-            timestamp: number;\n-            vipLevel: number;\n-          }): IInterestRate => ({\n+          (v): IInterestRate => ({\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-binance/2025-12-08-15-43.json",
+          "changeType": "added",
+          "patch": "commit 0e69317d18450ae59a82fcc6d191a05d0f5c8fbe\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Mon Dec 8 23:45:39 2025 +0800\n\n    feat: implement active rate limit control for API requests (#2258)\n\ndiff --git a/common/changes/@yuants/vendor-binance/2025-12-08-15-43.json b/common/changes/@yuants/vendor-binance/2025-12-08-15-43.json\nnew file mode 100644\nindex 000000000..2effcda3e\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-binance/2025-12-08-15-43.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-binance\",\n+      \"comment\": \"fix active rate limit\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-binance\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "5fad1f6eadad3dcc953e14cdc5c516952d80f144",
+      "short": "5fad1f6ea",
+      "author": "Siyuan Wang",
+      "email": "c.one@thrimbda.com",
+      "authoredAt": "2025-12-08 23:48:34 +0800",
+      "subject": "fix(vendor-aster): position spot product id (#2259)",
+      "conventionalCommit": {
+        "type": "fix",
+        "scope": "vendor-aster",
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 3,
+          "deletions": 2,
+          "path": "apps/vendor-aster/SESSION_NOTES.md",
+          "changeType": "modified",
+          "patch": "commit 5fad1f6eadad3dcc953e14cdc5c516952d80f144\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 8 23:48:34 2025 +0800\n\n    fix(vendor-aster): position spot product id (#2259)\n\ndiff --git a/apps/vendor-aster/SESSION_NOTES.md b/apps/vendor-aster/SESSION_NOTES.md\nindex 6d9df0bc0..9734c99b0 100644\n--- a/apps/vendor-aster/SESSION_NOTES.md\n+++ b/apps/vendor-aster/SESSION_NOTES.md\n@@ -129,2 +129,3 @@\n-  - `services/markets/product.ts` 同时输出永续与现货产品目录，新增 Spot exchangeInfo 拉取逻辑，保持价格/数量步长与 Aster 过滤器一致。\n-  - `api/public-api.ts` 引入 Spot exchangeInfo 公共接口，分离期货与现货的 base URL。\n+  - `services/markets/product.ts` 同时输出永续与现货产品目录，新增 Spot exchangeInfo 拉取逻辑，保持价格/数量步长与 Aster 过滤器一致；永续 `margin_rate` 支持从 `/fapi/v1/leverageBracket` 获取最大杠杆并反算，缺失时回落 0.1。\n+  - `api/public-api.ts` 引入 Spot exchangeInfo 公共接口，分离期货与现货的 base URL；`api/private-api.ts` 增补 leverageBracket 调用类型。\n+  - Spot 账户生成 position 前读取最新 spot product 列表，构建 base → product_id 映射，用余额资产匹配 product_id，缺失时回退旧逻辑。\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 16,
+          "deletions": 2,
+          "path": "apps/vendor-aster/src/services/accounts/spot.ts",
+          "changeType": "modified",
+          "patch": "commit 5fad1f6eadad3dcc953e14cdc5c516952d80f144\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 8 23:48:34 2025 +0800\n\n    fix(vendor-aster): position spot product id (#2259)\n\ndiff --git a/apps/vendor-aster/src/services/accounts/spot.ts b/apps/vendor-aster/src/services/accounts/spot.ts\nindex d04bf81c9..34ec7b038 100644\n--- a/apps/vendor-aster/src/services/accounts/spot.ts\n+++ b/apps/vendor-aster/src/services/accounts/spot.ts\n@@ -4,0 +5 @@ import { getApiV1Account, getApiV1TickerPrice, getFApiV4Account, ICredential } f\n+import { listProducts } from '../markets/product';\n@@ -16,0 +18,12 @@ const asBNBPrice = createCache(\n+const buildSpotProductMap = async () => {\n+  const products = await listProducts();\n+  const map = new Map<string, string>();\n+  for (const product of products) {\n+    const [, instType] = product.product_id.split('/');\n+    if (instType === 'SPOT') {\n+      map.set(product.base_currency, product.product_id);\n+    }\n+  }\n+  return map;\n+};\n+\n@@ -19 +32 @@ export const getPositions = async (credential: ICredential) => {\n-  const [x, prices, prep] = await Promise.all([\n+  const [x, prices, prep, spotProductMap] = await Promise.all([\n@@ -22,0 +36 @@ export const getPositions = async (credential: ICredential) => {\n+    buildSpotProductMap(),\n@@ -31 +45 @@ export const getPositions = async (credential: ICredential) => {\n-        product_id: encodePath('ASTER', 'SPOT', b.asset),\n+        product_id: spotProductMap.get(b.asset) ?? encodePath('ASTER', 'SPOT', b.asset),\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "buildSpotProductMap",
+              "code": "const buildSpotProductMap = async () => {",
+              "lineStart": 18,
+              "lineEnd": 18
+            },
+            {
+              "type": "function",
+              "name": "products",
+              "code": "const products = await listProducts();",
+              "lineStart": 19,
+              "lineEnd": 19
+            },
+            {
+              "type": "function",
+              "name": "map",
+              "code": "const map = new Map<string, string>();",
+              "lineStart": 20,
+              "lineEnd": 20
+            },
+            {
+              "type": "function",
+              "name": "product",
+              "code": "  for (const product of products) {\n    const [, instType] = product.product_id.split('/');\n    if (instType === 'SPOT') {\n      map.set(product.base_currency, product.product_id);\n    }\n  }\n  return map;\n};\n\n  const [x, prices, prep, spotProductMap] = await Promise.all([\n    buildSpotProductMap(),\n        product_id: spotProductMap.get(b.asset) ?? encodePath('ASTER', 'SPOT', b.asset),",
+              "lineStart": 21,
+              "lineEnd": 46
+            }
+          ]
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-aster/2025-12-08-15-43.json",
+          "changeType": "added",
+          "patch": "commit 5fad1f6eadad3dcc953e14cdc5c516952d80f144\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 8 23:48:34 2025 +0800\n\n    fix(vendor-aster): position spot product id (#2259)\n\ndiff --git a/common/changes/@yuants/vendor-aster/2025-12-08-15-43.json b/common/changes/@yuants/vendor-aster/2025-12-08-15-43.json\nnew file mode 100644\nindex 000000000..18aefe7a2\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-aster/2025-12-08-15-43.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-aster\",\n+      \"comment\": \"aster position product\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-aster\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "baf2f4727e011230ac0aa103d1c69a7feb33bda3",
+      "short": "baf2f4727",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2025-12-08 23:50:55 +0800",
+      "subject": "chore: bump version (#2257)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 20,
+          "deletions": 0,
+          "path": "apps/vendor-aster/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit baf2f4727e011230ac0aa103d1c69a7feb33bda3\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 23:50:55 2025 +0800\n\n    chore: bump version (#2257)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/CHANGELOG.json b/apps/vendor-aster/CHANGELOG.json\nindex e1e7142b3..7841bcca2 100644\n--- a/apps/vendor-aster/CHANGELOG.json\n+++ b/apps/vendor-aster/CHANGELOG.json\n@@ -3,0 +4,20 @@\n+    {\n+      \"version\": \"0.7.23\",\n+      \"tag\": \"@yuants/vendor-aster_v0.7.23\",\n+      \"date\": \"Mon, 08 Dec 2025 15:50:21 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"fix symbol\"\n+          },\n+          {\n+            \"comment\": \"aster position product\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 9,
+          "deletions": 1,
+          "path": "apps/vendor-aster/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit baf2f4727e011230ac0aa103d1c69a7feb33bda3\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 23:50:55 2025 +0800\n\n    chore: bump version (#2257)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/CHANGELOG.md b/apps/vendor-aster/CHANGELOG.md\nindex 84df4f698..30fed97c2 100644\n--- a/apps/vendor-aster/CHANGELOG.md\n+++ b/apps/vendor-aster/CHANGELOG.md\n@@ -3 +3,9 @@\n-This log was last generated on Sun, 07 Dec 2025 20:31:33 GMT and should not be manually modified.\n+This log was last generated on Mon, 08 Dec 2025 15:50:21 GMT and should not be manually modified.\n+\n+## 0.7.23\n+Mon, 08 Dec 2025 15:50:21 GMT\n+\n+### Patches\n+\n+- fix symbol\n+- aster position product\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-aster/package.json",
+          "changeType": "modified",
+          "patch": "commit baf2f4727e011230ac0aa103d1c69a7feb33bda3\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 23:50:55 2025 +0800\n\n    chore: bump version (#2257)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/package.json b/apps/vendor-aster/package.json\nindex 111b87f24..3896d935a 100644\n--- a/apps/vendor-aster/package.json\n+++ b/apps/vendor-aster/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.7.22\",\n+  \"version\": \"0.7.23\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-binance/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit baf2f4727e011230ac0aa103d1c69a7feb33bda3\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 23:50:55 2025 +0800\n\n    chore: bump version (#2257)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-binance/CHANGELOG.json b/apps/vendor-binance/CHANGELOG.json\nindex 38df98c49..f4782dd2f 100644\n--- a/apps/vendor-binance/CHANGELOG.json\n+++ b/apps/vendor-binance/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.10.13\",\n+      \"tag\": \"@yuants/vendor-binance_v0.10.13\",\n+      \"date\": \"Mon, 08 Dec 2025 15:50:21 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"fix active rate limit\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-binance/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit baf2f4727e011230ac0aa103d1c69a7feb33bda3\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 23:50:55 2025 +0800\n\n    chore: bump version (#2257)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-binance/CHANGELOG.md b/apps/vendor-binance/CHANGELOG.md\nindex 04ea881b6..4d7c1cec4 100644\n--- a/apps/vendor-binance/CHANGELOG.md\n+++ b/apps/vendor-binance/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Sun, 07 Dec 2025 20:31:33 GMT and should not be manually modified.\n+This log was last generated on Mon, 08 Dec 2025 15:50:21 GMT and should not be manually modified.\n+\n+## 0.10.13\n+Mon, 08 Dec 2025 15:50:21 GMT\n+\n+### Patches\n+\n+- fix active rate limit\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-binance/package.json",
+          "changeType": "modified",
+          "patch": "commit baf2f4727e011230ac0aa103d1c69a7feb33bda3\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 23:50:55 2025 +0800\n\n    chore: bump version (#2257)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-binance/package.json b/apps/vendor-binance/package.json\nindex 9586b42d0..ecc201b03 100644\n--- a/apps/vendor-binance/package.json\n+++ b/apps/vendor-binance/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.10.12\",\n+  \"version\": \"0.10.13\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-huobi/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit baf2f4727e011230ac0aa103d1c69a7feb33bda3\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 23:50:55 2025 +0800\n\n    chore: bump version (#2257)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-huobi/CHANGELOG.json b/apps/vendor-huobi/CHANGELOG.json\nindex ba0f8c513..fea81a17e 100644\n--- a/apps/vendor-huobi/CHANGELOG.json\n+++ b/apps/vendor-huobi/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.15.11\",\n+      \"tag\": \"@yuants/vendor-huobi_v0.15.11\",\n+      \"date\": \"Mon, 08 Dec 2025 15:50:21 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"add liq price\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-huobi/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit baf2f4727e011230ac0aa103d1c69a7feb33bda3\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 23:50:55 2025 +0800\n\n    chore: bump version (#2257)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-huobi/CHANGELOG.md b/apps/vendor-huobi/CHANGELOG.md\nindex 6e5c9a104..db7fbdb54 100644\n--- a/apps/vendor-huobi/CHANGELOG.md\n+++ b/apps/vendor-huobi/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Sun, 07 Dec 2025 22:20:53 GMT and should not be manually modified.\n+This log was last generated on Mon, 08 Dec 2025 15:50:21 GMT and should not be manually modified.\n+\n+## 0.15.11\n+Mon, 08 Dec 2025 15:50:21 GMT\n+\n+### Patches\n+\n+- add liq price\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-huobi/package.json",
+          "changeType": "modified",
+          "patch": "commit baf2f4727e011230ac0aa103d1c69a7feb33bda3\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 23:50:55 2025 +0800\n\n    chore: bump version (#2257)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-huobi/package.json b/apps/vendor-huobi/package.json\nindex 243b3378c..211417173 100644\n--- a/apps/vendor-huobi/package.json\n+++ b/apps/vendor-huobi/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.15.10\",\n+  \"version\": \"0.15.11\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-okx/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit baf2f4727e011230ac0aa103d1c69a7feb33bda3\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 23:50:55 2025 +0800\n\n    chore: bump version (#2257)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.json b/apps/vendor-okx/CHANGELOG.json\nindex 83199cff4..b0ba7384b 100644\n--- a/apps/vendor-okx/CHANGELOG.json\n+++ b/apps/vendor-okx/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.29.11\",\n+      \"tag\": \"@yuants/vendor-okx_v0.29.11\",\n+      \"date\": \"Mon, 08 Dec 2025 15:50:21 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"add liq price\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-okx/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit baf2f4727e011230ac0aa103d1c69a7feb33bda3\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 23:50:55 2025 +0800\n\n    chore: bump version (#2257)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.md b/apps/vendor-okx/CHANGELOG.md\nindex f1b41b247..a6885d3a0 100644\n--- a/apps/vendor-okx/CHANGELOG.md\n+++ b/apps/vendor-okx/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Sun, 07 Dec 2025 16:38:11 GMT and should not be manually modified.\n+This log was last generated on Mon, 08 Dec 2025 15:50:21 GMT and should not be manually modified.\n+\n+## 0.29.11\n+Mon, 08 Dec 2025 15:50:21 GMT\n+\n+### Patches\n+\n+- add liq price\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-okx/package.json",
+          "changeType": "modified",
+          "patch": "commit baf2f4727e011230ac0aa103d1c69a7feb33bda3\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 23:50:55 2025 +0800\n\n    chore: bump version (#2257)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/package.json b/apps/vendor-okx/package.json\nindex 682caf361..39df78830 100644\n--- a/apps/vendor-okx/package.json\n+++ b/apps/vendor-okx/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.29.10\",\n+  \"version\": \"0.29.11\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-aster/2025-12-08-14-54.json",
+          "changeType": "deleted",
+          "patch": "commit baf2f4727e011230ac0aa103d1c69a7feb33bda3\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 23:50:55 2025 +0800\n\n    chore: bump version (#2257)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-aster/2025-12-08-14-54.json b/common/changes/@yuants/vendor-aster/2025-12-08-14-54.json\ndeleted file mode 100644\nindex ef9f41ad7..000000000\n--- a/common/changes/@yuants/vendor-aster/2025-12-08-14-54.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-aster\",\n-      \"comment\": \"fix symbol\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-aster\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-aster/2025-12-08-15-43.json",
+          "changeType": "deleted",
+          "patch": "commit baf2f4727e011230ac0aa103d1c69a7feb33bda3\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 23:50:55 2025 +0800\n\n    chore: bump version (#2257)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-aster/2025-12-08-15-43.json b/common/changes/@yuants/vendor-aster/2025-12-08-15-43.json\ndeleted file mode 100644\nindex 18aefe7a2..000000000\n--- a/common/changes/@yuants/vendor-aster/2025-12-08-15-43.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-aster\",\n-      \"comment\": \"aster position product\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-aster\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-aster/{main_2025-12-07-20-31.json => main_2025-12-08-15-50.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-binance/2025-12-08-15-43.json",
+          "changeType": "deleted",
+          "patch": "commit baf2f4727e011230ac0aa103d1c69a7feb33bda3\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 23:50:55 2025 +0800\n\n    chore: bump version (#2257)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-binance/2025-12-08-15-43.json b/common/changes/@yuants/vendor-binance/2025-12-08-15-43.json\ndeleted file mode 100644\nindex 2effcda3e..000000000\n--- a/common/changes/@yuants/vendor-binance/2025-12-08-15-43.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-binance\",\n-      \"comment\": \"fix active rate limit\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-binance\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-binance/{main_2025-12-07-20-31.json => main_2025-12-08-15-50.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-huobi/2025-12-08-15-15.json",
+          "changeType": "deleted",
+          "patch": "commit baf2f4727e011230ac0aa103d1c69a7feb33bda3\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 23:50:55 2025 +0800\n\n    chore: bump version (#2257)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-huobi/2025-12-08-15-15.json b/common/changes/@yuants/vendor-huobi/2025-12-08-15-15.json\ndeleted file mode 100644\nindex f9a107c99..000000000\n--- a/common/changes/@yuants/vendor-huobi/2025-12-08-15-15.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-huobi\",\n-      \"comment\": \"add liq price\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-huobi\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-huobi/{main_2025-12-07-22-20.json => main_2025-12-08-15-50.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-08-15-15.json",
+          "changeType": "deleted",
+          "patch": "commit baf2f4727e011230ac0aa103d1c69a7feb33bda3\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 8 23:50:55 2025 +0800\n\n    chore: bump version (#2257)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-08-15-15.json b/common/changes/@yuants/vendor-okx/2025-12-08-15-15.json\ndeleted file mode 100644\nindex 0f80c4818..000000000\n--- a/common/changes/@yuants/vendor-okx/2025-12-08-15-15.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-okx\",\n-      \"comment\": \"add liq price\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-okx\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/{main_2025-12-07-16-38.json => main_2025-12-08-15-50.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "cbbfb2ce959b706c969e6bfc65661f7fae769883",
+      "short": "cbbfb2ce9",
+      "author": "Siyuan Wang",
+      "email": "c.one@thrimbda.com",
+      "authoredAt": "2025-12-09 00:13:25 +0800",
+      "subject": "fix(vendor-hyperliquid): 更新 spot 账户产品映射逻辑，避免硬编码并支持动态产品列表 (#2260)",
+      "conventionalCommit": {
+        "type": "fix",
+        "scope": "vendor-hyperliquid",
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 9,
+          "deletions": 0,
+          "path": "apps/vendor-hyperliquid/SESSION_NOTES.md",
+          "changeType": "added",
+          "patch": "commit cbbfb2ce959b706c969e6bfc65661f7fae769883\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Tue Dec 9 00:13:25 2025 +0800\n\n    fix(vendor-hyperliquid): 更新 spot 账户产品映射逻辑，避免硬编码并支持动态产品列表 (#2260)\n\ndiff --git a/apps/vendor-hyperliquid/SESSION_NOTES.md b/apps/vendor-hyperliquid/SESSION_NOTES.md\nindex 41a8a3b98..9b96b351b 100644\n--- a/apps/vendor-hyperliquid/SESSION_NOTES.md\n+++ b/apps/vendor-hyperliquid/SESSION_NOTES.md\n@@ -201,0 +202,9 @@\n+### 2025-12-08 — Codex\n+\n+- **本轮摘要**：\n+  - spot 账户在生成 position 前读取最新 spot product 列表，构建 base → product_id 的映射，用余额资产匹配 product_id，避免硬编码 `${asset}-USDC`。\n+- **修改的文件**：\n+  - `apps/vendor-hyperliquid/src/services/accounts/spot.ts`\n+- **运行的测试 / 检查**：\n+  - `npx tsc --noEmit --project apps/vendor-hyperliquid/tsconfig.json`\n+\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 2,
+          "path": "apps/vendor-hyperliquid/src/services/accounts/spot.ts",
+          "changeType": "modified",
+          "patch": "commit cbbfb2ce959b706c969e6bfc65661f7fae769883\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Tue Dec 9 00:13:25 2025 +0800\n\n    fix(vendor-hyperliquid): 更新 spot 账户产品映射逻辑，避免硬编码并支持动态产品列表 (#2260)\n\ndiff --git a/apps/vendor-hyperliquid/src/services/accounts/spot.ts b/apps/vendor-hyperliquid/src/services/accounts/spot.ts\nindex cee336c2e..ea9f59ece 100644\n--- a/apps/vendor-hyperliquid/src/services/accounts/spot.ts\n+++ b/apps/vendor-hyperliquid/src/services/accounts/spot.ts\n@@ -4,0 +5,13 @@ import { ICredential } from '../../api/types';\n+import { listProducts } from '../markets/product';\n+\n+const buildSpotProductMap = async () => {\n+  const products = await listProducts();\n+  const map = new Map<string, string>();\n+  for (const product of products) {\n+    const [, instType] = product.product_id.split('/');\n+    if (instType === 'SPOT') {\n+      map.set(product.base_currency, product.product_id);\n+    }\n+  }\n+  return map;\n+};\n@@ -12 +25 @@ export const getSpotPositions = async (credential: ICredential) => {\n-  const [balances, mids] = await Promise.all([\n+  const [balances, mids, spotProductMap] = await Promise.all([\n@@ -14,0 +28 @@ export const getSpotPositions = async (credential: ICredential) => {\n+    buildSpotProductMap(),\n@@ -25 +39,2 @@ export const getSpotPositions = async (credential: ICredential) => {\n-          product_id: encodePath('HYPERLIQUID', 'SPOT', `${balance.coin}-USDC`),\n+          product_id:\n+            spotProductMap.get(balance.coin) ?? encodePath('HYPERLIQUID', 'SPOT', `${balance.coin}-USDC`),\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "buildSpotProductMap",
+              "code": "const buildSpotProductMap = async () => {",
+              "lineStart": 7,
+              "lineEnd": 7
+            },
+            {
+              "type": "function",
+              "name": "products",
+              "code": "const products = await listProducts();",
+              "lineStart": 8,
+              "lineEnd": 8
+            },
+            {
+              "type": "function",
+              "name": "map",
+              "code": "const map = new Map<string, string>();",
+              "lineStart": 9,
+              "lineEnd": 9
+            },
+            {
+              "type": "function",
+              "name": "product",
+              "code": "  for (const product of products) {\n    const [, instType] = product.product_id.split('/');\n    if (instType === 'SPOT') {\n      map.set(product.base_currency, product.product_id);\n    }\n  }\n  return map;\n};\n  const [balances, mids, spotProductMap] = await Promise.all([\n    buildSpotProductMap(),\n          product_id:\n            spotProductMap.get(balance.coin) ?? encodePath('HYPERLIQUID', 'SPOT', `${balance.coin}-USDC`),",
+              "lineStart": 10,
+              "lineEnd": 41
+            }
+          ]
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-hyperliquid/2025-12-08-16-11.json",
+          "changeType": "added",
+          "patch": "commit cbbfb2ce959b706c969e6bfc65661f7fae769883\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Tue Dec 9 00:13:25 2025 +0800\n\n    fix(vendor-hyperliquid): 更新 spot 账户产品映射逻辑，避免硬编码并支持动态产品列表 (#2260)\n\ndiff --git a/common/changes/@yuants/vendor-hyperliquid/2025-12-08-16-11.json b/common/changes/@yuants/vendor-hyperliquid/2025-12-08-16-11.json\nnew file mode 100644\nindex 000000000..59e9e5f97\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-hyperliquid/2025-12-08-16-11.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-hyperliquid\",\n+      \"comment\": \"更新 spot 账户产品映射逻辑，避免硬编码并支持动态产品列表\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-hyperliquid\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "9f8b2059d0271ea0114735d7a6aaf27df979db6b",
+      "short": "9f8b2059d",
+      "author": "CZ",
+      "email": "zheng.chen@no-trade-no.life",
+      "authoredAt": "2025-12-09 00:25:15 +0800",
+      "subject": "feat: add liquidation price to future and perpetual position data (#2261)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 1,
+          "deletions": 0,
+          "path": "apps/vendor-gate/src/api/private-api.ts",
+          "changeType": "added",
+          "patch": "commit 9f8b2059d0271ea0114735d7a6aaf27df979db6b\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Tue Dec 9 00:25:15 2025 +0800\n\n    feat: add liquidation price to future and perpetual position data (#2261)\n\ndiff --git a/apps/vendor-gate/src/api/private-api.ts b/apps/vendor-gate/src/api/private-api.ts\nindex 23714cd97..d8e7c4861 100644\n--- a/apps/vendor-gate/src/api/private-api.ts\n+++ b/apps/vendor-gate/src/api/private-api.ts\n@@ -91,0 +92 @@ export const getFuturePositions = (\n+    liq_price: string;\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 0,
+          "path": "apps/vendor-gate/src/services/accounts/future.ts",
+          "changeType": "added",
+          "patch": "commit 9f8b2059d0271ea0114735d7a6aaf27df979db6b\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Tue Dec 9 00:25:15 2025 +0800\n\n    feat: add liquidation price to future and perpetual position data (#2261)\n\ndiff --git a/apps/vendor-gate/src/services/accounts/future.ts b/apps/vendor-gate/src/services/accounts/future.ts\nindex 4e762c193..d67d4926f 100644\n--- a/apps/vendor-gate/src/services/accounts/future.ts\n+++ b/apps/vendor-gate/src/services/accounts/future.ts\n@@ -34,0 +35 @@ export const loadFuturePositions = async (credential: ICredential): Promise<IPos\n+      liquidation_price: position.liq_price,\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 0,
+          "path": "apps/vendor-hyperliquid/src/services/accounts/perp.ts",
+          "changeType": "added",
+          "patch": "commit 9f8b2059d0271ea0114735d7a6aaf27df979db6b\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Tue Dec 9 00:25:15 2025 +0800\n\n    feat: add liquidation price to future and perpetual position data (#2261)\n\ndiff --git a/apps/vendor-hyperliquid/src/services/accounts/perp.ts b/apps/vendor-hyperliquid/src/services/accounts/perp.ts\nindex 2be6376de..ee8784d73 100644\n--- a/apps/vendor-hyperliquid/src/services/accounts/perp.ts\n+++ b/apps/vendor-hyperliquid/src/services/accounts/perp.ts\n@@ -25,0 +26 @@ export const getPerpPositions = async (credential: ICredential) => {\n+      liquidation_price: position.position.liquidationPx,\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 0,
+          "path": "apps/vendor-okx/src/experimental/getPositions.ts",
+          "changeType": "added",
+          "patch": "commit 9f8b2059d0271ea0114735d7a6aaf27df979db6b\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Tue Dec 9 00:25:15 2025 +0800\n\n    feat: add liquidation price to future and perpetual position data (#2261)\n\ndiff --git a/apps/vendor-okx/src/experimental/getPositions.ts b/apps/vendor-okx/src/experimental/getPositions.ts\nindex 1cbbe0873..5fe0bd5eb 100644\n--- a/apps/vendor-okx/src/experimental/getPositions.ts\n+++ b/apps/vendor-okx/src/experimental/getPositions.ts\n@@ -67,0 +68 @@ export const getPositions = async (credential: ICredential): Promise<IPosition[]\n+      liquidation_price: x.liqPx,\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-gate/2025-12-08-16-15.json",
+          "changeType": "added",
+          "patch": "commit 9f8b2059d0271ea0114735d7a6aaf27df979db6b\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Tue Dec 9 00:25:15 2025 +0800\n\n    feat: add liquidation price to future and perpetual position data (#2261)\n\ndiff --git a/common/changes/@yuants/vendor-gate/2025-12-08-16-15.json b/common/changes/@yuants/vendor-gate/2025-12-08-16-15.json\nnew file mode 100644\nindex 000000000..69d5baf6d\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-gate/2025-12-08-16-15.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-gate\",\n+      \"comment\": \"add liq price\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-gate\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-hyperliquid/2025-12-08-16-15.json",
+          "changeType": "added",
+          "patch": "commit 9f8b2059d0271ea0114735d7a6aaf27df979db6b\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Tue Dec 9 00:25:15 2025 +0800\n\n    feat: add liquidation price to future and perpetual position data (#2261)\n\ndiff --git a/common/changes/@yuants/vendor-hyperliquid/2025-12-08-16-15.json b/common/changes/@yuants/vendor-hyperliquid/2025-12-08-16-15.json\nnew file mode 100644\nindex 000000000..6ecd3ba28\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-hyperliquid/2025-12-08-16-15.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-hyperliquid\",\n+      \"comment\": \"add liq price\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-hyperliquid\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-08-16-15.json",
+          "changeType": "added",
+          "patch": "commit 9f8b2059d0271ea0114735d7a6aaf27df979db6b\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Tue Dec 9 00:25:15 2025 +0800\n\n    feat: add liquidation price to future and perpetual position data (#2261)\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-08-16-15.json b/common/changes/@yuants/vendor-okx/2025-12-08-16-15.json\nnew file mode 100644\nindex 000000000..4200aba5c\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-okx/2025-12-08-16-15.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-okx\",\n+      \"comment\": \"fix liq price\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-okx\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "f9883ff8cebb88af91ad99d7f9208bdbc6be6669",
+      "short": "f9883ff8c",
+      "author": "Siyuan Wang",
+      "email": "c.one@thrimbda.com",
+      "authoredAt": "2025-12-09 00:33:36 +0800",
+      "subject": "chore(vendor): 增加 Spot 账户产品映射缓存，优化产品列表查询逻辑 (#2262)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": "vendor",
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-aster/SESSION_NOTES.md",
+          "changeType": "modified",
+          "patch": "commit f9883ff8cebb88af91ad99d7f9208bdbc6be6669\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Tue Dec 9 00:33:36 2025 +0800\n\n    chore(vendor): 增加 Spot 账户产品映射缓存，优化产品列表查询逻辑 (#2262)\n\ndiff --git a/apps/vendor-aster/SESSION_NOTES.md b/apps/vendor-aster/SESSION_NOTES.md\nindex 9734c99b0..d91f7a251 100644\n--- a/apps/vendor-aster/SESSION_NOTES.md\n+++ b/apps/vendor-aster/SESSION_NOTES.md\n@@ -131 +131 @@\n-  - Spot 账户生成 position 前读取最新 spot product 列表，构建 base → product_id 映射，用余额资产匹配 product_id，缺失时回退旧逻辑。\n+  - Spot 账户生成 position 前读取最新 spot product 列表并缓存（24 小时 TTL），构建 base → product_id 映射，用余额资产匹配 product_id，缺失时回退旧逻辑。\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 12,
+          "path": "apps/vendor-aster/src/services/accounts/spot.ts",
+          "changeType": "modified",
+          "patch": "commit f9883ff8cebb88af91ad99d7f9208bdbc6be6669\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Tue Dec 9 00:33:36 2025 +0800\n\n    chore(vendor): 增加 Spot 账户产品映射缓存，优化产品列表查询逻辑 (#2262)\n\ndiff --git a/apps/vendor-aster/src/services/accounts/spot.ts b/apps/vendor-aster/src/services/accounts/spot.ts\nindex 34ec7b038..785a165be 100644\n--- a/apps/vendor-aster/src/services/accounts/spot.ts\n+++ b/apps/vendor-aster/src/services/accounts/spot.ts\n@@ -18,7 +18,9 @@ const asBNBPrice = createCache(\n-const buildSpotProductMap = async () => {\n-  const products = await listProducts();\n-  const map = new Map<string, string>();\n-  for (const product of products) {\n-    const [, instType] = product.product_id.split('/');\n-    if (instType === 'SPOT') {\n-      map.set(product.base_currency, product.product_id);\n+const spotProductMapCache = createCache(\n+  async () => {\n+    const products = await listProducts();\n+    const map = new Map<string, string>();\n+    for (const product of products) {\n+      const [, instType] = product.product_id.split('/');\n+      if (instType === 'SPOT') {\n+        map.set(product.base_currency, product.product_id);\n+      }\n@@ -26,3 +28,4 @@ const buildSpotProductMap = async () => {\n-  }\n-  return map;\n-};\n+    return map;\n+  },\n+  { expire: 86_400_000 },\n+);\n@@ -36 +39 @@ export const getPositions = async (credential: ICredential) => {\n-    buildSpotProductMap(),\n+    spotProductMapCache.query(''),\n@@ -38,0 +42,2 @@ export const getPositions = async (credential: ICredential) => {\n+  const resolvedSpotProductMap = spotProductMap ?? new Map<string, string>();\n+\n@@ -45 +50 @@ export const getPositions = async (credential: ICredential) => {\n-        product_id: spotProductMap.get(b.asset) ?? encodePath('ASTER', 'SPOT', b.asset),\n+        product_id: resolvedSpotProductMap.get(b.asset) ?? encodePath('ASTER', 'SPOT', b.asset),\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "spotProductMapCache",
+              "code": "const spotProductMapCache = createCache(\n  async () => {",
+              "lineStart": 18,
+              "lineEnd": 19
+            },
+            {
+              "type": "function",
+              "name": "products",
+              "code": "const products = await listProducts();",
+              "lineStart": 20,
+              "lineEnd": 20
+            },
+            {
+              "type": "function",
+              "name": "map",
+              "code": "const map = new Map<string, string>();",
+              "lineStart": 21,
+              "lineEnd": 21
+            },
+            {
+              "type": "function",
+              "name": "product",
+              "code": "    for (const product of products) {\n      const [, instType] = product.product_id.split('/');\n      if (instType === 'SPOT') {\n        map.set(product.base_currency, product.product_id);\n      }\n    return map;\n  },\n  { expire: 86_400_000 },\n);\n    spotProductMapCache.query(''),",
+              "lineStart": 22,
+              "lineEnd": 41
+            },
+            {
+              "type": "function",
+              "name": "resolvedSpotProductMap",
+              "code": "const resolvedSpotProductMap = spotProductMap ?? new Map<string, string>();\n\n      product_id: resolvedSpotProductMap.get(b.asset) ?? encodePath('ASTER', 'SPOT', b.asset),",
+              "lineStart": 42,
+              "lineEnd": 51
+            }
+          ]
+        },
+        {
+          "additions": 9,
+          "deletions": 0,
+          "path": "apps/vendor-gate/SESSION_NOTES.md",
+          "changeType": "added",
+          "patch": "commit f9883ff8cebb88af91ad99d7f9208bdbc6be6669\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Tue Dec 9 00:33:36 2025 +0800\n\n    chore(vendor): 增加 Spot 账户产品映射缓存，优化产品列表查询逻辑 (#2262)\n\ndiff --git a/apps/vendor-gate/SESSION_NOTES.md b/apps/vendor-gate/SESSION_NOTES.md\nindex 768c89019..3513753f8 100644\n--- a/apps/vendor-gate/SESSION_NOTES.md\n+++ b/apps/vendor-gate/SESSION_NOTES.md\n@@ -108,0 +109,9 @@\n+### 2025-12-08 — Codex\n+\n+- **本轮摘要**：\n+  - spot 账户在生成 position 前获取并缓存（24 小时 TTL）最新 spot 产品列表，构建 base → product_id 映射，用余额资产匹配 product_id，缺失时回退旧路径，避免硬编码。\n+- **修改的文件**：\n+  - `apps/vendor-gate/src/services/accounts/spot.ts`\n+- **运行的测试 / 检查**：\n+  - `npx tsc --noEmit --project apps/vendor-gate/tsconfig.json`\n+\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 23,
+          "deletions": 2,
+          "path": "apps/vendor-gate/src/services/accounts/spot.ts",
+          "changeType": "modified",
+          "patch": "commit f9883ff8cebb88af91ad99d7f9208bdbc6be6669\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Tue Dec 9 00:33:36 2025 +0800\n\n    chore(vendor): 增加 Spot 账户产品映射缓存，优化产品列表查询逻辑 (#2262)\n\ndiff --git a/apps/vendor-gate/src/services/accounts/spot.ts b/apps/vendor-gate/src/services/accounts/spot.ts\nindex b861a4584..86c2b697f 100644\n--- a/apps/vendor-gate/src/services/accounts/spot.ts\n+++ b/apps/vendor-gate/src/services/accounts/spot.ts\n@@ -0,0 +1 @@\n+import { createCache } from '@yuants/cache';\n@@ -3,0 +5,16 @@ import { encodePath } from '@yuants/utils';\n+import { listProducts } from '../markets/product';\n+\n+const spotProductMapCache = createCache(\n+  async () => {\n+    const products = await listProducts();\n+    const map = new Map<string, string>();\n+    for (const product of products) {\n+      const [, instType] = product.product_id.split('/');\n+      if (instType === 'SPOT') {\n+        map.set(product.base_currency, product.product_id);\n+      }\n+    }\n+    return map;\n+  },\n+  { expire: 86_400_000 },\n+);\n@@ -6 +23,5 @@ export const getSpotAccountInfo = async (credential: ICredential) => {\n-  const res = await getSpotAccounts(credential);\n+  const [res, spotProductMap] = await Promise.all([\n+    getSpotAccounts(credential),\n+    spotProductMapCache.query(''),\n+  ]);\n+  const resolvedSpotProductMap = spotProductMap ?? new Map<string, string>();\n@@ -14 +35 @@ export const getSpotAccountInfo = async (credential: ICredential) => {\n-      product_id: encodePath('GATE', 'SPOT', `${item.currency}`),\n+      product_id: resolvedSpotProductMap.get(item.currency) ?? encodePath('GATE', 'SPOT', `${item.currency}`),\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "spotProductMapCache",
+              "code": "const spotProductMapCache = createCache(\n  async () => {",
+              "lineStart": 7,
+              "lineEnd": 8
+            },
+            {
+              "type": "function",
+              "name": "products",
+              "code": "const products = await listProducts();",
+              "lineStart": 9,
+              "lineEnd": 9
+            },
+            {
+              "type": "function",
+              "name": "map",
+              "code": "const map = new Map<string, string>();",
+              "lineStart": 10,
+              "lineEnd": 10
+            },
+            {
+              "type": "function",
+              "name": "product",
+              "code": "    for (const product of products) {\n      const [, instType] = product.product_id.split('/');\n      if (instType === 'SPOT') {\n        map.set(product.base_currency, product.product_id);\n      }\n    }\n    return map;\n  },\n  { expire: 86_400_000 },\n);\n  const [res, spotProductMap] = await Promise.all([\n    getSpotAccounts(credential),\n    spotProductMapCache.query(''),\n  ]);",
+              "lineStart": 11,
+              "lineEnd": 26
+            },
+            {
+              "type": "function",
+              "name": "resolvedSpotProductMap",
+              "code": "const resolvedSpotProductMap = spotProductMap ?? new Map<string, string>();\n    product_id: resolvedSpotProductMap.get(item.currency) ?? encodePath('GATE', 'SPOT', `${item.currency}`),",
+              "lineStart": 27,
+              "lineEnd": 36
+            }
+          ]
+        },
+        {
+          "additions": 9,
+          "deletions": 0,
+          "path": "apps/vendor-hyperliquid/SESSION_NOTES.md",
+          "changeType": "added",
+          "patch": "commit f9883ff8cebb88af91ad99d7f9208bdbc6be6669\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Tue Dec 9 00:33:36 2025 +0800\n\n    chore(vendor): 增加 Spot 账户产品映射缓存，优化产品列表查询逻辑 (#2262)\n\ndiff --git a/apps/vendor-hyperliquid/SESSION_NOTES.md b/apps/vendor-hyperliquid/SESSION_NOTES.md\nindex 9b96b351b..5969eb7dc 100644\n--- a/apps/vendor-hyperliquid/SESSION_NOTES.md\n+++ b/apps/vendor-hyperliquid/SESSION_NOTES.md\n@@ -203,0 +204,9 @@\n+- **本轮摘要**：\n+  - spot 账户的产品映射增加缓存（24 小时 TTL），避免每次查询 positions 都重新拉产品列表；产品列表加载失败时仍会回退旧的 product_id 生成逻辑。\n+- **修改的文件**：\n+  - `apps/vendor-hyperliquid/src/services/accounts/spot.ts`\n+- **运行的测试 / 检查**：\n+  - `npx tsc --noEmit --project apps/vendor-hyperliquid/tsconfig.json`\n+\n+### 2025-12-08 — Codex\n+\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 18,
+          "deletions": 12,
+          "path": "apps/vendor-hyperliquid/src/services/accounts/spot.ts",
+          "changeType": "modified",
+          "patch": "commit f9883ff8cebb88af91ad99d7f9208bdbc6be6669\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Tue Dec 9 00:33:36 2025 +0800\n\n    chore(vendor): 增加 Spot 账户产品映射缓存，优化产品列表查询逻辑 (#2262)\n\ndiff --git a/apps/vendor-hyperliquid/src/services/accounts/spot.ts b/apps/vendor-hyperliquid/src/services/accounts/spot.ts\nindex ea9f59ece..814857d05 100644\n--- a/apps/vendor-hyperliquid/src/services/accounts/spot.ts\n+++ b/apps/vendor-hyperliquid/src/services/accounts/spot.ts\n@@ -0,0 +1 @@\n+import { createCache } from '@yuants/cache';\n@@ -7,7 +8,9 @@ import { listProducts } from '../markets/product';\n-const buildSpotProductMap = async () => {\n-  const products = await listProducts();\n-  const map = new Map<string, string>();\n-  for (const product of products) {\n-    const [, instType] = product.product_id.split('/');\n-    if (instType === 'SPOT') {\n-      map.set(product.base_currency, product.product_id);\n+const spotProductMapCache = createCache(\n+  async () => {\n+    const products = await listProducts();\n+    const map = new Map<string, string>();\n+    for (const product of products) {\n+      const [, instType] = product.product_id.split('/');\n+      if (instType === 'SPOT') {\n+        map.set(product.base_currency, product.product_id);\n+      }\n@@ -15,3 +18,4 @@ const buildSpotProductMap = async () => {\n-  }\n-  return map;\n-};\n+    return map;\n+  },\n+  { expire: 86_400_000 },\n+);\n@@ -28 +32 @@ export const getSpotPositions = async (credential: ICredential) => {\n-    buildSpotProductMap(),\n+    spotProductMapCache.query(''),\n@@ -29,0 +34 @@ export const getSpotPositions = async (credential: ICredential) => {\n+  const resolvedSpotProductMap = spotProductMap ?? new Map<string, string>();\n@@ -40 +45,2 @@ export const getSpotPositions = async (credential: ICredential) => {\n-            spotProductMap.get(balance.coin) ?? encodePath('HYPERLIQUID', 'SPOT', `${balance.coin}-USDC`),\n+            resolvedSpotProductMap.get(balance.coin) ??\n+            encodePath('HYPERLIQUID', 'SPOT', `${balance.coin}-USDC`),\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "spotProductMapCache",
+              "code": "const spotProductMapCache = createCache(\n  async () => {",
+              "lineStart": 8,
+              "lineEnd": 9
+            },
+            {
+              "type": "function",
+              "name": "products",
+              "code": "const products = await listProducts();",
+              "lineStart": 10,
+              "lineEnd": 10
+            },
+            {
+              "type": "function",
+              "name": "map",
+              "code": "const map = new Map<string, string>();",
+              "lineStart": 11,
+              "lineEnd": 11
+            },
+            {
+              "type": "function",
+              "name": "product",
+              "code": "    for (const product of products) {\n      const [, instType] = product.product_id.split('/');\n      if (instType === 'SPOT') {\n        map.set(product.base_currency, product.product_id);\n      }\n    return map;\n  },\n  { expire: 86_400_000 },\n);\n    spotProductMapCache.query(''),",
+              "lineStart": 12,
+              "lineEnd": 33
+            },
+            {
+              "type": "function",
+              "name": "resolvedSpotProductMap",
+              "code": "const resolvedSpotProductMap = spotProductMap ?? new Map<string, string>();\n          resolvedSpotProductMap.get(balance.coin) ??\n          encodePath('HYPERLIQUID', 'SPOT', `${balance.coin}-USDC`),",
+              "lineStart": 34,
+              "lineEnd": 47
+            }
+          ]
+        },
+        {
+          "additions": 0,
+          "deletions": 34,
+          "path": "apps/vendor-hyperliquid/src/services/markets/product.ts",
+          "changeType": "deleted",
+          "patch": "commit f9883ff8cebb88af91ad99d7f9208bdbc6be6669\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Tue Dec 9 00:33:36 2025 +0800\n\n    chore(vendor): 增加 Spot 账户产品映射缓存，优化产品列表查询逻辑 (#2262)\n\ndiff --git a/apps/vendor-hyperliquid/src/services/markets/product.ts b/apps/vendor-hyperliquid/src/services/markets/product.ts\nindex 05e6136a6..406d7686f 100644\n--- a/apps/vendor-hyperliquid/src/services/markets/product.ts\n+++ b/apps/vendor-hyperliquid/src/services/markets/product.ts\n@@ -60,34 +59,0 @@ export const listProducts = async (): Promise<IProduct[]> => {\n-\n-const refresh$ = defer(listProducts).pipe(\n-  tap((products) => {\n-    latestProducts = products;\n-    products.forEach((product) => product$.next(product));\n-  }),\n-  tap({\n-    error: (err) => console.error(formatTime(Date.now()), 'ProductRefreshFailed', err),\n-  }),\n-  retry({ delay: 5000 }),\n-  repeat({ delay: 86400_000 }),\n-  shareReplay(1),\n-);\n-\n-refresh$.subscribe();\n-\n-createSQLWriter<IProduct>(terminal, {\n-  data$: product$,\n-  tableName: 'product',\n-  writeInterval: 1000,\n-  conflictKeys: ['datasource_id', 'product_id'],\n-});\n-\n-provideQueryProductsService(\n-  terminal,\n-  'HYPERLIQUID',\n-  async (_req: IQueryProductsRequest) => {\n-    if (!latestProducts.length) {\n-      latestProducts = await listProducts();\n-    }\n-    return latestProducts;\n-  },\n-  { auto_refresh_interval: 86400_000 },\n-);\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-aster/2025-12-08-16-31.json",
+          "changeType": "added",
+          "patch": "commit f9883ff8cebb88af91ad99d7f9208bdbc6be6669\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Tue Dec 9 00:33:36 2025 +0800\n\n    chore(vendor): 增加 Spot 账户产品映射缓存，优化产品列表查询逻辑 (#2262)\n\ndiff --git a/common/changes/@yuants/vendor-aster/2025-12-08-16-31.json b/common/changes/@yuants/vendor-aster/2025-12-08-16-31.json\nnew file mode 100644\nindex 000000000..deef94df0\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-aster/2025-12-08-16-31.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-aster\",\n+      \"comment\": \"增加 Spot 账户产品映射缓存，优化产品列表查询逻辑\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-aster\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-gate/2025-12-08-16-31.json",
+          "changeType": "added",
+          "patch": "commit f9883ff8cebb88af91ad99d7f9208bdbc6be6669\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Tue Dec 9 00:33:36 2025 +0800\n\n    chore(vendor): 增加 Spot 账户产品映射缓存，优化产品列表查询逻辑 (#2262)\n\ndiff --git a/common/changes/@yuants/vendor-gate/2025-12-08-16-31.json b/common/changes/@yuants/vendor-gate/2025-12-08-16-31.json\nnew file mode 100644\nindex 000000000..924f21e5e\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-gate/2025-12-08-16-31.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-gate\",\n+      \"comment\": \"增加 Spot 账户产品映射缓存，优化产品列表查询逻辑\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-gate\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-hyperliquid/2025-12-08-16-31.json",
+          "changeType": "added",
+          "patch": "commit f9883ff8cebb88af91ad99d7f9208bdbc6be6669\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Tue Dec 9 00:33:36 2025 +0800\n\n    chore(vendor): 增加 Spot 账户产品映射缓存，优化产品列表查询逻辑 (#2262)\n\ndiff --git a/common/changes/@yuants/vendor-hyperliquid/2025-12-08-16-31.json b/common/changes/@yuants/vendor-hyperliquid/2025-12-08-16-31.json\nnew file mode 100644\nindex 000000000..51d655ab8\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-hyperliquid/2025-12-08-16-31.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-hyperliquid\",\n+      \"comment\": \"增加 Spot 账户产品映射缓存，优化产品列表查询逻辑\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-hyperliquid\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "8fa79e6e299dd92b5dd4f7552a29bbd1096394b4",
+      "short": "8fa79e6e2",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2025-12-09 00:39:44 +0800",
+      "subject": "chore: bump version (#2263)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-aster/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 8fa79e6e299dd92b5dd4f7552a29bbd1096394b4\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 00:39:44 2025 +0800\n\n    chore: bump version (#2263)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/CHANGELOG.json b/apps/vendor-aster/CHANGELOG.json\nindex 7841bcca2..f8ada593c 100644\n--- a/apps/vendor-aster/CHANGELOG.json\n+++ b/apps/vendor-aster/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.7.24\",\n+      \"tag\": \"@yuants/vendor-aster_v0.7.24\",\n+      \"date\": \"Mon, 08 Dec 2025 16:38:57 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"增加 Spot 账户产品映射缓存，优化产品列表查询逻辑\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-aster/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 8fa79e6e299dd92b5dd4f7552a29bbd1096394b4\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 00:39:44 2025 +0800\n\n    chore: bump version (#2263)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/CHANGELOG.md b/apps/vendor-aster/CHANGELOG.md\nindex 30fed97c2..fe5f652f0 100644\n--- a/apps/vendor-aster/CHANGELOG.md\n+++ b/apps/vendor-aster/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Mon, 08 Dec 2025 15:50:21 GMT and should not be manually modified.\n+This log was last generated on Mon, 08 Dec 2025 16:38:57 GMT and should not be manually modified.\n+\n+## 0.7.24\n+Mon, 08 Dec 2025 16:38:57 GMT\n+\n+### Patches\n+\n+- 增加 Spot 账户产品映射缓存，优化产品列表查询逻辑\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-aster/package.json",
+          "changeType": "modified",
+          "patch": "commit 8fa79e6e299dd92b5dd4f7552a29bbd1096394b4\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 00:39:44 2025 +0800\n\n    chore: bump version (#2263)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/package.json b/apps/vendor-aster/package.json\nindex 3896d935a..7e9909718 100644\n--- a/apps/vendor-aster/package.json\n+++ b/apps/vendor-aster/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.7.23\",\n+  \"version\": \"0.7.24\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 20,
+          "deletions": 0,
+          "path": "apps/vendor-gate/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 8fa79e6e299dd92b5dd4f7552a29bbd1096394b4\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 00:39:44 2025 +0800\n\n    chore: bump version (#2263)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-gate/CHANGELOG.json b/apps/vendor-gate/CHANGELOG.json\nindex 0963c4a2a..77e5763f2 100644\n--- a/apps/vendor-gate/CHANGELOG.json\n+++ b/apps/vendor-gate/CHANGELOG.json\n@@ -3,0 +4,20 @@\n+    {\n+      \"version\": \"0.4.21\",\n+      \"tag\": \"@yuants/vendor-gate_v0.4.21\",\n+      \"date\": \"Mon, 08 Dec 2025 16:38:57 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"add liq price\"\n+          },\n+          {\n+            \"comment\": \"增加 Spot 账户产品映射缓存，优化产品列表查询逻辑\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 9,
+          "deletions": 1,
+          "path": "apps/vendor-gate/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 8fa79e6e299dd92b5dd4f7552a29bbd1096394b4\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 00:39:44 2025 +0800\n\n    chore: bump version (#2263)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-gate/CHANGELOG.md b/apps/vendor-gate/CHANGELOG.md\nindex 4b4bddf54..f98f7ebe6 100644\n--- a/apps/vendor-gate/CHANGELOG.md\n+++ b/apps/vendor-gate/CHANGELOG.md\n@@ -3 +3,9 @@\n-This log was last generated on Sun, 07 Dec 2025 22:20:53 GMT and should not be manually modified.\n+This log was last generated on Mon, 08 Dec 2025 16:38:57 GMT and should not be manually modified.\n+\n+## 0.4.21\n+Mon, 08 Dec 2025 16:38:57 GMT\n+\n+### Patches\n+\n+- add liq price\n+- 增加 Spot 账户产品映射缓存，优化产品列表查询逻辑\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-gate/package.json",
+          "changeType": "modified",
+          "patch": "commit 8fa79e6e299dd92b5dd4f7552a29bbd1096394b4\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 00:39:44 2025 +0800\n\n    chore: bump version (#2263)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-gate/package.json b/apps/vendor-gate/package.json\nindex edbe9859e..24821cb9a 100644\n--- a/apps/vendor-gate/package.json\n+++ b/apps/vendor-gate/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.4.20\",\n+  \"version\": \"0.4.21\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 23,
+          "deletions": 0,
+          "path": "apps/vendor-hyperliquid/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 8fa79e6e299dd92b5dd4f7552a29bbd1096394b4\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 00:39:44 2025 +0800\n\n    chore: bump version (#2263)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-hyperliquid/CHANGELOG.json b/apps/vendor-hyperliquid/CHANGELOG.json\nindex 505c2aba8..fe8aac16d 100644\n--- a/apps/vendor-hyperliquid/CHANGELOG.json\n+++ b/apps/vendor-hyperliquid/CHANGELOG.json\n@@ -3,0 +4,23 @@\n+    {\n+      \"version\": \"0.7.11\",\n+      \"tag\": \"@yuants/vendor-hyperliquid_v0.7.11\",\n+      \"date\": \"Mon, 08 Dec 2025 16:38:57 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"更新 spot 账户产品映射逻辑，避免硬编码并支持动态产品列表\"\n+          },\n+          {\n+            \"comment\": \"add liq price\"\n+          },\n+          {\n+            \"comment\": \"增加 Spot 账户产品映射缓存，优化产品列表查询逻辑\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 1,
+          "path": "apps/vendor-hyperliquid/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 8fa79e6e299dd92b5dd4f7552a29bbd1096394b4\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 00:39:44 2025 +0800\n\n    chore: bump version (#2263)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-hyperliquid/CHANGELOG.md b/apps/vendor-hyperliquid/CHANGELOG.md\nindex 5764f6cb3..0e78b7e43 100644\n--- a/apps/vendor-hyperliquid/CHANGELOG.md\n+++ b/apps/vendor-hyperliquid/CHANGELOG.md\n@@ -3 +3,10 @@\n-This log was last generated on Sun, 07 Dec 2025 16:38:10 GMT and should not be manually modified.\n+This log was last generated on Mon, 08 Dec 2025 16:38:57 GMT and should not be manually modified.\n+\n+## 0.7.11\n+Mon, 08 Dec 2025 16:38:57 GMT\n+\n+### Patches\n+\n+- 更新 spot 账户产品映射逻辑，避免硬编码并支持动态产品列表\n+- add liq price\n+- 增加 Spot 账户产品映射缓存，优化产品列表查询逻辑\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-hyperliquid/package.json",
+          "changeType": "modified",
+          "patch": "commit 8fa79e6e299dd92b5dd4f7552a29bbd1096394b4\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 00:39:44 2025 +0800\n\n    chore: bump version (#2263)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-hyperliquid/package.json b/apps/vendor-hyperliquid/package.json\nindex 04995e5ed..7f429f059 100644\n--- a/apps/vendor-hyperliquid/package.json\n+++ b/apps/vendor-hyperliquid/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.7.10\",\n+  \"version\": \"0.7.11\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-okx/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 8fa79e6e299dd92b5dd4f7552a29bbd1096394b4\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 00:39:44 2025 +0800\n\n    chore: bump version (#2263)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.json b/apps/vendor-okx/CHANGELOG.json\nindex b0ba7384b..2c1be394f 100644\n--- a/apps/vendor-okx/CHANGELOG.json\n+++ b/apps/vendor-okx/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.29.12\",\n+      \"tag\": \"@yuants/vendor-okx_v0.29.12\",\n+      \"date\": \"Mon, 08 Dec 2025 16:38:57 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"fix liq price\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-okx/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 8fa79e6e299dd92b5dd4f7552a29bbd1096394b4\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 00:39:44 2025 +0800\n\n    chore: bump version (#2263)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.md b/apps/vendor-okx/CHANGELOG.md\nindex a6885d3a0..649c75138 100644\n--- a/apps/vendor-okx/CHANGELOG.md\n+++ b/apps/vendor-okx/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Mon, 08 Dec 2025 15:50:21 GMT and should not be manually modified.\n+This log was last generated on Mon, 08 Dec 2025 16:38:57 GMT and should not be manually modified.\n+\n+## 0.29.12\n+Mon, 08 Dec 2025 16:38:57 GMT\n+\n+### Patches\n+\n+- fix liq price\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-okx/package.json",
+          "changeType": "modified",
+          "patch": "commit 8fa79e6e299dd92b5dd4f7552a29bbd1096394b4\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 00:39:44 2025 +0800\n\n    chore: bump version (#2263)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/package.json b/apps/vendor-okx/package.json\nindex 39df78830..4ae8f4a5a 100644\n--- a/apps/vendor-okx/package.json\n+++ b/apps/vendor-okx/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.29.11\",\n+  \"version\": \"0.29.12\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-aster/2025-12-08-16-31.json",
+          "changeType": "deleted",
+          "patch": "commit 8fa79e6e299dd92b5dd4f7552a29bbd1096394b4\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 00:39:44 2025 +0800\n\n    chore: bump version (#2263)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-aster/2025-12-08-16-31.json b/common/changes/@yuants/vendor-aster/2025-12-08-16-31.json\ndeleted file mode 100644\nindex deef94df0..000000000\n--- a/common/changes/@yuants/vendor-aster/2025-12-08-16-31.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-aster\",\n-      \"comment\": \"增加 Spot 账户产品映射缓存，优化产品列表查询逻辑\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-aster\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-aster/{main_2025-12-08-15-50.json => main_2025-12-08-16-39.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-gate/2025-12-08-16-15.json",
+          "changeType": "deleted",
+          "patch": "commit 8fa79e6e299dd92b5dd4f7552a29bbd1096394b4\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 00:39:44 2025 +0800\n\n    chore: bump version (#2263)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-gate/2025-12-08-16-15.json b/common/changes/@yuants/vendor-gate/2025-12-08-16-15.json\ndeleted file mode 100644\nindex 69d5baf6d..000000000\n--- a/common/changes/@yuants/vendor-gate/2025-12-08-16-15.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-gate\",\n-      \"comment\": \"add liq price\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-gate\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-gate/2025-12-08-16-31.json",
+          "changeType": "deleted",
+          "patch": "commit 8fa79e6e299dd92b5dd4f7552a29bbd1096394b4\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 00:39:44 2025 +0800\n\n    chore: bump version (#2263)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-gate/2025-12-08-16-31.json b/common/changes/@yuants/vendor-gate/2025-12-08-16-31.json\ndeleted file mode 100644\nindex 924f21e5e..000000000\n--- a/common/changes/@yuants/vendor-gate/2025-12-08-16-31.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-gate\",\n-      \"comment\": \"增加 Spot 账户产品映射缓存，优化产品列表查询逻辑\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-gate\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-gate/{main_2025-12-07-22-20.json => main_2025-12-08-16-39.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-hyperliquid/2025-12-08-16-11.json",
+          "changeType": "deleted",
+          "patch": "commit 8fa79e6e299dd92b5dd4f7552a29bbd1096394b4\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 00:39:44 2025 +0800\n\n    chore: bump version (#2263)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-hyperliquid/2025-12-08-16-11.json b/common/changes/@yuants/vendor-hyperliquid/2025-12-08-16-11.json\ndeleted file mode 100644\nindex 59e9e5f97..000000000\n--- a/common/changes/@yuants/vendor-hyperliquid/2025-12-08-16-11.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-hyperliquid\",\n-      \"comment\": \"更新 spot 账户产品映射逻辑，避免硬编码并支持动态产品列表\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-hyperliquid\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-hyperliquid/2025-12-08-16-15.json",
+          "changeType": "deleted",
+          "patch": "commit 8fa79e6e299dd92b5dd4f7552a29bbd1096394b4\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 00:39:44 2025 +0800\n\n    chore: bump version (#2263)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-hyperliquid/2025-12-08-16-15.json b/common/changes/@yuants/vendor-hyperliquid/2025-12-08-16-15.json\ndeleted file mode 100644\nindex 6ecd3ba28..000000000\n--- a/common/changes/@yuants/vendor-hyperliquid/2025-12-08-16-15.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-hyperliquid\",\n-      \"comment\": \"add liq price\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-hyperliquid\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-hyperliquid/2025-12-08-16-31.json",
+          "changeType": "deleted",
+          "patch": "commit 8fa79e6e299dd92b5dd4f7552a29bbd1096394b4\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 00:39:44 2025 +0800\n\n    chore: bump version (#2263)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-hyperliquid/2025-12-08-16-31.json b/common/changes/@yuants/vendor-hyperliquid/2025-12-08-16-31.json\ndeleted file mode 100644\nindex 51d655ab8..000000000\n--- a/common/changes/@yuants/vendor-hyperliquid/2025-12-08-16-31.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-hyperliquid\",\n-      \"comment\": \"增加 Spot 账户产品映射缓存，优化产品列表查询逻辑\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-hyperliquid\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-hyperliquid/{main_2025-12-07-16-38.json => main_2025-12-08-16-39.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-08-16-15.json",
+          "changeType": "deleted",
+          "patch": "commit 8fa79e6e299dd92b5dd4f7552a29bbd1096394b4\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 00:39:44 2025 +0800\n\n    chore: bump version (#2263)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-08-16-15.json b/common/changes/@yuants/vendor-okx/2025-12-08-16-15.json\ndeleted file mode 100644\nindex 4200aba5c..000000000\n--- a/common/changes/@yuants/vendor-okx/2025-12-08-16-15.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-okx\",\n-      \"comment\": \"fix liq price\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-okx\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/{main_2025-12-08-15-50.json => main_2025-12-08-16-39.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "7d834feb5b0901a5ecd280eb134babe6b8a3cd58",
+      "short": "7d834feb5",
+      "author": "Siyuan Wang",
+      "email": "c.one@thrimbda.com",
+      "authoredAt": "2025-12-09 01:24:10 +0800",
+      "subject": "feat(vendor-gate): 统一账户服务，整合现货与期货逻辑，移除冗余代码 (#2264)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": "vendor-gate",
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 4,
+          "deletions": 2,
+          "path": "apps/vendor-gate/SESSION_NOTES.md",
+          "changeType": "modified",
+          "patch": "commit 7d834feb5b0901a5ecd280eb134babe6b8a3cd58\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Tue Dec 9 01:24:10 2025 +0800\n\n    feat(vendor-gate): 统一账户服务，整合现货与期货逻辑，移除冗余代码 (#2264)\n\ndiff --git a/apps/vendor-gate/SESSION_NOTES.md b/apps/vendor-gate/SESSION_NOTES.md\nindex 3513753f8..eefeaa9e0 100644\n--- a/apps/vendor-gate/SESSION_NOTES.md\n+++ b/apps/vendor-gate/SESSION_NOTES.md\n@@ -112 +112 @@\n-  - spot 账户在生成 position 前获取并缓存（24 小时 TTL）最新 spot 产品列表，构建 base → product_id 映射，用余额资产匹配 product_id，缺失时回退旧路径，避免硬编码。\n+  - 统一账户服务内获取并缓存（24 小时 TTL）最新 spot 产品列表，构建 base → product_id 映射并应用于 spot 余额；同时内联永续持仓逻辑，移除单独的 spot/future 账户实现，统一从 `getUnifiedAccountInfo` 输出头寸。\n@@ -114 +114,3 @@\n-  - `apps/vendor-gate/src/services/accounts/spot.ts`\n+  - `apps/vendor-gate/src/services/accounts/unified.ts`\n+  - 删除：`apps/vendor-gate/src/services/accounts/{spot,future}.ts`\n+  - `apps/vendor-gate/src/services/exchange.ts`\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 50,
+          "path": "apps/vendor-gate/src/services/accounts/future.ts",
+          "changeType": "deleted",
+          "patch": "commit 7d834feb5b0901a5ecd280eb134babe6b8a3cd58\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Tue Dec 9 01:24:10 2025 +0800\n\n    feat(vendor-gate): 统一账户服务，整合现货与期货逻辑，移除冗余代码 (#2264)\n\ndiff --git a/apps/vendor-gate/src/services/accounts/future.ts b/apps/vendor-gate/src/services/accounts/future.ts\ndeleted file mode 100644\nindex d67d4926f..000000000\n--- a/apps/vendor-gate/src/services/accounts/future.ts\n+++ /dev/null\n@@ -1,50 +0,0 @@\n-import type { IPosition } from '@yuants/data-account';\n-import { encodePath } from '@yuants/utils';\n-import { getFuturePositions, getFuturesAccounts, ICredential } from '../../api/private-api';\n-import { productCache } from '../markets/product';\n-\n-export const loadFuturePositions = async (credential: ICredential): Promise<IPosition[]> => {\n-  const positions: IPosition[] = [];\n-  const positionsRes = await getFuturePositions(credential, 'usdt');\n-\n-  for (const position of Array.isArray(positionsRes) ? positionsRes : []) {\n-    if (!(Math.abs(position.size) > 0)) continue;\n-\n-    const product_id = encodePath('GATE', 'FUTURE', position.contract);\n-    const theProduct = await productCache.query(product_id);\n-    const volume = Math.abs(position.size);\n-    const closable_price = Number(position.mark_price);\n-    const valuation = volume * closable_price * (theProduct?.value_scale ?? 1);\n-    positions.push({\n-      datasource_id: 'GATE',\n-      position_id: `${position.contract}-${position.leverage}-${position.mode}`,\n-      product_id,\n-      direction:\n-        position.mode === 'dual_long'\n-          ? 'LONG'\n-          : position.mode === 'dual_short'\n-          ? 'SHORT'\n-          : position.size > 0\n-          ? 'LONG'\n-          : 'SHORT',\n-      volume,\n-      free_volume: Math.abs(position.size),\n-      position_price: Number(position.entry_price),\n-      closable_price,\n-      floating_profit: Number(position.unrealised_pnl),\n-      liquidation_price: position.liq_price,\n-      valuation,\n-    });\n-  }\n-\n-  return positions;\n-};\n-\n-export const getFutureAccountInfo = async (credential: ICredential) => {\n-  const [positions, rawAccount] = await Promise.all([\n-    loadFuturePositions(credential),\n-    getFuturesAccounts(credential, 'usdt'),\n-  ]);\n-\n-  return positions;\n-};\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 41,
+          "path": "apps/vendor-gate/src/services/accounts/spot.ts",
+          "changeType": "deleted",
+          "patch": "commit 7d834feb5b0901a5ecd280eb134babe6b8a3cd58\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Tue Dec 9 01:24:10 2025 +0800\n\n    feat(vendor-gate): 统一账户服务，整合现货与期货逻辑，移除冗余代码 (#2264)\n\ndiff --git a/apps/vendor-gate/src/services/accounts/spot.ts b/apps/vendor-gate/src/services/accounts/spot.ts\ndeleted file mode 100644\nindex 86c2b697f..000000000\n--- a/apps/vendor-gate/src/services/accounts/spot.ts\n+++ /dev/null\n@@ -1,41 +0,0 @@\n-import { createCache } from '@yuants/cache';\n-import { makeSpotPosition } from '@yuants/data-account';\n-import { getSpotAccounts, ICredential } from '../../api/private-api';\n-import { encodePath } from '@yuants/utils';\n-import { listProducts } from '../markets/product';\n-\n-const spotProductMapCache = createCache(\n-  async () => {\n-    const products = await listProducts();\n-    const map = new Map<string, string>();\n-    for (const product of products) {\n-      const [, instType] = product.product_id.split('/');\n-      if (instType === 'SPOT') {\n-        map.set(product.base_currency, product.product_id);\n-      }\n-    }\n-    return map;\n-  },\n-  { expire: 86_400_000 },\n-);\n-\n-export const getSpotAccountInfo = async (credential: ICredential) => {\n-  const [res, spotProductMap] = await Promise.all([\n-    getSpotAccounts(credential),\n-    spotProductMapCache.query(''),\n-  ]);\n-  const resolvedSpotProductMap = spotProductMap ?? new Map<string, string>();\n-  if (!Array.isArray(res)) {\n-    throw new Error('Failed to load spot balances');\n-  }\n-  return res.map((item) => {\n-    return makeSpotPosition({\n-      datasource_id: 'GATE',\n-      position_id: item.currency,\n-      product_id: resolvedSpotProductMap.get(item.currency) ?? encodePath('GATE', 'SPOT', `${item.currency}`),\n-      volume: Number(item.available),\n-      free_volume: Number(item.available),\n-      closable_price: 1, // TODO: use real price\n-    });\n-  });\n-};\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 61,
+          "deletions": 7,
+          "path": "apps/vendor-gate/src/services/accounts/unified.ts",
+          "changeType": "modified",
+          "patch": "commit 7d834feb5b0901a5ecd280eb134babe6b8a3cd58\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Tue Dec 9 01:24:10 2025 +0800\n\n    feat(vendor-gate): 统一账户服务，整合现货与期货逻辑，移除冗余代码 (#2264)\n\ndiff --git a/apps/vendor-gate/src/services/accounts/unified.ts b/apps/vendor-gate/src/services/accounts/unified.ts\nindex f49b87a16..8baba2c3f 100644\n--- a/apps/vendor-gate/src/services/accounts/unified.ts\n+++ b/apps/vendor-gate/src/services/accounts/unified.ts\n@@ -1,4 +1,2 @@\n-import type { IActionHandlerOfGetAccountInfo, IPosition } from '@yuants/data-account';\n-import { getUnifiedAccounts, ICredential } from '../../api/private-api';\n-import { getSpotTickers } from '../../api/public-api';\n-import { loadFuturePositions } from './future';\n+import { createCache } from '@yuants/cache';\n+import type { IPosition } from '@yuants/data-account';\n@@ -5,0 +4,54 @@ import { encodePath } from '@yuants/utils';\n+import { getUnifiedAccounts, getFuturePositions, ICredential } from '../../api/private-api';\n+import { getSpotTickers } from '../../api/public-api';\n+import { listProducts } from '../markets/product';\n+\n+const spotProductMapCache = createCache(\n+  async () => {\n+    const products = await listProducts();\n+    const map = new Map<string, string>();\n+    for (const product of products ?? []) {\n+      const [, instType] = product.product_id.split('/');\n+      if (instType === 'SPOT') {\n+        map.set(product.base_currency, product.product_id);\n+      }\n+    }\n+    return map;\n+  },\n+  { expire: 86_400_000 },\n+);\n+\n+const loadFuturePositions = async (credential: ICredential): Promise<IPosition[]> => {\n+  const positions: IPosition[] = [];\n+  const positionsRes = await getFuturePositions(credential, 'usdt');\n+\n+  for (const position of Array.isArray(positionsRes) ? positionsRes : []) {\n+    if (!(Math.abs(position.size) > 0)) continue;\n+\n+    const product_id = encodePath('GATE', 'FUTURE', position.contract);\n+    const volume = Math.abs(position.size);\n+    const closable_price = Number(position.mark_price);\n+    const valuation = volume * closable_price;\n+    positions.push({\n+      datasource_id: 'GATE',\n+      position_id: `${position.contract}-${position.leverage}-${position.mode}`,\n+      product_id,\n+      direction:\n+        position.mode === 'dual_long'\n+          ? 'LONG'\n+          : position.mode === 'dual_short'\n+          ? 'SHORT'\n+          : position.size > 0\n+          ? 'LONG'\n+          : 'SHORT',\n+      volume,\n+      free_volume: Math.abs(position.size),\n+      position_price: Number(position.entry_price),\n+      closable_price,\n+      floating_profit: Number(position.unrealised_pnl),\n+      liquidation_price: position.liq_price,\n+      valuation,\n+    });\n+  }\n+\n+  return positions;\n+};\n@@ -8 +60 @@ export const getUnifiedAccountInfo = async (credential: ICredential) => {\n-  const [futurePositions, unifiedAccount, spotTickers] = await Promise.all([\n+  const [futurePositions, unifiedAccount, spotTickers, spotProductMap] = await Promise.all([\n@@ -11,0 +64 @@ export const getUnifiedAccountInfo = async (credential: ICredential) => {\n+    spotProductMapCache.query('').catch(() => undefined),\n@@ -13,0 +67 @@ export const getUnifiedAccountInfo = async (credential: ICredential) => {\n+  const resolvedSpotProductMap = spotProductMap ?? new Map<string, string>();\n@@ -32 +86 @@ export const getUnifiedAccountInfo = async (credential: ICredential) => {\n-        datasource_id: 'gate/spot',\n+        datasource_id: 'GATE',\n@@ -34 +88 @@ export const getUnifiedAccountInfo = async (credential: ICredential) => {\n-        product_id: encodePath('GATE', 'SPOT', currency),\n+        product_id: resolvedSpotProductMap.get(currency) ?? encodePath('GATE', 'SPOT', currency),\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "spotProductMapCache",
+              "code": "const spotProductMapCache = createCache(\n  async () => {",
+              "lineStart": 8,
+              "lineEnd": 9
+            },
+            {
+              "type": "function",
+              "name": "products",
+              "code": "const products = await listProducts();",
+              "lineStart": 10,
+              "lineEnd": 10
+            },
+            {
+              "type": "function",
+              "name": "map",
+              "code": "const map = new Map<string, string>();",
+              "lineStart": 11,
+              "lineEnd": 11
+            },
+            {
+              "type": "function",
+              "name": "product",
+              "code": "    for (const product of products ?? []) {\n      const [, instType] = product.product_id.split('/');\n      if (instType === 'SPOT') {\n        map.set(product.base_currency, product.product_id);\n      }\n    }\n    return map;\n  },\n  { expire: 86_400_000 },\n);\n",
+              "lineStart": 12,
+              "lineEnd": 22
+            },
+            {
+              "type": "function",
+              "name": "loadFuturePositions",
+              "code": "const loadFuturePositions = async (credential: ICredential): Promise<IPosition[]> => {",
+              "lineStart": 23,
+              "lineEnd": 23
+            },
+            {
+              "type": "function",
+              "name": "positions",
+              "code": "const positions: IPosition[] = [];",
+              "lineStart": 24,
+              "lineEnd": 24
+            },
+            {
+              "type": "function",
+              "name": "positionsRes",
+              "code": "const positionsRes = await getFuturePositions(credential, 'usdt');\n",
+              "lineStart": 25,
+              "lineEnd": 26
+            },
+            {
+              "type": "function",
+              "name": "position",
+              "code": "for (const position of Array.isArray(positionsRes) ? positionsRes : []) {\n  if (!(Math.abs(position.size) > 0)) continue;\n",
+              "lineStart": 27,
+              "lineEnd": 29
+            },
+            {
+              "type": "function",
+              "name": "product_id",
+              "code": "const product_id = encodePath('GATE', 'FUTURE', position.contract);",
+              "lineStart": 30,
+              "lineEnd": 30
+            },
+            {
+              "type": "function",
+              "name": "volume",
+              "code": "const volume = Math.abs(position.size);",
+              "lineStart": 31,
+              "lineEnd": 31
+            },
+            {
+              "type": "function",
+              "name": "closable_price",
+              "code": "const closable_price = Number(position.mark_price);",
+              "lineStart": 32,
+              "lineEnd": 32
+            },
+            {
+              "type": "function",
+              "name": "valuation",
+              "code": "const valuation = volume * closable_price;\npositions.push({\n  datasource_id: 'GATE',\n  position_id: `${position.contract}-${position.leverage}-${position.mode}`,\n  product_id,\n  direction:\n    position.mode === 'dual_long'\n      ? 'LONG'\n      : position.mode === 'dual_short'\n      ? 'SHORT'\n      : position.size > 0\n      ? 'LONG'\n      : 'SHORT',\n  volume,\n  free_volume: Math.abs(position.size),",
+              "lineStart": 33,
+              "lineEnd": 66
+            },
+            {
+              "type": "function",
+              "name": "resolvedSpotProductMap",
+              "code": "const resolvedSpotProductMap = spotProductMap ?? new Map<string, string>();\n      datasource_id: 'GATE',\n      product_id: resolvedSpotProductMap.get(currency) ?? encodePath('GATE', 'SPOT', currency),",
+              "lineStart": 67,
+              "lineEnd": 89
+            }
+          ]
+        },
+        {
+          "additions": 3,
+          "deletions": 16,
+          "path": "apps/vendor-gate/src/services/exchange.ts",
+          "changeType": "modified",
+          "patch": "commit 7d834feb5b0901a5ecd280eb134babe6b8a3cd58\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Tue Dec 9 01:24:10 2025 +0800\n\n    feat(vendor-gate): 统一账户服务，整合现货与期货逻辑，移除冗余代码 (#2264)\n\ndiff --git a/apps/vendor-gate/src/services/exchange.ts b/apps/vendor-gate/src/services/exchange.ts\nindex 5672321de..3a8fbaeca 100644\n--- a/apps/vendor-gate/src/services/exchange.ts\n+++ b/apps/vendor-gate/src/services/exchange.ts\n@@ -5 +4,0 @@ import { Terminal } from '@yuants/protocol';\n-import { decodePath } from '@yuants/utils';\n@@ -10 +8,0 @@ import { submitOrder } from './orders/submitOrder';\n-import { getFutureAccountInfo } from './accounts/future';\n@@ -30,4 +28 @@ provideExchangeServices<ICredential>(terminal, {\n-    const [unifiedPositions] = await Promise.all([\n-      // getFutureAccountInfo(credential),\n-      getUnifiedAccountInfo(credential),\n-    ]);\n+    const unifiedPositions = await getUnifiedAccountInfo(credential);\n@@ -47,10 +42,2 @@ provideExchangeServices<ICredential>(terminal, {\n-    const [_, instType] = decodePath(product_id); // BINANCE/USDT-FUTURE/ADAUSDT\n-    // if (instType === 'SPOT') {\n-    //   const positions = await getSpotAccountInfoSnapshot(credential);\n-    //   return positions.filter((position) => position.product_id === product_id);\n-    // }\n-    if (instType === 'FUTURE') {\n-      const positions = await getFutureAccountInfo(credential);\n-      return positions.filter((position) => position.product_id === product_id);\n-    }\n-    throw new Error(`Unsupported instType: ${instType}`);\n+    const positions = await getUnifiedAccountInfo(credential);\n+    return positions.filter((position) => position.product_id === product_id);\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "unifiedPositions",
+              "code": "const unifiedPositions = await getUnifiedAccountInfo(credential);",
+              "lineStart": 28,
+              "lineEnd": 41
+            },
+            {
+              "type": "function",
+              "name": "positions",
+              "code": "const positions = await getUnifiedAccountInfo(credential);\nreturn positions.filter((position) => position.product_id === product_id);",
+              "lineStart": 42,
+              "lineEnd": 44
+            }
+          ]
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-gate/2025-12-08-17-21.json",
+          "changeType": "added",
+          "patch": "commit 7d834feb5b0901a5ecd280eb134babe6b8a3cd58\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Tue Dec 9 01:24:10 2025 +0800\n\n    feat(vendor-gate): 统一账户服务，整合现货与期货逻辑，移除冗余代码 (#2264)\n\ndiff --git a/common/changes/@yuants/vendor-gate/2025-12-08-17-21.json b/common/changes/@yuants/vendor-gate/2025-12-08-17-21.json\nnew file mode 100644\nindex 000000000..9d32a3404\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-gate/2025-12-08-17-21.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-gate\",\n+      \"comment\": \"feat: 统一账户服务，整合现货与期货逻辑，移除冗余代码\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-gate\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "96439652828d05d6d4f6b7d681f79ebc991a36cc",
+      "short": "964396528",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2025-12-09 01:25:17 +0800",
+      "subject": "chore: bump version (#2265)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-gate/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 96439652828d05d6d4f6b7d681f79ebc991a36cc\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 01:25:17 2025 +0800\n\n    chore: bump version (#2265)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-gate/CHANGELOG.json b/apps/vendor-gate/CHANGELOG.json\nindex 77e5763f2..86d6e1579 100644\n--- a/apps/vendor-gate/CHANGELOG.json\n+++ b/apps/vendor-gate/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.4.22\",\n+      \"tag\": \"@yuants/vendor-gate_v0.4.22\",\n+      \"date\": \"Mon, 08 Dec 2025 17:24:52 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"feat: 统一账户服务，整合现货与期货逻辑，移除冗余代码\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-gate/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 96439652828d05d6d4f6b7d681f79ebc991a36cc\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 01:25:17 2025 +0800\n\n    chore: bump version (#2265)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-gate/CHANGELOG.md b/apps/vendor-gate/CHANGELOG.md\nindex f98f7ebe6..4fb526cd7 100644\n--- a/apps/vendor-gate/CHANGELOG.md\n+++ b/apps/vendor-gate/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Mon, 08 Dec 2025 16:38:57 GMT and should not be manually modified.\n+This log was last generated on Mon, 08 Dec 2025 17:24:52 GMT and should not be manually modified.\n+\n+## 0.4.22\n+Mon, 08 Dec 2025 17:24:52 GMT\n+\n+### Patches\n+\n+- feat: 统一账户服务，整合现货与期货逻辑，移除冗余代码\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-gate/package.json",
+          "changeType": "modified",
+          "patch": "commit 96439652828d05d6d4f6b7d681f79ebc991a36cc\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 01:25:17 2025 +0800\n\n    chore: bump version (#2265)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-gate/package.json b/apps/vendor-gate/package.json\nindex 24821cb9a..ae7c38bee 100644\n--- a/apps/vendor-gate/package.json\n+++ b/apps/vendor-gate/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.4.21\",\n+  \"version\": \"0.4.22\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-gate/2025-12-08-17-21.json",
+          "changeType": "deleted",
+          "patch": "commit 96439652828d05d6d4f6b7d681f79ebc991a36cc\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 01:25:17 2025 +0800\n\n    chore: bump version (#2265)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-gate/2025-12-08-17-21.json b/common/changes/@yuants/vendor-gate/2025-12-08-17-21.json\ndeleted file mode 100644\nindex 9d32a3404..000000000\n--- a/common/changes/@yuants/vendor-gate/2025-12-08-17-21.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-gate\",\n-      \"comment\": \"feat: 统一账户服务，整合现货与期货逻辑，移除冗余代码\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-gate\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-gate/{main_2025-12-08-16-39.json => main_2025-12-08-17-24.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "e877cfa130104d79691d3e9098433f6a27d277ef",
+      "short": "e877cfa13",
+      "author": "CZ",
+      "email": "zheng.chen@no-trade-no.life",
+      "authoredAt": "2025-12-09 01:46:51 +0800",
+      "subject": "feat: enhance error handling and fix position side logic (#2266)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 11,
+          "deletions": 2,
+          "path": "apps/vendor-aster/src/api/private-api.ts",
+          "changeType": "modified",
+          "patch": "commit e877cfa130104d79691d3e9098433f6a27d277ef\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Tue Dec 9 01:46:51 2025 +0800\n\n    feat: enhance error handling and fix position side logic (#2266)\n\ndiff --git a/apps/vendor-aster/src/api/private-api.ts b/apps/vendor-aster/src/api/private-api.ts\nindex 71f2f7943..ddafe28ed 100644\n--- a/apps/vendor-aster/src/api/private-api.ts\n+++ b/apps/vendor-aster/src/api/private-api.ts\n@@ -1 +1 @@\n-import { encodeHex, HmacSHA256 } from '@yuants/utils';\n+import { encodeHex, HmacSHA256, newError } from '@yuants/utils';\n@@ -99 +99,10 @@ const request = async <T>(\n-    throw `APIError: ${response.status} ${response.statusText} ${resText}`;\n+    throw newError(\n+      'ASTER_API_ERROR',\n+      {\n+        status: response.status,\n+        statusText: response.statusText,\n+        resText,\n+        params,\n+      },\n+      e,\n+    );\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 6,
+          "path": "apps/vendor-aster/src/services/orders/submitOrder.ts",
+          "changeType": "modified",
+          "patch": "commit e877cfa130104d79691d3e9098433f6a27d277ef\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Tue Dec 9 01:46:51 2025 +0800\n\n    feat: enhance error handling and fix position side logic (#2266)\n\ndiff --git a/apps/vendor-aster/src/services/orders/submitOrder.ts b/apps/vendor-aster/src/services/orders/submitOrder.ts\nindex 37791f5bf..9580e87b1 100644\n--- a/apps/vendor-aster/src/services/orders/submitOrder.ts\n+++ b/apps/vendor-aster/src/services/orders/submitOrder.ts\n@@ -80,6 +80,9 @@ const handleSubmitOrderOfPerp: IActionHandlerOfSubmitOrder<ICredential> = async\n-  const positionSide =\n-    order.order_direction === 'OPEN_LONG' || order.order_direction === 'CLOSE_LONG'\n-      ? 'LONG'\n-      : order.order_direction === 'OPEN_SHORT' || order.order_direction === 'CLOSE_SHORT'\n-      ? 'SHORT'\n-      : undefined;\n+  const isPositionSingleSide = true; // FIXME: Aster 永续合约仅支持单向持仓模式\n+\n+  const positionSide = isPositionSingleSide\n+    ? undefined\n+    : order.order_direction === 'OPEN_LONG' || order.order_direction === 'CLOSE_LONG'\n+    ? 'LONG'\n+    : order.order_direction === 'OPEN_SHORT' || order.order_direction === 'CLOSE_SHORT'\n+    ? 'SHORT'\n+    : undefined;\n@@ -91,0 +95 @@ const handleSubmitOrderOfPerp: IActionHandlerOfSubmitOrder<ICredential> = async\n+  //\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "isPositionSingleSide",
+              "code": "const isPositionSingleSide = true; // FIXME: Aster 永续合约仅支持单向持仓模式\n",
+              "lineStart": 80,
+              "lineEnd": 81
+            },
+            {
+              "type": "function",
+              "name": "positionSide",
+              "code": "const positionSide = isPositionSingleSide\n  ? undefined\n  : order.order_direction === 'OPEN_LONG' || order.order_direction === 'CLOSE_LONG'\n  ? 'LONG'\n  : order.order_direction === 'OPEN_SHORT' || order.order_direction === 'CLOSE_SHORT'\n  ? 'SHORT'\n  : undefined;\n//",
+              "lineStart": 82,
+              "lineEnd": 96
+            }
+          ]
+        },
+        {
+          "additions": 3,
+          "deletions": 1,
+          "path": "apps/vendor-binance/src/api/client.ts",
+          "changeType": "modified",
+          "patch": "commit e877cfa130104d79691d3e9098433f6a27d277ef\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Tue Dec 9 01:46:51 2025 +0800\n\n    feat: enhance error handling and fix position side logic (#2266)\n\ndiff --git a/apps/vendor-binance/src/api/client.ts b/apps/vendor-binance/src/api/client.ts\nindex 4435ec16c..fab85d85d 100644\n--- a/apps/vendor-binance/src/api/client.ts\n+++ b/apps/vendor-binance/src/api/client.ts\n@@ -122 +122,3 @@ const callApi = async <T>(\n-    MetricBinanceApiUsedWeight.labels({ endpoint, terminal_id: terminal.terminal_id }).set(+usedWeight1M);\n+    MetricBinanceApiUsedWeight.labels({ path: endpoint, terminal_id: terminal.terminal_id }).set(\n+      +usedWeight1M,\n+    );\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-aster/2025-12-08-17-45.json",
+          "changeType": "added",
+          "patch": "commit e877cfa130104d79691d3e9098433f6a27d277ef\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Tue Dec 9 01:46:51 2025 +0800\n\n    feat: enhance error handling and fix position side logic (#2266)\n\ndiff --git a/common/changes/@yuants/vendor-aster/2025-12-08-17-45.json b/common/changes/@yuants/vendor-aster/2025-12-08-17-45.json\nnew file mode 100644\nindex 000000000..5deb654dd\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-aster/2025-12-08-17-45.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-aster\",\n+      \"comment\": \"fix position side\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-aster\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-binance/2025-12-08-17-45.json",
+          "changeType": "added",
+          "patch": "commit e877cfa130104d79691d3e9098433f6a27d277ef\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Tue Dec 9 01:46:51 2025 +0800\n\n    feat: enhance error handling and fix position side logic (#2266)\n\ndiff --git a/common/changes/@yuants/vendor-binance/2025-12-08-17-45.json b/common/changes/@yuants/vendor-binance/2025-12-08-17-45.json\nnew file mode 100644\nindex 000000000..fe10454eb\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-binance/2025-12-08-17-45.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-binance\",\n+      \"comment\": \"fix metric \",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-binance\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "bcc58c8fadbfc95a5898223f5df1bf26331bb163",
+      "short": "bcc58c8fa",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2025-12-09 01:58:44 +0800",
+      "subject": "chore: bump version (#2267)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-aster/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit bcc58c8fadbfc95a5898223f5df1bf26331bb163\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 01:58:44 2025 +0800\n\n    chore: bump version (#2267)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/CHANGELOG.json b/apps/vendor-aster/CHANGELOG.json\nindex f8ada593c..b01e4c9fc 100644\n--- a/apps/vendor-aster/CHANGELOG.json\n+++ b/apps/vendor-aster/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.7.25\",\n+      \"tag\": \"@yuants/vendor-aster_v0.7.25\",\n+      \"date\": \"Mon, 08 Dec 2025 17:52:18 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"fix position side\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-aster/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit bcc58c8fadbfc95a5898223f5df1bf26331bb163\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 01:58:44 2025 +0800\n\n    chore: bump version (#2267)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/CHANGELOG.md b/apps/vendor-aster/CHANGELOG.md\nindex fe5f652f0..9e5b38423 100644\n--- a/apps/vendor-aster/CHANGELOG.md\n+++ b/apps/vendor-aster/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Mon, 08 Dec 2025 16:38:57 GMT and should not be manually modified.\n+This log was last generated on Mon, 08 Dec 2025 17:52:18 GMT and should not be manually modified.\n+\n+## 0.7.25\n+Mon, 08 Dec 2025 17:52:18 GMT\n+\n+### Patches\n+\n+- fix position side\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-aster/package.json",
+          "changeType": "modified",
+          "patch": "commit bcc58c8fadbfc95a5898223f5df1bf26331bb163\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 01:58:44 2025 +0800\n\n    chore: bump version (#2267)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/package.json b/apps/vendor-aster/package.json\nindex 7e9909718..6c19a6621 100644\n--- a/apps/vendor-aster/package.json\n+++ b/apps/vendor-aster/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.7.24\",\n+  \"version\": \"0.7.25\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-binance/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit bcc58c8fadbfc95a5898223f5df1bf26331bb163\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 01:58:44 2025 +0800\n\n    chore: bump version (#2267)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-binance/CHANGELOG.json b/apps/vendor-binance/CHANGELOG.json\nindex f4782dd2f..018b86216 100644\n--- a/apps/vendor-binance/CHANGELOG.json\n+++ b/apps/vendor-binance/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.10.14\",\n+      \"tag\": \"@yuants/vendor-binance_v0.10.14\",\n+      \"date\": \"Mon, 08 Dec 2025 17:52:18 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"fix metric \"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-binance/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit bcc58c8fadbfc95a5898223f5df1bf26331bb163\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 01:58:44 2025 +0800\n\n    chore: bump version (#2267)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-binance/CHANGELOG.md b/apps/vendor-binance/CHANGELOG.md\nindex 4d7c1cec4..5e4515057 100644\n--- a/apps/vendor-binance/CHANGELOG.md\n+++ b/apps/vendor-binance/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Mon, 08 Dec 2025 15:50:21 GMT and should not be manually modified.\n+This log was last generated on Mon, 08 Dec 2025 17:52:18 GMT and should not be manually modified.\n+\n+## 0.10.14\n+Mon, 08 Dec 2025 17:52:18 GMT\n+\n+### Patches\n+\n+- fix metric \n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-binance/package.json",
+          "changeType": "modified",
+          "patch": "commit bcc58c8fadbfc95a5898223f5df1bf26331bb163\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 01:58:44 2025 +0800\n\n    chore: bump version (#2267)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-binance/package.json b/apps/vendor-binance/package.json\nindex ecc201b03..6b182bc83 100644\n--- a/apps/vendor-binance/package.json\n+++ b/apps/vendor-binance/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.10.13\",\n+  \"version\": \"0.10.14\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-aster/2025-12-08-17-45.json",
+          "changeType": "deleted",
+          "patch": "commit bcc58c8fadbfc95a5898223f5df1bf26331bb163\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 01:58:44 2025 +0800\n\n    chore: bump version (#2267)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-aster/2025-12-08-17-45.json b/common/changes/@yuants/vendor-aster/2025-12-08-17-45.json\ndeleted file mode 100644\nindex 5deb654dd..000000000\n--- a/common/changes/@yuants/vendor-aster/2025-12-08-17-45.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-aster\",\n-      \"comment\": \"fix position side\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-aster\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-aster/{main_2025-12-08-16-39.json => main_2025-12-08-17-52.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-binance/2025-12-08-17-45.json",
+          "changeType": "deleted",
+          "patch": "commit bcc58c8fadbfc95a5898223f5df1bf26331bb163\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 01:58:44 2025 +0800\n\n    chore: bump version (#2267)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-binance/2025-12-08-17-45.json b/common/changes/@yuants/vendor-binance/2025-12-08-17-45.json\ndeleted file mode 100644\nindex fe10454eb..000000000\n--- a/common/changes/@yuants/vendor-binance/2025-12-08-17-45.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-binance\",\n-      \"comment\": \"fix metric \",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-binance\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-binance/{main_2025-12-08-15-50.json => main_2025-12-08-17-52.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "7524db52e9309e9cf10c853f2f2097063a0a7939",
+      "short": "7524db52e",
+      "author": "CZ",
+      "email": "zheng.chen@no-trade-no.life",
+      "authoredAt": "2025-12-09 02:03:56 +0800",
+      "subject": "fix: add delay to prevent API rate limit issues (#2268)",
+      "conventionalCommit": {
+        "type": "fix",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 2,
+          "deletions": 2,
+          "path": "apps/vendor-binance/src/public-data/interest_rate.ts",
+          "changeType": "modified",
+          "patch": "commit 7524db52e9309e9cf10c853f2f2097063a0a7939\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Tue Dec 9 02:03:56 2025 +0800\n\n    fix: add delay to prevent API rate limit issues (#2268)\n\ndiff --git a/apps/vendor-binance/src/public-data/interest_rate.ts b/apps/vendor-binance/src/public-data/interest_rate.ts\nindex 920a2d3ce..a197c30a2 100644\n--- a/apps/vendor-binance/src/public-data/interest_rate.ts\n+++ b/apps/vendor-binance/src/public-data/interest_rate.ts\n@@ -20,0 +21 @@ createSeriesProvider<IInterestRate>(terminal, {\n+        await firstValueFrom(timer(1000));\n@@ -43 +43,0 @@ createSeriesProvider<IInterestRate>(terminal, {\n-        await firstValueFrom(timer(1000));\n@@ -48,0 +49 @@ createSeriesProvider<IInterestRate>(terminal, {\n+        await firstValueFrom(timer(1000));\n@@ -70 +70,0 @@ createSeriesProvider<IInterestRate>(terminal, {\n-        await firstValueFrom(timer(1000));\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-binance/2025-12-08-18-02.json",
+          "changeType": "added",
+          "patch": "commit 7524db52e9309e9cf10c853f2f2097063a0a7939\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Tue Dec 9 02:03:56 2025 +0800\n\n    fix: add delay to prevent API rate limit issues (#2268)\n\ndiff --git a/common/changes/@yuants/vendor-binance/2025-12-08-18-02.json b/common/changes/@yuants/vendor-binance/2025-12-08-18-02.json\nnew file mode 100644\nindex 000000000..118194952\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-binance/2025-12-08-18-02.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-binance\",\n+      \"comment\": \"fix api too fast\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-binance\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "4a65d80af6fa6088c5c6e695c8a73777e6f217df",
+      "short": "4a65d80af",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2025-12-09 04:52:08 +0800",
+      "subject": "chore: bump version (#2269)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-binance/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 4a65d80af6fa6088c5c6e695c8a73777e6f217df\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 04:52:08 2025 +0800\n\n    chore: bump version (#2269)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-binance/CHANGELOG.json b/apps/vendor-binance/CHANGELOG.json\nindex 018b86216..6c9663970 100644\n--- a/apps/vendor-binance/CHANGELOG.json\n+++ b/apps/vendor-binance/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.10.15\",\n+      \"tag\": \"@yuants/vendor-binance_v0.10.15\",\n+      \"date\": \"Mon, 08 Dec 2025 18:12:20 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"fix api too fast\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-binance/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 4a65d80af6fa6088c5c6e695c8a73777e6f217df\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 04:52:08 2025 +0800\n\n    chore: bump version (#2269)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-binance/CHANGELOG.md b/apps/vendor-binance/CHANGELOG.md\nindex 5e4515057..3e6d3e53b 100644\n--- a/apps/vendor-binance/CHANGELOG.md\n+++ b/apps/vendor-binance/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Mon, 08 Dec 2025 17:52:18 GMT and should not be manually modified.\n+This log was last generated on Mon, 08 Dec 2025 18:12:20 GMT and should not be manually modified.\n+\n+## 0.10.15\n+Mon, 08 Dec 2025 18:12:20 GMT\n+\n+### Patches\n+\n+- fix api too fast\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-binance/package.json",
+          "changeType": "modified",
+          "patch": "commit 4a65d80af6fa6088c5c6e695c8a73777e6f217df\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 04:52:08 2025 +0800\n\n    chore: bump version (#2269)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-binance/package.json b/apps/vendor-binance/package.json\nindex 6b182bc83..0970b460f 100644\n--- a/apps/vendor-binance/package.json\n+++ b/apps/vendor-binance/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.10.14\",\n+  \"version\": \"0.10.15\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-binance/2025-12-08-18-02.json",
+          "changeType": "deleted",
+          "patch": "commit 4a65d80af6fa6088c5c6e695c8a73777e6f217df\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Dec 9 04:52:08 2025 +0800\n\n    chore: bump version (#2269)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-binance/2025-12-08-18-02.json b/common/changes/@yuants/vendor-binance/2025-12-08-18-02.json\ndeleted file mode 100644\nindex 118194952..000000000\n--- a/common/changes/@yuants/vendor-binance/2025-12-08-18-02.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-binance\",\n-      \"comment\": \"fix api too fast\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-binance\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-binance/{main_2025-12-08-17-52.json => main_2025-12-08-18-12.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        }
+      ]
+    }
+  ],
+  "analysis": {
+    "domains": [
+      {
+        "name": "API请求优化与限速",
+        "commits": [
+          "fbb85da27",
+          "ec638fca2",
+          "0e69317d1",
+          "9f8b2059d",
+          "7d834feb5",
+          "e877cfa13"
+        ],
+        "files": [
+          "apps/vendor-aster/src/services/orders/submitOrder.ts",
+          "common/changes/@yuants/vendor-aster/2025-12-08-14-54.json",
+          "apps/vendor-huobi/src/api/private-api.ts",
+          "apps/vendor-huobi/src/services/accounts/swap.ts",
+          "apps/vendor-okx/src/accountInfos/trading.ts",
+          "common/changes/@yuants/vendor-huobi/2025-12-08-15-15.json",
+          "common/changes/@yuants/vendor-okx/2025-12-08-15-15.json",
+          "ui/web/src/modules/AccountInfo/AccountInfoPanel.tsx",
+          "apps/vendor-binance/src/api/client.ts",
+          "apps/vendor-binance/src/api/public-api.ts"
+        ]
+      },
+      {
+        "name": "安全与鉴权",
+        "commits": [
+          "fbb85da27",
+          "ec638fca2",
+          "0e69317d1",
+          "5fad1f6ea",
+          "cbbfb2ce9",
+          "9f8b2059d",
+          "7d834feb5",
+          "e877cfa13",
+          "7524db52e"
+        ],
+        "files": [
+          "apps/vendor-aster/src/services/orders/submitOrder.ts",
+          "common/changes/@yuants/vendor-aster/2025-12-08-14-54.json",
+          "apps/vendor-huobi/src/api/private-api.ts",
+          "apps/vendor-huobi/src/services/accounts/swap.ts",
+          "apps/vendor-okx/src/accountInfos/trading.ts",
+          "common/changes/@yuants/vendor-huobi/2025-12-08-15-15.json",
+          "common/changes/@yuants/vendor-okx/2025-12-08-15-15.json",
+          "ui/web/src/modules/AccountInfo/AccountInfoPanel.tsx",
+          "apps/vendor-binance/src/api/client.ts",
+          "apps/vendor-binance/src/api/public-api.ts"
+        ]
+      },
+      {
+        "name": "订单与交易",
+        "commits": [
+          "fbb85da27",
+          "ec638fca2",
+          "0e69317d1",
+          "5fad1f6ea",
+          "cbbfb2ce9",
+          "9f8b2059d",
+          "7d834feb5",
+          "e877cfa13",
+          "7524db52e"
+        ],
+        "files": [
+          "apps/vendor-aster/src/services/orders/submitOrder.ts",
+          "common/changes/@yuants/vendor-aster/2025-12-08-14-54.json",
+          "apps/vendor-huobi/src/api/private-api.ts",
+          "apps/vendor-huobi/src/services/accounts/swap.ts",
+          "apps/vendor-okx/src/accountInfos/trading.ts",
+          "common/changes/@yuants/vendor-huobi/2025-12-08-15-15.json",
+          "common/changes/@yuants/vendor-okx/2025-12-08-15-15.json",
+          "ui/web/src/modules/AccountInfo/AccountInfoPanel.tsx",
+          "apps/vendor-binance/src/api/client.ts",
+          "apps/vendor-binance/src/api/public-api.ts"
+        ]
+      },
+      {
+        "name": "账户管理",
+        "commits": [
+          "fbb85da27",
+          "ec638fca2",
+          "0e69317d1",
+          "5fad1f6ea",
+          "cbbfb2ce9",
+          "9f8b2059d",
+          "f9883ff8c",
+          "7d834feb5",
+          "e877cfa13",
+          "7524db52e"
+        ],
+        "files": [
+          "apps/vendor-aster/src/services/orders/submitOrder.ts",
+          "common/changes/@yuants/vendor-aster/2025-12-08-14-54.json",
+          "apps/vendor-huobi/src/api/private-api.ts",
+          "apps/vendor-huobi/src/services/accounts/swap.ts",
+          "apps/vendor-okx/src/accountInfos/trading.ts",
+          "common/changes/@yuants/vendor-huobi/2025-12-08-15-15.json",
+          "common/changes/@yuants/vendor-okx/2025-12-08-15-15.json",
+          "ui/web/src/modules/AccountInfo/AccountInfoPanel.tsx",
+          "apps/vendor-binance/src/api/client.ts",
+          "apps/vendor-binance/src/api/public-api.ts"
+        ]
+      },
+      {
+        "name": "市场数据",
+        "commits": [
+          "fbb85da27",
+          "ec638fca2",
+          "0e69317d1",
+          "5fad1f6ea",
+          "cbbfb2ce9",
+          "9f8b2059d",
+          "7d834feb5",
+          "e877cfa13",
+          "7524db52e"
+        ],
+        "files": [
+          "apps/vendor-aster/src/services/orders/submitOrder.ts",
+          "common/changes/@yuants/vendor-aster/2025-12-08-14-54.json",
+          "apps/vendor-huobi/src/api/private-api.ts",
+          "apps/vendor-huobi/src/services/accounts/swap.ts",
+          "apps/vendor-okx/src/accountInfos/trading.ts",
+          "common/changes/@yuants/vendor-huobi/2025-12-08-15-15.json",
+          "common/changes/@yuants/vendor-okx/2025-12-08-15-15.json",
+          "ui/web/src/modules/AccountInfo/AccountInfoPanel.tsx",
+          "apps/vendor-binance/src/api/client.ts",
+          "apps/vendor-binance/src/api/public-api.ts"
+        ]
+      },
+      {
+        "name": "配置与环境",
+        "commits": [
+          "fbb85da27",
+          "ec638fca2",
+          "0e69317d1",
+          "5fad1f6ea",
+          "baf2f4727",
+          "cbbfb2ce9",
+          "9f8b2059d",
+          "f9883ff8c",
+          "8fa79e6e2",
+          "7d834feb5",
+          "964396528",
+          "e877cfa13",
+          "bcc58c8fa",
+          "7524db52e",
+          "4a65d80af"
+        ],
+        "files": [
+          "apps/vendor-aster/src/services/orders/submitOrder.ts",
+          "common/changes/@yuants/vendor-aster/2025-12-08-14-54.json",
+          "apps/vendor-huobi/src/api/private-api.ts",
+          "apps/vendor-huobi/src/services/accounts/swap.ts",
+          "apps/vendor-okx/src/accountInfos/trading.ts",
+          "common/changes/@yuants/vendor-huobi/2025-12-08-15-15.json",
+          "common/changes/@yuants/vendor-okx/2025-12-08-15-15.json",
+          "ui/web/src/modules/AccountInfo/AccountInfoPanel.tsx",
+          "apps/vendor-binance/src/api/client.ts",
+          "apps/vendor-binance/src/api/public-api.ts"
+        ]
+      },
+      {
+        "name": "接口重构",
+        "commits": [
+          "ec638fca2",
+          "0e69317d1",
+          "9f8b2059d",
+          "e877cfa13"
+        ],
+        "files": [
+          "apps/vendor-huobi/src/api/private-api.ts",
+          "apps/vendor-huobi/src/services/accounts/swap.ts",
+          "apps/vendor-okx/src/accountInfos/trading.ts",
+          "common/changes/@yuants/vendor-huobi/2025-12-08-15-15.json",
+          "common/changes/@yuants/vendor-okx/2025-12-08-15-15.json",
+          "ui/web/src/modules/AccountInfo/AccountInfoPanel.tsx",
+          "apps/vendor-binance/src/api/client.ts",
+          "apps/vendor-binance/src/api/public-api.ts",
+          "apps/vendor-binance/src/public-data/interest_rate.ts",
+          "common/changes/@yuants/vendor-binance/2025-12-08-15-43.json"
+        ]
+      },
+      {
+        "name": "错误处理与观测",
+        "commits": [
+          "5fad1f6ea",
+          "cbbfb2ce9",
+          "7524db52e"
+        ],
+        "files": [
+          "apps/vendor-aster/SESSION_NOTES.md",
+          "apps/vendor-aster/src/services/accounts/spot.ts",
+          "common/changes/@yuants/vendor-aster/2025-12-08-15-43.json",
+          "apps/vendor-hyperliquid/SESSION_NOTES.md",
+          "apps/vendor-hyperliquid/src/services/accounts/spot.ts",
+          "common/changes/@yuants/vendor-hyperliquid/2025-12-08-16-11.json",
+          "apps/vendor-binance/src/public-data/interest_rate.ts",
+          "common/changes/@yuants/vendor-binance/2025-12-08-18-02.json"
+        ]
+      },
+      {
+        "name": "文档",
+        "commits": [
+          "5fad1f6ea",
+          "baf2f4727",
+          "cbbfb2ce9",
+          "f9883ff8c",
+          "8fa79e6e2",
+          "7d834feb5",
+          "964396528",
+          "bcc58c8fa",
+          "4a65d80af"
+        ],
+        "files": [
+          "apps/vendor-aster/SESSION_NOTES.md",
+          "apps/vendor-aster/src/services/accounts/spot.ts",
+          "common/changes/@yuants/vendor-aster/2025-12-08-15-43.json",
+          "apps/vendor-aster/CHANGELOG.json",
+          "apps/vendor-aster/CHANGELOG.md",
+          "apps/vendor-aster/package.json",
+          "apps/vendor-binance/CHANGELOG.json",
+          "apps/vendor-binance/CHANGELOG.md",
+          "apps/vendor-binance/package.json",
+          "apps/vendor-huobi/CHANGELOG.json"
+        ]
+      }
+    ],
+    "riskIndicators": [
+      {
+        "type": "no_tests",
+        "severity": "medium",
+        "details": "包含功能或修复提交但未见测试文件更新",
+        "commits": []
+      },
+      {
+        "type": "api_change",
+        "severity": "high",
+        "details": "3 个提交修改了API或接口定义",
+        "commits": [
+          "ec638fca2",
+          "0e69317d1",
+          "e877cfa13"
+        ]
+      }
+    ]
+  },
+  "metadata": {
+    "tool": "git-changes-reporter",
+    "version": "3.0.0",
+    "repository": "/home/runner/work/Yuan/Yuan"
+  }
+}
