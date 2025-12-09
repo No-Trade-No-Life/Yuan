@@ -16,12 +16,17 @@ const submitUnifiedOrder: IActionHandlerOfSubmitOrder<ICredential> = async (cred
   if (!order.volume) {
     throw new Error('Binance submitOrder requires order.volume to be set');
   }
+  // 单向持仓模式 (single side mode) 下
+  const isSingleSideMode = false; // TODO: fetch from account info API and cache it
   const side = mapOrderDirectionToSide(order.order_direction);
-  const positionSide = mapOrderDirectionToPositionSide(order.order_direction);
+  const positionSide = isSingleSideMode ? undefined : mapOrderDirectionToPositionSide(order.order_direction);
   const type = mapOrderTypeToOrdType(order.order_type);
   const timeInForce = order.order_type === 'MAKER' ? 'GTX' : order.order_type === 'LIMIT' ? 'GTC' : undefined;
-  const reduceOnly =
-    order.order_direction === 'CLOSE_LONG' || order.order_direction === 'CLOSE_SHORT' ? 'true' : undefined;
+  const reduceOnly = isSingleSideMode
+    ? order.order_direction === 'CLOSE_LONG' || order.order_direction === 'CLOSE_SHORT'
+      ? 'true'
+      : undefined
+    : undefined;
 
   const res = await postUmOrder(credential, {
     symbol,
