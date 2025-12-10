@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-agent",
+      "comment": "add repo",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-agent"
+}
