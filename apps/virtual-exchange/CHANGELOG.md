@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-virtual-exchange
 
-This log was last generated on Tue, 09 Dec 2025 17:23:12 GMT and should not be manually modified.
+This log was last generated on Wed, 10 Dec 2025 21:34:47 GMT and should not be manually modified.
+
+## 0.7.2
+Wed, 10 Dec 2025 21:34:47 GMT
+
+### Patches
+
+- polyfill next settlement time
 
 ## 0.7.1
 Tue, 09 Dec 2025 17:23:12 GMT
