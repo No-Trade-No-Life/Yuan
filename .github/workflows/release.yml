@@ -11,6 +11,10 @@ on:
         required: false
         default: 'false'
 
+permissions:
+  id-token: write # Required for OIDC
+  contents: read
+
 jobs:
   build:
     uses: ./.github/workflows/ci.yml
