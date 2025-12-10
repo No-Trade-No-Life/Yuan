@@ -11,17 +11,17 @@ on:
         required: false
         default: 'false'
 
-permissions:
-  id-token: write # Required for OIDC
-  contents: read
+# permissions:
+#   id-token: write # Required for OIDC
+#   contents: read
 
 jobs:
   build:
     uses: ./.github/workflows/ci.yml
     with:
       rebuild: ${{ inputs.rebuild == 'true' }}
-    # secrets:
-    #   NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+    secrets:
+      NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
   gh-pages-global:
     runs-on: ubuntu-latest
