@@ -125,7 +125,7 @@ export const createSeriesProvider = <T extends ISeriesDataItem>(
         table_name: { const: ctx.tableName },
         series_id: {
           type: 'string',
-          pattern: `^${escapeRegExp(encodePath(ctx.series_id_prefix_parts))}/`,
+          pattern: `^${escapeRegExp(encodePath(...ctx.series_id_prefix_parts))}/`,
         },
         started_at: { type: 'number' },
         ended_at: { type: 'number' },
