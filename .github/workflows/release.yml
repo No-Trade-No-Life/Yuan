@@ -20,8 +20,8 @@ jobs:
     uses: ./.github/workflows/ci.yml
     with:
       rebuild: ${{ inputs.rebuild == 'true' }}
-    secrets:
-      NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+    # secrets:
+    #   NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
   gh-pages-global:
     runs-on: ubuntu-latest
