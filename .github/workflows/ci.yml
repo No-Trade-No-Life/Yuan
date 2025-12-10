@@ -51,7 +51,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22.14.0
-
+      # Ensure npm 11.5.1 or later is installed (to support OIDC)
+      - name: Update npm
+        run: npm install -g npm@latest
       - name: Cache Rush
         uses: actions/cache@v4
         with:
