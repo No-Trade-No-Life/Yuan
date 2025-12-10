@@ -3,7 +3,7 @@ import { IOrder } from '@yuants/data-order';
 import { cancelOrder, getOrders, getPositions, modifyOrder, submitOrder } from '@yuants/exchange';
 import { Terminal } from '@yuants/protocol';
 import { getCredentialBySecretId } from './credential';
-import { polyfillPosition } from './position';
+import { polyfillOrders, polyfillPosition } from './position';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -39,10 +39,13 @@ terminal.server.provideService<{ secret_id: string; product_id?: string }, IOrde
   async (msg) => {
     const credential = await getCredentialBySecretId(msg.req.secret_id);
     const res = await getOrders(terminal, credential.credential, msg.req.product_id);
-    res.data?.forEach((order) => {
+    if (!res.data) return { res };
+    const orders = res.data;
+    orders.forEach((order) => {
       order.account_id = credential.credentialId;
     });
-    return { res };
+    await polyfillOrders(orders);
+    return { res: { code: 0, message: 'OK', data: orders } };
   },
 );
 
@@ -60,7 +63,8 @@ terminal.server.provideService<{ order: IOrder; secret_id: string }, { order_id:
   },
   async (msg) => {
     const credential = await getCredentialBySecretId(msg.req.secret_id);
-    const res = await submitOrder(terminal, credential.credential, msg.req.order);
+    const [order] = await polyfillOrders([msg.req.order]);
+    const res = await submitOrder(terminal, credential.credential, order);
     return { res };
   },
 );
@@ -78,7 +82,8 @@ terminal.server.provideService<{ order: IOrder; secret_id: string }, void>(
   },
   async (msg) => {
     const credential = await getCredentialBySecretId(msg.req.secret_id);
-    const res = await modifyOrder(terminal, credential.credential, msg.req.order);
+    const [order] = await polyfillOrders([msg.req.order]);
+    const res = await modifyOrder(terminal, credential.credential, order);
     return { res };
   },
 );
@@ -96,7 +101,8 @@ terminal.server.provideService<{ order: IOrder; secret_id: string }, void>(
   },
   async (msg) => {
     const credential = await getCredentialBySecretId(msg.req.secret_id);
-    const res = await cancelOrder(terminal, credential.credential, msg.req.order);
+    const [order] = await polyfillOrders([msg.req.order]);
+    const res = await cancelOrder(terminal, credential.credential, order);
     return { res };
   },
 );

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-order",
+      "comment": "add order size and is_close fields",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-order"
+}
