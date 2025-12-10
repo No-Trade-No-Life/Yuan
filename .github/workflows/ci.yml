@@ -22,6 +22,10 @@ on:
 env:
   SQL_DIR: tools/sql-migration/sql
 
+permissions:
+  id-token: write # Required for OIDC
+  contents: read
+
 jobs:
   build:
     if: contains(github.event.pull_request.labels.*.name, 'skip-ci') == false
