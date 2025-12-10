@@ -29,7 +29,7 @@ createSeriesProvider<IInterestRate>(Terminal.fromNodeEnv(), {
   serviceOptions: { concurrent: 1 },
   queryFn: async function* ({ series_id, started_at }) {
     const [, instType, instId] = decodePath(series_id);
-    let current_page = 0;
+    let current_page = 1;
     if (instType === 'USDT-FUTURES') {
       while (true) {
         // 向前翻页，时间降序
