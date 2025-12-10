@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-trading-view",
   "entries": [
     {
+      "version": "0.3.43",
+      "tag": "@yuants/vendor-trading-view_v0.3.43",
+      "date": "Wed, 10 Dec 2025 06:26:44 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-series\" to `0.3.52`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.42",
       "tag": "@yuants/vendor-trading-view_v0.3.42",
       "date": "Wed, 03 Dec 2025 10:25:12 GMT",
