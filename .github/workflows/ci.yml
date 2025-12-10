@@ -10,10 +10,10 @@ on:
         description: 'Rebuild all images'
         required: false
         default: false
-    # secrets:
-    #   NPM_AUTH_TOKEN:
-    #     description: 'NPM Auth Token'
-    #     required: true
+    secrets:
+      NPM_AUTH_TOKEN:
+        description: 'NPM Auth Token'
+        required: true
     outputs:
       bake_file_existence:
         description: 'Docker bake file existence'
@@ -21,10 +21,6 @@ on:
 
 env:
   SQL_DIR: tools/sql-migration/sql
-
-permissions:
-  id-token: write # Required for OIDC
-  contents: read
 
 jobs:
   build:
@@ -52,8 +48,8 @@ jobs:
         with:
           node-version: 22.14.0
       # Ensure npm 11.5.1 or later is installed (to support OIDC)
-      - name: Update npm
-        run: npm install -g npm@latest
+      # - name: Update npm
+      #   run: npm install -g npm@latest
       - name: Cache Rush
         uses: actions/cache@v4
         with:
