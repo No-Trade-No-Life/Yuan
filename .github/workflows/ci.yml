@@ -130,8 +130,8 @@ jobs:
 
       - name: Publish NPM Package
         if: ${{ github.ref == 'refs/heads/main' }}
-        # env:
-        #   NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
         run: node common/scripts/install-run-rush.js publish -p --include-all
 
   migration-smoke:
