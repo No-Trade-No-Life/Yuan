@@ -1,9 +1,11 @@
 import { createCache } from '@yuants/cache';
 import { IPosition } from '@yuants/data-account';
+import { IOrder } from '@yuants/data-order';
 import { createClientProductCache } from '@yuants/data-product';
 import { IQuote } from '@yuants/data-quote';
 import { Terminal } from '@yuants/protocol';
 import { escapeSQL, requestSQL } from '@yuants/sql';
+import { newError } from '@yuants/utils';
 
 const terminal = Terminal.fromNodeEnv();
 const productCache = createClientProductCache(terminal);
@@ -88,4 +90,34 @@ export const polyfillPosition = async (positions: IPosition[]): Promise<IPositio
     }
   }
   return positions;
+};
+
+export const polyfillOrders = async (orders: IOrder[]): Promise<IOrder[]> => {
+  for (const order of orders) {
+    const theProduct = await productCache.query(order.product_id);
+    if (theProduct) {
+      if (order.size !== undefined) {
+        const sizeNum = +order.size;
+        const sizeStep = theProduct.volume_step * theProduct.value_scale;
+        if (!(sizeStep > 0)) throw newError('INVALID_SIZE_STEP', { product: theProduct, sizeStep });
+        // check size is multiple of sizeStep
+        if (Math.abs(sizeNum - Math.round(sizeNum / sizeStep) * sizeStep) > 1e-16) {
+          throw newError('INVALID_ORDER_SIZE_NOT_MULTIPLE_OF_SIZE_STEP', {
+            order,
+            sizeStep,
+            sizeNum,
+            product: theProduct,
+          });
+        }
+
+        if (sizeNum >= 0) {
+          order.order_direction = order.is_close ? 'CLOSE_SHORT' : 'OPEN_LONG';
+        } else {
+          order.order_direction = order.is_close ? 'CLOSE_LONG' : 'OPEN_SHORT';
+        }
+        order.volume = Math.abs(sizeNum) / theProduct.value_scale;
+      }
+    }
+  }
+  return orders;
 };

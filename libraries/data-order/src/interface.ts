@@ -52,6 +52,23 @@ export interface IOrder {
    */
   order_direction?: string;
   /**
+   * Order Size.
+   *
+   * 委托净数量，负数代表卖出 (开空/平多)，正数代表买入 (开多/平空)。
+   *
+   * 使用基础货币单位(标的资产数量)。
+   *
+   * 如果成交，可以预期 position.size 会相应变化 order.size 的数量。
+   *
+   * 通过 VEX 代理时，推荐使用这个字段指定下单，可以省略 order_direction 和 volume。
+   */
+  size?: string;
+  /**
+   * Whether it is a closing order.
+   * 是否为平仓单
+   */
+  is_close?: boolean;
+  /**
    * Order volume.
    * 委托量
    */

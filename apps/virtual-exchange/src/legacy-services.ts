@@ -5,7 +5,7 @@ import { Terminal } from '@yuants/protocol';
 import { listWatch, newError } from '@yuants/utils';
 import { map, Observable } from 'rxjs';
 import { validCredentials$ } from './credential';
-import { polyfillPosition } from './position';
+import { polyfillOrders, polyfillPosition } from './position';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -49,6 +49,8 @@ validCredentials$
                   order.account_id = credential_id;
                 });
 
+                await polyfillOrders(res.data);
+
                 return res.data;
               },
               {
@@ -71,7 +73,8 @@ validCredentials$
                 },
               },
               async (msg) => {
-                const res = await submitOrder(terminal, credential, msg.req);
+                const [order] = await polyfillOrders([msg.req]);
+                const res = await submitOrder(terminal, credential, order);
                 return { res };
               },
             );
@@ -92,7 +95,8 @@ validCredentials$
                 },
               },
               async (msg) => {
-                const res = await modifyOrder(terminal, credential, msg.req);
+                const [order] = await polyfillOrders([msg.req]);
+                const res = await modifyOrder(terminal, credential, order);
                 return { res };
               },
             );
@@ -113,7 +117,8 @@ validCredentials$
                 },
               },
               async (msg) => {
-                const res = await cancelOrder(terminal, credential, msg.req);
+                const [order] = await polyfillOrders([msg.req]);
+                const res = await cancelOrder(terminal, credential, order);
                 return { res };
               },
             );
