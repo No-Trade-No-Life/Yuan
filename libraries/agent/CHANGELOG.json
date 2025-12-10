@@ -2,6 +2,23 @@
   "name": "@yuants/agent",
   "entries": [
     {
+      "version": "0.13.147",
+      "tag": "@yuants/agent_v0.13.147",
+      "date": "Wed, 10 Dec 2025 21:34:46 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.13.146",
       "tag": "@yuants/agent_v0.13.146",
       "date": "Wed, 10 Dec 2025 06:26:44 GMT",
