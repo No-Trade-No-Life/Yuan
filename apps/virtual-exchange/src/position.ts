@@ -22,7 +22,16 @@ const interestRateIntervalCache = createCache(async (product_id: string) => {
   )} order by created_at desc limit 2`;
   const rates = await requestSQL<{ created_at: string }[]>(terminal, sql);
   if (rates.length < 2) return undefined;
-  return new Date(rates[0].created_at).getTime() - new Date(rates[1].created_at).getTime();
+  const prev = new Date(rates[0].created_at).getTime();
+  const prevOfPrev = new Date(rates[1].created_at).getTime();
+  const interval = prev - prevOfPrev;
+  const next = prev + interval;
+  return {
+    prev,
+    prevOfPrev,
+    interval,
+    next,
+  };
 });
 
 export const polyfillPosition = async (positions: IPosition[]): Promise<IPosition[]> => {
@@ -55,8 +64,13 @@ export const polyfillPosition = async (positions: IPosition[]): Promise<IPositio
     // 利率相关信息的追加
     if (quote) {
       if (quote.interest_rate_next_settled_at !== null) {
+        // 优先使用行情数据中的下一个结算时间
         pos.settlement_scheduled_at = new Date(quote.interest_rate_next_settled_at).getTime();
+      } else if (quote.interest_rate_next_settled_at === null && interestRateInterval !== undefined) {
+        // 估算下一个结算时间
+        pos.settlement_scheduled_at = interestRateInterval.next;
       }
+
       if (pos.direction === 'LONG') {
         if (quote.interest_rate_long !== null) {
           pos.interest_to_settle = +quote.interest_rate_long * pos.valuation;
@@ -70,7 +84,7 @@ export const polyfillPosition = async (positions: IPosition[]): Promise<IPositio
     }
 
     if (interestRateInterval) {
-      pos.settlement_interval = interestRateInterval;
+      pos.settlement_interval = interestRateInterval.interval;
     }
   }
   return positions;
