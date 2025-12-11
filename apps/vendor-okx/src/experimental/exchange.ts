@@ -23,9 +23,9 @@ provideExchangeServices<ICredential>(terminal, {
     },
   },
   getCredentialId: async function (credential: ICredential): Promise<string> {
-    const accountConfig = await getAccountConfig(credential);
-    const uid = accountConfig.data?.[0]?.uid;
-    if (!uid) throw newError('OKX_CREDENTIAL_INVALID', { credential });
+    const res = await getAccountConfig(credential);
+    const uid = res.data?.[0]?.uid;
+    if (!uid) throw newError('OKX_CREDENTIAL_INVALID', { res });
     return encodePath('OKX', uid);
   },
   listProducts: listProducts,
