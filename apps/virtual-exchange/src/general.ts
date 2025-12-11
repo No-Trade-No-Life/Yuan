@@ -22,6 +22,9 @@ terminal.server.provideService<{ secret_id: string; product_id?: string }, IPosi
     const res = await getPositions(terminal, credential.credential, msg.req.product_id);
     if (!res.data) return { res };
     const positions = await polyfillPosition(res.data);
+    positions.forEach((pos) => {
+      pos.account_id = credential.credentialId;
+    });
     return { res: { code: 0, message: 'OK', data: positions } };
   },
 );
