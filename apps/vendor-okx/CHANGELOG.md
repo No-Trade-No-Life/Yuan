@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Wed, 10 Dec 2025 06:26:44 GMT and should not be manually modified.
+This log was last generated on Thu, 11 Dec 2025 13:59:57 GMT and should not be manually modified.
+
+## 0.29.16
+Thu, 11 Dec 2025 13:59:57 GMT
+
+### Patches
+
+- fix credential id thrown error
 
 ## 0.29.15
 Wed, 10 Dec 2025 06:26:44 GMT
