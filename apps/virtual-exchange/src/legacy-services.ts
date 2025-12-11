@@ -26,6 +26,9 @@ validCredentials$
                 const res = await getPositions(terminal, credential);
                 if (!res.data) throw newError('FETCH_POSITIONS_FAILED', { credential_id, res });
                 const polyfilledPositions = await polyfillPosition(res.data);
+                polyfilledPositions.forEach((pos) => {
+                  pos.account_id = credential_id;
+                });
                 return polyfilledPositions;
               },
               {
