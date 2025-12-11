@@ -2,6 +2,34 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.29.16",
+      "tag": "@yuants/vendor-okx_v0.29.16",
+      "date": "Thu, 11 Dec 2025 13:59:57 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix credential id thrown error"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.10.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-order\" to `0.7.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.5.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.29.15",
       "tag": "@yuants/vendor-okx_v0.29.15",
       "date": "Wed, 10 Dec 2025 06:26:44 GMT",

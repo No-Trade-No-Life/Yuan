@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-order
 
-This log was last generated on Sat, 29 Nov 2025 01:30:37 GMT and should not be manually modified.
+This log was last generated on Thu, 11 Dec 2025 13:59:57 GMT and should not be manually modified.
+
+## 0.7.0
+Thu, 11 Dec 2025 13:59:57 GMT
+
+### Minor changes
+
+- add order size and is_close fields
 
 ## 0.6.6
 Sat, 29 Nov 2025 01:30:37 GMT
