@@ -18,23 +18,24 @@ const quoteCache = createCache<IQuote>(
   { expire: 30_000 },
 );
 
-const interestRateIntervalCache = createCache(async (product_id: string) => {
-  const sql = `select created_at from interest_rate where series_id = ${escapeSQL(
-    product_id,
-  )} order by created_at desc limit 2`;
-  const rates = await requestSQL<{ created_at: string }[]>(terminal, sql);
-  if (rates.length < 2) return undefined;
-  const prev = new Date(rates[0].created_at).getTime();
-  const prevOfPrev = new Date(rates[1].created_at).getTime();
-  const interval = prev - prevOfPrev;
-  const next = prev + interval;
-  return {
-    prev,
-    prevOfPrev,
-    interval,
-    next,
-  };
-});
+const interestRateIntervalCache = createCache(
+  async (product_id: string) => {
+    const sql = `select created_at from interest_rate where series_id = ${escapeSQL(
+      product_id,
+    )} order by created_at desc limit 2`;
+    const rates = await requestSQL<{ created_at: string }[]>(terminal, sql);
+    if (rates.length < 2) return undefined;
+    const prev = new Date(rates[0].created_at).getTime();
+    const prevOfPrev = new Date(rates[1].created_at).getTime();
+    const interval = prev - prevOfPrev;
+    return {
+      prev,
+      prevOfPrev,
+      interval,
+    };
+  },
+  { swrAfter: 3600_000, expire: 8 * 3600_000 },
+);
 
 export const polyfillPosition = async (positions: IPosition[]): Promise<IPosition[]> => {
   // TODO: 使用 batch query SQL 优化 product / quote 查询性能
@@ -70,7 +71,9 @@ export const polyfillPosition = async (positions: IPosition[]): Promise<IPositio
         pos.settlement_scheduled_at = new Date(quote.interest_rate_next_settled_at).getTime();
       } else if (quote.interest_rate_next_settled_at === null && interestRateInterval !== undefined) {
         // 估算下一个结算时间
-        pos.settlement_scheduled_at = interestRateInterval.next;
+        // 找到 prev + k * interval > now 的最小 k，则下一个结算时间为 prev + k * interval
+        const k = Math.ceil((Date.now() - interestRateInterval.prev) / interestRateInterval.interval);
+        pos.settlement_scheduled_at = interestRateInterval.prev + k * interestRateInterval.interval;
       }
 
       if (pos.direction === 'LONG') {
