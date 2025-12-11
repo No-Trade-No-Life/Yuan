@@ -321,6 +321,7 @@ registerPage('AccountInfoPanel', () => {
         cell: (ctx) => `${ctx.getValue() * 100}%`,
       }),
       helper.accessor('interest_to_settle', { header: () => '预计利息' }),
+      helper.accessor('settlement_interval', { header: () => '利息周期' }),
       helper.accessor('settlement_scheduled_at', {
         header: () => '计息时间',
         cell: (ctx) => formatTime(ctx.getValue()!),
