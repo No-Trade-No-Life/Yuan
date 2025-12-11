@@ -1,21 +1,11 @@
 import type { IAlertGroup } from '../types';
+import { computeGroupSeverity } from '../utils';
 
-/**
- * Render alert group into Feishu interactive card payload.
- */
-const SEVERITY_ORDER = ['UNKNOWN', 'CRITICAL', 'ERROR', 'WARNING', 'INFO'] as const;
-const getSeverityIndex = (value: string) => SEVERITY_ORDER.indexOf(value as (typeof SEVERITY_ORDER)[number]);
 const MAX_ALERT_ITEMS = 30; // 避免超过 Feishu 2.0 卡片 200 元素上限
 
 export const renderAlertMessageCard = (group: IAlertGroup) => {
   const margin = '0px 0px 0px 0px';
-  const severity = group.alerts.reduce<string>((prev, alert) => {
-    const prevIndex = getSeverityIndex(prev);
-    const currentIndex = getSeverityIndex(alert.severity);
-    if (currentIndex === -1) return prev;
-    if (prevIndex === -1 || currentIndex < prevIndex) return alert.severity;
-    return prev;
-  }, 'INFO');
+  const severity = computeGroupSeverity(group.alerts);
   const visibleAlerts = group.alerts.slice(0, MAX_ALERT_ITEMS);
   const hiddenCount = Math.max(group.alerts.length - visibleAlerts.length, 0);
   const detailElements = visibleAlerts.map((alert, index) => {

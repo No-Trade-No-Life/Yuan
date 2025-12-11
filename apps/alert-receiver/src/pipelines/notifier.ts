@@ -18,7 +18,7 @@ import {
 } from 'rxjs';
 import { renderAlertMessageCard } from '../feishu/render-alert-message-card';
 import type { IAlertGroup, IAlertMessageEntry, IAlertReceiveRoute, IAlertRecord } from '../types';
-import { getSeverityIndex, normalizeSeverity } from '../utils';
+import { computeGroupSeverity, getSeverityIndex, normalizeSeverity } from '../utils';
 import { filterAlertsByRoute } from './label-filters';
 
 const mapSeverityToRepeatInterval: Record<string, number> = {
@@ -117,6 +117,12 @@ const normalizeRecordFromDb = (record: IAlertRecord): IAlertRecord => {
   };
 };
 
+const compareAlertRecords = (a: IAlertRecord, b: IAlertRecord) => {
+  const startTimeCompare = a.start_time.localeCompare(b.start_time);
+  if (startTimeCompare !== 0) return startTimeCompare;
+  return a.id.localeCompare(b.id);
+};
+
 const aggregateAlertsByGroup = (records: IAlertRecord[]): IAlertGroup[] => {
   const normalizedRecords = records.map(normalizeRecordFromDb);
   const groups = new Map<string, IAlertGroup>();
@@ -141,12 +147,12 @@ const aggregateAlertsByGroup = (records: IAlertRecord[]): IAlertGroup[] => {
   }
 
   for (const group of groups.values()) {
-    group.alerts.sort((a, b) => a.start_time.localeCompare(b.start_time));
+    group.alerts.sort(compareAlertRecords);
 
     const firingCount = group.alerts.filter((alert) => alert.status === 'firing').length;
     const resolvedCount = group.alerts.length - firingCount;
 
-    group.severity = group.alerts[0].severity;
+    group.severity = computeGroupSeverity(group.alerts);
 
     if (firingCount > 0 && resolvedCount > 0) {
       group.status = 'PartialResolved';
@@ -190,7 +196,7 @@ const routeConfig$ = defer(() =>
 );
 
 const summarizeAlerts = (alerts: IAlertRecord[]) => {
-  const sortedAlerts = [...alerts].sort((a, b) => a.start_time.localeCompare(b.start_time));
+  const sortedAlerts = [...alerts].sort(compareAlertRecords);
   const firingCount = sortedAlerts.filter((alert) => alert.status === 'firing').length;
   const resolvedCount = sortedAlerts.length - firingCount;
 
@@ -201,7 +207,7 @@ const summarizeAlerts = (alerts: IAlertRecord[]) => {
     status = 'Firing';
   }
 
-  const severity = sortedAlerts[0]?.severity ?? 'UNKNOWN';
+  const severity = computeGroupSeverity(sortedAlerts);
   const finalized = firingCount === 0;
   const version = JSON.stringify(
     sortedAlerts.map((alert) => ({
@@ -383,7 +389,14 @@ const handleAlertGroup = async (group: IAlertGroup) => {
   // Step 5: 并行发送或更新消息卡片
   await firstValueFrom(
     from(matches).pipe(
-      mergeMap(({ route, routeGroup }) => defer(() => sendOrUpdateMessage(route, routeGroup, messageIndex))),
+      mergeMap(({ route, routeGroup }) =>
+        defer(() => sendOrUpdateMessage(route, routeGroup, messageIndex)).pipe(
+          catchError((e) => {
+            console.error(formatTime(Date.now()), 'SendOrUpdateMessageFailed', route.chat_id, e);
+            return EMPTY;
+          }),
+        ),
+      ),
       toArray(),
     ),
   );

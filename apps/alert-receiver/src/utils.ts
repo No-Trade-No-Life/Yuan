@@ -11,3 +11,13 @@ export const normalizeSeverity = (severity: string | undefined): string => {
   }
   return 'UNKNOWN';
 };
+
+export const computeGroupSeverity = (alerts: { severity: string }[]): string =>
+  alerts.reduce<string>((prev, alert) => {
+    const prevIndex = getSeverityIndex(prev);
+    const currentSeverity = normalizeSeverity(alert.severity);
+    const currentIndex = getSeverityIndex(currentSeverity);
+    if (currentIndex === -1) return prev;
+    if (prevIndex === -1 || currentIndex < prevIndex) return currentSeverity;
+    return prev;
+  }, 'INFO');
