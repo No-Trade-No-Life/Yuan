@@ -1,7 +1,22 @@
 import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
 import { formatTime, listWatchEvent } from '@yuants/utils';
-import { defer, filter, from, map, merge, mergeMap, repeat, retry, shareReplay, tap, timer } from 'rxjs';
+import {
+  defer,
+  EMPTY,
+  filter,
+  from,
+  map,
+  merge,
+  mergeMap,
+  of,
+  repeat,
+  retry,
+  shareReplay,
+  tap,
+  timer,
+  withLatestFrom,
+} from 'rxjs';
 import { computeAlertFingerprint, computeAlertGroupKey } from '../alertmanager-compatible-utils';
 import type { IAlertRecord } from '../types';
 import { normalizeSeverity } from '../utils';
@@ -30,6 +45,7 @@ interface IPrometheusAlertsResponse {
 const terminal = Terminal.fromNodeEnv();
 const ENV = process.env.ENV ?? 'unknown';
 const PROMETHEUS_NAME = process.env.PROMETHEUS_NAME ?? 'prometheus';
+const RESOLVE_GRACE_MS = Number(process.env.ALERT_RESOLVE_GRACE_MS ?? 15_000);
 
 const normalizePrometheusAlert = (alert: IPrometheusAlert): IAlertRecord | undefined => {
   const labels = { ...alert.labels };
@@ -106,30 +122,36 @@ const alertRecordEvents$ = activeAlertRecords$.pipe(
     (record) => record.id,
     (a, b) => a.id === b.id && a.current_value === b.current_value,
   ),
-  mergeMap((events) => from(events)),
-  map(([oldRecord, newRecord]) => {
-    if (newRecord && oldRecord) {
-      return {
-        ...oldRecord,
-        current_value: newRecord.current_value,
-        description: newRecord.description,
-        summary: newRecord.summary,
-      };
-    }
-    if (newRecord) {
-      return newRecord;
-    }
-    if (oldRecord) {
-      return {
-        ...oldRecord,
-        status: 'resolved',
-        end_time: formatTime(Date.now()),
-        finalized: false,
-      };
-    }
-    return undefined;
-  }),
-  filter((record): record is IAlertRecord => !!record),
+  mergeMap((events) =>
+    from(events).pipe(
+      mergeMap(([oldRecord, newRecord]) => {
+        if (newRecord && oldRecord) {
+          return of({
+            ...oldRecord,
+            current_value: newRecord.current_value,
+            description: newRecord.description,
+            summary: newRecord.summary,
+          });
+        }
+        if (newRecord) {
+          return of(newRecord);
+        }
+        if (oldRecord) {
+          return timer(RESOLVE_GRACE_MS).pipe(
+            withLatestFrom(activeAlertRecords$),
+            filter(([, current]) => !current.some((record) => record.id === oldRecord.id)),
+            map(() => ({
+              ...oldRecord,
+              status: 'resolved',
+              end_time: formatTime(Date.now()),
+              finalized: false,
+            })),
+          );
+        }
+        return EMPTY;
+      }),
+    ),
+  ),
 );
 
 merge(alertRecordEvents$, watchdogRecordSubject)

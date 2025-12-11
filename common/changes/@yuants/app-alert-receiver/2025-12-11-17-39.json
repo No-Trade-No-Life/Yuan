@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-alert-receiver",
+      "comment": "feat: refactor alert severity computation and enhance alert message rendering",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-alert-receiver"
+}
