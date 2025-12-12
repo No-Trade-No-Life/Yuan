@@ -30,6 +30,23 @@ const mapSeverityToRepeatInterval: Record<string, number> = {
 };
 
 const terminal = Terminal.fromNodeEnv();
+// 同一个 group + route 的加急限频（仅内存，重启后重置）
+// 默认 10 分钟一次，可通过环境变量调整
+const URGENT_MIN_INTERVAL_MS = Number(process.env.ALERT_URGENT_MIN_INTERVAL_MS ?? 10 * 60_000);
+// key: `${group_key}::${chat_id}` -> last urgent timestamp (ms)
+const lastUrgentAtByGroupRoute = new Map<string, number>();
+
+const getGroupRouteKey = (groupKey: string, routeId: string) => `${groupKey}::${routeId}`;
+
+const allowUrgentForGroupRoute = (groupKey: string, routeId: string, now: number) => {
+  const key = getGroupRouteKey(groupKey, routeId);
+  const lastUrgentAt = lastUrgentAtByGroupRoute.get(key);
+  // 最近一次加急未超过最小间隔，则本轮不加急
+  if (lastUrgentAt !== undefined && now - lastUrgentAt < URGENT_MIN_INTERVAL_MS) {
+    return false;
+  }
+  return true;
+};
 
 const normalizeRouteFromDb = (route: IAlertReceiveRoute): IAlertReceiveRoute => {
   const normalizedRoute: IAlertReceiveRoute = {
@@ -257,7 +274,13 @@ const sendOrUpdateMessage = async (
   messageIndex: MessageIndex,
 ) => {
   const existingMessageId = messageIndex.get(route.chat_id);
-  const urgentPayload = makeUrgentPayload(route, routeGroup.severity);
+  const now = Date.now();
+  // 先按路由/严重性判定是否“想要加急”
+  const wantedUrgentPayload = makeUrgentPayload(route, routeGroup.severity);
+  // 再按 group_key + chat_id 做限频，决定本轮是否真正带 urgent
+  const urgentAllowed =
+    wantedUrgentPayload && allowUrgentForGroupRoute(routeGroup.group_key, route.chat_id, now);
+  const urgentPayload = urgentAllowed ? wantedUrgentPayload : undefined;
   const cardDSL = JSON.stringify(buildAlertCard(routeGroup));
   const basePayload = {
     msg_type: 'interactive',
@@ -290,6 +313,11 @@ const sendOrUpdateMessage = async (
   const messageId = result.data?.message_id ?? existingMessageId;
   if (messageId) {
     messageIndex.set(route.chat_id, messageId);
+  }
+
+  // 只有当本次确实带了加急并成功发送/更新后，才写入冷却时间
+  if (urgentPayload) {
+    lastUrgentAtByGroupRoute.set(getGroupRouteKey(routeGroup.group_key, route.chat_id), now);
   }
 };
 
