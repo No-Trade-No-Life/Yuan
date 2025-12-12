@@ -47,7 +47,34 @@ const listAllCredentials = async () => {
     tags: { type: 'exchange_credential' },
   });
 
-  return Promise.allSettled(secrets.map((secret) => getCredentialBySecretId(secret.sign)));
+  const results = await Promise.allSettled(secrets.map((secret) => getCredentialBySecretId(secret.sign)));
+  return results.map(
+    (
+      result,
+      index,
+    ): {
+      sign: string;
+      credential: IExchangeCredential | null;
+      credentialId: string | null;
+      error: any;
+    } => {
+      if (result.status === 'fulfilled') {
+        return {
+          sign: secrets[index].sign,
+          credential: result.value.credential,
+          credentialId: result.value.credentialId,
+          error: null,
+        };
+      } else {
+        return {
+          sign: secrets[index].sign,
+          credential: null,
+          credentialId: null,
+          error: `${result.reason}`,
+        };
+      }
+    },
+  );
 };
 
 terminal.server.provideService<IExchangeCredential, ISecret>(
@@ -83,9 +110,8 @@ export const validCredentials$ = defer(() => listAllCredentials()).pipe(
     const map = new Map<string, IExchangeCredential>();
     if (!x) return map;
     for (const xx of x) {
-      if (xx.status !== 'fulfilled') continue;
-      if (xx.value.credentialId && xx.value.credential) {
-        map.set(xx.value.credentialId, xx.value.credential);
+      if (xx.credentialId && xx.credential) {
+        map.set(xx.credentialId, xx.credential);
       }
     }
     return map;

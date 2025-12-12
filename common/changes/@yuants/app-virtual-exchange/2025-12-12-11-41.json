@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-virtual-exchange",
+      "comment": "fix listAllCredential format and fix position settlement_interval assignment",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-virtual-exchange"
+}
