@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-alert-receiver",
-  "version": "0.5.13",
+  "version": "0.5.14",
   "main": "lib/index.js",
   "files": [
     "dist",
