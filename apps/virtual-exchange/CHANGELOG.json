@@ -2,6 +2,28 @@
   "name": "@yuants/app-virtual-exchange",
   "entries": [
     {
+      "version": "0.8.1",
+      "tag": "@yuants/app-virtual-exchange_v0.8.1",
+      "date": "Fri, 12 Dec 2025 09:48:48 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "rewrite credential resolution"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/secret\" to `0.4.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.8.0",
       "tag": "@yuants/app-virtual-exchange_v0.8.0",
       "date": "Thu, 11 Dec 2025 13:59:57 GMT",

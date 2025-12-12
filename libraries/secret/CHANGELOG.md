@@ -1,6 +1,13 @@
 # Change Log - @yuants/secret
 
-This log was last generated on Sat, 29 Nov 2025 01:30:37 GMT and should not be manually modified.
+This log was last generated on Fri, 12 Dec 2025 09:48:48 GMT and should not be manually modified.
+
+## 0.4.0
+Fri, 12 Dec 2025 09:48:48 GMT
+
+### Minor changes
+
+- reorg code and support many functions
 
 ## 0.3.13
 Sat, 29 Nov 2025 01:30:37 GMT
