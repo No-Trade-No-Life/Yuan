@@ -26,3 +26,9 @@ export type IQuoteUpdateAction = Record<
   string,
   Partial<Record<IQuoteKey, [value: string, updated_at: number]>>
 >;
+export interface IQuoteState {
+  update: (action: IQuoteUpdateAction) => void;
+  dumpAsObject: () => IQuoteUpdateAction;
+  getValueTuple: (product_id: string, field: IQuoteKey) => [string, number] | undefined;
+  filter: (product_ids: string[], fields: IQuoteKey[], updated_at: number) => IQuoteUpdateAction;
+}
