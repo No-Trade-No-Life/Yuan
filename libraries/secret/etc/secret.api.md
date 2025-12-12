@@ -4,6 +4,7 @@
 
 ```ts
 
+import { IEd25519KeyPair } from '@yuants/utils';
 import { Terminal } from '@yuants/protocol';
 
 // @public
@@ -16,10 +17,22 @@ export interface ISecret {
 }
 
 // @public
+export const listSecrets: (terminal: Terminal, filter: {
+    tags?: Record<string, string>;
+    reader?: string;
+}) => Promise<ISecret[]>;
+
+// @public
+export const makeSecret: (secret: Uint8Array, tags: Record<string, string>, reader: string, signerKeyPair: IEd25519KeyPair) => Promise<ISecret>;
+
+// @public
 export const readSecret: (terminal: Terminal, secret: ISecret, reader_private_key?: string) => Promise<Uint8Array>;
 
 // @public
 export const setupSecretProxyService: (terminal: Terminal, trusted_public_keys?: Set<string>) => Set<string>;
+
+// @public
+export const verifySecretSigner: (secret: ISecret) => boolean;
 
 // @public
 export const writeSecret: (terminal: Terminal, reader: string, tags: Record<string, string>, secret: Uint8Array, signer_private_key?: string) => Promise<ISecret>;

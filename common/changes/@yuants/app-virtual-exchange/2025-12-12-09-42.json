@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-virtual-exchange",
+      "comment": "rewrite credential resolution",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-virtual-exchange"
+}
