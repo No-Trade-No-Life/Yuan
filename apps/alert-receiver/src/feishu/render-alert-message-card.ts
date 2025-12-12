@@ -2,6 +2,31 @@ import type { IAlertGroup } from '../types';
 import { computeGroupSeverity } from '../utils';
 
 const MAX_ALERT_ITEMS = 30; // 避免超过 Feishu 2.0 卡片 200 元素上限
+const MAX_LABEL_ITEMS = 8;
+const MAX_LABEL_VALUE_LENGTH = 64;
+
+const formatLabels = (labels: Record<string, string>): string => {
+  const entries = Object.entries(labels)
+    .filter(([key, value]) => !!key && value !== undefined && value !== null)
+    .map(([key, value]) => {
+      const stringValue = String(value);
+      return [
+        String(key),
+        stringValue.length > MAX_LABEL_VALUE_LENGTH
+          ? `${stringValue.slice(0, MAX_LABEL_VALUE_LENGTH)}…`
+          : stringValue,
+      ] as const;
+    })
+    .sort(([a], [b]) => a.localeCompare(b));
+
+  if (entries.length === 0) return '';
+
+  const visible = entries.slice(0, MAX_LABEL_ITEMS);
+  const hiddenCount = Math.max(entries.length - visible.length, 0);
+  const content = visible.map(([key, value]) => `\`${key}=${value}\``).join(' ');
+
+  return hiddenCount > 0 ? `${content} …(+${hiddenCount})` : content;
+};
 
 export const renderAlertMessageCard = (group: IAlertGroup) => {
   const margin = '0px 0px 0px 0px';
@@ -19,9 +44,12 @@ export const renderAlertMessageCard = (group: IAlertGroup) => {
         : alert.end_time);
     const prefix = `${index + 1}. ${isFiring ? '[告警中]' : '[已解决]'}`;
     const summary = alert.summary ?? alert.description ?? 'No description';
+    const labelsText = formatLabels(alert.labels);
     return {
       tag: 'markdown',
-      content: `${prefix} ${alert.start_time} → ${endTime}\n${summary}`,
+      content: `**${prefix}** ${alert.start_time} → ${endTime}\n\n${summary}${
+        labelsText ? `\n\n${labelsText}` : ''
+      }`,
       text_align: 'left',
       text_size: 'normal_v2',
       margin,

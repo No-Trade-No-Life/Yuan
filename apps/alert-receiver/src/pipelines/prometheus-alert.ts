@@ -1,9 +1,10 @@
 import { Terminal } from '@yuants/protocol';
-import { writeToSQL } from '@yuants/sql';
-import { formatTime, listWatchEvent } from '@yuants/utils';
+import { requestSQL, writeToSQL } from '@yuants/sql';
+import { batchGroupBy, formatTime } from '@yuants/utils';
 import {
+  catchError,
   defer,
-  EMPTY,
+  exhaustMap,
   filter,
   from,
   map,
@@ -12,6 +13,7 @@ import {
   of,
   repeat,
   retry,
+  share,
   shareReplay,
   tap,
   timer,
@@ -117,44 +119,68 @@ const activeAlertRecords$ = defer(() =>
   shareReplay(1),
 );
 
-const alertRecordEvents$ = activeAlertRecords$.pipe(
-  listWatchEvent(
-    (record) => record.id,
-    (a, b) => a.id === b.id && a.current_value === b.current_value,
-  ),
-  mergeMap((events) =>
-    from(events).pipe(
-      mergeMap(([oldRecord, newRecord]) => {
-        if (newRecord && oldRecord) {
-          return of({
-            ...oldRecord,
-            current_value: newRecord.current_value,
-            description: newRecord.description,
-            summary: newRecord.summary,
-          });
-        }
-        if (newRecord) {
-          return of(newRecord);
-        }
-        if (oldRecord) {
-          return timer(RESOLVE_GRACE_MS).pipe(
-            withLatestFrom(activeAlertRecords$),
-            filter(([, current]) => !current.some((record) => record.id === oldRecord.id)),
-            map(() => ({
-              ...oldRecord,
-              status: 'resolved',
-              end_time: formatTime(Date.now()),
-              finalized: false,
-            })),
-          );
-        }
-        return EMPTY;
+const reconciliation$ = activeAlertRecords$.pipe(
+  exhaustMap((currentRecords) => {
+    const sql = `
+      SELECT
+        id,
+        alert_name,
+        current_value,
+        status,
+        severity,
+        summary,
+        description,
+        env,
+        runbook_url,
+        group_name,
+        labels,
+        finalized,
+        start_time,
+        end_time
+      FROM alert_record
+      WHERE status = 'firing'
+    `;
+    return defer(() => requestSQL<IAlertRecord[]>(terminal, sql)).pipe(
+      catchError((err) => {
+        console.error(formatTime(Date.now()), 'FetchFiringAlertRecordsFailed', err);
+        return of([] as IAlertRecord[]);
       }),
+      map((dbFiringRecords) => ({ currentRecords, dbFiringRecords })),
+    );
+  }),
+  share(),
+);
+
+const firingUpserts$ = reconciliation$.pipe(mergeMap(({ currentRecords }) => from(currentRecords)));
+
+const missingCandidates$ = reconciliation$.pipe(
+  mergeMap(({ currentRecords, dbFiringRecords }) => {
+    const currentIds = new Set(currentRecords.map((record) => record.id));
+    return of(dbFiringRecords.filter((record) => !currentIds.has(record.id)));
+  }),
+);
+
+const resolvedUpserts$ = missingCandidates$.pipe(
+  batchGroupBy((record) => record.id),
+  mergeMap((group$) =>
+    group$.pipe(
+      exhaustMap((record) =>
+        timer(RESOLVE_GRACE_MS).pipe(
+          withLatestFrom(activeAlertRecords$),
+          filter(([, latest]) => !latest.some((r) => r.id === record.id)),
+          map(() => ({
+            ...record,
+            status: 'resolved',
+            end_time: formatTime(Date.now()),
+            finalized: false,
+          })),
+        ),
+      ),
     ),
   ),
 );
 
-merge(alertRecordEvents$, watchdogRecordSubject)
+merge(firingUpserts$, resolvedUpserts$, watchdogRecordSubject)
   .pipe(
     writeToSQL<IAlertRecord>({
       terminal,
