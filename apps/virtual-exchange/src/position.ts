@@ -67,13 +67,24 @@ export const polyfillPosition = async (positions: IPosition[]): Promise<IPositio
     // 利率相关信息的追加
     if (quote) {
       if (quote.interest_rate_next_settled_at !== null) {
+        const nextSettledAt = new Date(quote.interest_rate_next_settled_at).getTime();
         // 优先使用行情数据中的下一个结算时间
-        pos.settlement_scheduled_at = new Date(quote.interest_rate_next_settled_at).getTime();
+        pos.settlement_scheduled_at = nextSettledAt;
+        // 优先使用下一个结算时间推算结算间隔
+        if (interestRateInterval !== undefined) {
+          const interval = nextSettledAt - interestRateInterval.prev;
+          pos.settlement_interval = interval;
+        }
       } else if (quote.interest_rate_next_settled_at === null && interestRateInterval !== undefined) {
         // 估算下一个结算时间
         // 找到 prev + k * interval > now 的最小 k，则下一个结算时间为 prev + k * interval
         const k = Math.ceil((Date.now() - interestRateInterval.prev) / interestRateInterval.interval);
         pos.settlement_scheduled_at = interestRateInterval.prev + k * interestRateInterval.interval;
+      }
+
+      // 如果还没有结算间隔，则使用 interest rate 表的时间间隔作为结算间隔
+      if (pos.settlement_interval === undefined && interestRateInterval) {
+        pos.settlement_interval = interestRateInterval.interval;
       }
 
       if (pos.direction === 'LONG') {
@@ -86,10 +97,6 @@ export const polyfillPosition = async (positions: IPosition[]): Promise<IPositio
           pos.interest_to_settle = +quote.interest_rate_short * pos.valuation;
         }
       }
-    }
-
-    if (interestRateInterval) {
-      pos.settlement_interval = interestRateInterval.interval;
     }
   }
   return positions;
