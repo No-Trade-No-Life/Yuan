@@ -26,7 +26,7 @@ export const setMetricsQuoteState =
             ].includes(key),
         );
         for (const field of fields) {
-          const value = parseFloat((x as any)[field]);
+          const value = Number((x as any)[field]);
           if (!isNaN(value)) {
             MetricsQuoteState.labels({
               terminal_id,
