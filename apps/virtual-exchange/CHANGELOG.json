@@ -2,6 +2,34 @@
   "name": "@yuants/app-virtual-exchange",
   "entries": [
     {
+      "version": "0.9.0",
+      "tag": "@yuants/app-virtual-exchange_v0.9.0",
+      "date": "Sat, 13 Dec 2025 00:21:57 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix listAllCredential format and fix position settlement_interval assignment"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "support quote service"
+          },
+          {
+            "comment": "add benchmark"
+          },
+          {
+            "comment": "add v2, v3 impl for quote state"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.8.1",
       "tag": "@yuants/app-virtual-exchange_v0.8.1",
       "date": "Fri, 12 Dec 2025 09:48:48 GMT",
