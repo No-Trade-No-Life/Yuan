@@ -148,11 +148,6 @@ const quote4$ = swapOpenInterest$.pipe(
   ),
 );
 
-const MetricsQuoteState = GlobalPrometheusRegistry.gauge(
-  'quote_state',
-  'The latest quote state from public data',
-);
-
 if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
   // 合并不同来源的数据并进行合并，避免死锁
   merge(quote1$, quote2$, quote3$, quote4$, quote5$)

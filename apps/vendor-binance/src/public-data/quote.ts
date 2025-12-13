@@ -1,6 +1,6 @@
 import { createCache } from '@yuants/cache';
 import { IQuote, setMetricsQuoteState } from '@yuants/data-quote';
-import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
+import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import {
@@ -279,11 +279,6 @@ const quote$ = merge(
   ),
   share(),
   shareReplay({ bufferSize: 1, refCount: true }),
-);
-
-const MetricsQuoteState = GlobalPrometheusRegistry.gauge(
-  'quote_state',
-  'The latest quote state from public data',
 );
 
 if (process.env.WRITE_QUOTE_TO_SQL === 'true') {

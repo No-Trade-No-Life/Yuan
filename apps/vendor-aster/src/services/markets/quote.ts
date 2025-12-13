@@ -1,6 +1,6 @@
 import { createCache } from '@yuants/cache';
 import { setMetricsQuoteState, type IQuote } from '@yuants/data-quote';
-import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
+import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
 import { decodePath, encodePath } from '@yuants/utils';
 import {
@@ -181,11 +181,6 @@ const quoteFromFundingRate$ = fundingRate$.pipe(
       interest_rate_short: premiumData.lastFundingRate,
     }),
   ),
-);
-
-const MetricsQuoteState = GlobalPrometheusRegistry.gauge(
-  'quote_state',
-  'The latest quote state from public data',
 );
 
 const quote$ = merge(quoteFromTicker$, quoteFromOpenInterest$, quoteFromFundingRate$).pipe(

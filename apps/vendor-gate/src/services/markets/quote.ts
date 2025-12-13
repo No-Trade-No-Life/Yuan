@@ -95,11 +95,6 @@ const quote$ = defer(() =>
   share(),
 );
 
-const MetricsQuoteState = GlobalPrometheusRegistry.gauge(
-  'quote_state',
-  'The latest quote state from public data',
-);
-
 // 写入数据库
 if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
   terminal.channel.publishChannel('quote', { pattern: `^GATE/` }, (channel_id) => {

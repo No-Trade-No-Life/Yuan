@@ -49,11 +49,6 @@ const quote$ = defer(() => getAllMids()).pipe(
 
 const shouldWriteQuoteToSQL = /^(1|true)$/i.test(process.env.WRITE_QUOTE_TO_SQL ?? '');
 
-const MetricsQuoteState = GlobalPrometheusRegistry.gauge(
-  'quote_state',
-  'The latest quote state from public data',
-);
-
 if (shouldWriteQuoteToSQL) {
   quote$
     .pipe(

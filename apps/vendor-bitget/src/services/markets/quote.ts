@@ -47,11 +47,6 @@ const coinFuturesQuote$ = coinFuturesTickers$.pipe(
 
 const fundingTimeQuote$ = new Subject<Partial<IQuote>>();
 
-const MetricsQuoteState = GlobalPrometheusRegistry.gauge(
-  'quote_state',
-  'The latest quote state from public data',
-);
-
 // 合并不同来源的数据并进行合并，避免死锁
 merge(fundingTimeQuote$, usdtFuturesQuote$, coinFuturesQuote$)
   .pipe(
