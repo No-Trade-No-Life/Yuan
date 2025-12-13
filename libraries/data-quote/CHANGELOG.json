@@ -2,6 +2,23 @@
   "name": "@yuants/data-quote",
   "entries": [
     {
+      "version": "0.3.0",
+      "tag": "@yuants/data-quote_v0.3.0",
+      "date": "Sat, 13 Dec 2025 15:59:30 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add metrics for quote"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.43",
       "tag": "@yuants/data-quote_v0.2.43",
       "date": "Sat, 29 Nov 2025 01:30:37 GMT",

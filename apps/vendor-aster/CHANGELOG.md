@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-aster
 
-This log was last generated on Thu, 11 Dec 2025 13:59:57 GMT and should not be manually modified.
+This log was last generated on Sat, 13 Dec 2025 15:59:30 GMT and should not be manually modified.
+
+## 0.7.30
+Sat, 13 Dec 2025 15:59:30 GMT
+
+### Patches
+
+- feat: add Prometheus metrics for quote state tracking across multiple services
 
 ## 0.7.29
 Thu, 11 Dec 2025 13:59:57 GMT

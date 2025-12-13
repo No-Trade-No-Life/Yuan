@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-quote
 
-This log was last generated on Sat, 29 Nov 2025 01:30:37 GMT and should not be manually modified.
+This log was last generated on Sat, 13 Dec 2025 15:59:30 GMT and should not be manually modified.
+
+## 0.3.0
+Sat, 13 Dec 2025 15:59:30 GMT
+
+### Minor changes
+
+- add metrics for quote
 
 ## 0.2.43
 Sat, 29 Nov 2025 01:30:37 GMT

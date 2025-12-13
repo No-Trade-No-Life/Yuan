@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-bitget
 
-This log was last generated on Sat, 13 Dec 2025 09:51:06 GMT and should not be manually modified.
+This log was last generated on Sat, 13 Dec 2025 15:59:30 GMT and should not be manually modified.
+
+## 0.11.7
+Sat, 13 Dec 2025 15:59:30 GMT
+
+### Patches
+
+- feat: add Prometheus metrics for quote state tracking across multiple services
 
 ## 0.11.6
 Sat, 13 Dec 2025 09:51:06 GMT
