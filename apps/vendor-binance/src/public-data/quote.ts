@@ -1,5 +1,5 @@
 import { createCache } from '@yuants/cache';
-import { IQuote } from '@yuants/data-quote';
+import { IQuote, setMetricsQuoteState } from '@yuants/data-quote';
 import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
@@ -21,7 +21,6 @@ import {
   scan,
   share,
   shareReplay,
-  startWith,
   tap,
   timer,
 } from 'rxjs';
@@ -285,6 +284,7 @@ const quote$ = merge(
 if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
   quote$
     .pipe(
+      setMetricsQuoteState(terminal.terminal_id),
       writeToSQL({
         terminal,
         tableName: 'quote',

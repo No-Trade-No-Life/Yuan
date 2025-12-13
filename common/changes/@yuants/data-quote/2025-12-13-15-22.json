@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-quote",
+      "comment": "add metrics for quote",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-quote"
+}

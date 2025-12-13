@@ -1,10 +1,12 @@
-import { IQuote } from '@yuants/data-quote';
-import { Terminal } from '@yuants/protocol';
+import { IQuote, setMetricsQuoteState } from '@yuants/data-quote';
+import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import { requestSQL, writeToSQL } from '@yuants/sql';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { defer, groupBy, map, merge, mergeMap, repeat, retry, scan, shareReplay, Subject, tap } from 'rxjs';
-import { IUtaCurrentFundingRate, IUtaTicker, getCurrentFundingRate, getTickers } from '../../api/public-api';
+import { getCurrentFundingRate, getTickers, IUtaCurrentFundingRate, IUtaTicker } from '../../api/public-api';
 import { createCyclicTask } from './utils/cyclic-task';
+
+const terminal = Terminal.fromNodeEnv();
 
 const usdtFuturesTickers$ = defer(() => getTickers({ category: 'USDT-FUTURES' })).pipe(
   retry({ delay: 5000 }),
@@ -57,6 +59,7 @@ merge(fundingTimeQuote$, usdtFuturesQuote$, coinFuturesQuote$)
     tap((x) =>
       console.info(formatTime(Date.now()), 'Quote', x.datasource_id, x.product_id, JSON.stringify(x)),
     ),
+    setMetricsQuoteState(terminal.terminal_id),
     writeToSQL({
       terminal: Terminal.fromNodeEnv(),
       tableName: 'quote',

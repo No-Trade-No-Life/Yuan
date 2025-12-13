@@ -1,5 +1,5 @@
-import { IQuote } from '@yuants/data-quote';
-import { Terminal } from '@yuants/protocol';
+import { IQuote, setMetricsQuoteState } from '@yuants/data-quote';
+import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
 import { decodePath, encodePath } from '@yuants/utils';
 import { defer, filter, map, mergeMap, repeat, retry, shareReplay, withLatestFrom } from 'rxjs';
@@ -52,6 +52,7 @@ const shouldWriteQuoteToSQL = /^(1|true)$/i.test(process.env.WRITE_QUOTE_TO_SQL 
 if (shouldWriteQuoteToSQL) {
   quote$
     .pipe(
+      setMetricsQuoteState(terminal.terminal_id),
       writeToSQL({
         terminal,
         tableName: 'quote',

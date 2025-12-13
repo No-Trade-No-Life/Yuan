@@ -1,5 +1,5 @@
 import { createCache } from '@yuants/cache';
-import type { IQuote } from '@yuants/data-quote';
+import { setMetricsQuoteState, type IQuote } from '@yuants/data-quote';
 import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
 import { decodePath, encodePath } from '@yuants/utils';
@@ -21,7 +21,6 @@ import {
   scan,
   shareReplay,
   startWith,
-  tap,
   timer,
 } from 'rxjs';
 import {
@@ -204,6 +203,7 @@ const quote$ = merge(quoteFromTicker$, quoteFromOpenInterest$, quoteFromFundingR
 if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
   quote$
     .pipe(
+      setMetricsQuoteState(terminal.terminal_id),
       writeToSQL({
         terminal,
         tableName: 'quote',

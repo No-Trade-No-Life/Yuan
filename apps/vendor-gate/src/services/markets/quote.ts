@@ -1,25 +1,23 @@
-import { IQuote } from '@yuants/data-quote';
-import { Terminal } from '@yuants/protocol';
+import { IQuote, setMetricsQuoteState } from '@yuants/data-quote';
+import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
-import { decodePath, encodePath, formatTime } from '@yuants/utils';
+import { decodePath, encodePath } from '@yuants/utils';
 import {
+  catchError,
   defer,
+  EMPTY,
   filter,
-  from,
+  groupBy,
   map,
+  merge,
   mergeMap,
   repeat,
   retry,
-  shareReplay,
-  merge,
-  catchError,
-  EMPTY,
-  groupBy,
   scan,
   share,
-  tap,
+  shareReplay,
 } from 'rxjs';
-import { getFuturesTickers, getFuturesContracts, getSpotTickers } from '../../api/public-api';
+import { getFuturesContracts, getFuturesTickers, getSpotTickers } from '../../api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -111,6 +109,7 @@ if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
   });
   quote$
     .pipe(
+      setMetricsQuoteState(terminal.terminal_id),
       writeToSQL({
         terminal,
         writeInterval: 1000,

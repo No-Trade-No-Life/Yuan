@@ -4,6 +4,8 @@
 
 ```ts
 
+import { MonoTypeOperatorFunction } from 'rxjs';
+
 // @public
 export interface IQuote {
     ask_price: string;
@@ -20,6 +22,9 @@ export interface IQuote {
     product_id: string;
     updated_at: string;
 }
+
+// @public (undocumented)
+export const setMetricsQuoteState: (terminal_id: string) => MonoTypeOperatorFunction<Partial<IQuote>>;
 
 // (No @packageDocumentation comment for this package)
 
