@@ -1,25 +1,24 @@
 import { IQuote } from '@yuants/data-quote';
-import { Terminal } from '@yuants/protocol';
+import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
-import { decodePath, encodePath, formatTime } from '@yuants/utils';
+import { decodePath, encodePath } from '@yuants/utils';
 import {
+  catchError,
   defer,
+  EMPTY,
   filter,
-  from,
+  groupBy,
   map,
+  merge,
   mergeMap,
   repeat,
   retry,
-  shareReplay,
-  merge,
-  catchError,
-  EMPTY,
-  groupBy,
   scan,
   share,
+  shareReplay,
   tap,
 } from 'rxjs';
-import { getFuturesTickers, getFuturesContracts, getSpotTickers } from '../../api/public-api';
+import { getFuturesContracts, getFuturesTickers, getSpotTickers } from '../../api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -97,6 +96,11 @@ const quote$ = defer(() =>
   share(),
 );
 
+const MetricsQuoteState = GlobalPrometheusRegistry.gauge(
+  'quote_state',
+  'The latest quote state from public data',
+);
+
 // 写入数据库
 if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
   terminal.channel.publishChannel('quote', { pattern: `^GATE/` }, (channel_id) => {
@@ -111,6 +115,21 @@ if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
   });
   quote$
     .pipe(
+      tap((x) => {
+        const fields = Object.keys(x).filter(
+          (key) => !['datasource_id', 'product_id', 'updated_at'].includes(key),
+        );
+        for (const field of fields) {
+          const value = (x as any)[field];
+          if (typeof value === 'number') {
+            MetricsQuoteState.labels({
+              terminal_id: terminal.terminal_id,
+              product_id: x.product_id!,
+              field,
+            }).set(value);
+          }
+        }
+      }),
       writeToSQL({
         terminal,
         writeInterval: 1000,

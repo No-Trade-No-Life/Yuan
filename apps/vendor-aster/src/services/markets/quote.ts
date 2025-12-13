@@ -1,6 +1,6 @@
 import { createCache } from '@yuants/cache';
 import type { IQuote } from '@yuants/data-quote';
-import { Terminal } from '@yuants/protocol';
+import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
 import { decodePath, encodePath } from '@yuants/utils';
 import {
@@ -184,6 +184,11 @@ const quoteFromFundingRate$ = fundingRate$.pipe(
   ),
 );
 
+const MetricsQuoteState = GlobalPrometheusRegistry.gauge(
+  'quote_state',
+  'The latest quote state from public data',
+);
+
 const quote$ = merge(quoteFromTicker$, quoteFromOpenInterest$, quoteFromFundingRate$).pipe(
   groupBy((quote) => quote.product_id),
   mergeMap((group$) =>
@@ -204,6 +209,21 @@ const quote$ = merge(quoteFromTicker$, quoteFromOpenInterest$, quoteFromFundingR
 if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
   quote$
     .pipe(
+      tap((x) => {
+        const fields = Object.keys(x).filter(
+          (key) => !['datasource_id', 'product_id', 'updated_at'].includes(key),
+        );
+        for (const field of fields) {
+          const value = (x as any)[field];
+          if (typeof value === 'number') {
+            MetricsQuoteState.labels({
+              terminal_id: terminal.terminal_id,
+              product_id: x.product_id!,
+              field,
+            }).set(value);
+          }
+        }
+      }),
       writeToSQL({
         terminal,
         tableName: 'quote',

@@ -1,10 +1,12 @@
 import { IQuote } from '@yuants/data-quote';
-import { Terminal } from '@yuants/protocol';
+import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import { requestSQL, writeToSQL } from '@yuants/sql';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { defer, groupBy, map, merge, mergeMap, repeat, retry, scan, shareReplay, Subject, tap } from 'rxjs';
-import { IUtaCurrentFundingRate, IUtaTicker, getCurrentFundingRate, getTickers } from '../../api/public-api';
+import { getCurrentFundingRate, getTickers, IUtaCurrentFundingRate, IUtaTicker } from '../../api/public-api';
 import { createCyclicTask } from './utils/cyclic-task';
+
+const terminal = Terminal.fromNodeEnv();
 
 const usdtFuturesTickers$ = defer(() => getTickers({ category: 'USDT-FUTURES' })).pipe(
   retry({ delay: 5000 }),
@@ -45,6 +47,11 @@ const coinFuturesQuote$ = coinFuturesTickers$.pipe(
 
 const fundingTimeQuote$ = new Subject<Partial<IQuote>>();
 
+const MetricsQuoteState = GlobalPrometheusRegistry.gauge(
+  'quote_state',
+  'The latest quote state from public data',
+);
+
 // 合并不同来源的数据并进行合并，避免死锁
 merge(fundingTimeQuote$, usdtFuturesQuote$, coinFuturesQuote$)
   .pipe(
@@ -57,6 +64,21 @@ merge(fundingTimeQuote$, usdtFuturesQuote$, coinFuturesQuote$)
     tap((x) =>
       console.info(formatTime(Date.now()), 'Quote', x.datasource_id, x.product_id, JSON.stringify(x)),
     ),
+    tap((x) => {
+      const fields = Object.keys(x).filter(
+        (key) => !['datasource_id', 'product_id', 'updated_at'].includes(key),
+      );
+      for (const field of fields) {
+        const value = (x as any)[field];
+        if (typeof value === 'number') {
+          MetricsQuoteState.labels({
+            terminal_id: terminal.terminal_id,
+            product_id: x.product_id!,
+            field,
+          }).set(value);
+        }
+      }
+    }),
     writeToSQL({
       terminal: Terminal.fromNodeEnv(),
       tableName: 'quote',

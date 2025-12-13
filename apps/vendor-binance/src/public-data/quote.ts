@@ -1,6 +1,6 @@
 import { createCache } from '@yuants/cache';
 import { IQuote } from '@yuants/data-quote';
-import { Terminal } from '@yuants/protocol';
+import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import {
@@ -21,7 +21,6 @@ import {
   scan,
   share,
   shareReplay,
-  startWith,
   tap,
   timer,
 } from 'rxjs';
@@ -282,9 +281,29 @@ const quote$ = merge(
   shareReplay({ bufferSize: 1, refCount: true }),
 );
 
+const MetricsQuoteState = GlobalPrometheusRegistry.gauge(
+  'quote_state',
+  'The latest quote state from public data',
+);
+
 if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
   quote$
     .pipe(
+      tap((x) => {
+        const fields = Object.keys(x).filter(
+          (key) => !['datasource_id', 'product_id', 'updated_at'].includes(key),
+        );
+        for (const field of fields) {
+          const value = (x as any)[field];
+          if (typeof value === 'number') {
+            MetricsQuoteState.labels({
+              terminal_id: terminal.terminal_id,
+              product_id: x.product_id!,
+              field,
+            }).set(value);
+          }
+        }
+      }),
       writeToSQL({
         terminal,
         tableName: 'quote',
