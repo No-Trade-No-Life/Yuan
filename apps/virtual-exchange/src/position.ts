@@ -34,7 +34,7 @@ const interestRateIntervalCache = createCache(
       interval,
     };
   },
-  { swrAfter: 3600_000, expire: 8 * 3600_000 },
+  { swrAfter: 60_000, expire: 3600_000 },
 );
 
 export const polyfillPosition = async (positions: IPosition[]): Promise<IPosition[]> => {
