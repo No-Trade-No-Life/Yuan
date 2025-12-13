@@ -2,6 +2,23 @@
   "name": "@yuants/app-feishu-notifier",
   "entries": [
     {
+      "version": "0.4.13",
+      "tag": "@yuants/app-feishu-notifier_v0.4.13",
+      "date": "Sat, 13 Dec 2025 19:00:55 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix: add error handling for urgent message triggering in FeishuClient"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.12",
       "tag": "@yuants/app-feishu-notifier_v0.4.12",
       "date": "Sat, 29 Nov 2025 01:30:37 GMT",
