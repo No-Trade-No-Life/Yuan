@@ -1,6 +1,19 @@
 # Change Log - @yuants/app-virtual-exchange
 
-This log was last generated on Fri, 12 Dec 2025 09:48:48 GMT and should not be manually modified.
+This log was last generated on Sat, 13 Dec 2025 00:21:57 GMT and should not be manually modified.
+
+## 0.9.0
+Sat, 13 Dec 2025 00:21:57 GMT
+
+### Minor changes
+
+- support quote service
+- add benchmark
+- add v2, v3 impl for quote state
+
+### Patches
+
+- fix listAllCredential format and fix position settlement_interval assignment
 
 ## 0.8.1
 Fri, 12 Dec 2025 09:48:48 GMT
