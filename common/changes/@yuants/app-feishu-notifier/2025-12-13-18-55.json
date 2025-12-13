@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-feishu-notifier",
+      "comment": "fix: add error handling for urgent message triggering in FeishuClient",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-feishu-notifier"
+}

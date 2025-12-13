@@ -170,12 +170,16 @@ export class FeishuClient {
         throw new Error('urgent_user_list is required when urgent is specified');
       }
       for (const userId of userList) {
-        await this.triggerUrgent({
-          token,
-          messageId: message_id,
-          urgent,
-          userId,
-        });
+        try {
+          await this.triggerUrgent({
+            token,
+            messageId: message_id,
+            urgent,
+            userId,
+          });
+        } catch (err) {
+          console.error(formatTime(Date.now()), 'Feishu/UrgentError', urgent, message_id, userId, err);
+        }
       }
     }
 
