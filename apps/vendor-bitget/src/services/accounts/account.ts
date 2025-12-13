@@ -49,7 +49,7 @@ export const getAccountInfo = async (credential: ICredential): Promise<IPosition
       makeSpotPosition({
         position_id: asset.coin,
         product_id: encodePath('BITGET', 'SPOT', `${asset.coin}USDT`),
-        volume: +asset.available,
+        volume: +asset.balance,
         free_volume: +asset.available,
         closable_price: spotPriceMap.get(`${asset.coin}USDT`) ?? 1,
       }),
