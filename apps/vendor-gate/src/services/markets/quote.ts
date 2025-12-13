@@ -1,4 +1,4 @@
-import { IQuote } from '@yuants/data-quote';
+import { IQuote, setMetricsQuoteState } from '@yuants/data-quote';
 import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
 import { decodePath, encodePath } from '@yuants/utils';
@@ -16,7 +16,6 @@ import {
   scan,
   share,
   shareReplay,
-  tap,
 } from 'rxjs';
 import { getFuturesContracts, getFuturesTickers, getSpotTickers } from '../../api/public-api';
 
@@ -115,21 +114,7 @@ if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
   });
   quote$
     .pipe(
-      tap((x) => {
-        const fields = Object.keys(x).filter(
-          (key) => !['datasource_id', 'product_id', 'updated_at'].includes(key),
-        );
-        for (const field of fields) {
-          const value = (x as any)[field];
-          if (typeof value === 'number') {
-            MetricsQuoteState.labels({
-              terminal_id: terminal.terminal_id,
-              product_id: x.product_id!,
-              field,
-            }).set(value);
-          }
-        }
-      }),
+      setMetricsQuoteState(terminal.terminal_id),
       writeToSQL({
         terminal,
         writeInterval: 1000,

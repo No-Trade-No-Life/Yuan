@@ -1,22 +1,9 @@
 import { createCache } from '@yuants/cache';
-import { IQuote } from '@yuants/data-quote';
+import { IQuote, setMetricsQuoteState } from '@yuants/data-quote';
 import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import { escapeSQL, requestSQL, writeToSQL } from '@yuants/sql';
 import { encodePath, formatTime } from '@yuants/utils';
-import {
-  defer,
-  from,
-  groupBy,
-  map,
-  merge,
-  mergeMap,
-  repeat,
-  retry,
-  scan,
-  shareReplay,
-  tap,
-  toArray,
-} from 'rxjs';
+import { defer, from, groupBy, map, merge, mergeMap, repeat, retry, scan, shareReplay, toArray } from 'rxjs';
 import {
   getSpotMarketTickers,
   getSwapBatchFundingRate,
@@ -24,6 +11,8 @@ import {
   getSwapMarketTrade,
   getSwapOpenInterest,
 } from '../../api/public-api';
+
+const terminal = Terminal.fromNodeEnv();
 
 const swapBboTick$ = defer(() => getSwapMarketBbo({})).pipe(
   repeat({ delay: 1000 }),
@@ -174,23 +163,9 @@ if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
       }),
     )
     .pipe(
-      tap((x) => {
-        const fields = Object.keys(x).filter(
-          (key) => !['datasource_id', 'product_id', 'updated_at'].includes(key),
-        );
-        for (const field of fields) {
-          const value = (x as any)[field];
-          if (typeof value === 'number') {
-            MetricsQuoteState.labels({
-              terminal_id: terminal.terminal_id,
-              product_id: x.product_id!,
-              field,
-            }).set(value);
-          }
-        }
-      }),
+      setMetricsQuoteState(terminal.terminal_id),
       writeToSQL({
-        terminal: Terminal.fromNodeEnv(),
+        terminal,
         tableName: 'quote',
         writeInterval: 1000,
         conflictKeys: ['datasource_id', 'product_id'],
@@ -212,8 +187,6 @@ const mapSwapContractCodeToOpenInterest$ = defer(() => swapOpenInterest$).pipe(
   retry({ delay: 1000 }),
   shareReplay(1),
 );
-
-const terminal = Terminal.fromNodeEnv();
 
 export const quoteCache = createCache<IQuote>(
   async (product_id) => {
