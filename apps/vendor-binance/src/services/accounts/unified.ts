@@ -64,7 +64,7 @@ export const getUnifiedAccountInfo = async (credential: ICredential): Promise<IP
       position_id: `UNIFIED-SPOT/${position.asset}`,
       datasource_id: 'BINANCE',
       product_id: encodePath('BINANCE', 'UNIFIED-SPOT', position.asset),
-      volume: +position.totalWalletBalance + +position.umUnrealizedPNL,
+      volume: +position.totalWalletBalance,
       free_volume: +position.crossMarginFree,
       closable_price:
         position.asset === 'USDT'
