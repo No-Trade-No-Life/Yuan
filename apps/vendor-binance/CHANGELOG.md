@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-binance
 
-This log was last generated on Sat, 13 Dec 2025 14:50:46 GMT and should not be manually modified.
+This log was last generated on Sat, 13 Dec 2025 15:59:30 GMT and should not be manually modified.
+
+## 0.10.21
+Sat, 13 Dec 2025 15:59:30 GMT
+
+### Patches
+
+- feat: add Prometheus metrics for quote state tracking across multiple services
 
 ## 0.10.20
 Sat, 13 Dec 2025 14:50:46 GMT

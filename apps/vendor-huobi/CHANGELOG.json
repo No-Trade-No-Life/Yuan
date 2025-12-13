@@ -2,6 +2,31 @@
   "name": "@yuants/vendor-huobi",
   "entries": [
     {
+      "version": "0.15.15",
+      "tag": "@yuants/vendor-huobi_v0.15.15",
+      "date": "Sat, 13 Dec 2025 15:59:30 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "feat: add Prometheus metrics for quote state tracking across multiple services"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-quote\" to `0.3.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.5.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.15.14",
       "tag": "@yuants/vendor-huobi_v0.15.14",
       "date": "Thu, 11 Dec 2025 13:59:57 GMT",

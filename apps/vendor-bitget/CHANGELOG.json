@@ -2,6 +2,31 @@
   "name": "@yuants/vendor-bitget",
   "entries": [
     {
+      "version": "0.11.7",
+      "tag": "@yuants/vendor-bitget_v0.11.7",
+      "date": "Sat, 13 Dec 2025 15:59:30 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "feat: add Prometheus metrics for quote state tracking across multiple services"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-quote\" to `0.3.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.5.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.11.6",
       "tag": "@yuants/vendor-bitget_v0.11.6",
       "date": "Sat, 13 Dec 2025 09:51:06 GMT",
