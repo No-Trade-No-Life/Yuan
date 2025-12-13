@@ -2,6 +2,23 @@
   "name": "@yuants/app-virtual-exchange",
   "entries": [
     {
+      "version": "0.9.1",
+      "tag": "@yuants/app-virtual-exchange_v0.9.1",
+      "date": "Sat, 13 Dec 2025 14:50:46 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix bug"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.9.0",
       "tag": "@yuants/app-virtual-exchange_v0.9.0",
       "date": "Sat, 13 Dec 2025 00:21:57 GMT",
