@@ -1,5 +1,5 @@
 import { IQuote, setMetricsQuoteState } from '@yuants/data-quote';
-import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
+import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
 import { decodePath, encodePath } from '@yuants/utils';
 import {

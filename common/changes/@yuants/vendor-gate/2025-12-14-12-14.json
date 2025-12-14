@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-gate",
+      "comment": "add new quotes services",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/vendor-gate"
+}
