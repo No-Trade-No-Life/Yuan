@@ -1,6 +1,17 @@
 # Change Log - @yuants/exchange
 
-This log was last generated on Sat, 13 Dec 2025 15:59:30 GMT and should not be manually modified.
+This log was last generated on Sun, 14 Dec 2025 12:31:41 GMT and should not be manually modified.
+
+## 0.6.0
+Sun, 14 Dec 2025 12:31:41 GMT
+
+### Minor changes
+
+- add new quote service interface
+
+### Patches
+
+- fix schema
 
 ## 0.5.2
 Sat, 13 Dec 2025 15:59:30 GMT

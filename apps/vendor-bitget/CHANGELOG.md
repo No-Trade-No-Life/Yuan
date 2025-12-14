@@ -1,6 +1,11 @@
 # Change Log - @yuants/vendor-bitget
 
-This log was last generated on Sat, 13 Dec 2025 15:59:30 GMT and should not be manually modified.
+This log was last generated on Sun, 14 Dec 2025 12:31:41 GMT and should not be manually modified.
+
+## 0.11.8
+Sun, 14 Dec 2025 12:31:41 GMT
+
+_Version update only_
 
 ## 0.11.7
 Sat, 13 Dec 2025 15:59:30 GMT
