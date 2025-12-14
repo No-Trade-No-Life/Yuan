@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-gate
 
-This log was last generated on Sat, 13 Dec 2025 15:59:30 GMT and should not be manually modified.
+This log was last generated on Sun, 14 Dec 2025 06:27:18 GMT and should not be manually modified.
+
+## 0.4.27
+Sun, 14 Dec 2025 06:27:18 GMT
+
+### Patches
+
+- feat: 添加获取统一账户信息的接口，并更新相关字段
 
 ## 0.4.26
 Sat, 13 Dec 2025 15:59:30 GMT
