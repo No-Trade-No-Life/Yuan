@@ -6,6 +6,8 @@ import { IQuote } from '@yuants/data-quote';
 import { IResponse, Terminal } from '@yuants/protocol';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import { JSONSchema7 } from 'json-schema';
+export * from './quote';
+export * from './types';
 
 /**
  * Exchange Interface

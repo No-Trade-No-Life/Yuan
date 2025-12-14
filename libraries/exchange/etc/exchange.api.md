@@ -7,7 +7,9 @@
 import { IOrder } from '@yuants/data-order';
 import { IPosition } from '@yuants/data-account';
 import { IProduct } from '@yuants/data-product';
+import { IQuote } from '@yuants/data-quote';
 import { IResponse } from '@yuants/protocol';
+import { IServiceOptions } from '@yuants/protocol';
 import { JSONSchema7 } from 'json-schema';
 import { Terminal } from '@yuants/protocol';
 
@@ -53,6 +55,30 @@ export interface IExchange<T = any> {
 }
 
 // @public
+export type IQuoteField = Exclude<keyof IQuote, 'product_id' | 'updated_at' | 'datasource_id'>;
+
+// @public
+export interface IQuoteServiceMetadata<K extends IQuoteField = IQuoteField> {
+    // (undocumented)
+    fields: K[];
+    // (undocumented)
+    max_products_per_request?: number;
+    // (undocumented)
+    product_id_prefix: string;
+}
+
+// @public
+export interface IQuoteServiceRequestByVEX {
+    // (undocumented)
+    fields: IQuoteField[];
+    // (undocumented)
+    product_ids: string[];
+}
+
+// @public
+export type IQuoteUpdateAction = Record<string, Partial<Record<IQuoteField, [value: string, updated_at: number]>>>;
+
+// @public
 export const listProducts: (terminal: Terminal, type: string) => Promise<IResponse<IProduct[]>>;
 
 // @public
@@ -62,7 +88,18 @@ export const modifyOrder: <T>(terminal: Terminal, credential: {
 }, order: IOrder) => Promise<IResponse<void>>;
 
 // @public
+export const parseQuoteServiceMetadataFromSchema: (schema: any) => IQuoteServiceMetadata;
+
+// @public
 export const provideExchangeServices: <T>(terminal: Terminal, exchange: IExchange<T>) => void;
+
+// @public
+export const provideQuoteService: <K extends IQuoteField>(terminal: Terminal, metadata: IQuoteServiceMetadata<K>, requestFunc: (request: IQuoteServiceRequestByVEX) => Promise<(Pick<IQuote, K> & {
+    product_id: string;
+    updated_at: number;
+})[]>, serviceOptions?: IServiceOptions) => {
+    dispose: () => void;
+};
 
 // @public
 export const submitOrder: <T>(terminal: Terminal, credential: {
