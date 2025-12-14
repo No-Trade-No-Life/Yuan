@@ -46,7 +46,7 @@ export const parseQuoteServiceMetadataFromSchema = (schema: any): IQuoteServiceM
 
   return {
     product_id_prefix: schema.properties.product_ids.items.pattern.slice(1),
-    fields: schema.properties.fields.items.const,
+    fields: schema.properties.fields.const,
     max_products_per_request: schema.properties.product_ids.maxItems,
   };
 };
@@ -76,7 +76,7 @@ export const provideQuoteService = <K extends IQuoteField>(
         },
         fields: {
           type: 'array',
-          items: { type: 'string', const: metadata.fields.sort() },
+          const: metadata.fields.sort(),
         },
       },
     },
