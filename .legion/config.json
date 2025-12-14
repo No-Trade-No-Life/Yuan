@@ -1,0 +1,77 @@
+{
+  "version": "1.0.0",
+  "currentTask": "implement-quote-service",
+  "settings": {
+    "autoRemind": true,
+    "remindBeforeReset": true,
+    "taskCreationPolicy": "agent-with-approval"
+  },
+  "tasks": [
+    {
+      "id": "implement-quote-service",
+      "name": "implement-quote-service",
+      "status": "active",
+      "createdAt": "2025-12-14T14:34:05.766Z",
+      "updatedAt": "2025-12-14T16:12:59.106Z"
+    }
+  ],
+  "pendingProposals": [
+    {
+      "id": "proposal-mj5ts62s-871f9c",
+      "name": "implement-quote-service",
+      "goal": "Implement quote service adapters for all vendors following provideQuoteService interface",
+      "rationale": "Need to extend quote service support across all vendor adapters to align with @yuants/exchange provideQuoteService contract and keep vendor implementations consistent with vendor-gate example.",
+      "points": [
+        "Follow provideQuoteService from @yuants/exchange",
+        "Use vendor-gate quote example as template",
+        "Keep code simple and consistent with repository style",
+        "Cover vendors: okx, binance, aster, hyperliquid, bitget, huobi"
+      ],
+      "scope": [
+        "libs/exchange/src/services/quote.ts",
+        "apps/vendor-gate/src/services/markets/quote.ts",
+        "apps/vendor-okx",
+        "apps/vendor-binance",
+        "apps/vendor-aster",
+        "apps/vendor-hyperliquid",
+        "apps/vendor-bitget",
+        "apps/vendor-huobi"
+      ],
+      "phases": [
+        {
+          "name": "Discovery",
+          "tasks": [
+            {
+              "acceptance": "Interfaces and existing implementation references are identified and summarized",
+              "description": "Review @yuants/exchange provideQuoteService and vendor-gate quote implementations to understand contract and usage patterns"
+            }
+          ]
+        },
+        {
+          "name": "Design",
+          "tasks": [
+            {
+              "acceptance": "Plan covering each target vendor (okx, binance, aster, hyperliquid, bitget, huobi) with mappings/input sources is documented",
+              "description": "Outline approach to add quote services for each vendor and note required data sources and edge cases"
+            }
+          ]
+        },
+        {
+          "name": "Implementation",
+          "tasks": [
+            {
+              "acceptance": "Quote services added for all target vendors with tests/validation steps listed",
+              "description": "Implement and wire quote service adapters for each vendor, aligning with existing patterns and verifying output format"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2025-12-14T14:33:48.485Z",
+      "status": "approved",
+      "decidedAt": "2025-12-14T14:34:05.766Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "implement-quote-service"
+    }
+  ]
+}

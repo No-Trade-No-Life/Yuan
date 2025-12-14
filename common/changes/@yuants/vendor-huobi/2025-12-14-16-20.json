@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-huobi",
+      "comment": "implement provide quote service",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/vendor-huobi"
+}
