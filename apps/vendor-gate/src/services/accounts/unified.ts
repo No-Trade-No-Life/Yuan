@@ -1,24 +1,7 @@
-import { createCache } from '@yuants/cache';
-import type { IPosition } from '@yuants/data-account';
+import { makeSpotPosition, type IPosition } from '@yuants/data-account';
 import { encodePath } from '@yuants/utils';
 import { getFuturePositions, getUnifiedAccounts, ICredential } from '../../api/private-api';
 import { getSpotTickers } from '../../api/public-api';
-import { listProducts } from '../markets/product';
-
-const spotProductMapCache = createCache(
-  async () => {
-    const products = await listProducts();
-    const map = new Map<string, string>();
-    for (const product of products ?? []) {
-      const [, instType] = product.product_id.split('/');
-      if (instType === 'SPOT') {
-        map.set(product.base_currency, product.product_id);
-      }
-    }
-    return map;
-  },
-  { expire: 86_400_000 },
-);
 
 const loadFuturePositions = async (credential: ICredential): Promise<IPosition[]> => {
   const positions: IPosition[] = [];
@@ -57,14 +40,12 @@ const loadFuturePositions = async (credential: ICredential): Promise<IPosition[]
 };
 
 export const getUnifiedAccountInfo = async (credential: ICredential) => {
-  const [futurePositions, unifiedAccount, spotTickers, spotProductMap] = await Promise.all([
+  const [futurePositions, unifiedAccount, spotTickers] = await Promise.all([
     loadFuturePositions(credential),
     getUnifiedAccounts(credential, {}),
     getSpotTickers({}),
-    spotProductMapCache.query('').catch(() => undefined),
   ]);
 
-  const resolvedSpotProductMap = spotProductMap ?? new Map<string, string>();
   const balances = unifiedAccount?.balances ?? {};
   const spotTickerList = Array.isArray(spotTickers) ? spotTickers : [];
   const spotPositions: IPosition[] = Object.keys(balances)
@@ -80,21 +61,18 @@ export const getUnifiedAccountInfo = async (credential: ICredential) => {
         currency === 'USDT'
           ? 1
           : Number(spotTickerList.find((ticker) => ticker.currency_pair === currency_pair)?.last || 0);
-      const volume = Number(balances[currency]?.cross_balance || 0);
+      // TODO: 根据账户模式调整 volume 计算方式
+      const volume = Number(balances[currency]?.available || 0);
       const free_volume = Number(balances[currency]?.available || 0);
       if (Math.abs(volume) === 0) return undefined;
-      return {
+      return makeSpotPosition({
         datasource_id: 'GATE',
         position_id: currency,
-        product_id: resolvedSpotProductMap.get(currency) ?? encodePath('GATE', 'SPOT', currency),
-        direction: 'LONG',
+        product_id: encodePath('GATE', 'SPOT', currency + '_USDT'),
         volume,
         free_volume,
         closable_price,
-        position_price: closable_price,
-        floating_profit: closable_price * volume,
-        valuation: closable_price * volume,
-      } as IPosition;
+      });
     })
     .filter((item): item is IPosition => !!item);
 
