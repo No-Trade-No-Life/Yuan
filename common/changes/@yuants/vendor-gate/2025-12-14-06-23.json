@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-gate",
+      "comment": "feat: 添加获取统一账户信息的接口，并更新相关字段",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-gate"
+}

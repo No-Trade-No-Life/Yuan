@@ -27,6 +27,11 @@ export const getAccountDetail = (
   tier: number;
 }> => callPrivate(credential, 'GET', '/account/detail');
 
+/**
+ * 获取统一账户信息
+ *
+ * https://www.gate.com/docs/developers/apiv4/zh_CN/#%E8%8E%B7%E5%8F%96%E7%BB%9F%E4%B8%80%E8%B4%A6%E6%88%B7%E4%BF%A1%E6%81%AF
+ */
 export const getUnifiedAccounts = (
   credential: ICredential,
   params?: { currency?: string },
@@ -46,6 +51,9 @@ export const getUnifiedAccounts = (
       total_freeze: string;
       total_liab: string;
       spot_in_use: string;
+      cross_balance: string;
+      iso_balance: string;
+      funding: string;
     }
   >;
   total: string;

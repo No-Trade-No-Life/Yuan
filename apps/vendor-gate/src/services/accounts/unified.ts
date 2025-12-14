@@ -1,7 +1,7 @@
 import { createCache } from '@yuants/cache';
 import type { IPosition } from '@yuants/data-account';
 import { encodePath } from '@yuants/utils';
-import { getUnifiedAccounts, getFuturePositions, ICredential } from '../../api/private-api';
+import { getFuturePositions, getUnifiedAccounts, ICredential } from '../../api/private-api';
 import { getSpotTickers } from '../../api/public-api';
 import { listProducts } from '../markets/product';
 
@@ -80,7 +80,8 @@ export const getUnifiedAccountInfo = async (credential: ICredential) => {
         currency === 'USDT'
           ? 1
           : Number(spotTickerList.find((ticker) => ticker.currency_pair === currency_pair)?.last || 0);
-      const volume = Number(balances[currency]?.available || 0);
+      const volume = Number(balances[currency]?.cross_balance || 0);
+      const free_volume = Number(balances[currency]?.available || 0);
       if (Math.abs(volume) === 0) return undefined;
       return {
         datasource_id: 'GATE',
@@ -88,7 +89,7 @@ export const getUnifiedAccountInfo = async (credential: ICredential) => {
         product_id: resolvedSpotProductMap.get(currency) ?? encodePath('GATE', 'SPOT', currency),
         direction: 'LONG',
         volume,
-        free_volume: volume,
+        free_volume,
         closable_price,
         position_price: closable_price,
         floating_profit: closable_price * volume,
