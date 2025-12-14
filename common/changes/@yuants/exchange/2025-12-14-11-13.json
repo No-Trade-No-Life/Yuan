@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/exchange",
+      "comment": "add new quote service interface",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/exchange"
+}
