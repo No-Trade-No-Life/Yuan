@@ -10,11 +10,6 @@ import {
 
 const terminal = Terminal.fromNodeEnv();
 
-const shouldInclude = (product_ids: string[] | undefined) => {
-  const productIdSet = new Set(product_ids ?? []);
-  return productIdSet.size === 0 ? () => true : (product_id: string) => productIdSet.has(product_id);
-};
-
 const mapTickerToQuote = (category: 'USDT-FUTURES' | 'COIN-FUTURES') => (ticker: IUtaTicker) => ({
   product_id: encodePath('BITGET', category, ticker.symbol),
   updated_at: ticker.ts ? Number(ticker.ts) : Date.now(),
@@ -43,12 +38,9 @@ provideQuoteService(
       'open_interest',
     ],
   },
-  async (req) => {
-    const include = shouldInclude(req.product_ids);
+  async () => {
     const res = await getTickers({ category: 'USDT-FUTURES' });
-    return (res.data ?? [])
-      .map(mapTickerToQuote('USDT-FUTURES'))
-      .filter((quote) => include(quote.product_id));
+    return (res.data ?? []).map(mapTickerToQuote('USDT-FUTURES'));
   },
 );
 
@@ -111,10 +103,7 @@ provideQuoteService(
     ],
   },
   async (req) => {
-    const include = shouldInclude(req.product_ids);
     const res = await getTickers({ category: 'COIN-FUTURES' });
-    return (res.data ?? [])
-      .map(mapTickerToQuote('COIN-FUTURES'))
-      .filter((quote) => include(quote.product_id));
+    return (res.data ?? []).map(mapTickerToQuote('COIN-FUTURES'));
   },
 );
