@@ -2,6 +2,33 @@
   "name": "@yuants/vendor-gate",
   "entries": [
     {
+      "version": "0.5.0",
+      "tag": "@yuants/vendor-gate_v0.5.0",
+      "date": "Sun, 14 Dec 2025 12:31:41 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix gate positions bug"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "add new quotes services"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.6.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.27",
       "tag": "@yuants/vendor-gate_v0.4.27",
       "date": "Sun, 14 Dec 2025 06:27:18 GMT",
