@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Sun, 14 Dec 2025 19:20:38 GMT and should not be manually modified.
+This log was last generated on Mon, 15 Dec 2025 13:54:05 GMT and should not be manually modified.
+
+## 0.17.0
+Mon, 15 Dec 2025 13:54:05 GMT
+
+### Minor changes
+
+- add broker id
 
 ## 0.16.0
 Sun, 14 Dec 2025 19:20:38 GMT
