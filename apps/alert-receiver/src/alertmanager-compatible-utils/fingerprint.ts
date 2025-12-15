@@ -1,5 +1,7 @@
 import { TextEncoder } from 'util';
 
+import { fnv1a64Hex } from '@yuants/utils';
+
 /**
  * 计算 Alert 的指纹（fingerprint），与 Alertmanager/Prometheus 完全一致。
  *
@@ -22,19 +24,9 @@ import { TextEncoder } from 'util';
  * - 我们在 webhook 缺失 fingerprint 字段时，需要本地重算，才能与 Alertmanager 行为保持一致。
  *
  * 输出格式：返回与 Go 侧 Fingerprint.String() 相同的 16 位、零填充、小写十六进制。
+ *
+ * NOTE: 如果有需要，则把下列实现移动到 @yuants/utils 库中。
  */
-
-const FNV_OFFSET_64 = 14695981039346656037n;
-const FNV_PRIME_64 = 1099511628211n;
-const MASK_64 = (1n << 64n) - 1n;
-const fnv1a64Hex = (bytes: Uint8Array): string => {
-  let x = FNV_OFFSET_64;
-  for (const byte of bytes) {
-    x ^= BigInt(byte);
-    x = (x * FNV_PRIME_64) & MASK_64;
-  }
-  return x.toString(16).padStart(16, '0');
-};
 
 const SEP_BYTE = new Uint8Array([0xff]);
 function encodeLabels(labels: Record<string, string>): Uint8Array {
