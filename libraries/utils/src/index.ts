@@ -14,6 +14,7 @@ export * from './crypto';
 export * from './error';
 export * from './escapeRegExp';
 export * from './format-time';
+export * from './fnv1a64Hex';
 export * from './hex';
 export * from './path';
 export * from './roundToStep';

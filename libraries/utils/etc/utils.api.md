@@ -76,6 +76,9 @@ export const errorRegistry: IRegistry;
 export const escapeRegExp: (string: string) => string;
 
 // @public
+export const fnv1a64Hex: (bytes: Uint8Array) => string;
+
+// @public
 export const formatTime: (time: Date | number | string, timeZone?: string | undefined) => string;
 
 // @public

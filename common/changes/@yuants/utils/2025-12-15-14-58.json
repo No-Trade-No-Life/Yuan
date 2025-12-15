@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/utils",
+      "comment": "feat: implement fnv1a64Hex hashing function and add tests",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/utils"
+}
