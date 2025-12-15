@@ -1,4 +1,4 @@
-import { IQuote } from '@yuants/data-quote';
+import { IQuote, setMetricsQuoteState } from '@yuants/data-quote';
 import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
 import { decodePath, encodePath, formatTime, listWatch } from '@yuants/utils';
@@ -382,6 +382,7 @@ if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
 
   quote$
     .pipe(
+      setMetricsQuoteState(terminal.terminal_id),
       writeToSQL({
         terminal,
         writeInterval: 1000,
