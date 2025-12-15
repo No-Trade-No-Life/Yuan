@@ -26,6 +26,7 @@ export const privateRequest = async (
   )}${
     method === 'GET' && params !== undefined
       ? `&${Object.entries(params)
+          .filter(([, v]) => v !== undefined)
           .sort(([a], [b]) => a.localeCompare(b))
           .map(([k, v]) => `${k}=${v}`)
           .join('&')}`
@@ -258,6 +259,7 @@ export const postSpotOrder = (
     'trade-purpose': string;
     price?: string;
     source: string;
+    'client-order-id'?: string;
   },
 ): Promise<{ success: boolean; code: number; message: string; data: { orderId: number } }> => {
   return privateRequest(credential, 'POST', `/v1/order/auto/place`, 'api.huobi.pro', params);
@@ -279,6 +281,7 @@ export const postSwapOrder = (
     direction: string;
     lever_rate: number;
     order_price_type: string;
+    channel_code?: string;
   },
 ): Promise<{ status: string; ts: number; data: { order_id: number; order_id_str: string } }> => {
   return privateRequest(credential, 'POST', '/linear-swap-api/v1/swap_cross_order', 'api.hbdm.com', params);

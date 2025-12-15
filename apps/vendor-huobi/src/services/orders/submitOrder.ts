@@ -36,6 +36,7 @@ async function handleSwapOrder(order: IOrder, credential: ICredential): Promise<
     // dynamically adjust the leverage
     lever_rate,
     order_price_type: order.order_type === 'MARKET' ? 'market' : 'limit',
+    channel_code: process.env.BROKER_ID,
   };
 
   const result = await postSwapOrder(credential, params);
@@ -98,6 +99,7 @@ async function handleSuperMarginOrder(order: IOrder, credential: ICredential): P
         : '2', // auto repay
     price: order.order_type === 'MARKET' ? undefined : '' + order.price,
     source: 'super-margin-api',
+    'client-order-id': process.env.BROKER_ID,
   };
 
   const result = await postSpotOrder(credential, params);
