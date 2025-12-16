@@ -1,6 +1,6 @@
 {
   "name": "@yuants/data-ohlc",
-  "version": "0.4.22",
+  "version": "0.4.23",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [

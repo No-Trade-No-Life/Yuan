@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-alert-receiver
 
-This log was last generated on Fri, 12 Dec 2025 10:32:49 GMT and should not be manually modified.
+This log was last generated on Tue, 16 Dec 2025 13:39:47 GMT and should not be manually modified.
+
+## 0.6.0
+Tue, 16 Dec 2025 13:39:47 GMT
+
+### Minor changes
+
+- move fnv1a64Hex into @yuants/utils
 
 ## 0.5.15
 Fri, 12 Dec 2025 10:32:49 GMT

@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-virtual-exchange
 
-This log was last generated on Sun, 14 Dec 2025 12:31:41 GMT and should not be manually modified.
+This log was last generated on Tue, 16 Dec 2025 13:39:47 GMT and should not be manually modified.
+
+## 0.9.4
+Tue, 16 Dec 2025 13:39:47 GMT
+
+### Patches
+
+- implement quote service routing
 
 ## 0.9.3
 Sun, 14 Dec 2025 12:31:41 GMT

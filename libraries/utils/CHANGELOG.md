@@ -1,6 +1,13 @@
 # Change Log - @yuants/utils
 
-This log was last generated on Fri, 28 Nov 2025 14:37:43 GMT and should not be manually modified.
+This log was last generated on Tue, 16 Dec 2025 13:39:47 GMT and should not be manually modified.
+
+## 0.15.0
+Tue, 16 Dec 2025 13:39:47 GMT
+
+### Minor changes
+
+- feat: implement fnv1a64Hex hashing function and add tests
 
 ## 0.14.0
 Fri, 28 Nov 2025 14:37:43 GMT

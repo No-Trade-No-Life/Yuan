@@ -2,6 +2,23 @@
   "name": "@yuants/utils",
   "entries": [
     {
+      "version": "0.15.0",
+      "tag": "@yuants/utils_v0.15.0",
+      "date": "Tue, 16 Dec 2025 13:39:47 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "feat: implement fnv1a64Hex hashing function and add tests"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.14.0",
       "tag": "@yuants/utils_v0.14.0",
       "date": "Fri, 28 Nov 2025 14:37:43 GMT",
