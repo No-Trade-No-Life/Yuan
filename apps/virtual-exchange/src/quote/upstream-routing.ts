@@ -1,11 +1,12 @@
 import {
   IQuoteUpdateAction as IExchangeQuoteUpdateAction,
+  IQuoteServiceMetadata,
   IQuoteServiceRequestByVEX,
   parseQuoteServiceMetadataFromSchema,
 } from '@yuants/exchange';
 import { Terminal } from '@yuants/protocol';
-import { encodePath, formatTime, newError } from '@yuants/utils';
-import { filter, firstValueFrom, map } from 'rxjs';
+import { encodePath, formatTime, listWatch, newError } from '@yuants/utils';
+import { EMPTY, filter, firstValueFrom, from, map, mergeMap, of, tap, timer, toArray } from 'rxjs';
 import { createSortedPrefixMatcher } from './prefix-matcher';
 import { fnv1a64HexFromStrings } from './request-key';
 import { IQuoteKey, IQuoteState, IQuoteUpdateAction } from './types';
@@ -30,10 +31,8 @@ interface IQuoteProviderInstance {
  */
 interface IQuoteProviderGroup {
   group_id: string;
-  product_id_prefix: string;
-  fields: IQuoteKey[];
-  max_products_per_request?: number;
-  instances: IQuoteProviderInstance[];
+  meta: IQuoteServiceMetadata;
+  mapTerminalIdToInstance: Map<string, IQuoteProviderInstance>;
 }
 
 type IPlannedRequest = {
@@ -42,60 +41,91 @@ type IPlannedRequest = {
   req: IQuoteServiceRequestByVEX;
 };
 
+const terminal = Terminal.fromNodeEnv();
+
+const quoteServiceInfos$ = terminal.terminalInfos$.pipe(
+  mergeMap((infos) =>
+    from(infos).pipe(
+      //
+      mergeMap((info) =>
+        from(Object.values(info.serviceInfo ?? {})).pipe(
+          filter((serviceInfo) => serviceInfo.method === 'GetQuotes'),
+          map((serviceInfo) => ({
+            terminal_id: info.terminal_id,
+            serviceInfo,
+          })),
+          toArray(),
+        ),
+      ),
+    ),
+  ),
+);
+
+const mapGroupIdToGroup = new Map<string, IQuoteProviderGroup>();
+
 /**
  * Build provider groups from runtime terminal infos.
  *
  * Note: `fields` is schema `const`, so VEX must keep a stable order (lexicographical sort).
  */
-const discoverProviderGroups = (terminal: Terminal): IQuoteProviderGroup[] => {
-  const mapGroupIdToGroup = new Map<string, IQuoteProviderGroup>();
-  for (const terminalInfo of terminal.terminalInfos) {
-    for (const serviceInfo of Object.values(terminalInfo.serviceInfo ?? {})) {
-      if (serviceInfo.method !== 'GetQuotes') continue;
-      console.info(
-        formatTime(Date.now()),
-        `[VEX][QUOTE]DiscoveringGetQuotesProvider...`,
-        `from terminal ${terminalInfo.terminal_id}`,
-        `service ${serviceInfo.service_id}`,
-        `schema:  ${JSON.stringify(serviceInfo.schema)}`,
-      );
-      try {
-        const metadata = parseQuoteServiceMetadataFromSchema(serviceInfo.schema);
-        const fields = [...(metadata.fields as unknown as IQuoteKey[])].sort();
-        const group_id = encodePath(
-          metadata.product_id_prefix,
-          fields.join(','),
-          metadata.max_products_per_request ?? '',
+quoteServiceInfos$
+  .pipe(
+    listWatch(
+      (v) => v.serviceInfo.service_id,
+      (v) => {
+        console.info(
+          formatTime(Date.now()),
+          `[VEX][QUOTE]DiscoveringGetQuotesProvider...`,
+          `from terminal ${v.terminal_id}`,
+          `service ${v.serviceInfo.service_id}`,
+          `schema:  ${JSON.stringify(v.serviceInfo.schema)}`,
         );
-        const group =
-          mapGroupIdToGroup.get(group_id) ??
-          (() => {
+        try {
+          const metadata = parseQuoteServiceMetadataFromSchema(v.serviceInfo.schema);
+          const fields = [...(metadata.fields as unknown as IQuoteKey[])].sort();
+          const group_id = encodePath(
+            metadata.product_id_prefix,
+            fields.join(','),
+            metadata.max_products_per_request ?? '',
+          );
+          const provider: IQuoteProviderInstance = {
+            terminal_id: v.terminal_id,
+            service_id: v.serviceInfo.service_id || v.serviceInfo.method,
+          };
+          if (mapGroupIdToGroup.get(group_id)) {
+            mapGroupIdToGroup.get(group_id)!.mapTerminalIdToInstance.set(provider.terminal_id, provider);
+          } else {
             const next: IQuoteProviderGroup = {
               group_id,
-              product_id_prefix: metadata.product_id_prefix,
-              fields,
-              max_products_per_request: metadata.max_products_per_request,
-              instances: [],
+              meta: metadata,
+              mapTerminalIdToInstance: new Map([[provider.terminal_id, provider]]),
             };
             mapGroupIdToGroup.set(group_id, next);
-            return next;
-          })();
-        group.instances.push({
-          terminal_id: terminalInfo.terminal_id,
-          service_id: serviceInfo.service_id || serviceInfo.method,
-        });
-      } catch {
-        // Ignore invalid schemas/providers
-        console.info(
-          `[VEX][Quote] Ignored GetQuotes provider from terminal ${terminalInfo.terminal_id} `,
-          `service ${serviceInfo.service_id} due to invalid schema.`,
-        );
-        continue;
-      }
-    }
-  }
-  return [...mapGroupIdToGroup.values()];
-};
+            console.info('11111111', [...mapGroupIdToGroup.values()]);
+          }
+          return of(void 0).pipe(
+            //
+            tap({
+              unsubscribe: () => {
+                mapGroupIdToGroup.get(group_id)?.mapTerminalIdToInstance.delete(v.terminal_id);
+                if (mapGroupIdToGroup.get(group_id)?.mapTerminalIdToInstance.size === 0) {
+                  mapGroupIdToGroup.delete(group_id);
+                }
+              },
+            }),
+          );
+        } catch {
+          // Ignore invalid schemas/providers
+          console.info(
+            `[VEX][Quote] Ignored GetQuotes provider from terminal ${v.terminal_id} `,
+            `service ${v.serviceInfo.service_id} due to invalid schema.`,
+          );
+          return EMPTY;
+        }
+      },
+    ),
+  )
+  .subscribe();
 
 // -----------------------------------------------------------------------------
 // Load balancing & upstream request execution
@@ -229,11 +259,11 @@ type IProviderIndices = ReturnType<typeof buildProviderIndices>;
 const buildProviderIndices = (groups: IQuoteProviderGroup[]) => {
   const mapGroupIdToGroup = new Map(groups.map((x) => [x.group_id, x] as const));
   const prefixMatcher = createSortedPrefixMatcher(
-    groups.map((group) => ({ prefix: group.product_id_prefix, value: group.group_id })),
+    groups.map((group) => ({ prefix: group.meta.product_id_prefix, value: group.group_id })),
   );
   const mapFieldToGroupIds = new Map<IQuoteKey, Set<string>>();
   for (const group of groups) {
-    for (const field of group.fields) {
+    for (const field of group.meta.fields) {
       let groupIds = mapFieldToGroupIds.get(field);
       if (!groupIds) {
         groupIds = new Set<string>();
@@ -320,7 +350,7 @@ const planRequests = (
     const group = mapGroupIdToGroup.get(group_id);
     if (!group) continue;
     const sortedProductIds = [...productIdSet].sort();
-    const max = group.max_products_per_request ?? sortedProductIds.length;
+    const max = group.meta.max_products_per_request ?? sortedProductIds.length;
     for (let i = 0; i < sortedProductIds.length; i += max) {
       const batchProductIds = sortedProductIds.slice(i, i + max);
       const key = createRequestKey(group_id, batchProductIds);
@@ -328,8 +358,8 @@ const planRequests = (
         key,
         planned: {
           group_id,
-          instances: group.instances,
-          req: { product_ids: batchProductIds, fields: group.fields as any },
+          instances: Array.from(group.mapTerminalIdToInstance.values()),
+          req: { product_ids: batchProductIds, fields: group.meta.fields as any },
         },
       });
     }
@@ -346,7 +376,7 @@ export const fillQuoteStateFromUpstream = async (params: {
   const { terminal, quoteState, cacheMissed, updated_at } = params;
   if (cacheMissed.length === 0) return;
 
-  const providerGroups = discoverProviderGroups(terminal);
+  const providerGroups = Array.from(mapGroupIdToGroup.values());
   console.info(
     formatTime(Date.now()),
     `[VEX][Quote]UpstreamProviderDiscovery`,
