@@ -44,3 +44,49 @@
 2025-12-14T16:12:40.295Z,legion_update_context,implement-quote-service,implement-quote-service,Claude,progress.completed: TypeScript 检查补充： - common/temp/node_modules/.bin/tsc --noEmit --project apps/vendor-bitget/tsconfig.json ✅ - common/temp/node_modules/.bin/tsc --noEmit --projec,success
 2025-12-14T16:12:52.690Z,legion_update_tasks,implement-quote-service,implement-quote-service,Claude,addDiscoveredTask: 补齐 Bitget funding settlement 时间字段：interest_rate_next_settled_at / interest_rate_prev_settled_at（per-product API，max_products_per_request=1）,success
 2025-12-14T16:12:59.106Z,legion_update_tasks,implement-quote-service,implement-quote-service,Claude,addDiscoveredTask: 补齐 Binance/OKX 的 MARGIN GetQuotes（BID/ASK/LAST 等字段按上游 API 拆分，不 join）,success
+2025-12-15T08:09:10.313Z,legion_init,implement-quote-service,implement-quote-service,Claude,workingDirectory: /home/c1/Work/Yuan,success
+2025-12-15T08:09:20.635Z,legion_create_task,implement-quote-service,implement-quote-service,Claude,goal: Design quote routing in virtual-exchange quote service (compute per-upstream requests from cacheMissed + terminal metadata) and implement TODO accordingly.,failed
+2025-12-15T08:09:32.583Z,legion_propose_task,implement-quote-service,implement-quote-service,Claude,name: task-vex-quote-routing,success
+2025-12-15T08:09:34.656Z,legion_approve_proposal,task-vex-quote-routing,task-vex-quote-routing,Claude,proposalId: proposal-mj6vhup2-9ba350,success
+2025-12-15T08:09:36.448Z,legion_switch_task,task-vex-quote-routing,task-vex-quote-routing,Claude,taskId: task-vex-quote-routing,success
+2025-12-15T08:09:42.439Z,legion_read_context,task-vex-quote-routing,task-vex-quote-routing,Claude,section: all,success
+2025-12-15T08:09:47.558Z,legion_update_tasks,task-vex-quote-routing,task-vex-quote-routing,Claude,setCurrentTask: phase 1,success
+2025-12-15T08:16:49.222Z,legion_update_context,task-vex-quote-routing,task-vex-quote-routing,Claude,addFile: apps/virtual-exchange/src/quote/service.ts,success
+2025-12-15T08:16:49.224Z,legion_update_context,task-vex-quote-routing,task-vex-quote-routing,Claude,addFile: apps/virtual-exchange/src/quote/implementations/v1.ts,success
+2025-12-15T08:16:49.226Z,legion_update_context,task-vex-quote-routing,task-vex-quote-routing,Claude,addFile: apps/virtual-exchange/src/quote/DESIGN.md,success
+2025-12-15T08:16:49.227Z,legion_update_context,task-vex-quote-routing,task-vex-quote-routing,Claude,addFile: libraries/exchange/src/quote.ts,success
+2025-12-15T08:16:49.229Z,legion_update_context,task-vex-quote-routing,task-vex-quote-routing,Claude,addFile: libraries/protocol/src/model.ts,success
+2025-12-15T08:16:49.231Z,legion_update_context,task-vex-quote-routing,task-vex-quote-routing,Claude,addFile: libraries/protocol/src/client.ts,success
+2025-12-15T08:16:49.232Z,legion_update_context,task-vex-quote-routing,task-vex-quote-routing,Claude,addFile: .legion/tasks/implement-quote-service/plan.md,success
+2025-12-15T08:16:49.234Z,legion_update_context,task-vex-quote-routing,task-vex-quote-routing,Claude,addFile: libraries/cache/src/cache.ts,success
+2025-12-15T08:17:04.629Z,legion_update_context,task-vex-quote-routing,task-vex-quote-routing,Claude,addDecision: 实现 TODO 前必须处理 quoteState 的“读导致写”风险：优先修复实现让读不创建 product；并在服务层加输入上限作为兜底。,success
+2025-12-15T08:17:04.631Z,legion_update_context,task-vex-quote-routing,task-vex-quote-routing,Claude,addDecision: 路由算法以 `product_id_prefix` + `fields` 覆盖为核心：按 product 做贪心 set-cover，之后按 provider 聚合 product_ids 批量请求。,success
+2025-12-15T08:17:04.633Z,legion_update_context,task-vex-quote-routing,task-vex-quote-routing,Claude,addDecision: 通过 terminal 的 `serviceInfo.schema` 发现并解析上游 `GetQuotes` provider 的 metadata（prefix/fields/maxItems）。,success
+2025-12-15T08:17:04.635Z,legion_update_context,task-vex-quote-routing,task-vex-quote-routing,Claude,addDecision: in-flight 复用使用 `@yuants/cache` 的 `createCache`（短 expire），并发上限使用简单 throttler；请求执行用 `Promise.allSettled` best-effort 聚合。,success
+2025-12-15T08:17:13.601Z,legion_update_context,task-vex-quote-routing,task-vex-quote-routing,Claude,progress.completed: 定位 `VEX/QueryQuotes` TODO 与现有 cacheMissed 计算逻辑,success
+2025-12-15T08:17:18.502Z,legion_update_tasks,task-vex-quote-routing,task-vex-quote-routing,Claude,completeTask: phase 1,success
+2025-12-15T08:37:15.140Z,legion_update_context,task-vex-quote-routing,task-vex-quote-routing,Claude,addDecision: 同一个 provider（建议按“schema 能力签名”定义）并发限制为 1；不同 provider 允许并发。,success
+2025-12-15T08:37:15.141Z,legion_update_context,task-vex-quote-routing,task-vex-quote-routing,Claude,addDecision: GetQuotes 多实例做负载均衡；in-flight key 对 product_ids 做 FNV-1a 64 hex hash（参考 alert fingerprint 实现）。,success
+2025-12-15T08:37:15.143Z,legion_update_context,task-vex-quote-routing,task-vex-quote-routing,Claude,addDecision: freshness 是硬约束：若补全后仍有任一 requested 字段 `updated_at < req.updated_at`（或缺失），则 `VEX/QueryQuotes` 直接抛异常退出，不做重试。,success
+2025-12-15T08:37:15.144Z,legion_update_context,task-vex-quote-routing,task-vex-quote-routing,Claude,addDecision: `fields` 一律按字典序；VEX 构造请求时直接 `sort()`（必要时抽工具）。,success
+2025-12-15T08:37:22.008Z,legion_update_context,task-vex-quote-routing,task-vex-quote-routing,Claude,progress.completed: 你已确认：fields 使用字典序排序；多实例负载均衡；in-flight key 不包含 updated_at；可对 product_ids 做 fnv1a64 hash；freshness 不满足则直接抛异常；同 provider 并发限制为 1；类型可用 `as`。,success
+2025-12-15T08:38:14.280Z,legion_list_tasks,task-vex-quote-routing,task-vex-quote-routing,Claude,,success
+2025-12-15T08:38:20.015Z,legion_list_proposals,task-vex-quote-routing,task-vex-quote-routing,Claude,status: pending,success
+2025-12-15T08:45:11.130Z,legion_update_tasks,task-vex-quote-routing,task-vex-quote-routing,Claude,setCurrentTask: phase 3,success
+2025-12-15T08:50:04.715Z,legion_update_tasks,task-vex-quote-routing,task-vex-quote-routing,Claude,completeTask: phase 3,success
+2025-12-15T08:50:11.105Z,legion_update_tasks,task-vex-quote-routing,task-vex-quote-routing,Claude,setCurrentTask: phase 3,success
+2025-12-15T08:50:13.936Z,legion_update_tasks,task-vex-quote-routing,task-vex-quote-routing,Claude,completeTask: phase 3,success
+2025-12-15T08:50:22.336Z,legion_update_context,task-vex-quote-routing,task-vex-quote-routing,Claude,progress.completed: 实现 `apps/virtual-exchange/src/quote/service.ts` 的 TODO：基于 cacheMissed + 上游 GetQuotes schema metadata 做路由/批量/并发(in-flight)复用，并在补全后进行 strict freshness 校验,success
+2025-12-15T12:33:56.212Z,legion_update_context,task-vex-quote-routing,task-vex-quote-routing,Claude,progress.completed: 已参考 `docs/zh-Hans/code-guidelines/exchange.md` 的「L1 报价数据」匹配算法，并将路由设计从 set cover 调整为 Trie(prefix)+field index+交集过滤（`S_product_id ∩ S_field`）。,success
+2025-12-15T12:42:12.186Z,legion_update_context,task-vex-quote-routing,task-vex-quote-routing,Claude,progress.completed: 按 `docs/zh-Hans/code-guidelines/exchange.md` L1 报价算法重构路由：prefix 匹配 + field 倒排索引 + 交集过滤（不做 set cover）,success
+2025-12-15T14:41:18.142Z,legion_get_status,task-vex-quote-routing,task-vex-quote-routing,Claude,,success
+2025-12-15T14:41:24.002Z,legion_list_reviews,task-vex-quote-routing,task-vex-quote-routing,Claude,status: open,success
+2025-12-15T14:41:24.005Z,legion_read_context,task-vex-quote-routing,task-vex-quote-routing,Claude,"section: all, includeReviews: true",success
+2025-12-15T14:41:30.205Z,legion_archive_task,task-vex-quote-routing,task-vex-quote-routing,Claude,taskId: task-vex-quote-routing,success
+2025-12-15T14:45:35.864Z,legion_switch_task,implement-quote-service,implement-quote-service,Claude,taskId: implement-quote-service,success
+2025-12-15T14:45:41.224Z,legion_list_reviews,implement-quote-service,implement-quote-service,Claude,status: open,success
+2025-12-15T14:45:41.226Z,legion_read_context,implement-quote-service,implement-quote-service,Claude,"section: all, includeReviews: true",success
+2025-12-15T14:46:37.708Z,legion_propose_task,implement-quote-service,implement-quote-service,Claude,name: extract-fnv1a64hex-to-utils,success
+2025-12-15T14:53:44.913Z,legion_get_status,implement-quote-service,implement-quote-service,Claude,,success
+2025-12-15T14:53:51.732Z,legion_archive_task,implement-quote-service,implement-quote-service,Claude,taskId: implement-quote-service,success
+2025-12-15T14:53:57.501Z,legion_get_status,,,Claude,,success
