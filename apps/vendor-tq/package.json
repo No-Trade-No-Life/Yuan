@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-tq",
-  "version": "0.4.44",
+  "version": "0.4.45",
   "main": "lib/index.js",
   "files": [
     "dist",

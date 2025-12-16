@@ -2,6 +2,29 @@
   "name": "@yuants/data-order",
   "entries": [
     {
+      "version": "0.7.1",
+      "tag": "@yuants/data-order_v0.7.1",
+      "date": "Tue, 16 Dec 2025 13:39:47 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.53.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.31`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/cache\" to `0.3.4`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.7.0",
       "tag": "@yuants/data-order_v0.7.0",
       "date": "Thu, 11 Dec 2025 13:59:57 GMT",

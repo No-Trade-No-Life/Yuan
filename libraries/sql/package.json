@@ -1,6 +1,6 @@
 {
   "name": "@yuants/sql",
-  "version": "0.9.30",
+  "version": "0.9.31",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [

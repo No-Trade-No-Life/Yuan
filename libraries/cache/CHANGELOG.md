@@ -1,6 +1,11 @@
 # Change Log - @yuants/cache
 
-This log was last generated on Fri, 28 Nov 2025 14:37:43 GMT and should not be manually modified.
+This log was last generated on Tue, 16 Dec 2025 13:39:47 GMT and should not be manually modified.
+
+## 0.3.4
+Tue, 16 Dec 2025 13:39:47 GMT
+
+_Version update only_
 
 ## 0.3.3
 Fri, 28 Nov 2025 14:37:43 GMT
