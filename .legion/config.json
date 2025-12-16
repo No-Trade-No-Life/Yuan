@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "implement-quote-service",
+  "currentTask": null,
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -10,9 +10,16 @@
     {
       "id": "implement-quote-service",
       "name": "implement-quote-service",
-      "status": "active",
+      "status": "archived",
       "createdAt": "2025-12-14T14:34:05.766Z",
-      "updatedAt": "2025-12-14T16:12:59.106Z"
+      "updatedAt": "2025-12-15T14:53:51.731Z"
+    },
+    {
+      "id": "task-vex-quote-routing",
+      "name": "task-vex-quote-routing",
+      "status": "archived",
+      "createdAt": "2025-12-15T08:09:34.654Z",
+      "updatedAt": "2025-12-15T14:41:30.204Z"
     }
   ],
   "pendingProposals": [
@@ -72,6 +79,130 @@
       "decidedAt": "2025-12-14T14:34:05.766Z",
       "decidedBy": "Claude",
       "createdTaskId": "implement-quote-service"
+    },
+    {
+      "id": "proposal-mj6vhup2-9ba350",
+      "name": "task-vex-quote-routing",
+      "goal": "Design quote routing in virtual-exchange quote service (compute per-upstream requests from cacheMissed + terminal metadata) and implement TODO accordingly.",
+      "rationale": "User requested a new LegionMind task to track discovery/design for implementing the TODO in `apps/virtual-exchange/src/quote/service.ts` (quote routing based on cacheMissed and upstream metadata).",
+      "points": [
+        "Read existing upstream quote service implementation and metadata mapping patterns",
+        "Determine how to locate quote service metadata from terminal service info (per @yuants/exchange quote.ts)",
+        "Design routing algorithm: (cacheMissed, upstream metadata) -> requests per service",
+        "Plan Promise.all execution and result aggregation",
+        "Implement TODO after plan review"
+      ],
+      "scope": [
+        "apps/virtual-exchange/src/quote/service.ts",
+        "apps/virtual-exchange/src/quote/state.ts",
+        "libraries/exchange/src/quote.ts"
+      ],
+      "phases": [
+        {
+          "name": "Discovery",
+          "tasks": [
+            {
+              "description": "Inspect TODO in `apps/virtual-exchange/src/quote/service.ts` and surrounding flow.",
+              "acceptance": "Clear list of required inputs/outputs and constraints for the TODO."
+            },
+            {
+              "description": "Study `libraries/exchange/src/quote.ts` for how quote service metadata is derived from terminal service info.",
+              "acceptance": "Documented mapping rules: where metadata lives, key names, and how to identify quote service."
+            },
+            {
+              "description": "Review existing Legion task `.legion/tasks/implement-quote-service` for upstream quote service implementation patterns.",
+              "acceptance": "Summary of the upstream request/response wiring and any caching/routing patterns."
+            }
+          ]
+        },
+        {
+          "name": "Design",
+          "tasks": [
+            {
+              "description": "Design routing: compute which upstream service(s) to call and what request payload each needs, from `(cacheMissed, upstream terminal metadata)`.",
+              "acceptance": "Algorithm documented with inputs/outputs, edge cases, and data structures."
+            },
+            {
+              "description": "Design concurrency and aggregation: `Promise.all` execution plan and how to merge results back into cache/state.",
+              "acceptance": "Documented concurrency strategy, failure handling, and result merge semantics."
+            }
+          ]
+        },
+        {
+          "name": "Implementation (after review)",
+          "tasks": [
+            {
+              "description": "Implement the TODO in `apps/virtual-exchange/src/quote/service.ts` according to the approved design.",
+              "acceptance": "TODO removed, code compiles, behavior matches design."
+            },
+            {
+              "description": "Add or update any necessary types/tests/docs consistent with repo patterns.",
+              "acceptance": "No lint/type/test regressions; docs updated if needed."
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2025-12-15T08:09:32.582Z",
+      "status": "approved",
+      "decidedAt": "2025-12-15T08:09:34.654Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "task-vex-quote-routing"
+    },
+    {
+      "id": "proposal-mj79oia3-b9f818",
+      "name": "extract-fnv1a64hex-to-utils",
+      "goal": "将 FNV-1a 64-bit hex 哈希实现抽到 `@yuants/utils`，并在 alert-receiver / virtual-exchange 复用。",
+      "rationale": "`apps/alert-receiver` 与 `apps/virtual-exchange` 都各自实现了同一套 FNV-1a 64 hex（含 0xff 分隔）逻辑；抽到 `@yuants/utils` 可去重、降低后续维护成本，并便于其它模块（如 quote routing 的 request key）复用。",
+      "points": [
+        "在 `libraries/utils/src/fnv1a64Hex.ts` 暴露 `fnv1a64Hex(bytes)`",
+        "为 util 增加最小单测（固定向量）",
+        "`apps/alert-receiver` 的 alert fingerprint 改为复用 util",
+        "`apps/virtual-exchange` 的 request-key 改为复用 util，删除重复实现",
+        "跑 prettier + 最小构建/测试验证"
+      ],
+      "scope": [
+        "libraries/utils/src/fnv1a64Hex.ts",
+        "libraries/utils/src/fnv1a64Hex.test.ts",
+        "libraries/utils/src/index.ts",
+        "apps/alert-receiver/src/alertmanager-compatible-utils/fingerprint.ts",
+        "apps/virtual-exchange/src/quote/request-key.ts"
+      ],
+      "phases": [
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "在 `@yuants/utils` 新增 `fnv1a64Hex(bytes)` 并导出。",
+              "acceptance": "其它包可通过 `@yuants/utils` 导入并使用；实现返回 16 位小写 hex。"
+            },
+            {
+              "description": "为 `fnv1a64Hex` 增加单测覆盖固定输入向量。",
+              "acceptance": "测试断言通过：空串/hello/foobar 等已知向量匹配。"
+            },
+            {
+              "description": "在 alert-receiver 复用 `fnv1a64Hex`，保持 `computeAlertFingerprint` 行为不变。",
+              "acceptance": "现有 `fingerprint.test.ts` 通过且产出值不变。"
+            },
+            {
+              "description": "在 virtual-exchange 复用 `fnv1a64Hex`，移除本地 32-bit 实现。",
+              "acceptance": "`fnv1a64HexFromStrings` 输出与原实现一致（随机向量比对/或现有调用点不变）。"
+            }
+          ]
+        },
+        {
+          "name": "格式化与验证",
+          "tasks": [
+            {
+              "description": "运行 prettier，并执行最小构建/测试验证。",
+              "acceptance": "格式无噪音；相关包 build/test 不回归。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2025-12-15T14:46:37.707Z",
+      "status": "pending"
     }
   ]
 }

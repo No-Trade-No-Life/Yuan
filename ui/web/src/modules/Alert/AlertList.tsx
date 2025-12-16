@@ -64,7 +64,7 @@ registerPage('AlertList', () => {
                 >('prometheus/alerts', {}),
               ).pipe(
                 //
-                tap((x) => console.log('alerts', x)),
+                // tap((x) => console.log('alerts', x)),
                 map((res) => res.data.alerts.map(normalizeAlert)),
                 repeat({ delay: 5000 }),
                 retry({ delay: 5000 }),

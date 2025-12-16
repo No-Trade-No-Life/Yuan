@@ -16,11 +16,18 @@ const schemaValidator = createValidator({
       properties: {
         product_ids: {
           type: 'object',
-          required: ['type', 'pattern'],
+          required: ['type', 'items'],
           properties: {
             type: { type: 'string', const: 'array' },
             maxItems: { type: ['number', 'null'] },
-            pattern: { type: 'string', pattern: '^\\^' },
+            items: {
+              type: 'object',
+              required: ['type', 'pattern'],
+              properties: {
+                type: { type: 'string', const: 'string' },
+                pattern: { type: 'string', pattern: '^\\^' },
+              },
+            },
           },
         },
         fields: {

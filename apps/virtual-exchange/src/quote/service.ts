@@ -1,19 +1,66 @@
 import { Terminal } from '@yuants/protocol';
+import { newError } from '@yuants/utils';
 import { createQuoteState } from './state';
-import { IQuoteKey, IQuoteUpdateAction } from './types';
+import { IQuoteKey, IQuoteState, IQuoteUpdateAction } from './types';
+import { fillQuoteStateFromUpstream, IQuoteMiss } from './upstream-routing';
 
 const terminal = Terminal.fromNodeEnv();
 
 const quoteState = createQuoteState();
+
+const assertFreshnessSatisfied = (
+  data: IQuoteUpdateAction,
+  params: { product_ids: string[]; fields: IQuoteKey[]; updated_at: number },
+) => {
+  console.info(
+    '[VEX][Quote] Asserting freshness satisfied for requested quotes.',
+    JSON.stringify(params),
+    JSON.stringify(data),
+  );
+  const { product_ids, fields, updated_at } = params;
+  const stillMissed: Array<{ product_id: string; field: IQuoteKey }> = [];
+  for (const product_id of product_ids) {
+    for (const field of fields) {
+      if (!data[product_id]?.[field]) {
+        stillMissed.push({ product_id, field });
+      }
+    }
+  }
+  if (stillMissed.length > 0) {
+    throw newError('VEX_QUOTE_FRESHNESS_NOT_SATISFIED', {
+      updated_at,
+      missed: stillMissed.slice(0, 200),
+      missed_total: stillMissed.length,
+    });
+  }
+};
 
 terminal.server.provideService<IQuoteUpdateAction>('VEX/UpdateQuotes', {}, async (msg) => {
   quoteState.update(msg.req);
   return { res: { code: 0, message: 'OK' } };
 });
 
-terminal.server.provideService<{}, IQuoteUpdateAction>('VEX/DumpQuoteState', {}, async (msg) => {
+terminal.server.provideService<{}, IQuoteUpdateAction>('VEX/DumpQuoteState', {}, async () => {
   return { res: { code: 0, message: 'OK', data: quoteState.dumpAsObject() } };
 });
+
+const computeCacheMissed = (
+  quoteState: IQuoteState,
+  product_ids: string[],
+  fields: IQuoteKey[],
+  updated_at: number,
+): IQuoteMiss[] => {
+  const cacheMissed: IQuoteMiss[] = [];
+  for (const product_id of product_ids) {
+    for (const field of fields) {
+      const tuple = quoteState.getValueTuple(product_id, field);
+      if (tuple === undefined || tuple[1] < updated_at) {
+        cacheMissed.push({ product_id, field });
+      }
+    }
+  }
+  return cacheMissed;
+};
 
 terminal.server.provideService<
   { product_ids: string[]; fields: IQuoteKey[]; updated_at: number },
@@ -37,23 +84,12 @@ terminal.server.provideService<
   },
   async (msg) => {
     const { product_ids, fields, updated_at } = msg.req;
-    // 分析缓存缺失的字段
-    const cacheMissed: Array<{ product_id: string; field: IQuoteKey }> = [];
-    for (const product_id of product_ids) {
-      for (const field of fields) {
-        const tuple = quoteState.getValueTuple(product_id, field);
-        if (tuple === undefined || tuple[1] < updated_at) {
-          cacheMissed.push({ product_id, field });
-        }
-      }
-    }
-    // TODO: 集中规划需要发送的查询请求，并更新到状态中
-    // 注意需要限制在途请求数量和复用在途请求的结果，以免过载和浪费资源
-    // await Promise.all;
 
-    // 从状态中获取数据返回
+    const cacheMissed = computeCacheMissed(quoteState, product_ids, fields, updated_at);
+    await fillQuoteStateFromUpstream({ terminal, quoteState, cacheMissed, updated_at });
+
     const data = quoteState.filter(product_ids, fields, updated_at);
-
+    assertFreshnessSatisfied(data, { product_ids, fields, updated_at });
     return { res: { code: 0, message: 'OK', data } };
   },
 );
