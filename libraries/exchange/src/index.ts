@@ -1,10 +1,7 @@
-import { createCache } from '@yuants/cache';
 import { IPosition } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
-import { createClientProductCache, IProduct } from '@yuants/data-product';
-import { IQuote } from '@yuants/data-quote';
+import { IProduct } from '@yuants/data-product';
 import { IResponse, Terminal } from '@yuants/protocol';
-import { escapeSQL, requestSQL } from '@yuants/sql';
 import { JSONSchema7 } from 'json-schema';
 export * from './quote';
 export * from './types';
@@ -110,17 +107,6 @@ const makeCredentialSchema = (type: string, payloadSchema: JSONSchema7): JSONSch
  */
 export const provideExchangeServices = <T>(terminal: Terminal, exchange: IExchange<T>) => {
   const { name: type, credentialSchema } = exchange;
-
-  const quoteCache = createCache<IQuote>(
-    async (product_id) => {
-      const sql = `select * from quote where product_id = ${escapeSQL(product_id)}`;
-      const [quote] = await requestSQL<IQuote[]>(terminal, sql);
-      return quote;
-    },
-    { expire: 30_000 },
-  );
-
-  const productCache = createClientProductCache(terminal, { expire: 3600_000 });
 
   // GetCredentialId
   terminal.server.provideService<{ credential: { type: string; payload: T } }, string>(

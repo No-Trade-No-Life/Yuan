@@ -61,9 +61,11 @@ export type IActionHandlerOfListAccounts<T> = (credential: T) => Promise<Array<{
 export interface IPosition {
     account_id?: string;
     base_currency?: string;
+    // @deprecated
     closable_price: number;
     comment?: string;
     created_at?: number;
+    current_price?: string;
     datasource_id?: string;
     direction?: string;
     floating_profit: number;
@@ -72,6 +74,7 @@ export interface IPosition {
     interest_to_settle?: number;
     liquidation_price?: string;
     margin?: number;
+    notional?: string;
     position_id: string;
     position_price: number;
     product_id: string;

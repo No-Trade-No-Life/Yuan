@@ -44,7 +44,7 @@ export interface IQuoteServiceRequestByVEX {
  * ```
  * @public
  */
-export type IQuoteUpdateAction = Record<
+export type IQuoteUpdateAction<K extends IQuoteField = IQuoteField> = Record<
   string,
-  Partial<Record<IQuoteField, [value: string, updated_at: number]>>
+  Partial<Record<K, [value: string, updated_at: number]>>
 >;

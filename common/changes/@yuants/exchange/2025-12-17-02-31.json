@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/exchange",
+      "comment": "make IQuoteUpdateAction generic",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/exchange"
+}

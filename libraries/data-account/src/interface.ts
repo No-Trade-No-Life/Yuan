@@ -96,8 +96,15 @@ export interface IPosition {
   /**
    * The current closable settlement price.
    * 当前可平仓结算价格
+   * @deprecated Use `current_price` instead.
    */
   closable_price: number;
+
+  /**
+   * Current price of the product.
+   * 品种的当前价格 (根据头寸方向 援引 quote 表中的 ask_price 或 bid_price 或者 last_price)
+   */
+  current_price?: string;
 
   /**
    * Floating profit and loss of the position.
@@ -118,6 +125,18 @@ export interface IPosition {
    * 无法估值的情况可以暂时填写为 0
    */
   valuation: number;
+
+  /**
+   * Notional value of the position.
+   *
+   * 头寸的名义价值。空头为负值，多头为正值。
+   *
+   * @remarks
+   *
+   * Notional = size * current_price
+   */
+  notional?: string;
+
   /**
    * Settlement interval in milliseconds.
    * 结算间隔时间，单位毫秒

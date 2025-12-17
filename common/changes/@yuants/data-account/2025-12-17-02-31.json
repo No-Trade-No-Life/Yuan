@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-account",
+      "comment": "add current_price and notional fields to position",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-account"
+}
