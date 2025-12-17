@@ -1,12 +1,13 @@
 import { Terminal } from '@yuants/protocol';
 import { newError } from '@yuants/utils';
 import { createQuoteState } from './state';
-import { IQuoteKey, IQuoteState, IQuoteUpdateAction } from './types';
-import { fillQuoteStateFromUpstream, IQuoteMiss } from './upstream-routing';
+import { IQuoteKey, IQuoteRequire, IQuoteState, IQuoteUpdateAction } from './types';
+import { createQuoteProviderRegistry } from './upstream';
 
 const terminal = Terminal.fromNodeEnv();
 
 const quoteState = createQuoteState();
+const quoteProviderRegistry = createQuoteProviderRegistry(terminal);
 
 const assertFreshnessSatisfied = (
   data: IQuoteUpdateAction,
@@ -49,8 +50,8 @@ const computeCacheMissed = (
   product_ids: string[],
   fields: IQuoteKey[],
   updated_at: number,
-): IQuoteMiss[] => {
-  const cacheMissed: IQuoteMiss[] = [];
+): IQuoteRequire[] => {
+  const cacheMissed: IQuoteRequire[] = [];
   for (const product_id of product_ids) {
     for (const field of fields) {
       const tuple = quoteState.getValueTuple(product_id, field);
@@ -86,7 +87,7 @@ terminal.server.provideService<
     const { product_ids, fields, updated_at } = msg.req;
 
     const cacheMissed = computeCacheMissed(quoteState, product_ids, fields, updated_at);
-    await fillQuoteStateFromUpstream({ terminal, quoteState, cacheMissed, updated_at });
+    await quoteProviderRegistry.fillQuoteStateFromUpstream({ quoteState, cacheMissed, updated_at });
 
     const data = quoteState.filter(product_ids, fields, updated_at);
     assertFreshnessSatisfied(data, { product_ids, fields, updated_at });
