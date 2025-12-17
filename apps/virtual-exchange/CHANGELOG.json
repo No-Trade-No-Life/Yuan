@@ -2,6 +2,26 @@
   "name": "@yuants/app-virtual-exchange",
   "entries": [
     {
+      "version": "0.10.1",
+      "tag": "@yuants/app-virtual-exchange_v0.10.1",
+      "date": "Wed, 17 Dec 2025 15:18:39 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor quote routing"
+          },
+          {
+            "comment": "Implement SWR for VEX/QueryQuotes with background updates"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.10.0",
       "tag": "@yuants/app-virtual-exchange_v0.10.0",
       "date": "Wed, 17 Dec 2025 05:52:34 GMT",
