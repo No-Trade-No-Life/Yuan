@@ -1,6 +1,13 @@
 # Change Log - @yuants/exchange
 
-This log was last generated on Tue, 16 Dec 2025 13:39:47 GMT and should not be manually modified.
+This log was last generated on Wed, 17 Dec 2025 05:52:34 GMT and should not be manually modified.
+
+## 0.7.0
+Wed, 17 Dec 2025 05:52:34 GMT
+
+### Minor changes
+
+- make IQuoteUpdateAction generic
 
 ## 0.6.1
 Tue, 16 Dec 2025 13:39:47 GMT

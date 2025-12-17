@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-account
 
-This log was last generated on Tue, 16 Dec 2025 13:39:47 GMT and should not be manually modified.
+This log was last generated on Wed, 17 Dec 2025 05:52:34 GMT and should not be manually modified.
+
+## 0.11.0
+Wed, 17 Dec 2025 05:52:34 GMT
+
+### Minor changes
+
+- add current_price and notional fields to position
 
 ## 0.10.2
 Tue, 16 Dec 2025 13:39:47 GMT
