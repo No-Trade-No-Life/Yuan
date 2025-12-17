@@ -1,6 +1,14 @@
 # Change Log - @yuants/app-virtual-exchange
 
-This log was last generated on Wed, 17 Dec 2025 05:52:34 GMT and should not be manually modified.
+This log was last generated on Wed, 17 Dec 2025 15:18:39 GMT and should not be manually modified.
+
+## 0.10.1
+Wed, 17 Dec 2025 15:18:39 GMT
+
+### Patches
+
+- refactor quote routing
+- Implement SWR for VEX/QueryQuotes with background updates
 
 ## 0.10.0
 Wed, 17 Dec 2025 05:52:34 GMT
