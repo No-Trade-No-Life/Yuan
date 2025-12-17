@@ -76,7 +76,7 @@ export interface IQuoteServiceRequestByVEX {
 }
 
 // @public
-export type IQuoteUpdateAction = Record<string, Partial<Record<IQuoteField, [value: string, updated_at: number]>>>;
+export type IQuoteUpdateAction<K extends IQuoteField = IQuoteField> = Record<string, Partial<Record<K, [value: string, updated_at: number]>>>;
 
 // @public
 export const listProducts: (terminal: Terminal, type: string) => Promise<IResponse<IProduct[]>>;

@@ -64,6 +64,24 @@ export const polyfillPosition = async (positions: IPosition[]): Promise<IPositio
       pos.valuation = Math.abs((theProduct.value_scale || 1) * pos.volume * pos.closable_price);
     }
 
+    if (quote && pos.size) {
+      const sizeNum = +pos.size;
+      if (pos.current_price === undefined) {
+        if (sizeNum > 0) {
+          // 多头头寸使用买一价作为可平仓价格，如果没有买一价则使用最新价
+          pos.current_price = (quote.ask_price || quote.last_price) + '';
+        } else {
+          // 空头头寸使用卖一价作为可平仓价格，如果没有卖一价则使用最新价
+          pos.current_price = (quote.bid_price || quote.last_price) + '';
+        }
+      }
+
+      // 计算名义价值
+      if (pos.notional === undefined) {
+        pos.notional = sizeNum * (+pos.current_price || 0) + '';
+      }
+    }
+
     // 利率相关信息的追加
     if (quote) {
       if (quote.interest_rate_next_settled_at !== null) {
