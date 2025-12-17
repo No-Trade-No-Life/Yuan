@@ -50,19 +50,18 @@ export function createQuoteStateV0(): IQuoteState {
     const result: IQuoteUpdateAction = {};
     for (const product_id of product_ids) {
       const productMap = data.get(product_id);
-      if (!productMap) continue;
-
       const productData: Partial<Record<IQuoteKey, [string, number]>> = {};
-      for (const field of fields) {
-        const tuple = productMap.get(field);
-        if (tuple && tuple[1] >= updated_at) {
-          productData[field] = tuple;
+
+      if (productMap) {
+        for (const field of fields) {
+          const tuple = productMap.get(field);
+          if (tuple && tuple[1] >= updated_at) {
+            productData[field] = tuple;
+          }
         }
       }
 
-      if (Object.keys(productData).length > 0) {
-        result[product_id] = productData;
-      }
+      result[product_id] = productData;
     }
     return result;
   };

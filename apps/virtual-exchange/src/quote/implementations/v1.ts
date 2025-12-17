@@ -30,12 +30,10 @@ export const createQuoteStateV1 = (): IQuoteState => {
   const products: string[] = [];
   const mapProductIdToIndex = new Map<string, number>();
   // 0~20 (10 fields * 2 (value, updated_at))
-  const getFieldOffset = (product_id: string, field: string): number => {
+  const getFieldOffset = (product_id: string, field: string): number | undefined => {
     let baseIndex = mapProductIdToIndex.get(product_id);
     if (baseIndex === undefined) {
-      baseIndex = mapProductIdToIndex.size * FIELD_COUNT * 2;
-      products.push(product_id);
-      mapProductIdToIndex.set(product_id, baseIndex);
+      return undefined;
     }
     const fieldOffset = mapFieldNameToOffset[field];
     if (fieldOffset === undefined) throw newError('INVALID_FIELD_NAME', { field, available_fields: FIELDS });
@@ -44,6 +42,7 @@ export const createQuoteStateV1 = (): IQuoteState => {
 
   const getValueTuple = (product_id: string, field: IQuoteKey): [string, number] | undefined => {
     const offset = getFieldOffset(product_id, field);
+    if (offset === undefined) return undefined;
     const value = data[offset] as string;
     if (value === undefined) return undefined;
     const updated_at = data[offset + 1] as number;
@@ -51,7 +50,13 @@ export const createQuoteStateV1 = (): IQuoteState => {
   };
 
   const setValueTuple = (product_id: string, field: IQuoteKey, value: string, updated_at: number) => {
-    const offset = getFieldOffset(product_id, field);
+    let offset = getFieldOffset(product_id, field);
+    if (offset === undefined) {
+      const baseIndex = mapProductIdToIndex.size * FIELD_COUNT * 2;
+      products.push(product_id);
+      mapProductIdToIndex.set(product_id, baseIndex);
+      offset = baseIndex + mapFieldNameToOffset[field];
+    }
     data[offset] = value;
     data[offset + 1] = updated_at;
   };
