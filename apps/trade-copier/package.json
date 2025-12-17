@@ -21,7 +21,6 @@
     "@yuants/protocol": "workspace:*",
     "@yuants/utils": "workspace:*",
     "@yuants/sql": "workspace:*",
-    "@yuants/order": "workspace:*",
     "@yuants/data-quote": "workspace:*",
     "ajv": "~8.12.0",
     "ajv-formats": "~2.1.1",
