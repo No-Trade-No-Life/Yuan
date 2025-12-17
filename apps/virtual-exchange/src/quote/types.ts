@@ -1,4 +1,5 @@
 import { IQuote } from '@yuants/data-quote';
+import { IQuoteServiceMetadata } from '@yuants/exchange';
 
 export type IQuoteKey = Exclude<keyof IQuote, 'datasource_id' | 'product_id' | 'updated_at'>;
 
@@ -31,4 +32,24 @@ export interface IQuoteState {
   dumpAsObject: () => IQuoteUpdateAction;
   getValueTuple: (product_id: string, field: IQuoteKey) => [string, number] | undefined;
   filter: (product_ids: string[], fields: IQuoteKey[], updated_at: number) => IQuoteUpdateAction;
+}
+
+export interface IQuoteProviderInstance {
+  terminal_id: string;
+  service_id: string;
+}
+
+/**
+ * A "provider group" is a capability signature of `GetQuotes`.
+ * Multiple vendor terminals may provide the same capability; VEX load-balances across instances.
+ */
+export interface IQuoteProviderGroup {
+  group_id: string;
+  meta: IQuoteServiceMetadata;
+  mapTerminalIdToInstance: Map<string, IQuoteProviderInstance>;
+}
+
+export interface IQuoteRequire {
+  product_id: string;
+  field: IQuoteKey;
 }

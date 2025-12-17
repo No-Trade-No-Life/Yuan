@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-virtual-exchange",
+      "comment": "refactor quote routing",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-virtual-exchange"
+}

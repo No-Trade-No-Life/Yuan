@@ -20,6 +20,13 @@
       "status": "archived",
       "createdAt": "2025-12-15T08:09:34.654Z",
       "updatedAt": "2025-12-15T14:41:30.204Z"
+    },
+    {
+      "id": "task-vex-quote-upstream-refactor",
+      "name": "task-vex-quote-upstream-refactor",
+      "status": "archived",
+      "createdAt": "2025-12-16T15:02:37.063Z",
+      "updatedAt": "2025-12-17T07:08:42.959Z"
     }
   ],
   "pendingProposals": [
@@ -203,6 +210,72 @@
       "proposedBy": "Claude",
       "proposedAt": "2025-12-15T14:46:37.707Z",
       "status": "pending"
+    },
+    {
+      "id": "proposal-mj8poum9-556f39",
+      "name": "task-vex-quote-upstream-refactor",
+      "goal": "Refactor VEX quote upstream routing into layered modules (registry/router/executor) with clear interfaces, remove debug leftovers, and unify log tags.",
+      "rationale": "用户明确要求对 upstream-routing 进行按概念/领域/切面分层的重构，并允许新建 Legion 任务来跟踪设计与实现；该重构涉及多文件拆分与接口设计，适合用 legionmind 持久化记录。",
+      "points": [
+        "遵循 `docs/zh-Hans/code-guidelines/exchange.md` 的 L1 报价路由算法（prefix 匹配 + field 倒排 + 交集）",
+        "保持现有错误语义（provider not found / product unroutable / upstream error / freshness hard requirement）",
+        "并发策略保持：同 provider group 串行（=1），全局并发上限 32，in-flight 去重",
+        "纯函数尽量贴近对应 interface，返回值改为语义对象减少调用方解包",
+        "目录组织保持简洁、贴合 quote 模块现有结构"
+      ],
+      "scope": [
+        "apps/virtual-exchange/src/quote/upstream-routing.ts",
+        "apps/virtual-exchange/src/quote/types.ts",
+        "apps/virtual-exchange/src/quote/*(new: registry/router/executor modules)"
+      ],
+      "phases": [
+        {
+          "name": "Discovery",
+          "tasks": [
+            {
+              "description": "阅读并梳理 `apps/virtual-exchange/src/quote/upstream-routing.ts` 当前的领域逻辑与切面逻辑耦合点，列出需要保留的不变量（L1 路由算法、freshness、in-flight、LB、并发限制、日志）。",
+              "acceptance": "context.md 记录现状问题清单 + 不变量清单。"
+            }
+          ]
+        },
+        {
+          "name": "Design",
+          "tasks": [
+            {
+              "description": "定义分层接口（`IQuoteProviderRegistry` / `IQuoteRouter` / `IGetQuotesExecutor`）以及更易懂的返回值对象（例如 `QuoteUpstreamPlan`），并确定目录拆分方案。",
+              "acceptance": "plan.md 给出接口草图、职责边界、文件列表与迁移步骤。"
+            }
+          ]
+        },
+        {
+          "name": "Refactor",
+          "tasks": [
+            {
+              "description": "移除临时调试残留（例如 `11111111`）并统一日志 tag 为 `[VEX][Quote]`。",
+              "acceptance": "不再出现临时 debug 输出；日志 tag 统一。"
+            },
+            {
+              "description": "将 provider discovery 逻辑抽到 registry 模块，实现 `snapshot()`；把路由/分批抽到 router；把 LB/并发/in-flight 抽到 executor；`fillQuoteStateFromUpstream` 只做编排。",
+              "acceptance": "`upstream-routing.ts` 体积显著下降，职责清晰，调用点无语义变化。"
+            }
+          ]
+        },
+        {
+          "name": "Validation",
+          "tasks": [
+            {
+              "description": "运行 prettier + 最小编译检查（尽量只覆盖 apps/virtual-exchange 相关）。",
+              "acceptance": "格式无噪音，TypeScript 编译通过（或给出可复现的失败原因）。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2025-12-16T15:02:33.729Z",
+      "status": "approved",
+      "decidedAt": "2025-12-16T15:02:37.063Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "task-vex-quote-upstream-refactor"
     }
   ]
 }

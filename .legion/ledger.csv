@@ -90,3 +90,32 @@
 2025-12-15T14:53:44.913Z,legion_get_status,implement-quote-service,implement-quote-service,Claude,,success
 2025-12-15T14:53:51.732Z,legion_archive_task,implement-quote-service,implement-quote-service,Claude,taskId: implement-quote-service,success
 2025-12-15T14:53:57.501Z,legion_get_status,,,Claude,,success
+2025-12-16T15:02:13.879Z,legion_create_task,,,Claude,"goal: Refactor VEX quote upstream routing into layered modules (registry/router/executor) with clear interfaces, remove debug leftovers, and unify log tags.",failed
+2025-12-16T15:02:33.730Z,legion_propose_task,,,Claude,name: task-vex-quote-upstream-refactor,success
+2025-12-16T15:02:37.066Z,legion_approve_proposal,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,proposalId: proposal-mj8poum9-556f39,success
+2025-12-16T15:02:43.206Z,legion_switch_task,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,taskId: task-vex-quote-upstream-refactor,success
+2025-12-16T15:03:30.202Z,legion_update_tasks,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,setCurrentTask: phase 1,success
+2025-12-16T15:03:40.708Z,legion_update_context,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,addDecision: 沿用 service discovery 的 watch key = `service_id`（因 `service_id` 全局唯一），不把“可能碰撞”作为重构前提；但仍会在重构中把 registry 抽象成接口以隔离 RxJS/TerminalInfos 细节。,success
+2025-12-16T15:04:32.889Z,legion_update_context,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,addFile: apps/virtual-exchange/src/quote/upstream-routing.ts,success
+2025-12-16T15:04:56.842Z,legion_update_context,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,"progress.completed: 完成 Discovery 梳理要点（供 Design 使用）： - 领域能力：L1 路由（prefix 匹配 + field 倒排 + 交集）、按 provider group + max_products_per_request 分批、字段不可用写 `""""` 并用 `updated_at` 满足鲜度。 - 切面能力：",success
+2025-12-16T15:04:59.963Z,legion_update_tasks,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,completeTask: phase 1,success
+2025-12-16T15:05:08.964Z,legion_update_tasks,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,setCurrentTask: phase 2,success
+2025-12-17T06:51:25.863Z,legion_list_reviews,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,status: open,success
+2025-12-17T06:53:14.460Z,legion_respond_review,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,"file: plan.md, reviewId: R1, status: resolved",success
+2025-12-17T06:53:18.987Z,legion_respond_review,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,"file: plan.md, reviewId: R2, status: resolved",success
+2025-12-17T06:53:23.733Z,legion_respond_review,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,"file: plan.md, reviewId: R3, status: resolved",success
+2025-12-17T06:53:26.700Z,legion_list_reviews,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,status: open,success
+2025-12-17T06:53:29.838Z,legion_update_tasks,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,completeTask: phase 2,success
+2025-12-17T06:53:33.982Z,legion_update_tasks,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,setCurrentTask: phase 3,success
+2025-12-17T06:53:56.829Z,legion_update_context,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,progress.completed: 已处理并闭环你在 `plan.md` 里的 3 条 review： - `IQuoteProviderRegistry` 升级为对外 Facade，提供 `planOrThrow/execute/fillQuoteStateFromUpstream`；Router/Executor 改为内部组件；prefix matc,success
+2025-12-17T07:04:29.845Z,legion_update_tasks,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,completeTask: phase 3,success
+2025-12-17T07:05:10.429Z,legion_update_context,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,addFile: apps/virtual-exchange/src/quote/upstream/registry.ts,success
+2025-12-17T07:05:17.796Z,legion_update_context,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,addFile: apps/virtual-exchange/src/quote/upstream/index.ts,success
+2025-12-17T07:05:17.798Z,legion_update_context,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,addFile: apps/virtual-exchange/src/quote/upstream/router.ts,success
+2025-12-17T07:05:17.800Z,legion_update_context,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,addFile: apps/virtual-exchange/src/quote/upstream/executor.ts,success
+2025-12-17T07:05:23.634Z,legion_update_context,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,addFile: apps/virtual-exchange/src/quote/service.ts,success
+2025-12-17T07:05:31.799Z,legion_update_context,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,progress.completed: 完成 upstream-routing 重构：新增 `apps/virtual-exchange/src/quote/upstream/` 目录，将 provider registry / router / executor 分层拆分，并由 Facade `createQuoteProviderRegistry(ter,success
+2025-12-17T07:07:06.777Z,legion_update_context,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,handoff: 联调验证：启动上游 GetQuotes providers + virtual-exchange，调用 `VEX/QueryQuotes` 观察 `[VEX][Quote]...` 日志（UpstreamProviderDiscovery/RouteDispatched/RequestPlanned/RequestRe,success
+2025-12-17T07:08:27.720Z,legion_get_status,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,,success
+2025-12-17T07:08:42.960Z,legion_archive_task,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,taskId: task-vex-quote-upstream-refactor,success
+2025-12-17T07:08:46.671Z,legion_get_status,,,Claude,,success
