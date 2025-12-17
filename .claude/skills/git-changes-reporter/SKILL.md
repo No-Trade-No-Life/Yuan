@@ -1,6 +1,6 @@
 ---
 name: git-changes-reporter
-description: 生成结构化 git 变更报告，包含原始 JSON 数据和语义化 Markdown 解读。使用此技能当需要分析指定提交区间的代码变更，生成供工程师快速理解的报告，或为 Agent 提供上下文回答进一步问题。适用于代码审查、发布说明、团队同步、CI 每日摘要等场景。
+description: 生成结构化 git 变更报告（JSON + Markdown）。使用此技能当用户提到"git 变更"、"commit 摘要"、"代码审查"、"release note"、"近期改动"、"每日摘要"，或需要分析指定 commit 区间的代码变更。包含三元组结构（设计意图、核心代码、影响范围）的语义化报告，适用于代码审查、发布说明、团队同步、CI/CD 等场景。
 ---
 
 # Git Changes Reporter
@@ -118,165 +118,18 @@ Read JSON offset=X limit=200  # 特定 commit 的详细信息
 .claude/skills/git-changes-reporter/scripts/validate-report.js <markdown_file>
 ```
 
-## 报告模板
+## 报告模板与关键要求
 
-Agent 应按以下结构输出报告：
+Agent 必须使用**三元组结构 + 提交明细**输出每个核心变更：
 
-> 详细模板见 [references/report-template.md](references/report-template.md)
+1. **设计意图**（为什么做，至少 50 字）
+2. **核心代码**（5-15 行代码片段 + 文件引用）
+3. **影响范围**（影响的模块和注意事项）
+4. **提交明细**（每个 commit 一句话：`hash: 做了什么`）
 
-````markdown
-# Git 变更报告（<old_commit>..<new_commit>）
+**⚠️ 全覆盖要求**：核心变更章节必须涵盖所有提交，不能遗漏任何一个 commit。
 
-> **时间范围**：YYYY-MM-DD 至 YYYY-MM-DD
-> **分析深度**：Level 2
-
-## 1. 概览
-
-- **提交数量**：N
-- **主要贡献者**：Author1 (X commits), Author2 (Y commits)
-- **热点项目**：`apps/vendor-okx` (N 文件), `libraries/protocol` (M 文件)
-- **风险指标**：⚠️ N 个高风险项
-
-## 2. 核心变更
-
-### 2.1 [变更主题/领域名称]
-
-**相关提交**：`hash1`, `hash2`
-**作者**：Author Name
-
-**设计意图**：
-[解释为什么做这个改动，业务背景，技术动机。至少 50 字。]
-
-**核心代码**：
-[file.ts:L42-L58](path/to/file.ts#L42-L58)
-
-```typescript
-// 选择最能体现设计意图的 5-15 行代码
-const example = () => {
-  // ...
-};
-```
-````
-
-**影响范围**：
-
-- 影响模块：`module-a`, `module-b`
-- 需要关注：[具体的注意事项]
-
-### 2.2 [下一个变更主题]
-
-...
-
-## 3. 贡献者
-
-| 作者 | 提交数 | 主要工作 | 关键提交 |
-| ---- | ------ | -------- | -------- |
-| Name | N      | 简述贡献 | `hash`   |
-
-## 4. 风险评估
-
-### 兼容性影响
-
-[具体描述 API 变更、配置格式变化，列出受影响的模块/服务]
-
-### 配置变更
-
-[新增、修改或删除的配置项]
-
-### 性能影响
-
-[可能影响性能的变更]
-
-### 测试覆盖
-
-[测试文件变更情况，是否有测试覆盖]
-
-````
-
-## 关键要求
-
-### 1. 代码片段
-
-- 每个核心变更**必须**包含代码片段或带行号的文件引用
-- 代码片段长度：5-15 行
-- **选择标准**：最能体现设计意图的代码，而非随机选取
-
-### 2. 设计意图
-
-- **必须**回答"为什么做这个改动"
-- **禁止**仅描述"做了什么"
-- 至少 50 个字符的实质性内容
-
-### 3. 引用格式
-
-**文件引用**：`[file.ts:L42-L58](path/to/file.ts#L42-L58)`
-
-**Commit 引用**：使用 JSON 中的 `short` 字段（如 `a9300e76f`）
-
-### 4. 内容选择原则
-
-Agent 应根据以下优先级选择展示内容：
-
-1. **Breaking changes**：API 变更、接口删除
-2. **新功能**：feat 类型的核心实现
-3. **重要修复**：影响用户的 bug fix
-4. **架构变更**：refactor 涉及多文件的改动
-
-**可以省略**：
-- 版本号更新（chore: bump version）
-- 纯文档变更
-- 自动生成的 CHANGELOG
-
-## 示例
-
-### 好的报告示例
-
-```markdown
-### 2.1 Binance 请求间隔优化
-
-**相关提交**：`b285cde59`
-**作者**：Siyuan Wang
-
-**设计意图**：
-通过动态计算 API 限速参数，自动调整请求间隔，避免触发交易所限速机制。
-此前使用固定间隔 500ms，在高频场景下仍会触发限速；现在根据交易所返回的
-rateLimits 配置动态计算安全间隔（duration/limit），确保稳定性。
-
-**核心代码**：
-[quote.ts:L65-L78](apps/vendor-binance/src/public-data/quote.ts#L65-L78)
-```typescript
-const getRequestIntervalMs = (rateLimits: IRateLimit[], fallbackMs: number) => {
-  const intervals: number[] = [];
-  for (const item of rateLimits ?? []) {
-    if (item.rateLimitType !== 'REQUEST_WEIGHT') continue;
-    const duration = toIntervalMs(item.interval, item.intervalNum);
-    const limit = item.limit;
-    if (duration == null || limit == null) continue;
-    intervals.push(Math.ceil(duration / limit));
-  }
-  return Math.max(fallbackMs, Math.max(...intervals));
-};
-````
-
-**影响范围**：
-
-- 影响模块：`vendor-binance`, `vendor-aster`（使用相同模式）
-- 期货和现货数据流均受益
-
-````
-
-### 差的报告示例（避免）
-
-```markdown
-### 2.1 更新代码
-
-**相关提交**：`1279`, `703`  ❌ 使用了行号而非 commit hash
-
-**设计意图**：
-添加了 getRequestIntervalMs 函数。  ❌ 只说了做什么，没说为什么
-
-**核心改动**：优化了请求间隔逻辑  ❌ 没有代码片段
-````
+> **完整模板、示例和详细要求**：见 [references/report-template.md](references/report-template.md) > **避免常见错误**：见 [references/bad-examples.md](references/bad-examples.md)
 
 ## 故障排除
 
