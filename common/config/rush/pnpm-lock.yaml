@@ -712,7 +712,6 @@ importers:
       '@yuants/data-quote': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/kernel': workspace:*
-      '@yuants/order': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
@@ -729,7 +728,6 @@ importers:
       '@yuants/data-product': link:../../libraries/data-product
       '@yuants/data-quote': link:../../libraries/data-quote
       '@yuants/kernel': link:../../libraries/kernel
-      '@yuants/order': link:../../libraries/order
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
@@ -2121,49 +2119,6 @@ importers:
       '@types/json-schema': 7.0.11
       '@types/node': 22.7.5
       '@types/path-browserify': 1.0.0
-      '@yuants/tool-kit': link:../../tools/toolkit
-      typescript: 4.7.4
-
-  ../../libraries/order:
-    specifiers:
-      '@microsoft/api-extractor': ~7.30.0
-      '@rushstack/heft': ~0.47.5
-      '@rushstack/heft-jest-plugin': ~0.16.8
-      '@rushstack/heft-node-rig': ~1.10.7
-      '@types/heft-jest': 1.0.3
-      '@types/json-schema': ~7.0.11
-      '@types/node': '22'
-      '@types/uuid': ~8.3.4
-      '@yuants/data-account': workspace:*
-      '@yuants/data-order': workspace:*
-      '@yuants/data-product': workspace:*
-      '@yuants/data-quote': workspace:*
-      '@yuants/protocol': workspace:*
-      '@yuants/sql': workspace:*
-      '@yuants/tool-kit': workspace:*
-      '@yuants/utils': workspace:*
-      rxjs: ~7.5.6
-      typescript: ~4.7.4
-      uuid: ~8.3.2
-    dependencies:
-      '@yuants/data-account': link:../data-account
-      '@yuants/data-order': link:../data-order
-      '@yuants/data-product': link:../data-product
-      '@yuants/data-quote': link:../data-quote
-      '@yuants/protocol': link:../protocol
-      '@yuants/sql': link:../sql
-      '@yuants/utils': link:../utils
-      rxjs: 7.5.7
-      uuid: 8.3.2
-    devDependencies:
-      '@microsoft/api-extractor': 7.30.1
-      '@rushstack/heft': 0.47.11
-      '@rushstack/heft-jest-plugin': 0.16.8_cd919cf15781346720f8e992576a8e2b
-      '@rushstack/heft-node-rig': 1.10.13_@rushstack+heft@0.47.11
-      '@types/heft-jest': 1.0.3
-      '@types/json-schema': 7.0.15
-      '@types/node': 22.7.5
-      '@types/uuid': 8.3.4
       '@yuants/tool-kit': link:../../tools/toolkit
       typescript: 4.7.4
 
