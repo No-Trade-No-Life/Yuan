@@ -458,11 +458,6 @@
       "shouldPublish": true
     },
     {
-      "packageName": "@yuants/order",
-      "projectFolder": "libraries/order",
-      "shouldPublish": true
-    },
-    {
       "packageName": "@yuants/deploy",
       "projectFolder": "libraries/deploy",
       "shouldPublish": true
