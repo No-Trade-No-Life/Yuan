@@ -119,3 +119,40 @@
 2025-12-17T07:08:27.720Z,legion_get_status,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,,success
 2025-12-17T07:08:42.960Z,legion_archive_task,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,taskId: task-vex-quote-upstream-refactor,success
 2025-12-17T07:08:46.671Z,legion_get_status,,,Claude,,success
+2025-12-17T08:38:44.885Z,legion_get_status,,,Claude,,success
+2025-12-17T08:38:49.855Z,legion_list_tasks,,,Claude,,success
+2025-12-17T08:38:55.853Z,legion_read_context,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,"section: all, includeReviews: true",success
+2025-12-17T08:38:55.858Z,legion_read_context,task-vex-quote-routing,task-vex-quote-routing,Claude,"section: all, includeReviews: true",success
+2025-12-17T08:42:34.508Z,legion_propose_task,,,Claude,name: task-vex-queryquotes-swr,success
+2025-12-17T08:48:48.901Z,legion_approve_proposal,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,proposalId: proposal-mj9rk1aj-0b08f4,success
+2025-12-17T08:50:28.998Z,legion_update_context,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,progress.completed: 已将 `VEX/QueryQuotes` 的 SWR（stale-while-revalidate）详细设计落盘到 `plan.md`（同步立即返回 + 后台 RxJS 串行补全 + 执行时重算 miss + 错误隔离）。,success
+2025-12-17T08:59:16.900Z,legion_list_reviews,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,"status: open, type: all",success
+2025-12-17T09:00:30.391Z,legion_respond_review,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,"file: plan.md, reviewId: R1, status: resolved",success
+2025-12-17T09:00:38.400Z,legion_respond_review,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,"file: plan.md, reviewId: R2, status: resolved",success
+2025-12-17T09:00:43.481Z,legion_respond_review,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,"file: plan.md, reviewId: R3, status: resolved",success
+2025-12-17T09:00:47.457Z,legion_respond_review,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,"file: tasks.md, reviewId: R4, status: resolved",success
+2025-12-17T09:00:53.272Z,legion_respond_review,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,"file: tasks.md, reviewId: R5, status: resolved",success
+2025-12-17T09:03:06.528Z,legion_update_context,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,addDecision: SWR 的 `VEX/QueryQuotes` 采用“stale-OK + miss-error”：同步返回最新缓存（含 stale），仅在完全缺失（miss）时同步抛错，同时入队触发后台补全；并新增队列状态查询服务。,success
+2025-12-17T09:03:09.435Z,legion_list_reviews,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,"status: open, type: all",success
+2025-12-17T09:04:05.173Z,legion_update_context,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,"handoff: 按 `plan.md` 在 `apps/virtual-exchange/src/quote/service.ts` 落地：新增 `Subject<UpdateTask>` 队列与 `concatMap` 串行消费者；实现 `filterLatest(product_ids, fields)`（可基于 `getValu",success
+2025-12-17T14:31:56.065Z,legion_init,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,workingDirectory: /Users/c1/Work/Yuan,success
+2025-12-17T14:32:00.624Z,legion_list_reviews,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,"status: open, type: all",success
+2025-12-17T14:32:00.631Z,legion_get_status,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,,success
+2025-12-17T14:32:00.638Z,legion_read_context,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,"section: all, includeReviews: true",success
+2025-12-17T14:34:40.630Z,legion_update_context,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,progress.completed: 已阅读现状代码：`apps/virtual-exchange/src/quote/service.ts`（QueryQuotes 同步 await 上游 + strict freshness assert）、`apps/virtual-exchange/src/quote/upstream/registry.ts`（f,success
+2025-12-17T14:34:49.793Z,legion_update_context,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,addFile: apps/virtual-exchange/src/quote/implementations/v1.ts,success
+2025-12-17T14:34:49.879Z,legion_update_context,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,addFile: apps/virtual-exchange/src/quote/service.ts,success
+2025-12-17T14:34:49.897Z,legion_update_context,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,addFile: apps/virtual-exchange/src/quote/types.ts,success
+2025-12-17T14:34:49.922Z,legion_update_context,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,addFile: apps/virtual-exchange/src/quote/upstream/registry.ts,success
+2025-12-17T14:36:53.934Z,legion_init,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,workingDirectory: /Users/c1/Work/Yuan,success
+2025-12-17T14:36:57.347Z,legion_update_context,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,progress.completed: 在仓库内全局搜索未发现 `VEX/QueryQuotes` 调用方（仅有服务定义与设计文档），因此调用方行为/错误码兼容性需要由你提供信息或通过运行环境观测确认。,success
+2025-12-17T14:39:40.275Z,legion_update_context,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,addDecision: 将 `VEX/QueryQuotes` 改为 SWR（stale-OK + miss-error），并额外提供 `VEX/QueryQuotesStrict` 保留旧的 strict freshness 行为。,success
+2025-12-17T14:39:45.286Z,legion_update_context,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,addDecision: SWR 路径 miss 同步错误码继续复用 `VEX_QUOTE_FRESHNESS_NOT_SATISFIED`，但仅在“完全缺失 tuple（undefined）”时触发（stale 不再触发）。,success
+2025-12-17T14:39:50.400Z,legion_update_context,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,addDecision: 新增服务 `VEX/QuoteUpdateQueueStatus` 用于观测后台更新队列（pending/in_flight/last_error/last_processed_at 等）。,success
+2025-12-17T14:43:21.776Z,legion_update_context,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,progress.completed: 已在 `apps/virtual-exchange/src/quote/service.ts` 实现：`VEX/QueryQuotes` 走 SWR（同步返回 filterLatest + miss 抛错 + 入队后台更新）；新增 `VEX/QueryQuotesStrict` 保留旧行为；新增 `VEX/QuoteU,success
+2025-12-17T14:43:34.823Z,legion_get_status,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,,success
+2025-12-17T14:43:48.518Z,legion_update_tasks,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,completeTask: phase 3,success
+2025-12-17T14:43:55.272Z,legion_update_tasks,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,setCurrentTask: phase 4,success
+2025-12-17T14:44:18.399Z,legion_update_context,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,handoff: 在实际运行环境用任意客户端调用 `VEX/QueryQuotes`：首次 miss 预期抛 `VEX_QUOTE_FRESHNESS_NOT_SATISFIED`，随后轮询同参数应逐步收敛；stale 场景应直接返回旧值且后台触发更新。,success
+2025-12-17T14:52:53.382Z,legion_update_tasks,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,addDiscoveredTask: 确认并移除文档/实现中所有 `VEX/QueryQuotesStrict` 的残留（含 context 决策与 tasks 描述）。,success
+2025-12-17T14:52:53.385Z,legion_update_context,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,addDecision: 不提供 `VEX/QueryQuotesStrict`；仅保留并替换 `VEX/QueryQuotes` 为 SWR 语义，同时提供 `VEX/QuoteUpdateQueueStatus` 做观测。,success

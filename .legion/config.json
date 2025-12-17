@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": null,
+  "currentTask": "task-vex-queryquotes-swr",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -27,6 +27,13 @@
       "status": "archived",
       "createdAt": "2025-12-16T15:02:37.063Z",
       "updatedAt": "2025-12-17T07:08:42.959Z"
+    },
+    {
+      "id": "task-vex-queryquotes-swr",
+      "name": "task-vex-queryquotes-swr",
+      "status": "active",
+      "createdAt": "2025-12-17T08:48:48.898Z",
+      "updatedAt": "2025-12-17T14:52:53.384Z"
     }
   ],
   "pendingProposals": [
@@ -276,6 +283,66 @@
       "decidedAt": "2025-12-16T15:02:37.063Z",
       "decidedBy": "Claude",
       "createdTaskId": "task-vex-quote-upstream-refactor"
+    },
+    {
+      "id": "proposal-mj9rk1aj-0b08f4",
+      "name": "task-vex-queryquotes-swr",
+      "goal": "将 `apps/virtual-exchange/src/quote/service.ts` 的 `VEX/QueryQuotes` 改为 SWR：请求立即返回本地缓存结果，后台串行补全缺失报价。",
+      "rationale": "你要求 `VEX/QueryQuotes` 走 stale-while-revalidate：调用方大多轮询且更关心低延迟与最终收敛；同时我们需要避免在高频轮询下把上游 GetQuotes 打爆，因此用 RxJS 串行队列把“补全”从同步路径移到后台，并在执行时重新计算 miss 以自然去重。",
+      "points": [
+        "同步路径：总是 `computeCacheMissed`；若存在 miss 则立刻 `Subject.next(updateTask)`；无论是否 miss 都立刻返回 `quoteState.filter(product_ids, fields, updated_at)` 的结果（不再在同步路径强制 freshness）。",
+        "队列模型：用 RxJS `Subject<UpdateTask>` 作为更新任务队列，消费者用 `concatMap` 串行处理（任务之间严格顺序执行）。",
+        "UpdateTask 参数：`{ product_ids: string[]; fields: IQuoteKey[]; updated_at: number }`（建议在入队前对 `product_ids/fields` 做排序+去重以减少“同集合不同顺序”的重复任务）。",
+        "单任务执行：处理时重新 `computeCacheMissed(quoteState, task.product_ids, task.fields, task.updated_at)`；若仍非空则调用 `quoteProviderRegistry.fillQuoteStateFromUpstream({ quoteState, cacheMissed, updated_at: task.updated_at })`；为空则 no-op。",
+        "鲁棒性：队列内任何一次 `fillQuoteStateFromUpstream` 抛错都不能导致队列停止（在 inner observable `catchError` 吞掉并记录日志），并避免输出过大的 `product_ids/actions` JSON。",
+        "`updated_at` 讨论：在 SWR 语义下它更像 `min_updated_at`（鲜度下界/容忍度），用于 miss 计算与过滤；若下游只是“尽量新”，可考虑未来把它变为可选并增加 `max_staleness_ms` 默认值（但这会改动契约，建议先保持必填）。",
+        "性能评估：同步延迟显著下降（不再 await 上游）；后台会增加一次（甚至多次）miss 计算开销，但通常远小于上游 RPC；串行队列会降低并发、可能延长收敛时间，但能显著降低上游瞬时压力，并通过“执行时重新算 miss”对重复轮询天然去重（很多任务会 no-op）。可选增强：队列长度监控/报警，或对连续任务做合并（不在本次最小实现范围内）。"
+      ],
+      "scope": ["apps/virtual-exchange/src/quote/service.ts"],
+      "phases": [
+        {
+          "name": "Discovery",
+          "tasks": [
+            {
+              "description": "确认现状契约与调用方期望：\n- `VEX/QueryQuotes` 当前是否被任何调用方依赖“必须满足 updated_at freshness，否则抛错”的语义（目前 `assertFreshnessSatisfied` 会在缺字段时抛 `VEX_QUOTE_FRESHNESS_NOT_SATISFIED`）。\n- 轮询调用（例如 `.c1-cellar/vex-query-quotes.ts`）是否接受第一次返回缺字段/空结果并重试。\n- `quoteProviderRegistry.fillQuoteStateFromUpstream` 对字段不可用的 `defaultAction`（写 `\"\"` + `updated_at`）是否仍能减少重复 miss。\n输出：把需要保留/改变的对外语义列清单（尤其是是否要保留 strict 模式）。",
+              "acceptance": "context.md 记录：现有语义（strict vs best-effort）、主要调用方行为、以及 SWR 变更的兼容性结论。"
+            }
+          ]
+        },
+        {
+          "name": "Design",
+          "tasks": [
+            {
+              "description": "设计 SWR 算法与队列实现细节（不写代码，只定接口/流程/边界）：\n\n## 1. 新的 `VEX/QueryQuotes` 同步路径\n- 输入：`{ product_ids, fields, updated_at }`\n- 步骤：\n  1) `cacheMissed = computeCacheMissed(quoteState, product_ids, fields, updated_at)`（总是计算）\n  2) 若 `cacheMissed.length > 0`：`updateQueue$.next({ product_ids, fields, updated_at })`\n  3) 直接 `return quoteState.filter(product_ids, fields, updated_at)`\n- 语义：SWR/best-effort，不保证本次调用满足 freshness（因此不能在同步路径 assert/throw）。\n\n## 2. UpdateTask 定义\n- `type UpdateTask = { product_ids: string[]; fields: IQuoteKey[]; updated_at: number }`\n- 规范化建议（减少重复任务）：\n  - `product_ids = uniq(sort(product_ids))`\n  - `fields = uniq(sort(fields))`\n  - 不改变外部返回顺序语义（因为 filter 输出是对象，顺序不敏感）。\n\n## 3. 队列消费（严格顺序执行）\n- `const updateQueue$ = new Subject<UpdateTask>()`\n- `updateQueue$.pipe(concatMap(task => defer(() => processTask(task)).pipe(catchError(...))))\n  .subscribe()`\n- `processTask(task)`：\n  1) `cacheMissed2 = computeCacheMissed(quoteState, task.product_ids, task.fields, task.updated_at)`\n  2) 若为空：return（no-op）\n  3) 否则：`await quoteProviderRegistry.fillQuoteStateFromUpstream({ quoteState, cacheMissed: cacheMissed2, updated_at: task.updated_at })`\n- 错误处理：单任务失败只记日志（含 task 摘要、error code），不影响后续任务。\n\n## 4. 关于 `updated_at` 是否必要\n- 保留的理由：\n  - 它是“鲜度下界”而不是“想要最新”的绝对时间点；调用方可用 `Date.now() - 容忍延迟` 表达可接受的最大陈旧。\n  - 它让 VEX 能决定是否需要补全（miss 判断）以及返回哪些字段（filter）。\n- 潜在问题：调用方若传 `Date.now()` 会导致永远 miss（因为上游 quote.updated_at 不可能稳定 >= now），需要文档/示例约束。\n- 可选演进（不建议本次做）：\n  - 改名为 `min_updated_at`；或让 `updated_at` 可选并新增 `max_staleness_ms` 默认值，VEX 内部计算 `min_updated_at = Date.now() - max_staleness_ms`。\n\n## 5. 性能与风险评估\n- 预期收益：降低 `QueryQuotes` p99 延迟（无 await 上游），并通过串行队列降低上游峰值压力。\n- 潜在成本：\n  - 背景任务会重复做 miss 计算（O(product_ids * fields)），但通常远小于 RPC 成本。\n  - 串行队列可能产生 backlog（高频轮询 + 上游慢），导致“收敛时间”变长。\n- 风险兜底（可选，不在最小实现强制）：\n  - 队列长度监控（例如计数器+周期日志/报警）；\n  - 合并策略：在消费者侧把相邻任务 union 成更大的一次补全（但会增加实现复杂度，且需再确认是否符合你的“立即 push”语义）。\n\n输出：plan.md 固化上述流程、以及是否保留 strict 模式（例如另开 `VEX/QueryQuotesStrict`）。",
+              "acceptance": "plan.md 给出：同步路径/后台队列/错误语义/updated_at 取舍/性能风险与可选兜底的明确结论。"
+            }
+          ]
+        },
+        {
+          "name": "Implementation",
+          "tasks": [
+            {
+              "description": "在 `apps/virtual-exchange/src/quote/service.ts` 落地 SWR：新增 `Subject<UpdateTask>` + 串行消费者；调整 `VEX/QueryQuotes` 不再 await 上游，只 enqueue 并立即返回 filter 结果。",
+              "acceptance": "手工验证：首次查询可能返回缺字段；随后轮询同样 `updated_at` 能逐步收敛；并确认不会因单次上游失败导致队列停转。"
+            }
+          ]
+        },
+        {
+          "name": "Validation",
+          "tasks": [
+            {
+              "description": "最小验证：运行 prettier；本地用 `.c1-cellar/vex-query-quotes.ts` 轮询观察返回从空/部分逐步变完整，并确认日志没有爆量。",
+              "acceptance": "格式无噪音；行为符合 SWR 预期；无明显内存增长/队列停止。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2025-12-17T08:42:34.507Z",
+      "status": "approved",
+      "decidedAt": "2025-12-17T08:48:48.898Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "task-vex-queryquotes-swr"
     }
   ]
 }
