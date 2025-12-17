@@ -2,6 +2,36 @@
   "name": "@yuants/app-virtual-exchange",
   "entries": [
     {
+      "version": "0.10.0",
+      "tag": "@yuants/app-virtual-exchange_v0.10.0",
+      "date": "Wed, 17 Dec 2025 05:52:34 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix reading causes writing issue"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "add current_price and notional fields to position polyfill"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.11.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.7.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.9.4",
       "tag": "@yuants/app-virtual-exchange_v0.9.4",
       "date": "Tue, 16 Dec 2025 13:39:47 GMT",

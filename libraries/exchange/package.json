@@ -1,6 +1,6 @@
 {
   "name": "@yuants/exchange",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [

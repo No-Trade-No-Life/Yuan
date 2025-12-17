@@ -1,6 +1,17 @@
 # Change Log - @yuants/app-virtual-exchange
 
-This log was last generated on Tue, 16 Dec 2025 13:39:47 GMT and should not be manually modified.
+This log was last generated on Wed, 17 Dec 2025 05:52:34 GMT and should not be manually modified.
+
+## 0.10.0
+Wed, 17 Dec 2025 05:52:34 GMT
+
+### Minor changes
+
+- add current_price and notional fields to position polyfill
+
+### Patches
+
+- fix reading causes writing issue
 
 ## 0.9.4
 Tue, 16 Dec 2025 13:39:47 GMT

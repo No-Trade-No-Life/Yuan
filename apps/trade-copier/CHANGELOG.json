@@ -2,6 +2,31 @@
   "name": "@yuants/app-trade-copier",
   "entries": [
     {
+      "version": "0.11.41",
+      "tag": "@yuants/app-trade-copier_v0.11.41",
+      "date": "Wed, 17 Dec 2025 05:52:34 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove deps"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.11.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.15.67`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.11.40",
       "tag": "@yuants/app-trade-copier_v0.11.40",
       "date": "Tue, 16 Dec 2025 13:39:47 GMT",
