@@ -1,5 +1,5 @@
 import { Terminal } from '@yuants/protocol';
-import { formatTime, newError } from '@yuants/utils';
+import { formatTime } from '@yuants/utils';
 import { Subject, concatMap, defer } from 'rxjs';
 import { createQuoteState } from './state';
 import { IQuoteKey, IQuoteRequire, IQuoteState, IQuoteUpdateAction } from './types';
@@ -32,14 +32,12 @@ const analyzeRequestedQuotes = (
   product_ids: string[],
   fields: IQuoteKey[],
   updated_at: number,
-): { missing: IQuoteRequire[]; needUpdate: IQuoteRequire[] } => {
-  const missing: IQuoteRequire[] = [];
+): { needUpdate: IQuoteRequire[] } => {
   const needUpdate: IQuoteRequire[] = [];
   for (const product_id of product_ids) {
     for (const field of fields) {
       const tuple = quoteState.getValueTuple(product_id, field);
       if (tuple === undefined) {
-        missing.push({ product_id, field });
         needUpdate.push({ product_id, field });
         continue;
       }
@@ -48,35 +46,7 @@ const analyzeRequestedQuotes = (
       }
     }
   }
-  return { missing, needUpdate };
-};
-
-const filterLatest = (
-  quoteState: IQuoteState,
-  product_ids: string[],
-  fields: IQuoteKey[],
-): IQuoteUpdateAction => {
-  const result: IQuoteUpdateAction = {};
-  for (const product_id of product_ids) {
-    result[product_id] = {};
-    for (const field of fields) {
-      const tuple = quoteState.getValueTuple(product_id, field);
-      if (tuple) {
-        result[product_id][field] = tuple;
-      }
-    }
-  }
-  return result;
-};
-
-const assertNotMissing = (missing: IQuoteRequire[], updated_at: number) => {
-  if (missing.length > 0) {
-    throw newError('VEX_QUOTE_FRESHNESS_NOT_SATISFIED', {
-      updated_at,
-      missed: missing.slice(0, 200),
-      missed_total: missing.length,
-    });
-  }
+  return { needUpdate };
 };
 
 const updateQueue$ = new Subject<UpdateTask>();
@@ -184,13 +154,14 @@ terminal.server.provideService<
     const fields = normalizeFields(msg.req.fields);
     const { updated_at } = msg.req;
 
-    const { missing, needUpdate } = analyzeRequestedQuotes(quoteState, product_ids, fields, updated_at);
+    // SWR strategy: if we have stale or missing data, enqueue an update task,
+    // but still return the current data immediately.
+    const { needUpdate } = analyzeRequestedQuotes(quoteState, product_ids, fields, updated_at);
     if (needUpdate.length > 0) {
       enqueueUpdateTask({ product_ids, fields, updated_at });
     }
 
-    const data = filterLatest(quoteState, product_ids, fields);
-    assertNotMissing(missing, updated_at);
+    const data = quoteState.filter(product_ids, fields, 0);
     return { res: { code: 0, message: 'OK', data } };
   },
 );
