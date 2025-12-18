@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Wed, 17 Dec 2025 05:52:34 GMT and should not be manually modified.
+This log was last generated on Thu, 18 Dec 2025 06:02:01 GMT and should not be manually modified.
+
+## 0.30.4
+Thu, 18 Dec 2025 06:02:01 GMT
+
+### Patches
+
+- fix single side mode
 
 ## 0.30.3
 Wed, 17 Dec 2025 05:52:34 GMT
