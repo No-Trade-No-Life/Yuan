@@ -5,6 +5,7 @@
 ```ts
 
 import { MonoTypeOperatorFunction } from 'rxjs';
+import { Terminal } from '@yuants/protocol';
 
 // @public
 export interface IQuote {
@@ -22,6 +23,15 @@ export interface IQuote {
     product_id: string;
     updated_at: string;
 }
+
+// @public
+export type IQuoteKey = Exclude<keyof IQuote, 'datasource_id' | 'product_id' | 'updated_at'>;
+
+// @public
+export type IQuoteUpdateAction<K extends IQuoteKey = IQuoteKey> = Record<string, Partial<Record<K, [value: string, updated_at: number]>>>;
+
+// @public
+export const queryQuotes: <K extends IQuoteKey>(terminal: Terminal, product_ids: string[], fields: K[], updated_at: number) => Promise<IQuoteUpdateAction<K>>;
 
 // @public (undocumented)
 export const setMetricsQuoteState: (terminal_id: string) => MonoTypeOperatorFunction<Partial<IQuote>>;
