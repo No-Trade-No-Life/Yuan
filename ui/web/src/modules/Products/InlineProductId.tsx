@@ -54,10 +54,9 @@ const ProductCard = (props: { product_id: string }) => {
   );
 };
 
-export const InlineProductId = (props: { datasource_id: string; product_id: string }) => {
+export const InlineProductId = (props: { datasource_id?: string; product_id: string }) => {
   return (
     <Popover content={<ProductCard product_id={props.product_id} />}>
-      ({props.datasource_id})
       <Typography.Text copyable link={{}}>
         {props.product_id}
       </Typography.Text>
