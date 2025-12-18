@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-virtual-exchange
 
-This log was last generated on Wed, 17 Dec 2025 15:18:39 GMT and should not be manually modified.
+This log was last generated on Thu, 18 Dec 2025 02:39:18 GMT and should not be manually modified.
+
+## 0.10.2
+Thu, 18 Dec 2025 02:39:18 GMT
+
+### Patches
+
+- fix service name error
 
 ## 0.10.1
 Wed, 17 Dec 2025 15:18:39 GMT
