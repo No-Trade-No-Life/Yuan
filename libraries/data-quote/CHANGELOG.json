@@ -2,6 +2,26 @@
   "name": "@yuants/data-quote",
   "entries": [
     {
+      "version": "0.4.0",
+      "tag": "@yuants/data-quote_v0.4.0",
+      "date": "Thu, 18 Dec 2025 12:31:40 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add queryQuotes helper function"
+          },
+          {
+            "comment": "change queryQuotes helper"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.1",
       "tag": "@yuants/data-quote_v0.3.1",
       "date": "Tue, 16 Dec 2025 13:39:47 GMT",

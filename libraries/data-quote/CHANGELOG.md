@@ -1,6 +1,14 @@
 # Change Log - @yuants/data-quote
 
-This log was last generated on Tue, 16 Dec 2025 13:39:47 GMT and should not be manually modified.
+This log was last generated on Thu, 18 Dec 2025 12:31:40 GMT and should not be manually modified.
+
+## 0.4.0
+Thu, 18 Dec 2025 12:31:40 GMT
+
+### Minor changes
+
+- add queryQuotes helper function
+- change queryQuotes helper
 
 ## 0.3.1
 Tue, 16 Dec 2025 13:39:47 GMT

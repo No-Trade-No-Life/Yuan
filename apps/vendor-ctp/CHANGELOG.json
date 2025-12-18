@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-ctp",
   "entries": [
     {
+      "version": "0.10.40",
+      "tag": "@yuants/vendor-ctp_v0.10.40",
+      "date": "Thu, 18 Dec 2025 12:31:40 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-quote\" to `0.4.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.10.39",
       "tag": "@yuants/vendor-ctp_v0.10.39",
       "date": "Wed, 17 Dec 2025 05:52:34 GMT",
