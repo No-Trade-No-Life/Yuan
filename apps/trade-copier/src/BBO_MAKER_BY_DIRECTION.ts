@@ -1,10 +1,10 @@
 import { useAccountInfo } from '@yuants/data-account';
 import { IOrder, queryPendingOrders } from '@yuants/data-order';
 import { IProduct } from '@yuants/data-product';
-import { IQuote } from '@yuants/data-quote';
+import { queryQuotes } from '@yuants/data-quote';
 import { Terminal } from '@yuants/protocol';
 import { escapeSQL, requestSQL } from '@yuants/sql';
-import { decodePath, formatTime, roundToStep } from '@yuants/utils';
+import { decodePath, formatTime, newError, roundToStep } from '@yuants/utils';
 import { firstValueFrom, skip } from 'rxjs';
 import { ITradeCopierStrategyBase } from './interface';
 import { MetricRunStrategyContextGauge } from './metrics';
@@ -21,24 +21,31 @@ const _runStrategyBboMakerDirectional = async (
   const [datasource_id, product_id] = decodePath(productKey);
   // 一次性将所需的数据拉取完毕 (考虑性能优化可以使用 cache 机制)
   // 不同的下单策略所需的策略不同，这里先简单实现市价追入所需的数据
-  const [[theProduct], actualAccountInfo, expectedAccountInfo, pendingOrders, [quote]] = await Promise.all([
-    requestSQL<IProduct[]>(
-      terminal,
-      `select * from product where product_id = ${escapeSQL(product_id)} and datasource_id = ${escapeSQL(
-        datasource_id,
-      )}`,
-    ),
-    // ISSUE: useAccountInfo 可能会拉到上一次没更新的数据，需要跳过一个来保证数据是最新的
-    firstValueFrom(useAccountInfo(terminal, account_id).pipe(skip(1))),
-    firstValueFrom(useAccountInfo(terminal, expected_account_id)),
-    queryPendingOrders(terminal, account_id, true),
-    requestSQL<IQuote[]>(
-      terminal,
-      `select * from quote where product_id = ${escapeSQL(product_id)} and datasource_id = ${escapeSQL(
-        datasource_id,
-      )}`,
-    ),
-  ]);
+  const [[theProduct], actualAccountInfo, expectedAccountInfo, pendingOrders, quoteRecord] =
+    await Promise.all([
+      requestSQL<IProduct[]>(
+        terminal,
+        `select * from product where product_id = ${escapeSQL(product_id)} and datasource_id = ${escapeSQL(
+          datasource_id,
+        )}`,
+      ),
+      // ISSUE: useAccountInfo 可能会拉到上一次没更新的数据，需要跳过一个来保证数据是最新的
+      firstValueFrom(useAccountInfo(terminal, account_id).pipe(skip(1))),
+      firstValueFrom(useAccountInfo(terminal, expected_account_id)),
+      queryPendingOrders(terminal, account_id, true),
+      queryQuotes(terminal, [product_id], ['bid_price', 'ask_price', 'last_price'], Date.now()),
+    ]);
+
+  const quote = quoteRecord[product_id];
+
+  if (!quote.bid_price || !quote.ask_price) {
+    console.info(
+      formatTime(Date.now()),
+      'QuoteNotReady',
+      `account=${account_id}, product=${productKey}, bid=${quote.bid_price}, ask=${quote.ask_price}`,
+    );
+    throw newError('QuoteNotReady', { product_id });
+  }
 
   // 计算实际账户和预期账户的持仓差异
   const actualPositions = actualAccountInfo.positions.filter(

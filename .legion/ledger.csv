@@ -156,3 +156,37 @@
 2025-12-17T14:44:18.399Z,legion_update_context,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,handoff: 在实际运行环境用任意客户端调用 `VEX/QueryQuotes`：首次 miss 预期抛 `VEX_QUOTE_FRESHNESS_NOT_SATISFIED`，随后轮询同参数应逐步收敛；stale 场景应直接返回旧值且后台触发更新。,success
 2025-12-17T14:52:53.382Z,legion_update_tasks,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,addDiscoveredTask: 确认并移除文档/实现中所有 `VEX/QueryQuotesStrict` 的残留（含 context 决策与 tasks 描述）。,success
 2025-12-17T14:52:53.385Z,legion_update_context,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,addDecision: 不提供 `VEX/QueryQuotesStrict`；仅保留并替换 `VEX/QueryQuotes` 为 SWR 语义，同时提供 `VEX/QuoteUpdateQueueStatus` 做观测。,success
+2025-12-17T15:28:38.911Z,legion_init,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,workingDirectory: /Users/c1/Work/Yuan,success
+2025-12-17T15:28:41.489Z,legion_get_status,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,,success
+2025-12-17T15:28:47.634Z,legion_read_context,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,"section: all, includeReviews: true",success
+2025-12-17T15:28:53.691Z,legion_list_reviews,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,status: open,success
+2025-12-17T15:29:01.749Z,legion_list_tasks,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,,success
+2025-12-17T15:29:08.230Z,legion_read_context,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,"section: all, includeReviews: true",success
+2025-12-17T15:29:08.262Z,legion_read_context,task-vex-quote-routing,task-vex-quote-routing,Claude,"section: all, includeReviews: true",success
+2025-12-17T15:40:04.640Z,legion_init,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,workingDirectory: /Users/c1/Work/Yuan,success
+2025-12-17T15:40:44.188Z,legion_propose_task,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,name: task-vex-queryquote-migrate-sql,success
+2025-12-17T15:42:13.549Z,legion_approve_proposal,task-vex-queryquote-migrate-sql,task-vex-queryquote-migrate-sql,Claude,proposalId: proposal-mja6hsm2-13eb5c,success
+2025-12-17T15:42:17.314Z,legion_switch_task,task-vex-queryquote-migrate-sql,task-vex-queryquote-migrate-sql,Claude,taskId: task-vex-queryquote-migrate-sql,success
+2025-12-17T15:42:25.422Z,legion_read_context,task-vex-queryquote-migrate-sql,task-vex-queryquote-migrate-sql,Claude,"section: all, includeReviews: true",success
+2025-12-17T15:45:52.299Z,legion_update_tasks,task-vex-queryquote-migrate-sql,task-vex-queryquote-migrate-sql,Claude,completeTask: phase 1,success
+2025-12-17T15:49:24.605Z,legion_list_reviews,task-vex-queryquote-migrate-sql,task-vex-queryquote-migrate-sql,Claude,status: open,success
+2025-12-17T15:49:33.907Z,legion_get_status,task-vex-queryquote-migrate-sql,task-vex-queryquote-migrate-sql,Claude,,success
+2025-12-17T15:58:40.328Z,legion_list_reviews,task-vex-queryquote-migrate-sql,task-vex-queryquote-migrate-sql,Claude,status: open,success
+2025-12-17T16:00:22.945Z,legion_respond_review,task-vex-queryquote-migrate-sql,task-vex-queryquote-migrate-sql,Claude,"file: plan.md, reviewId: R1, status: resolved",success
+2025-12-17T16:00:29.490Z,legion_respond_review,task-vex-queryquote-migrate-sql,task-vex-queryquote-migrate-sql,Claude,"file: plan.md, reviewId: R2, status: resolved",success
+2025-12-17T16:00:34.824Z,legion_respond_review,task-vex-queryquote-migrate-sql,task-vex-queryquote-migrate-sql,Claude,"file: plan.md, reviewId: R3, status: resolved",success
+2025-12-17T16:00:39.942Z,legion_respond_review,task-vex-queryquote-migrate-sql,task-vex-queryquote-migrate-sql,Claude,"file: plan.md, reviewId: R4, status: resolved",success
+2025-12-17T16:00:45.178Z,legion_respond_review,task-vex-queryquote-migrate-sql,task-vex-queryquote-migrate-sql,Claude,"file: plan.md, reviewId: R5, status: resolved",success
+2025-12-17T16:00:50.285Z,legion_respond_review,task-vex-queryquote-migrate-sql,task-vex-queryquote-migrate-sql,Claude,"file: plan.md, reviewId: R6, status: resolved",success
+2025-12-17T16:00:56.571Z,legion_respond_review,task-vex-queryquote-migrate-sql,task-vex-queryquote-migrate-sql,Claude,"file: plan.md, reviewId: R7, status: resolved",success
+2025-12-17T16:01:02.863Z,legion_respond_review,task-vex-queryquote-migrate-sql,task-vex-queryquote-migrate-sql,Claude,"file: plan.md, reviewId: R8, status: resolved",success
+2025-12-17T16:01:08.363Z,legion_respond_review,task-vex-queryquote-migrate-sql,task-vex-queryquote-migrate-sql,Claude,"file: plan.md, reviewId: R9, status: resolved",success
+2025-12-17T16:01:12.902Z,legion_list_reviews,task-vex-queryquote-migrate-sql,task-vex-queryquote-migrate-sql,Claude,status: open,success
+2025-12-17T16:04:06.331Z,legion_update_tasks,task-vex-queryquote-migrate-sql,task-vex-queryquote-migrate-sql,Claude,completeTask: phase 2,success
+2025-12-17T16:04:58.062Z,legion_get_status,task-vex-queryquote-migrate-sql,task-vex-queryquote-migrate-sql,Claude,,success
+2025-12-17T16:05:19.144Z,legion_get_status,task-vex-queryquote-migrate-sql,task-vex-queryquote-migrate-sql,Claude,,success
+2025-12-17T16:05:47.456Z,legion_update_tasks,task-vex-queryquote-migrate-sql,task-vex-queryquote-migrate-sql,Claude,setCurrentTask: phase 2,success
+2025-12-17T16:05:53.629Z,legion_get_status,task-vex-queryquote-migrate-sql,task-vex-queryquote-migrate-sql,Claude,,success
+2025-12-17T16:14:22.225Z,legion_update_tasks,task-vex-queryquote-migrate-sql,task-vex-queryquote-migrate-sql,Claude,completeTask: phase 2,success
+2025-12-17T16:20:03.574Z,legion_archive_task,task-vex-queryquote-migrate-sql,task-vex-queryquote-migrate-sql,Claude,taskId: task-vex-queryquote-migrate-sql,success
+2025-12-17T16:20:08.764Z,legion_get_status,,,Claude,,success

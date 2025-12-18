@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-trade-copier",
+      "comment": "apply for the new query quote",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-trade-copier"
+}
