@@ -163,7 +163,7 @@ terminal.server.provideService<
   { product_ids: string[]; fields: IQuoteKey[]; updated_at: number },
   IQuoteUpdateAction
 >(
-  'VEX/QueryQuotes/C1',
+  'VEX/QueryQuotes',
   {
     type: 'object',
     required: ['product_ids', 'fields', 'updated_at'],
