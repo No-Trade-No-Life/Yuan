@@ -1,7 +1,7 @@
 import { createCache } from '@yuants/cache';
-import { IQuote, queryQuotes, setMetricsQuoteState } from '@yuants/data-quote';
-import { Terminal } from '@yuants/protocol';
-import { writeToSQL } from '@yuants/sql';
+import { IQuote, setMetricsQuoteState } from '@yuants/data-quote';
+import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
+import { escapeSQL, requestSQL, writeToSQL } from '@yuants/sql';
 import { encodePath, formatTime } from '@yuants/utils';
 import { defer, from, groupBy, map, merge, mergeMap, repeat, retry, scan, shareReplay, toArray } from 'rxjs';
 import {
@@ -183,15 +183,13 @@ const mapSwapContractCodeToOpenInterest$ = defer(() => swapOpenInterest$).pipe(
   shareReplay(1),
 );
 
-export const quoteCache = createCache<Partial<IQuote> | undefined>(
+export const quoteCache = createCache<IQuote>(
   async (product_id) => {
-    const quoteRecord = await queryQuotes(
-      terminal,
-      [product_id],
-      ['ask_price', 'bid_price', 'last_price'],
-      Date.now(),
-    );
-    return quoteRecord[product_id];
+    const sql = `select * from quote where product_id = ${escapeSQL(product_id)}`;
+    console.info('QuoteSQL', sql);
+    const [quote] = await requestSQL<IQuote[]>(terminal, sql);
+    console.info('QuoteFetched', product_id, JSON.stringify(quote));
+    return quote;
   },
   { expire: 10_000 },
 );

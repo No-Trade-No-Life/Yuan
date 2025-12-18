@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": null,
+  "currentTask": "task-vex-queryquotes-swr",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -31,16 +31,9 @@
     {
       "id": "task-vex-queryquotes-swr",
       "name": "task-vex-queryquotes-swr",
-      "status": "paused",
+      "status": "active",
       "createdAt": "2025-12-17T08:48:48.898Z",
-      "updatedAt": "2025-12-17T15:42:13.544Z"
-    },
-    {
-      "id": "task-vex-queryquote-migrate-sql",
-      "name": "task-vex-queryquote-migrate-sql",
-      "status": "archived",
-      "createdAt": "2025-12-17T15:42:13.544Z",
-      "updatedAt": "2025-12-17T16:20:03.572Z"
+      "updatedAt": "2025-12-17T14:52:53.384Z"
     }
   ],
   "pendingProposals": [
@@ -350,78 +343,6 @@
       "decidedAt": "2025-12-17T08:48:48.898Z",
       "decidedBy": "Claude",
       "createdTaskId": "task-vex-queryquotes-swr"
-    },
-    {
-      "id": "proposal-mja6hsm2-13eb5c",
-      "name": "task-vex-queryquote-migrate-sql",
-      "goal": "将仓库内直接 SQL 查询 `quote` 表的读取路径替换为 `VEX/QueryQuote`（trade-copier 每次传 `updated_at=Date.now()` 且在无数据时重试至有数据）。",
-      "rationale": "目前多处业务（trade-copier、virtual-exchange、vendor-huobi）仍直接 `requestSQL(\"select * from quote ...\")` 读取数据库 quote 表，造成：1) 与 DB schema 强耦合、跨环境依赖 SQL；2) 读路径的缓存/鲜度语义分散，难以统一；3) 已在 `task-vex-quote-routing`/`task-vex-quote-upstream-refactor`/`task-vex-queryquotes-swr` 建立了 VEX 侧的上游路由与 SWR 补全能力，但调用方未收敛到统一入口。把读取统一到 `VEX/QueryQuote`，可让 quote 的“从哪来/怎么补全/怎么观测队列”集中治理，减少 DB 压力与调用方重复逻辑。",
-      "points": [
-        "盘点所有 `from quote` 的真实调用点（排除 docs/reports）并标注所需字段/容错策略",
-        "定义并落盘 `VEX/QueryQuote` 的请求/响应/错误语义（与现有 `VEX/QueryQuotes/C1` 的 strict 语义区分）",
-        "按调用方迁移：trade-copier 强实时（`updated_at=Date.now()` + 空数据重试直到有数据），其余调用方以 best-effort 为主",
-        "补充最小观测/验证步骤：确保不会因 miss 导致无穷异常或打爆上游队列，并能用现有 `VEX/QuoteUpdateQueueStatus` 排障"
-      ],
-      "scope": [
-        "apps/virtual-exchange/src/quote/service.ts",
-        "apps/trade-copier/src/BBO_MAKER.ts",
-        "apps/trade-copier/src/BBO_MAKER_BY_DIRECTION.ts",
-        "apps/trade-copier/src/experimental/context.ts",
-        "apps/virtual-exchange/src/position.ts",
-        "apps/vendor-huobi/src/services/market-data/quote.ts",
-        "apps/vendor-huobi/src/services/accounts/spot.ts",
-        "apps/vendor-huobi/src/services/accounts/super-margin.ts",
-        ".c1-cellar/rolling-limit-order.ts (可选)",
-        "libraries/data-quote/src (如需新增 query helper)"
-      ],
-      "phases": [
-        {
-          "name": "Discovery",
-          "tasks": [
-            {
-              "description": "全仓盘点 `quote` 表读取：用 `rg '(?i)from\\s+quote\\b'`（排除 `docs/reports/**`）确认真实调用点、每个调用点当前 SQL 形态、取到的 `IQuote` 字段使用方式、对“无 quote”时的容错逻辑。\n\n已初步定位（待你确认是否都要迁移）：\n1) `apps/trade-copier/src/BBO_MAKER.ts`：`select * from quote where product_id=? and datasource_id=?`，只用 `bid_price/ask_price`（以及可能 fallback 到 `last_price`）。\n2) `apps/trade-copier/src/BBO_MAKER_BY_DIRECTION.ts`：同上。\n3) `apps/trade-copier/src/experimental/context.ts`：同上。\n4) `apps/virtual-exchange/src/position.ts`：`select * from quote where product_id=?`，用于补齐 position 的 `current_price/notional/interest_*`。\n5) `apps/vendor-huobi/src/services/market-data/quote.ts`：暴露 `quoteCache` 走 SQL `select * from quote where product_id=?`（被 `accounts/spot.ts` 与 `accounts/super-margin.ts` 使用）。\n\n另外：`.c1-cellar/rolling-limit-order.ts` 也有 `from quote`（脚本用途）。",
-              "acceptance": "`context.md` 记录：所有调用点清单、每处需要的字段集合、以及迁移到 `VEX/QueryQuote` 后的预期行为（缺数据时是返回空/抛错/重试）。"
-            }
-          ]
-        },
-        {
-          "name": "Design",
-          "tasks": [
-            {
-              "description": "设计 `VEX/QueryQuote`（建议作为 best-effort 单品查询入口），并明确与 `VEX/QueryQuotes/C1`（strict）关系。\n\n建议契约（供 review）：\n- 服务名：`VEX/QueryQuote/C1`\n- req：`{ product_id: string; fields: IQuoteKey[]; updated_at: number }`\n- res：`{ data: Partial<Record<IQuoteKey, [value: string, updated_at: number]>> }`\n- 语义：\n  - 同步总是返回当前缓存里能拿到的最新 tuple（允许 stale；允许缺字段 -> 缺字段就不出现在 data 里）。\n  - 若存在 `stale/miss`，仍会触发后台 enqueue（复用 `task-vex-queryquotes-swr` 的队列）。\n  - 不抛 `VEX_QUOTE_FRESHNESS_NOT_SATISFIED`（留给 strict 的 `VEX/QueryQuotes/C1`）。\n\ntrade-copier 特殊要求：\n- 每次调用固定传 `updated_at: Date.now()`；\n- 若返回 `data` 里缺 `bid_price/ask_price`（或整体为空），则在调用侧做重试（建议带 sleep/backoff + 上限日志），直到有数据为止。\n\n需要你确认的点：\n1) `product_id` 的格式：是否统一用 `encodePath(datasource_id, product_id)`（与 trade-copier 的 `productKey` 一致）作为 VEX 的 `product_id`。\n2) `fields`：trade-copier 是否只要 `bid_price/ask_price/last_price`；position polyfill 需要哪些利率字段。\n3) vendor-huobi：是否也要改成走 VEX（会引入对 VEX 服务在线性的依赖），还是仅迁移 trade-copier + virtual-exchange。",
-              "acceptance": "`plan.md` 固化：`VEX/QueryQuote` 的 API、缺字段语义、trade-copier 重试策略、以及各调用点的字段集与 `updated_at` 选择。"
-            }
-          ]
-        },
-        {
-          "name": "Implementation",
-          "tasks": [
-            {
-              "description": "（待你 review 后执行）在 `apps/virtual-exchange/src/quote/service.ts` 增加 `VEX/QueryQuote/C1` 服务实现（复用现有 `quoteState` + `analyzeRequestedQuotes/filterLatest/enqueueUpdateTask`），并保持 `VEX/QueryQuotes/C1` 的 strict 行为不变。",
-              "acceptance": "VEX 同时提供 strict（`VEX/QueryQuotes/C1`）与 best-effort（`VEX/QueryQuote/C1`）两个入口；best-effort 不因 miss 抛错，但会触发后台更新。"
-            },
-            {
-              "description": "（待你 review 后执行）替换所有 `from quote` 的调用点为 `VEX/QueryQuote/C1`：\n- trade-copier：按要求每次传 `updated_at=Date.now()`；若返回缺字段/空则循环重试直到有数据。\n- position.ts / vendor-huobi：按 best-effort 语义处理，无数据则走现有降级路径（不应因 quote 缺失导致整体失败）。\n- 如需减少重复代码，可在 `libraries/data-quote` 增加一个小 helper（例如 `queryQuoteByVex(terminal, datasource_id, product_id, fields, updated_at)`），但保持调用点可读。",
-              "acceptance": "仓库内 `rg '(?i)from\\s+quote\\b'` 仅剩（如你允许）脚本/文档；业务路径均已迁移且行为符合各自容错预期。"
-            }
-          ]
-        },
-        {
-          "name": "Validation",
-          "tasks": [
-            {
-              "description": "最小验证（不依赖全仓 build）：\n- 本地/联调环境运行 trade-copier：确认不会因为 quote miss 而长期报错刷屏，且能在 quote 可用后收敛并正常下单/撤单。\n- 调用 `VEX/QuoteUpdateQueueStatus` 观察队列 pending/in_flight 不会长期积压（trade-copier `updated_at=Date.now()` 可能导致持续 enqueue，需要重点看）。\n- 对 `apps/virtual-exchange/src/position.ts`：确认 quote 缺失时仍能返回 position（只是少补一些派生字段）。",
-              "acceptance": "迁移后 trade-copier 行为稳定、VEX 队列不爆、quote 缺失/延迟场景下系统能自愈收敛。"
-            }
-          ]
-        }
-      ],
-      "proposedBy": "Claude",
-      "proposedAt": "2025-12-17T15:40:44.186Z",
-      "status": "approved",
-      "decidedAt": "2025-12-17T15:42:13.544Z",
-      "decidedBy": "Claude",
-      "createdTaskId": "task-vex-queryquote-migrate-sql"
     }
   ]
 }

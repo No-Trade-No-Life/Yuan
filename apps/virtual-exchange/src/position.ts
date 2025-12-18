@@ -2,31 +2,18 @@ import { createCache } from '@yuants/cache';
 import { IPosition } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { createClientProductCache } from '@yuants/data-product';
-import { IQuote, queryQuotes } from '@yuants/data-quote';
+import { IQuote } from '@yuants/data-quote';
 import { Terminal } from '@yuants/protocol';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import { newError } from '@yuants/utils';
 
 const terminal = Terminal.fromNodeEnv();
 const productCache = createClientProductCache(terminal);
-
-const quoteCache = createCache<Partial<IQuote> | undefined>(
+const quoteCache = createCache<IQuote>(
   async (product_id) => {
-    const quoteRecord = await queryQuotes(
-      terminal,
-      [product_id],
-      [
-        'ask_price',
-        'bid_price',
-        'last_price',
-        'interest_rate_long',
-        'interest_rate_short',
-        'interest_rate_prev_settled_at',
-        'interest_rate_next_settled_at',
-      ],
-      Date.now(),
-    );
-    return quoteRecord[product_id];
+    const sql = `select * from quote where product_id = ${escapeSQL(product_id)}`;
+    const [quote] = await requestSQL<IQuote[]>(terminal, sql);
+    return quote;
   },
   { expire: 30_000 },
 );
@@ -97,7 +84,7 @@ export const polyfillPosition = async (positions: IPosition[]): Promise<IPositio
 
     // 利率相关信息的追加
     if (quote) {
-      if (quote.interest_rate_next_settled_at != null) {
+      if (quote.interest_rate_next_settled_at !== null) {
         const nextSettledAt = new Date(quote.interest_rate_next_settled_at).getTime();
         // 优先使用行情数据中的下一个结算时间
         pos.settlement_scheduled_at = nextSettledAt;
@@ -106,7 +93,7 @@ export const polyfillPosition = async (positions: IPosition[]): Promise<IPositio
           const interval = nextSettledAt - interestRateInterval.prev;
           pos.settlement_interval = interval;
         }
-      } else if (quote.interest_rate_next_settled_at == null && interestRateInterval !== undefined) {
+      } else if (quote.interest_rate_next_settled_at === null && interestRateInterval !== undefined) {
         // 估算下一个结算时间
         // 找到 prev + k * interval > now 的最小 k，则下一个结算时间为 prev + k * interval
         const k = Math.ceil((Date.now() - interestRateInterval.prev) / interestRateInterval.interval);
@@ -119,12 +106,12 @@ export const polyfillPosition = async (positions: IPosition[]): Promise<IPositio
       }
 
       if (pos.direction === 'LONG') {
-        if (quote.interest_rate_long != null) {
+        if (quote.interest_rate_long !== null) {
           pos.interest_to_settle = +quote.interest_rate_long * pos.valuation;
         }
       }
       if (pos.direction === 'SHORT') {
-        if (quote.interest_rate_short != null) {
+        if (quote.interest_rate_short !== null) {
           pos.interest_to_settle = +quote.interest_rate_short * pos.valuation;
         }
       }

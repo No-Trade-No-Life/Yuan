@@ -19,7 +19,7 @@ export const getSuperMarginAccountInfo: IActionHandlerOfGetAccountInfo<ICredenti
   for (const currencyData of balanceList) {
     if (currencyData.balance === '0') continue;
     const product_id = encodePath('HTX', 'SPOT', currencyData.currency + 'usdt');
-    const quote = await quoteCache.query(product_id);
+    const quote = await quoteCache.query(currencyData.currency);
     const closable_price = currencyData.currency === 'usdt' ? 1 : +(quote?.ask_price ?? 0);
 
     positions.push(
