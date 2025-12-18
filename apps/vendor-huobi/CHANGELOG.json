@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-huobi",
   "entries": [
     {
+      "version": "0.17.5",
+      "tag": "@yuants/vendor-huobi_v0.17.5",
+      "date": "Thu, 18 Dec 2025 14:19:05 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "revert"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.17.4",
       "tag": "@yuants/vendor-huobi_v0.17.4",
       "date": "Thu, 18 Dec 2025 12:57:53 GMT",
