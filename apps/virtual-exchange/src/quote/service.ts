@@ -131,7 +131,7 @@ terminal.server.provideService<{}, IQuoteUpdateAction>('VEX/DumpQuoteState', {},
 
 terminal.server.provideService<
   { product_ids: string[]; fields: IQuoteKey[]; updated_at: number },
-  IQuoteUpdateAction
+  Record<string, Partial<Record<IQuoteKey, string>>>
 >(
   'VEX/QueryQuotes',
   {
@@ -161,7 +161,7 @@ terminal.server.provideService<
       enqueueUpdateTask({ product_ids, fields, updated_at });
     }
 
-    const data = quoteState.filter(product_ids, fields, 0);
+    const data = quoteState.filterValues(product_ids, fields);
     return { res: { code: 0, message: 'OK', data } };
   },
 );

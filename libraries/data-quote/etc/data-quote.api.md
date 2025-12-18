@@ -31,7 +31,7 @@ export type IQuoteKey = Exclude<keyof IQuote, 'datasource_id' | 'product_id' | '
 export type IQuoteUpdateAction<K extends IQuoteKey = IQuoteKey> = Record<string, Partial<Record<K, [value: string, updated_at: number]>>>;
 
 // @public
-export const queryQuotes: <K extends IQuoteKey>(terminal: Terminal, product_ids: string[], fields: K[], updated_at: number) => Promise<IQuoteUpdateAction<K>>;
+export const queryQuotes: <K extends IQuoteKey>(terminal: Terminal, product_ids: string[], fields: K[], updated_at: number) => Promise<Record<string, Record<K, string>>>;
 
 // @public (undocumented)
 export const setMetricsQuoteState: (terminal_id: string) => MonoTypeOperatorFunction<Partial<IQuote>>;
