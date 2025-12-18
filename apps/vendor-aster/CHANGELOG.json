@@ -2,6 +2,26 @@
   "name": "@yuants/vendor-aster",
   "entries": [
     {
+      "version": "0.8.3",
+      "tag": "@yuants/vendor-aster_v0.8.3",
+      "date": "Thu, 18 Dec 2025 12:31:40 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-quote\" to `0.4.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.7.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.8.2",
       "tag": "@yuants/vendor-aster_v0.8.2",
       "date": "Wed, 17 Dec 2025 05:52:34 GMT",

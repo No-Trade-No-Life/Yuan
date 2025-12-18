@@ -1,6 +1,11 @@
 # Change Log - @yuants/exchange
 
-This log was last generated on Wed, 17 Dec 2025 05:52:34 GMT and should not be manually modified.
+This log was last generated on Thu, 18 Dec 2025 12:31:40 GMT and should not be manually modified.
+
+## 0.7.1
+Thu, 18 Dec 2025 12:31:40 GMT
+
+_Version update only_
 
 ## 0.7.0
 Wed, 17 Dec 2025 05:52:34 GMT
