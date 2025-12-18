@@ -259,6 +259,78 @@ describe('IQuoteState implementations', () => {
         const dumped = quoteState.dumpAsObject();
         expect(dumped).toEqual(updateAction);
       });
+
+      // 测试 11: filterValues 方法应该返回值（即使字段不存在）
+      it('should return values via filterValues (even if field missing)', () => {
+        // 设置测试数据
+        quoteState.update({
+          product_001: {
+            last_price: ['100.0', 1000],
+            ask_price: ['101.0', 2000],
+            // bid_price not set
+          },
+          product_002: {
+            last_price: ['200.0', 1500],
+          },
+        });
+
+        // 测试 1: 获取存在的字段
+        const result1 = quoteState.filterValues(['product_001', 'product_002'], ['last_price', 'ask_price']);
+        expect(result1).toEqual({
+          product_001: {
+            last_price: '100.0',
+            ask_price: '101.0',
+          },
+          product_002: {
+            last_price: '200.0',
+            ask_price: '',
+          },
+        });
+
+        // 测试 2: 获取不存在的产品和字段
+        const result2 = quoteState.filterValues(['product_001', 'non_existent'], ['last_price', 'bid_price']);
+        expect(result2).toEqual({
+          product_001: {
+            last_price: '100.0',
+            bid_price: '',
+          },
+          non_existent: {
+            last_price: '',
+            bid_price: '',
+          },
+        });
+
+        // 测试 3: 空产品列表
+        const result3 = quoteState.filterValues([], ['last_price']);
+        expect(result3).toEqual({});
+
+        // 测试 4: 空字段列表
+        const result4 = quoteState.filterValues(['product_001'], []);
+        expect(result4).toEqual({
+          product_001: {},
+        });
+
+        // 测试 5: 所有字段类型
+        const allFields: IQuoteKey[] = [
+          'last_price',
+          'ask_price',
+          'ask_volume',
+          'bid_volume',
+          'bid_price',
+          'interest_rate_short',
+          'open_interest',
+          'interest_rate_prev_settled_at',
+          'interest_rate_next_settled_at',
+          'interest_rate_long',
+        ];
+        const result5 = quoteState.filterValues(['product_001'], allFields);
+        expect(Object.keys(result5.product_001)).toEqual(allFields);
+        expect(result5.product_001.last_price).toBe('100.0');
+        expect(result5.product_001.ask_price).toBe('101.0');
+        // 其他字段应为空字符串
+        expect(result5.product_001.bid_price).toBe('');
+        expect(result5.product_001.ask_volume).toBe('');
+      });
     });
   });
 });

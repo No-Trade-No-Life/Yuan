@@ -32,6 +32,17 @@ export interface IQuoteState {
   dumpAsObject: () => IQuoteUpdateAction;
   getValueTuple: (product_id: string, field: IQuoteKey) => [string, number] | undefined;
   filter: (product_ids: string[], fields: IQuoteKey[], updated_at: number) => IQuoteUpdateAction;
+  /**
+   * 过滤并获取指定产品和字段的值，即便对应字段不存在或未更新也会返回空字符串
+   *
+   * @param product_ids
+   * @param fields
+   * @returns
+   */
+  filterValues: <K extends IQuoteKey>(
+    product_ids: string[],
+    fields: K[],
+  ) => Record<string, Record<K, string>>;
 }
 
 export interface IQuoteProviderInstance {

@@ -1,5 +1,5 @@
 import { Terminal } from '@yuants/protocol';
-import { IQuoteKey, IQuoteUpdateAction } from './types';
+import { IQuoteKey } from './types';
 
 /**
  * Query quotes from the VEX.
@@ -27,8 +27,8 @@ export const queryQuotes = async <K extends IQuoteKey>(
   product_ids: string[],
   fields: K[],
   updated_at: number,
-): Promise<IQuoteUpdateAction<K>> => {
-  return terminal.client.requestForResponseData<{}, IQuoteUpdateAction<K>>('VEX/QueryQuotes', {
+): Promise<Record<string, Record<K, string>>> => {
+  return terminal.client.requestForResponseData<{}, Record<string, Record<K, string>>>('VEX/QueryQuotes', {
     product_ids,
     fields,
     updated_at,

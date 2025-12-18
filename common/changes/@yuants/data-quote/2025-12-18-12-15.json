@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-quote",
+      "comment": "change queryQuotes helper",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-quote"
+}

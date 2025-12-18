@@ -238,5 +238,20 @@ export const createQuoteStateV3 = (): IQuoteState => {
     },
   });
 
-  return { update, dumpAsObject, getValueTuple, filter };
+  const filterValues = <K extends IQuoteKey>(
+    product_ids: string[],
+    fields: K[],
+  ): Record<string, Record<K, string>> => {
+    const result: Record<string, Record<K, string>> = {};
+    for (const product_id of product_ids) {
+      result[product_id] = {} as Record<K, string>;
+      for (const field of fields) {
+        const tuple = getValueTuple(product_id, field);
+        result[product_id][field] = tuple ? tuple[0] : '';
+      }
+    }
+    return result;
+  };
+
+  return { update, dumpAsObject, getValueTuple, filter, filterValues };
 };
