@@ -39,6 +39,10 @@ export const submitOrder = async (credential: ICredential, order: IOrder): Promi
    * 是否为组合保证金模式
    */
   const isPortfolioMarginMode = accountConfigRes.data[0].acctLv === '4';
+  /**
+   * 是否为单向持仓模式(买卖模式)
+   */
+  const isSingleSideMode = accountConfigRes.data[0].posMode === 'net_mode';
 
   const [instType, instId] = decodePath(order.product_id).slice(-2);
 
@@ -114,8 +118,8 @@ export const submitOrder = async (credential: ICredential, order: IOrder): Promi
     tdMode: instType === 'SPOT' ? 'cash' : 'cross',
     side: mapOrderDirectionToSide(order.order_direction),
     posSide:
-      instType === 'MARGIN' || instType === 'SPOT'
-        ? 'net'
+      isSingleSideMode || instType === 'MARGIN' || instType === 'SPOT'
+        ? undefined
         : mapOrderDirectionToPosSide(order.order_direction),
     ordType: mapOrderTypeToOrdType(order.order_type),
     sz: (await mapOrderVolumeToSz(order)).toString(),
