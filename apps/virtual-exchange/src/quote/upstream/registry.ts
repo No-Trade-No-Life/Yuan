@@ -165,13 +165,8 @@ export const createQuoteProviderRegistry = (terminal: Terminal): IQuoteProviderR
           group_id,
           product_ids: [...productIds],
         })),
-        default_action: plan.defaultAction,
       }),
     );
-
-    if (Object.keys(plan.defaultAction).length > 0) {
-      quoteState.update(plan.defaultAction);
-    }
 
     console.info(
       formatTime(Date.now()),

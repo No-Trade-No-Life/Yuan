@@ -1,13 +1,12 @@
 import { Terminal } from '@yuants/protocol';
 import { formatTime } from '@yuants/utils';
 import { Subject, concatMap, defer } from 'rxjs';
-import { createQuoteState } from './state';
+import { quoteState } from './state';
 import { IQuoteKey, IQuoteRequire, IQuoteState, IQuoteUpdateAction } from './types';
 import { createQuoteProviderRegistry } from './upstream';
 
 const terminal = Terminal.fromNodeEnv();
 
-const quoteState = createQuoteState();
 const quoteProviderRegistry = createQuoteProviderRegistry(terminal);
 
 type UpdateTask = { product_ids: string[]; fields: IQuoteKey[]; updated_at: number };

@@ -125,8 +125,12 @@ export const createQuoteStateV1 = (): IQuoteState => {
     for (const product_id of product_ids) {
       result[product_id] = {} as Record<K, string>;
       for (const field of fields) {
-        const tuple = getValueTuple(product_id, field);
-        result[product_id][field] = tuple ? tuple[0] : '';
+        const offset = getFieldOffset(product_id, field);
+        if (offset === undefined) {
+          result[product_id][field] = '';
+        } else {
+          result[product_id][field] = (data[offset] as string) || '';
+        }
       }
     }
     return result;
