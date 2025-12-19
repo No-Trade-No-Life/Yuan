@@ -40,7 +40,6 @@ export type IPlannedRequest = {
 export type IPlannedRequestWithKey = { key: string; planned: IPlannedRequest };
 
 export type QuoteUpstreamPlan = {
-  defaultAction: IQuoteUpdateAction;
   requests: IPlannedRequestWithKey[];
 };
 
@@ -107,8 +106,6 @@ export const createQuoteRouter = (): IQuoteRouter => ({
   planOrThrow: (misses, indices, updated_at) => {
     const { prefixMatcher, mapFieldToGroupIds, mapGroupIdToGroup } = indices;
     const productsByGroupId = new Map<string, Set<string>>();
-    const defaultAction: IQuoteUpdateAction = {};
-    const unroutableProducts = new Set<string>();
 
     const mapProductIdToGroupIds = new Map<string, string[]>();
 
@@ -120,22 +117,14 @@ export const createQuoteRouter = (): IQuoteRouter => ({
         productGroupIds = prefixMatcher.match(product_id);
         mapProductIdToGroupIds.set(product_id, productGroupIds);
       }
-      if (productGroupIds.length === 0) {
-        unroutableProducts.add(product_id);
-        continue;
-      }
 
       const fieldGroupIds = mapFieldToGroupIds.get(field);
       if (!fieldGroupIds) {
-        if (!defaultAction[product_id]) defaultAction[product_id] = {};
-        defaultAction[product_id]![field] = ['', updated_at];
         continue;
       }
 
-      let matched = false;
       for (const group_id of productGroupIds) {
         if (!fieldGroupIds.has(group_id)) continue;
-        matched = true;
         let productIds = productsByGroupId.get(group_id);
         if (!productIds) {
           productIds = new Set<string>();
@@ -143,23 +132,9 @@ export const createQuoteRouter = (): IQuoteRouter => ({
         }
         productIds.add(product_id);
       }
-
-      if (!matched) {
-        if (!defaultAction[product_id]) defaultAction[product_id] = {};
-        defaultAction[product_id]![field] = ['', updated_at];
-      }
-    }
-
-    if (unroutableProducts.size !== 0) {
-      throw newError('VEX_QUOTE_PRODUCT_UNROUTABLE', {
-        updated_at,
-        unroutable_products: [...unroutableProducts].slice(0, 200),
-        unroutable_products_total: unroutableProducts.size,
-      });
     }
 
     return {
-      defaultAction,
       requests: planRequests({ productsByGroupId, mapGroupIdToGroup }),
     };
   },
