@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "task-vex-queryquotes-swr",
+  "currentTask": null,
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -31,9 +31,16 @@
     {
       "id": "task-vex-queryquotes-swr",
       "name": "task-vex-queryquotes-swr",
-      "status": "active",
+      "status": "paused",
       "createdAt": "2025-12-17T08:48:48.898Z",
-      "updatedAt": "2025-12-17T14:52:53.384Z"
+      "updatedAt": "2025-12-19T07:42:29.750Z"
+    },
+    {
+      "id": "review-new-scheduler-design",
+      "name": "review-new-scheduler-design",
+      "status": "archived",
+      "createdAt": "2025-12-19T07:42:29.750Z",
+      "updatedAt": "2025-12-19T10:56:50.614Z"
     }
   ],
   "pendingProposals": [
@@ -343,6 +350,69 @@
       "decidedAt": "2025-12-17T08:48:48.898Z",
       "decidedBy": "Claude",
       "createdTaskId": "task-vex-queryquotes-swr"
+    },
+    {
+      "id": "proposal-mjck8ymi-a542af",
+      "name": "review-new-scheduler-design",
+      "goal": "审视 virtual-exchange/src/quote/upstream/new.ts 新调度器设计的合理性，针对 20,000 products 规模场景进行复杂度分析并提出优化建议",
+      "rationale": "用户需要对新调度器设计进行架构审视，评估其在大规模场景（20,000 products × 7 fields = 140,000 cells）下的可行性。当前实现存在 O(n²) 复杂度问题，需要系统性记录问题和优化建议，便于后续实现参考。",
+      "points": [
+        "Cell-based Dirty Check 模型分析",
+        "复杂度评估：O(n²) markDirty、O(n log n) 调度循环",
+        "接口设计问题：全局可变状态、route 语义、services 同步",
+        "流程设计问题：触发频率、无限循环风险、冗余操作",
+        "数据结构优化建议：Map 替代 Array、倒排索引、优先队列"
+      ],
+      "scope": [
+        "apps/virtual-exchange/src/quote/upstream/new.ts",
+        "apps/virtual-exchange/src/quote/upstream/new.test.ts"
+      ],
+      "phases": [
+        {
+          "name": "架构审视",
+          "tasks": [
+            {
+              "description": "分析 Cell 模型和 Dirty Check 流程设计",
+              "acceptance": "完成流程图和核心模型描述"
+            },
+            {
+              "description": "复杂度分析（20,000 products × 7 fields 场景）",
+              "acceptance": "完成各操作的时间/空间复杂度表格"
+            },
+            {
+              "description": "接口设计问题识别",
+              "acceptance": "列出 cells/services/route 等接口的设计缺陷"
+            },
+            {
+              "description": "流程设计问题识别",
+              "acceptance": "列出 handleServiceGroupId/handleService 的问题"
+            }
+          ]
+        },
+        {
+          "name": "优化建议",
+          "tasks": [
+            {
+              "description": "提出数据结构优化方案",
+              "acceptance": "完成 Map/Set/PriorityQueue 替代方案设计"
+            },
+            {
+              "description": "提出索引结构优化方案",
+              "acceptance": "完成 dirtyByGroup/servicesByPrefix 索引设计"
+            },
+            {
+              "description": "总结优化收益",
+              "acceptance": "完成优化前后复杂度对比表"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2025-12-19T07:41:19.050Z",
+      "status": "approved",
+      "decidedAt": "2025-12-19T07:42:29.750Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "review-new-scheduler-design"
     }
   ]
 }

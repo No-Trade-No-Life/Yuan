@@ -1,27 +1,10 @@
 import { Terminal } from '@yuants/protocol';
-import { formatTime } from '@yuants/utils';
-import { Subject, concatMap, defer } from 'rxjs';
+import { IQuoteField } from '@yuants/exchange';
 import { quoteState } from './state';
 import { IQuoteKey, IQuoteRequire, IQuoteState, IQuoteUpdateAction } from './types';
-import { createQuoteProviderRegistry } from './upstream';
+import { markDirty } from './scheduler';
 
 const terminal = Terminal.fromNodeEnv();
-
-const quoteProviderRegistry = createQuoteProviderRegistry(terminal);
-
-type UpdateTask = { product_ids: string[]; fields: IQuoteKey[]; updated_at: number };
-
-type IQuoteUpdateQueueStatus = {
-  pending: number;
-  in_flight: number;
-  queued_total: number;
-  started_total: number;
-  processed_total: number;
-  last_enqueued_at?: number;
-  last_started_at?: number;
-  last_processed_at?: number;
-  last_error?: { at: number; code?: string; message?: string };
-};
 
 const normalizeStrings = (values: string[]) => [...new Set(values)].sort();
 const normalizeFields = (values: IQuoteKey[]) => [...new Set(values)].sort();
@@ -47,77 +30,6 @@ const analyzeRequestedQuotes = (
   }
   return { needUpdate };
 };
-
-const updateQueue$ = new Subject<UpdateTask>();
-const updateQueueStats: Omit<IQuoteUpdateQueueStatus, 'pending' | 'in_flight'> = {
-  queued_total: 0,
-  started_total: 0,
-  processed_total: 0,
-};
-
-const getQueueStatus = (): IQuoteUpdateQueueStatus => {
-  const pending = updateQueueStats.queued_total - updateQueueStats.started_total;
-  const in_flight = updateQueueStats.started_total - updateQueueStats.processed_total;
-  return {
-    pending,
-    in_flight,
-    ...updateQueueStats,
-  };
-};
-
-const enqueueUpdateTask = (task: UpdateTask) => {
-  updateQueueStats.queued_total++;
-  updateQueueStats.last_enqueued_at = Date.now();
-  updateQueue$.next(task);
-};
-
-const summarizeError = (error: unknown): { code?: string; message?: string } => {
-  if (typeof error === 'object' && error !== null) {
-    const code = 'code' in error ? (error as any).code : undefined;
-    const message = 'message' in error ? (error as any).message : undefined;
-    return {
-      code: typeof code === 'string' ? code : undefined,
-      message: typeof message === 'string' ? message : undefined,
-    };
-  }
-  return {};
-};
-
-const processUpdateTask = async (task: UpdateTask) => {
-  const { needUpdate } = analyzeRequestedQuotes(quoteState, task.product_ids, task.fields, task.updated_at);
-  await quoteProviderRegistry.fillQuoteStateFromUpstream({
-    quoteState,
-    cacheMissed: needUpdate,
-    updated_at: task.updated_at,
-  });
-};
-
-updateQueue$
-  .pipe(
-    concatMap((task) =>
-      defer(async () => {
-        updateQueueStats.started_total++;
-        updateQueueStats.last_started_at = Date.now();
-
-        try {
-          await processUpdateTask(task);
-        } catch (error) {
-          const summary = summarizeError(error);
-          updateQueueStats.last_error = { at: Date.now(), ...summary };
-          console.info(
-            formatTime(Date.now()),
-            `[VEX][Quote]UpdateQueueTaskFailed`,
-            `product_ids=${task.product_ids.length} fields=${task.fields.length} updated_at=${task.updated_at}`,
-            JSON.stringify(summary),
-          );
-        } finally {
-          updateQueueStats.processed_total++;
-          updateQueueStats.last_processed_at = Date.now();
-        }
-      }),
-    ),
-  )
-  .subscribe();
 
 terminal.server.provideService<IQuoteUpdateAction>('VEX/UpdateQuotes', {}, async (msg) => {
   quoteState.update(msg.req);
@@ -153,18 +65,12 @@ terminal.server.provideService<
     const fields = normalizeFields(msg.req.fields);
     const { updated_at } = msg.req;
 
-    // SWR strategy: if we have stale or missing data, enqueue an update task,
-    // but still return the current data immediately.
     const { needUpdate } = analyzeRequestedQuotes(quoteState, product_ids, fields, updated_at);
-    if (needUpdate.length > 0) {
-      enqueueUpdateTask({ product_ids, fields, updated_at });
+    for (const { product_id, field } of needUpdate) {
+      markDirty(product_id, field as any as IQuoteField);
     }
 
     const data = quoteState.filterValues(product_ids, fields);
     return { res: { code: 0, message: 'OK', data } };
   },
 );
-
-terminal.server.provideService<{}, IQuoteUpdateQueueStatus>('VEX/QuoteUpdateQueueStatus', {}, async () => {
-  return { res: { code: 0, message: 'OK', data: getQueueStatus() } };
-});

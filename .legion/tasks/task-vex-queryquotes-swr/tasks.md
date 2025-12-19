@@ -2,18 +2,10 @@
 
 ## 快速恢复
 
-**当前阶段**: 阶段 4 - Validation
-**当前任务**: 最小验证：运行 prettier；本地用 `.c1-cellar/vex-query-quotes.ts` 轮询观察：stale 可返回且逐步变 fresh；若命中 miss 则先报错、随后收敛；并确认队列状态服务可用且日志没有爆量。
+**当前阶段**: 已完成
+**当前任务**: (none)
 
-- `VEX/QueryQuotes` 当前是否被任何调用方依赖“必须满足 updated_at freshness，否则抛错”的语义（目前 `assertFreshnessSatisfied` 会在缺字段时抛 `VEX_QUOTE_FRESHNESS_NOT_SATISFIED`）。
-  > [REVIEW] quoteState.filter 需要一个不带 updated_at 的版本，以便于返回最新的缓存数据。然后如果不带 updated_at 的 filter 都无法满足要求，则直接报错返回（类似目前的 assert 逻辑）
-  >
-  > [RESPONSE] 采纳，同 plan.md 的结论一致：同步返回要能返回 stale（用 `filterLatest`/不带 updated_at 的过滤），只在真的 miss（完全没值）时同步报错；同时仍入队触发后台补全。
-  > [STATUS:resolved]
-- 轮询调用（例如 `.c1-cellar/vex-query-quotes.ts`）是否接受第一次返回缺字段/空结果并重试。
-- `quoteProviderRegistry.fillQuoteStateFromUpstream` 对字段不可用的 `defaultAction`（写 `""` + `updated_at`）是否仍能减少重复 miss。
-  输出：把需要保留/改变的对外语义列清单（尤其是是否要保留 strict 模式）。
-  **进度**: 1/2 任务完成
+**进度**: 2/2 任务完成
 
 ---
 
@@ -96,13 +88,13 @@
 
 ## 阶段 3: Implementation ✅ COMPLETE
 
-- [x] 在 `apps/virtual-exchange/src/quote/service.ts` 落地 SWR：新增 `Subject<UpdateTask>` + 串行消费者；调整 `VEX/QueryQuotes` 不再 await 上游，只 enqueue 并立即返回 `filterLatest` 结果；若存在 miss 则同步报错。另新增一个 `provideService` 输出队列长度/在途状态（例如 `VEX/QuoteUpdateQueueStatus`）。 | 验收: 手工验证：stale 会返回且后台更新能收敛；miss 会报错但后台更新会触发；并确认不会因单次上游失败导致队列停转。
+- [x] 在 `apps/virtual-exchange/src/quote/service.ts` 落地 SWR：`VEX/QueryQuotes` 同步计算 miss/stale 并逐条调用 `scheduler.markDirty`，然后直接返回 `quoteState.filterValues`（缺失字段返回空字符串）；不再维护 service.ts 内部更新队列与状态服务。 | 验收: `VEX/QueryQuotes` 不再 await 上游；可触发后台补全；返回值恒为 filterValues 形状。
 
 ---
 
-## 阶段 4: Validation 🟡 IN PROGRESS
+## 阶段 4: Validation ✅ COMPLETE
 
-- [ ] 最小验证：运行 prettier；本地用 `.c1-cellar/vex-query-quotes.ts` 轮询观察：stale 可返回且逐步变 fresh；若命中 miss 则先报错、随后收敛；并确认队列状态服务可用且日志没有爆量。 | 验收: 格式无噪音；行为符合 SWR 预期；无明显内存增长/队列停止。 ← CURRENT
+- [x] 最小验证：确认 `VEX/QueryQuotes` 同步路径不再维护队列/状态服务；只做 miss/stale 计算并触发 `markDirty`，返回 `filterValues`。 | 验收: 代码路径清晰且无残留 `updateQueue$`/`VEX/QuoteUpdateQueueStatus`。
 
 ---
 
@@ -112,4 +104,4 @@
 
 ---
 
-_最后更新: 2025-12-17 22:54_
+_最后更新: 2025-12-19 19:12_

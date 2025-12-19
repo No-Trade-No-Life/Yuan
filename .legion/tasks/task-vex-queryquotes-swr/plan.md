@@ -2,7 +2,17 @@
 
 ## 目标
 
-将 `apps/virtual-exchange/src/quote/service.ts` 的 `VEX/QueryQuotes` 改为 SWR：请求立即返回本地缓存结果，后台串行补全缺失报价。
+将 `apps/virtual-exchange/src/quote/service.ts` 的 `VEX/QueryQuotes` 改为 SWR：请求立即返回本地缓存结果，同步触发 `scheduler.markDirty` 做后台补全。
+
+## 当前实现（2025-12-19）
+
+> 说明：本任务最初设计过“RxJS 串行队列 + 队列状态服务”的版本；但在后续代码整理中，相关逻辑已收敛到 `apps/virtual-exchange/src/quote/scheduler.ts`，因此最终实现不再保留队列与状态服务。下文旧设计保留作为历史记录，避免丢失推导。
+
+### `VEX/QueryQuotes` 的最终行为
+
+- 同步阶段：计算 cache missed（`miss + stale`），对每个 `{ product_id, field }` 调用 `markDirty(product_id, field)`
+- 返回：直接 `return quoteState.filterValues(product_ids, fields)`（缺失字段返回空字符串）
+- 不再提供：`VEX/QuoteUpdateQueueStatus`（因为已无 service.ts 内的队列）
 
 ## 背景与现状
 
@@ -23,12 +33,12 @@
 把 `VEX/QueryQuotes` 改为 stale-while-revalidate（best-effort）：
 
 - **同步路径永远立即返回**：不再等待上游补全
-- **后台补全串行执行**：同步路径发现 `stale/miss` 就立刻入队，后台按顺序处理，逐步把 `quoteState` 补齐
+- **后台补全由 scheduler 驱动**：同步路径发现 `stale/miss` 就调用 `scheduler.markDirty`，由 scheduler 负责后续请求调度与回写
 
 ### 非目标（本次不做）
 
-- 不改动上游路由/执行策略（仍由 `quoteProviderRegistry.fillQuoteStateFromUpstream` 内部控制）
-- 不做任务合并/限长/丢弃策略（仅在 plan 里提出可选增强）
+- 不做调用侧协议改动（仍是 `{ product_ids, fields, updated_at }`）
+- 不引入 service.ts 内部的专用队列/合并/限流（调度由 scheduler 统一处理）
 - 不改动 `VEX/UpdateQuotes` / `VEX/DumpQuoteState` 的行为
 
 ## 关键接口与数据结构
@@ -209,6 +219,7 @@ type UpdateTask = { product_ids: string[]; fields: IQuoteKey[]; updated_at: numb
 ## 范围
 
 - apps/virtual-exchange/src/quote/service.ts
+- apps/virtual-exchange/src/quote/scheduler.ts
 
 ## 阶段概览
 
@@ -219,4 +230,4 @@ type UpdateTask = { product_ids: string[]; fields: IQuoteKey[]; updated_at: numb
 
 ---
 
-_创建于: 2025-12-17 | 最后更新: 2025-12-17_
+_创建于: 2025-12-17 | 最后更新: 2025-12-19 19:12 by Codex_

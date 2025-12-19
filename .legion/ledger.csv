@@ -156,3 +156,64 @@
 2025-12-17T14:44:18.399Z,legion_update_context,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,handoff: 在实际运行环境用任意客户端调用 `VEX/QueryQuotes`：首次 miss 预期抛 `VEX_QUOTE_FRESHNESS_NOT_SATISFIED`，随后轮询同参数应逐步收敛；stale 场景应直接返回旧值且后台触发更新。,success
 2025-12-17T14:52:53.382Z,legion_update_tasks,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,addDiscoveredTask: 确认并移除文档/实现中所有 `VEX/QueryQuotesStrict` 的残留（含 context 决策与 tasks 描述）。,success
 2025-12-17T14:52:53.385Z,legion_update_context,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,addDecision: 不提供 `VEX/QueryQuotesStrict`；仅保留并替换 `VEX/QueryQuotes` 为 SWR 语义，同时提供 `VEX/QuoteUpdateQueueStatus` 做观测。,success
+2025-12-19T07:40:56.604Z,legion_create_task,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,"goal: 审视 virtual-exchange/src/quote/upstream/new.ts 新调度器设计的合理性，针对 20,000 products 规模场景进行复杂度分析并提出优化建议",failed
+2025-12-19T07:41:19.051Z,legion_propose_task,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,name: review-new-scheduler-design,success
+2025-12-19T07:42:06.521Z,legion_approve_proposal,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,proposalId: proposal-mjck8ymi-a542af,failed
+2025-12-19T07:42:11.670Z,legion_switch_task,review-new-scheduler-design,,Claude,taskId: review-new-scheduler-design,failed
+2025-12-19T07:42:29.752Z,legion_approve_proposal,review-new-scheduler-design,review-new-scheduler-design,Claude,proposalId: proposal-mjck8ymi-a542af,success
+2025-12-19T07:42:34.827Z,legion_switch_task,review-new-scheduler-design,review-new-scheduler-design,Claude,taskId: review-new-scheduler-design,success
+2025-12-19T07:42:39.950Z,legion_read_context,review-new-scheduler-design,review-new-scheduler-design,Claude,,success
+2025-12-19T07:42:47.279Z,legion_update_tasks,review-new-scheduler-design,review-new-scheduler-design,Claude,setCurrentTask: phase 1,success
+2025-12-19T07:42:47.329Z,legion_update_context,review-new-scheduler-design,review-new-scheduler-design,Claude,addFile: apps/virtual-exchange/src/quote/upstream/new.ts,success
+2025-12-19T07:44:38.806Z,legion_update_context,review-new-scheduler-design,review-new-scheduler-design,Claude,progress.completed: 完成 Cell 模型和 Dirty Check 流程分析,success
+2025-12-19T07:44:38.854Z,legion_update_context,review-new-scheduler-design,review-new-scheduler-design,Claude,"addDecision: 当前设计不适用于 20,000 products 规模，需要重构数据结构",success
+2025-12-19T07:44:46.448Z,legion_update_tasks,review-new-scheduler-design,review-new-scheduler-design,Claude,completeTask: phase 1,success
+2025-12-19T07:44:46.503Z,legion_update_tasks,review-new-scheduler-design,review-new-scheduler-design,Claude,completeTask: phase 1,success
+2025-12-19T07:44:46.556Z,legion_update_tasks,review-new-scheduler-design,review-new-scheduler-design,Claude,completeTask: phase 1,success
+2025-12-19T07:44:46.612Z,legion_update_tasks,review-new-scheduler-design,review-new-scheduler-design,Claude,completeTask: phase 1,success
+2025-12-19T07:45:22.085Z,legion_update_context,review-new-scheduler-design,review-new-scheduler-design,Claude,handoff: 根据优化建议重构 new.ts，将 cells 数组改为 Map,success
+2025-12-19T07:45:22.137Z,legion_generate_dashboard,review-new-scheduler-design,review-new-scheduler-design,Claude,format: markdown,success
+2025-12-19T08:14:16.862Z,legion_get_status,review-new-scheduler-design,review-new-scheduler-design,Claude,,success
+2025-12-19T08:14:16.925Z,legion_read_context,review-new-scheduler-design,review-new-scheduler-design,Claude,"section: all, includeReviews: true",success
+2025-12-19T08:14:16.978Z,legion_list_reviews,review-new-scheduler-design,review-new-scheduler-design,Claude,"status: open, type: all",success
+2025-12-19T08:16:57.525Z,legion_update_tasks,review-new-scheduler-design,review-new-scheduler-design,Claude,addDiscoveredTask: 补齐正确性语义：request 失败不清 dirty，并引入 backoff/重试策略；仅在响应确实包含对应字段时才清 dirty,success
+2025-12-19T08:17:00.698Z,legion_update_tasks,review-new-scheduler-design,review-new-scheduler-design,Claude,addDiscoveredTask: 服务注册表做快照/版本控制，避免 services 在调度循环中被替换导致的竞态；或改为“单写者”调度线程串行处理所有状态变更,success
+2025-12-19T08:17:04.820Z,legion_update_tasks,review-new-scheduler-design,review-new-scheduler-design,Claude,addDiscoveredTask: 标准化 service_group_id 计算：对 fields 排序/去重后再 join，避免同语义服务被拆成多个 group,success
+2025-12-19T08:17:09.604Z,legion_update_tasks,review-new-scheduler-design,review-new-scheduler-design,Claude,addDiscoveredTask: 调度与执行层对齐：优先复用 apps/virtual-exchange/src/quote/upstream/executor.ts 的 per-group 串行、全局并发限制、in-flight 去重；scheduler 只负责 dirty 合并与 micro-batch,success
+2025-12-19T08:17:13.323Z,legion_update_tasks,review-new-scheduler-design,review-new-scheduler-design,Claude,addDiscoveredTask: 增加回归验证：单测覆盖 route 未命中、request 失败重试语义、services 版本切换一致性；补充基准测试（20k products）并在 CI 中以阈值/趋势方式约束,success
+2025-12-19T08:17:24.919Z,legion_update_context,review-new-scheduler-design,review-new-scheduler-design,Claude,addFile: apps/virtual-exchange/src/quote/upstream/new.ts,success
+2025-12-19T08:17:26.868Z,legion_update_context,review-new-scheduler-design,review-new-scheduler-design,Claude,addFile: apps/virtual-exchange/src/quote/upstream/executor.ts,success
+2025-12-19T08:17:28.822Z,legion_update_context,review-new-scheduler-design,review-new-scheduler-design,Claude,addFile: apps/virtual-exchange/src/quote/service.ts,success
+2025-12-19T08:17:32.906Z,legion_update_context,review-new-scheduler-design,review-new-scheduler-design,Claude,progress.completed: 补充正确性与一致性风险清单，并给出“单写者 + per-group 队列 + micro-batch”落地路线（对齐 executor.ts）,success
+2025-12-19T08:17:38.625Z,legion_update_context,review-new-scheduler-design,review-new-scheduler-design,Claude,addDecision: 调度层采用“单写者 + per-group 串行 runner + micro-batch 入队”模型，并尽量复用 executor.ts 的并发限制与 in-flight 去重；markDirty 不直接触发全量遍历/排序,success
+2025-12-19T08:17:46.328Z,legion_update_context,review-new-scheduler-design,review-new-scheduler-design,Claude,handoff: 明确 dirty 清理语义：成功/失败/route 未命中（失败不清 dirty，并加 backoff；未命中需可观测）,success
+2025-12-19T08:19:21.738Z,legion_get_status,review-new-scheduler-design,review-new-scheduler-design,Claude,,success
+2025-12-19T08:26:54.923Z,legion_list_tasks,review-new-scheduler-design,review-new-scheduler-design,Claude,,success
+2025-12-19T08:26:55.584Z,legion_list_reviews,review-new-scheduler-design,review-new-scheduler-design,Claude,"status: open, type: all",success
+2025-12-19T08:26:56.135Z,legion_list_reviews,task-vex-quote-upstream-refactor,task-vex-quote-upstream-refactor,Claude,"status: open, type: all",success
+2025-12-19T08:30:46.492Z,legion_list_reviews,review-new-scheduler-design,review-new-scheduler-design,Claude,"status: open, type: all",success
+2025-12-19T08:31:06.094Z,legion_respond_review,review-new-scheduler-design,review-new-scheduler-design,Claude,"file: plan.md, reviewId: R1, status: resolved",success
+2025-12-19T08:31:07.696Z,legion_respond_review,review-new-scheduler-design,review-new-scheduler-design,Claude,"file: plan.md, reviewId: R2, status: resolved",success
+2025-12-19T08:31:09.305Z,legion_respond_review,review-new-scheduler-design,review-new-scheduler-design,Claude,"file: plan.md, reviewId: R3, status: resolved",success
+2025-12-19T08:31:10.960Z,legion_respond_review,review-new-scheduler-design,review-new-scheduler-design,Claude,"file: plan.md, reviewId: R4, status: resolved",success
+2025-12-19T08:31:12.837Z,legion_respond_review,review-new-scheduler-design,review-new-scheduler-design,Claude,"file: plan.md, reviewId: R5, status: resolved",success
+2025-12-19T08:31:18.929Z,legion_respond_review,review-new-scheduler-design,review-new-scheduler-design,Claude,"file: plan.md, reviewId: 255, status: resolved",failed
+2025-12-19T08:31:48.447Z,legion_list_reviews,review-new-scheduler-design,review-new-scheduler-design,Claude,"status: open, type: all",success
+2025-12-19T08:31:59.138Z,legion_respond_review,review-new-scheduler-design,review-new-scheduler-design,Claude,"file: plan.md, reviewId: R5, status: resolved",success
+2025-12-19T08:32:02.073Z,legion_list_reviews,review-new-scheduler-design,review-new-scheduler-design,Claude,"status: open, type: all",success
+2025-12-19T08:32:18.082Z,legion_update_context,review-new-scheduler-design,review-new-scheduler-design,Claude,progress.completed: 已闭环 plan.md 内联 review（新增公平调度设计草案、修正风险项措辞与范围，并移除对 upstream 现有实现的引用）,success
+2025-12-19T08:32:56.747Z,legion_list_reviews,review-new-scheduler-design,review-new-scheduler-design,Claude,"status: open, type: all",success
+2025-12-19T10:55:59.494Z,legion_get_status,review-new-scheduler-design,review-new-scheduler-design,Claude,,success
+2025-12-19T10:55:59.535Z,legion_list_reviews,review-new-scheduler-design,review-new-scheduler-design,Claude,"status: open, type: all",success
+2025-12-19T10:55:59.881Z,legion_read_context,review-new-scheduler-design,review-new-scheduler-design,Claude,"section: all, includeReviews: true",success
+2025-12-19T10:56:25.356Z,legion_update_context,review-new-scheduler-design,review-new-scheduler-design,Claude,addFile: apps/virtual-exchange/src/quote/upstream/refine.ts,success
+2025-12-19T10:56:28.439Z,legion_update_context,review-new-scheduler-design,review-new-scheduler-design,Claude,addDecision: 不在 refine.ts 内置侵入式 profiler（计数器/分段耗时/event loop delay），性能定位改用外部 benchmark/采样工具,success
+2025-12-19T10:56:33.970Z,legion_update_context,review-new-scheduler-design,review-new-scheduler-design,Claude,progress.completed: 实现 apps/virtual-exchange/src/quote/upstream/refine.ts：以 per-group FIFO（RR）替代全量 sort/扫描，并按要求移除侵入式 profiler,success
+2025-12-19T10:56:41.206Z,legion_update_context,review-new-scheduler-design,review-new-scheduler-design,Claude,handoff: （如需落地）确认调度器入口处切换到 refine.ts，并用 apps/virtual-exchange/src/quote/benchmark 下的基准测试验证吞吐/延迟,success
+2025-12-19T10:56:47.846Z,legion_update_tasks,review-new-scheduler-design,review-new-scheduler-design,Claude,addDiscoveredTask: （如需落地）确认编排层/入口切换到 refine.ts，并跑 apps/virtual-exchange/src/quote/benchmark 的基准测试验证性能收益,success
+2025-12-19T10:56:50.615Z,legion_archive_task,review-new-scheduler-design,review-new-scheduler-design,Claude,taskId: review-new-scheduler-design,success
+2025-12-19T10:56:53.149Z,legion_get_status,,,Claude,,success
+2025-12-19T11:47:24.910Z,legion_read_context,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,"section: all, includeReviews: true",success
+2025-12-19T11:47:24.917Z,legion_get_status,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,,success
+2025-12-19T11:50:18.304Z,legion_list_reviews,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,"status: open, type: all",success
+2025-12-19T11:51:05.257Z,legion_get_status,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,,success
