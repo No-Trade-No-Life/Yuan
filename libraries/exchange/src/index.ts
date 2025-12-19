@@ -4,6 +4,8 @@ import { IProduct } from '@yuants/data-product';
 import { IResponse, Terminal } from '@yuants/protocol';
 import { JSONSchema7 } from 'json-schema';
 export * from './quote';
+export * from './ohlc';
+export * from './interest_rate';
 export * from './types';
 
 /**

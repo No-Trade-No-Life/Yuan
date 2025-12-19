@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": null,
+  "currentTask": "yuantsexchange-ohlcinterestrate",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -41,6 +41,20 @@
       "status": "archived",
       "createdAt": "2025-12-19T07:42:29.750Z",
       "updatedAt": "2025-12-19T10:56:50.614Z"
+    },
+    {
+      "id": "telegram",
+      "name": "移除 Telegram 遗留代码（前后端）并清理重构命名",
+      "status": "paused",
+      "createdAt": "2025-12-19T13:01:53.394Z",
+      "updatedAt": "2025-12-19T13:45:29.155Z"
+    },
+    {
+      "id": "yuantsexchange-ohlcinterestrate",
+      "name": "@yuants/exchange 增加 OHLC/InterestRate 历史数据写入服务",
+      "status": "active",
+      "createdAt": "2025-12-19T13:45:29.155Z",
+      "updatedAt": "2025-12-19T14:54:41.244Z"
     }
   ],
   "pendingProposals": [
@@ -413,6 +427,169 @@
       "decidedAt": "2025-12-19T07:42:29.750Z",
       "decidedBy": "Claude",
       "createdTaskId": "review-new-scheduler-design"
+    },
+    {
+      "id": "proposal-mjcvo7jl-fdeab2",
+      "name": "移除 Telegram 遗留代码（前后端）并清理重构命名",
+      "goal": "彻底移除前后端 Telegram 相关遗留代码，清理/重构命名，并确保构建与核心功能保持正常。",
+      "rationale": "仓库内存在 Telegram 遗留实现与命名（例如前端 telegram widget 目录、后端相关类型/路由的可能引用），会带来维护成本、误导新开发、以及潜在安全/合规与配置负担；该任务用于系统性清理并通过构建/类型检查验证无残留，降低后续迭代风险。",
+      "points": [
+        "优先删除不可达/无用代码，避免留下空壳引用",
+        "对外兼容策略先写入 `context.md` 再动代码（避免误删关键接口）",
+        "重构改名以“语义真实、边界清晰”为准（不要为了改名而改名）",
+        "每次删除/重构后运行对应的 build/typecheck，减少回归面"
+      ],
+      "scope": [
+        "frontend/src/components/telegram-weidget/**",
+        "backend/src/**（含 type、路由/服务/配置 等）",
+        "项目配置与文档（README/示例 env/PROJECT_DESIGN 等，如涉及）"
+      ],
+      "phases": [
+        {
+          "name": "盘点与影响面确认",
+          "tasks": [
+            {
+              "description": "全仓库检索 `telegram`/`tg`/`bot`/`webhook`/`t.me`/相关环境变量，列出需要删除/替换的文件、路由、组件、类型与配置。",
+              "acceptance": "形成明确的删除/替换清单（文件路径+用途+依赖点），并在 `context.md` 记录风险与回滚点。"
+            },
+            {
+              "description": "确认当前产品需求：Telegram 功能是否完全下线；是否需要保留通用的 OAuth/登录/通知等非 Telegram 能力；对外 API 是否需要向后兼容（保留空实现/返回错误）。",
+              "acceptance": "在 `context.md` 记录约束/决策：哪些能力保留、哪些必须删除、兼容策略（如有）。"
+            }
+          ]
+        },
+        {
+          "name": "后端移除与重构",
+          "tasks": [
+            {
+              "description": "移除后端 Telegram 相关：路由/控制器/服务/队列任务/webhook 处理、类型定义、配置与环境变量读取；同步清理未使用依赖与导出。",
+              "acceptance": "`backend` 中无 Telegram 相关可达代码路径；构建/类型检查通过；启动不再要求 Telegram 相关 env。"
+            },
+            {
+              "description": "如果存在对外 API 或 DB 表字段依赖 Telegram（如 user.telegramId），按决策进行迁移：删除字段/保留但不再使用/兼容返回；更新类型与校验。",
+              "acceptance": "DB/类型/API 一致；无运行时因缺字段/缺类型导致的错误。"
+            },
+            {
+              "description": "重构改名：将历史遗留的 Telegram 命名（变量/类型/文件名）替换为更通用的命名（如 `messaging`/`integration`/`externalAuth`），避免误导。",
+              "acceptance": "后端公开接口/内部模块命名不再含 Telegram 语义（除非明确需要兼容）。"
+            }
+          ]
+        },
+        {
+          "name": "前端移除与重构",
+          "tasks": [
+            {
+              "description": "移除前端 Telegram 相关组件与页面逻辑（例如 `frontend/src/components/telegram-weidget`），以及任何与其耦合的状态、hooks、路由入口与样式资源。",
+              "acceptance": "`frontend` 构建通过；页面不再渲染 Telegram Widget；无死代码/未使用导入。"
+            },
+            {
+              "description": "重构改名：如果现有功能实际是“通用第三方登录/引导”，将 UI 文案与组件命名调整为通用语义；修正明显的拼写遗留（如 `weidget`）。",
+              "acceptance": "前端组件/文件命名与实际功能一致；不再出现 `telegram`/`weidget` 等误导性命名（除非作为迁移兼容层）。"
+            }
+          ]
+        },
+        {
+          "name": "清理、验证与文档",
+          "tasks": [
+            {
+              "description": "清理依赖与配置：移除 Telegram 相关 npm/pnpm 依赖、后端依赖、环境变量示例/README/设计文档中的引用；保证 lint/format 规则不新增噪声。",
+              "acceptance": "依赖树中无 Telegram 专用依赖（如有需要保留需在 `context.md` 说明）；配置与文档无 Telegram 引用。"
+            },
+            {
+              "description": "增加/更新最小验证：后端类型检查/单测（如已有）、前端 build；补充一个“无 Telegram 依赖”检查（如 `rg telegram` 零命中或仅剩变更日志）。",
+              "acceptance": "验证命令全部通过；仓库内不再残留 Telegram 代码（允许历史变更记录/迁移说明）。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2025-12-19T13:01:06.226Z",
+      "status": "approved",
+      "decidedAt": "2025-12-19T13:01:53.394Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "telegram"
+    },
+    {
+      "id": "proposal-mjcx965k-d0047d",
+      "name": "@yuants/exchange 增加 OHLC/InterestRate 历史数据写入服务",
+      "goal": "在 @yuants/exchange 中新增 OHLC 与 InterestRate 历史数据写入服务（schema 元信息可解析、分页拉取、写入 SQL）。",
+      "rationale": "现有历史数据获取在各 vendor 内部存在多套实现（如 createSeriesProvider / QuerySeriesFromTimeBackward + Update 写库），缺少统一的“能力声明 + schema 元信息解析 + 只写库不回传数据”的 SDK 入口；新增 provideOHLCService / provideInterestRateService 可以让 VEX/调度侧按 exchange.md 的规范统一发现能力、驱动分页拉取，并把数据稳定落到 `ohlc`/`interest_rate` 表。",
+      "points": [
+        "参考 `libraries/exchange/src/quote.ts` 的 schema 校验与 metadata 解析模式",
+        "参考 `docs/zh-Hans/code-guidelines/exchange.md` 的“历史数据获取”章节定义翻页元信息（方向/游标类型/Inclusive/Exclusive/页码降级等）",
+        "为 OHLC 定义 `IOHLCServiceMetadata`（含 `product_id_prefix`、RFC3339 `duration_list`、翻页策略 metadata）并提供 `parseOHLCServiceMetadataFromSchema`",
+        "在 `provideOHLCService` 中注册一个写库服务：按请求参数拉取“一页”数据并写入 `ohlc` 表，不通过 API 返回数据本体",
+        "每次写入同时落一条“本次拉取范围”记录（series_id/product_id/start_time/end_time 等），用于后续调度/排障（需要确认表名与 schema，必要时补 migration）",
+        "同样实现 `interest_rate.ts`（`provideInterestRateService` + metadata + schema 解析），逻辑与 OHLC 对齐",
+        "补齐 `libraries/exchange/src/index.ts` 导出并保持命名一致、无 vendor 耦合"
+      ],
+      "scope": [
+        "libraries/exchange/src/ohlc.ts",
+        "libraries/exchange/src/interest_rate.ts",
+        "libraries/exchange/src/index.ts",
+        "docs/zh-Hans/code-guidelines/exchange.md（如需补充接口/元信息说明）",
+        "tools/sql-migration/sql（如需新增“拉取范围记录”表）"
+      ],
+      "phases": [
+        {
+          "name": "调研",
+          "tasks": [
+            {
+              "description": "阅读并总结现有模式：`libraries/exchange/src/quote.ts`（schema->metadata）、`docs/zh-Hans/code-guidelines/exchange.md`（历史数据翻页语义）、以及 vendor 侧历史数据写库实现（如 `apps/vendor-okx/src/utils/provideSeriesFromTimeBackwardService.ts`、`libraries/data-series/src/index.ts`）。",
+              "acceptance": "在 `context.md` 记录：可复用的 schema 校验模式、分页语义要点、以及现有写库方式优缺点（requestSQL vs createSQLWriter/writeToSQL）。"
+            }
+          ]
+        },
+        {
+          "name": "设计",
+          "tasks": [
+            {
+              "description": "设计 `IOHLCServiceMetadata`：`product_id_prefix`、`duration_list`（RFC3339 duration 字符串数组）、以及翻页策略（方向、cursor 类型：time/id/page/none、Inclusive/Exclusive 等）。同时确定 `provideOHLCService` 的请求/响应 schema（响应不含数据本体，但需能携带 next cursor / count 等最小信息以支持调度）。",
+              "acceptance": "在 `context.md` 写清：metadata 类型定义（含翻页 union 结构）、request/response schema 草案、以及与 exchange.md 术语的一一对应关系。"
+            },
+            {
+              "description": "定义并实现 `parseOHLCServiceMetadataFromSchema`：从 terminal service info 的 JSON Schema 中解析 metadata（对 schema 做结构校验，错误码与 `quote.ts` 一致风格）。",
+              "acceptance": "在 `context.md` 写清解析规则与校验点（必填字段、duration_list 来源、翻页策略来源、兼容/扩展策略）。"
+            },
+            {
+              "description": "确认“拉取范围记录”表的落点：是否复用现有表（如 `series_collecting_task` 不适用），还是新增独立表（建议 `history_fetch_log`/`series_fetch_log` 之类）。同步确定记录字段：series_id/product_id/duration?/start_time/end_time/created_at/terminal_id 等。",
+              "acceptance": "输出一个明确决策：表名 + 字段 + conflict key/索引；若需新增 migration，写明文件名与回滚策略。"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "实现 `libraries/exchange/src/ohlc.ts`：提供 `provideOHLCService`（内部用 `createSQLWriter`/`requestSQL` 将每页数据写入 `ohlc`，不回传数据本体；并写入“拉取范围记录”表），以及导出的 metadata/type/parse 函数。",
+              "acceptance": "代码可被 vendor/VEX 调用；请求 schema 能限制 product_id/duration/cursor；服务响应只包含最小调度信息（如 next cursor/count）。"
+            },
+            {
+              "description": "实现 `libraries/exchange/src/interest_rate.ts`：与 OHLC 同结构（metadata + parse + provideInterestRateService），写入 `interest_rate` 表及范围记录表。",
+              "acceptance": "接口命名与结构与 OHLC 一致；写库冲突键正确（series_id+created_at）。"
+            },
+            {
+              "description": "更新 `libraries/exchange/src/index.ts` 导出新增模块，并保持对外 API 一致、无 vendor 假设。",
+              "acceptance": "`@yuants/exchange` 对外可直接 import 新增导出；类型与函数命名清晰。"
+            }
+          ]
+        },
+        {
+          "name": "验证与文档",
+          "tasks": [
+            {
+              "description": "添加最小自测/示例（若仓库有既定方式则按既定）：验证 schema 解析（parseMetadataFromSchema）在典型 schema 上可工作，并验证写库 SQL 的 conflict keys 与字段匹配 `tools/sql-migration/sql/ohlc.sql`/`interest_rate.sql`。必要时补充 `exchange.md` 的接口/metadata 说明。",
+              "acceptance": "本地 typecheck/build 通过；文档或注释说明清楚如何声明能力与如何被 VEX 解析。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2025-12-19T13:45:23.817Z",
+      "status": "approved",
+      "decidedAt": "2025-12-19T13:45:29.155Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "yuantsexchange-ohlcinterestrate"
     }
   ]
 }

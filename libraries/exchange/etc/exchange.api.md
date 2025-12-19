@@ -4,6 +4,8 @@
 
 ```ts
 
+import { IInterestRate } from '@yuants/data-interest-rate';
+import { IOHLC } from '@yuants/data-ohlc';
 import { IOrder } from '@yuants/data-order';
 import { IPosition } from '@yuants/data-account';
 import { IProduct } from '@yuants/data-product';
@@ -55,6 +57,54 @@ export interface IExchange<T = any> {
 }
 
 // @public
+export interface IIngestInterestRateRequest {
+    // (undocumented)
+    direction: SeriesFetchDirection;
+    // (undocumented)
+    limit?: number;
+    // (undocumented)
+    product_id: string;
+    // (undocumented)
+    time: string;
+}
+
+// @public
+export interface IIngestOHLCRequest {
+    // (undocumented)
+    direction: SeriesFetchDirection;
+    // (undocumented)
+    duration: string;
+    // (undocumented)
+    limit?: number;
+    // (undocumented)
+    product_id: string;
+    // (undocumented)
+    time: string;
+}
+
+// @public
+export interface IInterestRateServiceMetadata {
+    // (undocumented)
+    direction: SeriesFetchDirection;
+    // (undocumented)
+    max_items_per_page?: number;
+    // (undocumented)
+    product_id_prefix: string;
+}
+
+// @public
+export interface IOHLCServiceMetadata {
+    // (undocumented)
+    direction: SeriesFetchDirection;
+    // (undocumented)
+    duration_list: string[];
+    // (undocumented)
+    max_items_per_page?: number;
+    // (undocumented)
+    product_id_prefix: string;
+}
+
+// @public
 export type IQuoteField = Exclude<keyof IQuote, 'product_id' | 'updated_at' | 'datasource_id'>;
 
 // @public
@@ -79,6 +129,17 @@ export interface IQuoteServiceRequestByVEX {
 export type IQuoteUpdateAction<K extends IQuoteField = IQuoteField> = Record<string, Partial<Record<K, [value: string, updated_at: number]>>>;
 
 // @public
+export interface ISeriesIngestResult {
+    // (undocumented)
+    range?: {
+        start_time: string;
+        end_time: string;
+    };
+    // (undocumented)
+    wrote_count: number;
+}
+
+// @public
 export const listProducts: (terminal: Terminal, type: string) => Promise<IResponse<IProduct[]>>;
 
 // @public
@@ -87,11 +148,31 @@ export const modifyOrder: <T>(terminal: Terminal, credential: {
     payload: T;
 }, order: IOrder) => Promise<IResponse<void>>;
 
+// @public (undocumented)
+export const parseInterestRateServiceMetadataFromSchema: (schema: any) => IInterestRateServiceMetadata;
+
+// @public (undocumented)
+export const parseOHLCServiceMetadataFromSchema: (schema: any) => IOHLCServiceMetadata;
+
 // @public
 export const parseQuoteServiceMetadataFromSchema: (schema: any) => IQuoteServiceMetadata;
 
 // @public
 export const provideExchangeServices: <T>(terminal: Terminal, exchange: IExchange<T>) => void;
+
+// @public (undocumented)
+export const provideInterestRateService: (terminal: Terminal, metadata: IInterestRateServiceMetadata, fetchPage: (request: IIngestInterestRateRequest & {
+    series_id: string;
+}) => Promise<IInterestRate[]>, serviceOptions?: IServiceOptions) => {
+    dispose: () => void;
+};
+
+// @public (undocumented)
+export const provideOHLCService: (terminal: Terminal, metadata: IOHLCServiceMetadata, fetchPage: (request: IIngestOHLCRequest & {
+    series_id: string;
+}) => Promise<IOHLC[]>, serviceOptions?: IServiceOptions) => {
+    dispose: () => void;
+};
 
 // @public
 export const provideQuoteService: <K extends IQuoteField>(terminal: Terminal, metadata: IQuoteServiceMetadata<K>, requestFunc: (request: IQuoteServiceRequestByVEX) => Promise<(Pick<IQuote, K> & {
@@ -100,6 +181,9 @@ export const provideQuoteService: <K extends IQuoteField>(terminal: Terminal, me
 })[]>, serviceOptions?: IServiceOptions) => {
     dispose: () => void;
 };
+
+// @public
+export type SeriesFetchDirection = 'backward' | 'forward';
 
 // @public
 export const submitOrder: <T>(terminal: Terminal, credential: {
