@@ -218,15 +218,6 @@
 2025-12-19T11:50:18.304Z,legion_list_reviews,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,"status: open, type: all",success
 2025-12-19T11:51:05.257Z,legion_get_status,task-vex-queryquotes-swr,task-vex-queryquotes-swr,Claude,,success
 2025-12-19T12:49:21.766Z,legion_list_tasks,,,Claude,,success
-2025-12-19T13:00:42.624Z,legion_create_task,,,Claude,goal: 彻底移除前后端 Telegram 相关遗留代码，清理/重构命名，并确保构建与核心功能保持正常。,failed
-2025-12-19T13:01:06.226Z,legion_propose_task,,,Claude,name: 移除 Telegram 遗留代码（前后端）并清理重构命名,success
-2025-12-19T13:01:15.318Z,legion_list_proposals,,,Claude,status: pending,success
-2025-12-19T13:01:53.396Z,legion_approve_proposal,telegram,移除 Telegram 遗留代码（前后端）并清理重构命名,Claude,proposalId: proposal-mjcvo7jl-fdeab2,success
-2025-12-19T13:01:56.030Z,legion_switch_task,telegram,移除 Telegram 遗留代码（前后端）并清理重构命名,Claude,taskId: telegram,success
-2025-12-19T13:01:58.441Z,legion_read_context,telegram,移除 Telegram 遗留代码（前后端）并清理重构命名,Claude,"section: all, includeReviews: true",success
-2025-12-19T13:40:23.016Z,legion_get_status,telegram,移除 Telegram 遗留代码（前后端）并清理重构命名,Claude,,success
-2025-12-19T13:40:30.083Z,legion_read_context,telegram,移除 Telegram 遗留代码（前后端）并清理重构命名,Claude,"section: all, includeReviews: true",success
-2025-12-19T13:45:23.818Z,legion_propose_task,telegram,移除 Telegram 遗留代码（前后端）并清理重构命名,Claude,name: @yuants/exchange 增加 OHLC/InterestRate 历史数据写入服务,success
 2025-12-19T13:45:29.157Z,legion_approve_proposal,yuantsexchange-ohlcinterestrate,@yuants/exchange 增加 OHLC/InterestRate 历史数据写入服务,Claude,proposalId: proposal-mjcx965k-d0047d,success
 2025-12-19T13:45:45.362Z,legion_get_status,yuantsexchange-ohlcinterestrate,@yuants/exchange 增加 OHLC/InterestRate 历史数据写入服务,Claude,,success
 2025-12-19T13:45:49.501Z,legion_read_context,yuantsexchange-ohlcinterestrate,@yuants/exchange 增加 OHLC/InterestRate 历史数据写入服务,Claude,"section: all, includeReviews: true",success
