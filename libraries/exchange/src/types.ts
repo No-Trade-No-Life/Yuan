@@ -1,6 +1,21 @@
 import { IQuote } from '@yuants/data-quote';
 
 /**
+ * 历史数据翻页方向
+ * @public
+ */
+export type SeriesFetchDirection = 'backward' | 'forward';
+
+/**
+ * 历史数据写库结果（不返回数据本体）
+ * @public
+ */
+export interface ISeriesIngestResult {
+  wrote_count: number;
+  range?: { start_time: string; end_time: string };
+}
+
+/**
  * Quote 字段类型，排除掉 product_id, updated_at, datasource_id 三个字段
  * @public
  */
