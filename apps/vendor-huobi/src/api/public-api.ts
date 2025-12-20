@@ -136,6 +136,37 @@ export function getSpotTick(params: { symbol: string }): Promise<{
 }
 
 /**
+ * 【现货】获取K线数据
+ *
+ * https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec3ff18-7773-11ed-9966-0242ac110003
+ *
+ * Note: HTX spot KLine uses unix seconds in `data[].id`
+ */
+export function getSpotHistoryKline(params: {
+  symbol: string;
+  period: string;
+  size?: number;
+  from?: number;
+  to?: number;
+}): Promise<{
+  status: string;
+  ch?: string;
+  ts: number;
+  data: {
+    id: number;
+    open: number;
+    close: number;
+    low: number;
+    high: number;
+    vol: number;
+    amount?: number;
+    count?: number;
+  }[];
+}> {
+  return publicRequest('GET', `/market/history/kline`, SPOT_API_ROOT, params);
+}
+
+/**
  * 【通用】批量获取合约资金费率
  *
  * 接口权限: 读取
@@ -297,6 +328,35 @@ export function getSwapHistoricalFundingRate(params: {
   };
 }> {
   return publicRequest('GET', `/linear-swap-api/v1/swap_historical_funding_rate`, SWAP_API_ROOT, params);
+}
+
+/**
+ * 【通用】获取K线数据
+ *
+ * https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb73746-77b5-11ed-9966-0242ac110003
+ */
+export function getSwapHistoryKline(params: {
+  contract_code: string;
+  period: string;
+  size?: number;
+  from?: number;
+  to?: number;
+}): Promise<{
+  status: string;
+  ch?: string;
+  ts: number;
+  data: {
+    id: number;
+    open: number;
+    close: number;
+    low: number;
+    high: number;
+    vol: number;
+    amount?: number;
+    count?: number;
+  }[];
+}> {
+  return publicRequest('GET', `/linear-swap-ex/market/history/kline`, SWAP_API_ROOT, params);
 }
 
 /**

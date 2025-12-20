@@ -1,5 +1,5 @@
-import { rateLimiter } from './rate-limiter';
 import { requestPublic } from './http-client';
+import { rateLimiter } from './rate-limiter';
 
 /**
  * 查询所有的合约信息
@@ -67,13 +67,65 @@ export const getFuturesContracts = (
  */
 export const getFutureFundingRate = (
   settle: string,
-  params: { contract: string; limit?: number },
+  params: { contract: string; limit?: number; from?: number; to?: number; offset?: number },
 ): Promise<
   {
     t: number;
     r: string;
   }[]
 > => requestPublic('GET', `/futures/${settle}/funding_rate`, params);
+
+/**
+ * 合约市场 K 线图
+ *
+ * https://www.gate.com/docs/developers/apiv4/zh_CN/#%E5%90%88%E7%BA%A6%E5%B8%82%E5%9C%BA-k-%E7%BA%BF%E5%9B%BE
+ */
+export const getFuturesCandlesticks = (
+  settle: string,
+  params: {
+    contract: string;
+    interval: string;
+    from?: number;
+    to?: number;
+    limit?: number;
+  },
+): Promise<
+  Array<{
+    /** Unix second */
+    t: number;
+    /** Open */
+    o: string;
+    /** High */
+    h: string;
+    /** Low */
+    l: string;
+    /** Close */
+    c: string;
+    /** Volume */
+    v: string;
+  }>
+> => requestPublic('GET', `/futures/${settle}/candlesticks`, params);
+
+/**
+ * 市场 K 线图
+ *
+ * https://www.gate.com/docs/developers/apiv4/zh_CN/#%E5%B8%82%E5%9C%BA-k-%E7%BA%BF%E5%9B%BE
+ */
+export const getSpotCandlesticks = (params: {
+  currency_pair: string;
+  interval: string;
+  from?: number;
+  to?: number;
+  limit?: number;
+}): Promise<
+  Array<
+    /**
+     * [t, v, c, h, l, o]
+     * - t: Unix second
+     */
+    [string, string, string, string, string, string]
+  >
+> => requestPublic('GET', `/spot/candlesticks`, params);
 
 /**
  * 查询合约市场深度信息

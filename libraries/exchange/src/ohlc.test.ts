@@ -9,7 +9,7 @@ describe('parseOHLCServiceMetadataFromSchema', () => {
         product_id: { type: 'string', pattern: '^BINANCE/USDT-FUTURE' },
         duration: { type: 'string', enum: ['PT1M', 'PT5M'] },
         direction: { const: 'backward' },
-        time: { type: 'string', format: 'date-time' },
+        time: { type: 'number' },
       },
     };
 

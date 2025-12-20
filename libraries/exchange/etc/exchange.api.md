@@ -61,11 +61,9 @@ export interface IIngestInterestRateRequest {
     // (undocumented)
     direction: SeriesFetchDirection;
     // (undocumented)
-    limit?: number;
-    // (undocumented)
     product_id: string;
     // (undocumented)
-    time: string;
+    time: number;
 }
 
 // @public
@@ -75,11 +73,9 @@ export interface IIngestOHLCRequest {
     // (undocumented)
     duration: string;
     // (undocumented)
-    limit?: number;
-    // (undocumented)
     product_id: string;
     // (undocumented)
-    time: string;
+    time: number;
 }
 
 // @public

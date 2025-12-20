@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "telegram",
+  "currentTask": "vendors-ingest-ohlc-interest-rate",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -45,16 +45,23 @@
     {
       "id": "telegram",
       "name": "移除 Telegram 遗留代码（前后端）并清理重构命名",
-      "status": "active",
+      "status": "paused",
       "createdAt": "2025-12-19T13:01:53.394Z",
-      "updatedAt": "2025-12-20T05:15:36.917Z"
+      "updatedAt": "2025-12-20T06:17:22.445Z"
     },
     {
       "id": "yuantsexchange-ohlcinterestrate",
       "name": "@yuants/exchange 增加 OHLC/InterestRate 历史数据写入服务",
       "status": "paused",
       "createdAt": "2025-12-19T13:45:29.155Z",
-      "updatedAt": "2025-12-20T05:21:05.473Z"
+      "updatedAt": "2025-12-20T12:35:10.773Z"
+    },
+    {
+      "id": "vendors-ingest-ohlc-interest-rate",
+      "name": "vendors-ingest-ohlc-interest-rate",
+      "status": "active",
+      "createdAt": "2025-12-20T06:17:22.445Z",
+      "updatedAt": "2025-12-20T14:41:52.070Z"
     }
   ],
   "pendingProposals": [
@@ -590,6 +597,90 @@
       "decidedAt": "2025-12-19T13:45:29.155Z",
       "decidedBy": "Claude",
       "createdTaskId": "yuantsexchange-ohlcinterestrate"
+    },
+    {
+      "id": "proposal-mjdworxq-9b3610",
+      "name": "vendors-ingest-ohlc-interest-rate",
+      "goal": "在各 vendor 中新增基于 `@yuants/exchange` 的 `IngestOHLC` / `IngestInterestRate` 写库服务（`provideOHLCService` / `provideInterestRateService`），供 VEX 统一调度历史数据。",
+      "rationale": "当前各 vendor 多为 `@yuants/data-series` 的 `createSeriesProvider` 风格，接口不统一且部分直接写库；而 `yuantsexchange-ohlcinterestrate` 已在 `@yuants/exchange` 收敛了历史数据写库服务的统一 contract（`product_id + time + direction` + schema->metadata 解析 + `series_data_range` 记录）。需要把各 vendor 的历史数据拉取能力适配到该 contract，便于 VEX 发现能力并按 metadata 路由/调度。",
+      "points": [
+        "以 `yuantsexchange-ohlcinterestrate` 的接口语义为准：request 必含 `time` + `direction`，服务返回 `wrote_count + range`，不回传数据本体",
+        "各 vendor 的实现参考其 `src/services/quotes.ts` 的组织方式：`Terminal.fromNodeEnv()` + 顶层注册多个 service",
+        "优先复用现有 vendor 的历史数据实现/映射（如 OKX/BINANCE 的 `public-data/*`、BITGET/HYPERLIQUID 的 `services/markets/*`）来实现 `fetchPage`",
+        "明确每个 vendor 支持的 `product_id_prefix`、OHLC `duration_list`、以及 `direction`（必要时同一 vendor 提供多个 prefix/方向的 service）",
+        "对仅支持“页码翻页/单页”的交易所（如 BITGET/HTX/GATE 的资金费率历史）先输出清晰决策：桥接到 `time` 语义或暂不接入本次 ingest contract"
+      ],
+      "scope": [
+        "libraries/exchange/src/ohlc.ts（接口参考）",
+        "libraries/exchange/src/interest_rate.ts（接口参考）",
+        "apps/vendor-aster/src/services/ohlc-service.ts（新增）",
+        "apps/vendor-aster/src/services/interest-rate-service.ts（新增）",
+        "apps/vendor-binance/src/services/ohlc-service.ts（新增）",
+        "apps/vendor-binance/src/services/interest-rate-service.ts（新增）",
+        "apps/vendor-bitget/src/services/ohlc-service.ts（新增）",
+        "apps/vendor-bitget/src/services/interest-rate-service.ts（新增）",
+        "apps/vendor-gate/src/services/ohlc-service.ts（新增）",
+        "apps/vendor-gate/src/services/interest-rate-service.ts（新增）",
+        "apps/vendor-huobi/src/services/ohlc-service.ts（新增）",
+        "apps/vendor-huobi/src/services/interest-rate-service.ts（新增）",
+        "apps/vendor-hyperliquid/src/services/ohlc-service.ts（新增）",
+        "apps/vendor-hyperliquid/src/services/interest-rate-service.ts（新增）",
+        "apps/vendor-okx/src/services/ohlc-service.ts（新增）",
+        "apps/vendor-okx/src/services/interest-rate-service.ts（新增）",
+        "apps/vendor-*/src/api/*（如需补齐 OHLC/利率历史接口 wrapper）"
+      ],
+      "phases": [
+        {
+          "name": "调研",
+          "tasks": [
+            {
+              "description": "阅读并总结 `yuantsexchange-ohlcinterestrate` 的接口约定，并对照代码确认 `provideOHLCService` / `provideInterestRateService` 的 request/metadata/schema 细节（time+direction、duration enum、product_id_prefix pattern、range 计算与写库表）。",
+              "acceptance": "在 task `context.md` 写清：两个 service 的 schema/metadata 字段含义、series_id 编码规则、以及 vendor 实现时需要满足的输入输出约束。"
+            },
+            {
+              "description": "逐个 vendor（ASTER/BINANCE/BITGET/GATE/HTX/HYPERLIQUID/OKX）盘点现有历史数据实现与可复用函数：已存在的 duration 映射、分页方式（time/endTime/startTime/page/one-page）、以及当前 product_id 编码约定。",
+              "acceptance": "在 `context.md` 记录每个 vendor：OHLC/InterestRate 是否已有 API wrapper、可复用的映射表、推荐的 direction（forward/backward）、以及需要补齐的缺口。"
+            }
+          ]
+        },
+        {
+          "name": "设计",
+          "tasks": [
+            {
+              "description": "为每个 vendor 输出一份“能力矩阵”：要注册哪些 `provideOHLCService`/`provideInterestRateService`（按 product_id_prefix 划分），各自 `direction` 选择、OHLC 的 `duration_list`、以及 `fetchPage` 如何把 `time` 映射到交易所参数（after/endTime/startTime/cursor）。",
+              "acceptance": "在 `context.md` 给出最终矩阵与关键决策（包含 page-only/one-page 的处理策略），并列出每个 vendor 预计新增/修改的文件清单。"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "在各 vendor 的 `src/services/` 新增 `ohlc-service.ts` 与 `interest-rate-service.ts`，参考 `quotes.ts` 的结构注册服务，并用 vendor API 实现 `fetchPage`（含 duration 映射、decodePath(product_id) 路由、limit/time/direction 参数处理）。",
+              "acceptance": "每个 vendor 启动后能注册对应的 `IngestOHLC`/`IngestInterestRate` 服务；schema 的 `product_id` pattern、OHLC `duration` enum、`direction const` 与设计一致。"
+            },
+            {
+              "description": "对缺失的交易所接口 wrapper（如 ASTER/GATE/HTX 的 OHLC 端点或缺少的参数）补齐 `src/api/*`，并复用仓库现有 http-client/rate-limiter 模式。",
+              "acceptance": "`fetchPage` 不再包含临时代码/硬编码 URL；API wrapper 有类型定义且可复用。"
+            }
+          ]
+        },
+        {
+          "name": "验证",
+          "tasks": [
+            {
+              "description": "本地做最小验证：TypeScript typecheck/build；并用脚本/小段调用验证服务注册的 schema 可被 `parseOHLCServiceMetadataFromSchema`/`parseInterestRateServiceMetadataFromSchema` 正确解析（至少覆盖一个 vendor 的典型 schema）。",
+              "acceptance": "`pnpm/rush` 的 typecheck/build 通过；记录一份“如何手工验证服务注册”的步骤到 `context.md` 快速交接。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2025-12-20T06:17:18.446Z",
+      "status": "approved",
+      "decidedAt": "2025-12-20T06:17:22.445Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "vendors-ingest-ohlc-interest-rate"
     }
   ]
 }

@@ -9,7 +9,7 @@ const request = async <T>(
   method: string,
   baseUrl: string,
   endpoint: string,
-  params: any = {},
+  params: Record<string, unknown> = {},
 ): Promise<T> => {
   const url = new URL(baseUrl);
   url.pathname = endpoint;
@@ -20,18 +20,20 @@ const request = async <T>(
 
   console.info(url.toString());
   MetricsAsterApiCallCounter.labels({ path: url.pathname, terminal_id: terminal.terminal_id }).inc();
-  const res = await fetch(url.toString(), {
+  const res = (await fetch(url.toString(), {
     method,
-  }).then((response) => response.json());
-  if (res.code && res.code !== 0) {
+  }).then((response) => response.json())) as unknown;
+
+  const maybeError = res as { code?: number };
+  if (typeof maybeError.code === 'number' && maybeError.code !== 0) {
     throw JSON.stringify(res);
   }
-  return res;
+  return res as T;
 };
 
 const createApi =
   (baseUrl: string) =>
-  <TReq, TRes>(method: string, endpoint: string) =>
+  <TReq extends Record<string, unknown>, TRes>(method: string, endpoint: string) =>
   (params: TReq) =>
     request<TRes>(method, baseUrl, endpoint, params);
 
@@ -76,7 +78,7 @@ export interface IAsterExchangeInfo {
     quotePrecision: number;
     filters: {
       filterType: string;
-      [key: string]: any;
+      [key: string]: unknown;
     }[];
   }[];
   rateLimits?: IAsterRateLimit[];
@@ -87,14 +89,20 @@ export interface IAsterExchangeInfo {
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#%E4%BA%A4%E6%98%93%E5%AF%B9%E4%BF%A1%E6%81%AF
  */
-export const getFApiV1ExchangeInfo = createFutureApi<{}, IAsterExchangeInfo>('GET', '/fapi/v1/exchangeInfo');
+export const getFApiV1ExchangeInfo = createFutureApi<Record<string, never>, IAsterExchangeInfo>(
+  'GET',
+  '/fapi/v1/exchangeInfo',
+);
 
 /**
  * 获取现货交易对信息
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-spot-api_CN.md#L1080-L1145
  */
-export const getApiV1ExchangeInfo = createSpotApi<{}, IAsterExchangeInfo>('GET', '/api/v1/exchangeInfo');
+export const getApiV1ExchangeInfo = createSpotApi<Record<string, never>, IAsterExchangeInfo>(
+  'GET',
+  '/api/v1/exchangeInfo',
+);
 
 /**
  * 获取未平仓合约数量
@@ -118,7 +126,7 @@ export const getFApiV1OpenInterest = createFutureApi<
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#%E6%9C%80%E6%96%B0%E4%BB%B7%E6%A0%BC
  */
 export const getFApiV1TickerPrice = createFutureApi<
-  {},
+  Record<string, never>,
   {
     symbol: string;
     price: string;
@@ -155,3 +163,53 @@ export const getFApiV1PremiumIndex = createFutureApi<
       time: number; // 更新时间
     }[]
 >('GET', '/fapi/v1/premiumIndex');
+
+export interface IAsterKline extends Array<string | number> {
+  0: number; // Open time
+  1: string; // Open
+  2: string; // High
+  3: string; // Low
+  4: string; // Close
+  5: string; // Volume
+  6: number; // Close time
+  7: string; // Quote asset volume
+  8: number; // Number of trades
+  9: string; // Taker buy base asset volume
+  10: string; // Taker buy quote asset volume
+  11: string; // Ignore
+}
+
+/**
+ * 获取 K 线
+ *
+ * 参考 Binance 风格接口：/fapi/v1/klines
+ * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#k%E7%BA%BF%E6%95%B0%E6%8D%AE
+ */
+export const getFApiV1Klines = createFutureApi<
+  {
+    symbol: string;
+    interval: string;
+    startTime?: number;
+    endTime?: number;
+    limit?: number;
+  },
+  IAsterKline[]
+>('GET', '/fapi/v1/klines');
+
+/**
+ * 获取现货 K 线
+ *
+ * 参考 Binance 风格接口：/api/v1/klines
+ *
+ * https://github.com/asterdex/api-docs/blob/master/aster-finance-spot-api_CN.md
+ */
+export const getApiV1Klines = createSpotApi<
+  {
+    symbol: string;
+    interval: string;
+    startTime?: number;
+    endTime?: number;
+    limit?: number;
+  },
+  IAsterKline[]
+>('GET', '/api/v1/klines');

@@ -2,7 +2,7 @@ import { IOHLC } from '@yuants/data-ohlc';
 import { IServiceOptions, Terminal } from '@yuants/protocol';
 import { createValidator } from '@yuants/protocol/lib/schema';
 import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
-import { encodePath } from '@yuants/utils';
+import { encodePath, formatTime } from '@yuants/utils';
 import { newError } from '../../utils/lib';
 import { ISeriesIngestResult, SeriesFetchDirection } from './types';
 
@@ -23,9 +23,8 @@ export interface IOHLCServiceMetadata {
 export interface IIngestOHLCRequest {
   product_id: string;
   duration: string;
-  limit?: number;
   direction: SeriesFetchDirection;
-  time: string;
+  time: number;
 }
 
 const schemaValidator = createValidator({
@@ -63,10 +62,9 @@ const schemaValidator = createValidator({
         },
         time: {
           type: 'object',
-          required: ['type', 'format'],
+          required: ['type'],
           properties: {
-            type: { type: 'string', const: 'string' },
-            format: { type: 'string', const: 'date-time' },
+            type: { type: 'string', const: 'number' },
           },
         },
       },
@@ -148,7 +146,7 @@ export const provideOHLCService = (
         product_id: { type: 'string', pattern: `^${metadata.product_id_prefix}` },
         duration: { type: 'string', enum: metadata.duration_list },
         direction: { const: metadata.direction },
-        time: { type: 'string', format: 'date-time' },
+        time: { type: 'number' },
       },
     },
     async (msg) => {
@@ -156,6 +154,16 @@ export const provideOHLCService = (
         const series_id = encodePath(msg.req.product_id, msg.req.duration);
 
         const items = await fetchPage({ ...msg.req, series_id });
+
+        console.info(
+          formatTime(Date.now()),
+          'IngestOHLC',
+          msg.req.product_id,
+          msg.req.duration,
+          'fetched',
+          items.length,
+          'bars',
+        );
 
         const normalized: IOHLC[] = items.map((x) => ({
           ...x,
@@ -201,6 +209,7 @@ export const provideOHLCService = (
         return { res: { code: 0, message: 'OK', data: { wrote_count: normalized.length, range } } };
       } catch (error) {
         const message = error instanceof Error ? error.message : `${error}`;
+        console.error(formatTime(Date.now()), 'IngestOHLC error:', error);
         return { res: { code: 1, message } };
       }
     },

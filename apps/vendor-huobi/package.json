@@ -14,6 +14,7 @@
     "@yuants/protocol": "workspace:*",
     "@yuants/data-account": "workspace:*",
     "@yuants/data-order": "workspace:*",
+    "@yuants/data-ohlc": "workspace:*",
     "@yuants/transfer": "workspace:*",
     "@yuants/utils": "workspace:*",
     "@yuants/cache": "workspace:*",

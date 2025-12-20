@@ -61,12 +61,12 @@
 
 > [REVIEW:blocking] 这里改一下设计，不要分类了，只要用一个 time + direction 就可以表达，不需要 id/page/none 这些类型了
 >
-> [RESPONSE] 已按你的要求把分页模型收敛为“只有 time + direction”：删除 id/page/none 等分类与对应 schema 建模；请求统一为 `direction`（schema const）+ 必传 `time`（date-time），调度推进只依赖响应 `range`。
+> [RESPONSE] 已按你的要求把分页模型收敛为“只有 time + direction”：删除 id/page/none 等分类与对应 schema 建模；请求统一为 `direction`（schema const）+ 必传 `time`（毫秒时间戳 number），调度推进只依赖响应 `range`。
 > [STATUS:resolved]
 
 - `direction`：`backward`（向过去翻页）/ `forward`（向未来翻页）
   - 在 schema 中会固定为 `const`（每个 service 只支持一种方向），用于能力发现与路由分组
-- `time`：必传 RFC3339 `date-time`
+- `time`：必传 `number`（毫秒级 Unix 时间戳）
   - `backward`：`time` 在语义上相当于 `ended_at`
   - `forward`：`time` 在语义上相当于 `started_at`
 
@@ -83,7 +83,7 @@
 ```ts
 export interface IHistoryTimePaging {
   direction: 'backward' | 'forward';
-  time: string; // RFC3339 date-time
+  time: number; // 毫秒级 Unix 时间戳
 }
 ```
 
@@ -97,8 +97,8 @@ export interface IHistoryTimePaging {
 - 本设计不再单独引入 “pagination metadata vs cursor” 两套结构：只保留请求的 `time+direction`，并把 `direction` 固定在 schema 中（`const`），让 VEX 能从 schema 确定服务的翻页方向。
 - 本设计不再建模 `inclusive/exclusive`：写库以 `PRIMARY KEY (series_id, created_at)` 去重，允许调度推进时产生少量重叠；重叠会被 upsert/冲突键自然吞掉。
 - 调度推进策略（仅依赖响应中的 `range`）：
-  - `direction=backward`：下一页 `time = range.start_time`
-  - `direction=forward`：下一页 `time = range.end_time`
+  - `direction=backward`：下一页 `time = Date.parse(range.start_time)`
+  - `direction=forward`：下一页 `time = Date.parse(range.end_time)`
   - 若 `wrote_count === 0` 或 `range` 缺失：认为到达边界（没有更多数据）
 
 ### 3) 服务响应（最小调度信息）
@@ -168,8 +168,7 @@ export interface IIngestOHLCRequest {
   product_id: string;
   duration: string; // enum = metadata.duration_list
   direction: 'backward' | 'forward'; // const = metadata.direction
-  time: string; // RFC3339 date-time
-  limit?: number; // 可选：允许调度侧下发单页条数（不保证所有 vendor 支持）
+  time: number; // 毫秒级 Unix 时间戳
 }
 
 export type IIngestOHLCResponse = IHistoryIngestResult;
@@ -182,7 +181,7 @@ export type IIngestOHLCResponse = IHistoryIngestResult;
 - `product_id`：`{ type: 'string', pattern: '^' + metadata.product_id_prefix }`
 - `duration`：`{ type: 'string', enum: metadata.duration_list }`
 - `direction`：`{ const: metadata.direction }`（用于能力发现与路由分组）
-- `time`：`{ type: 'string', format: 'date-time' }`（必传）
+- `time`：`{ type: 'number' }`（必传，毫秒级 Unix 时间戳）
 
 ```ts
 {
@@ -192,8 +191,7 @@ export type IIngestOHLCResponse = IHistoryIngestResult;
     product_id: { type: 'string', pattern: `^${metadata.product_id_prefix}` },
     duration: { type: 'string', enum: metadata.duration_list },
     direction: { const: metadata.direction },
-    time: { type: 'string', format: 'date-time' },
-    limit: { type: 'number' },
+    time: { type: 'number' },
   },
 }
 ```
@@ -297,4 +295,4 @@ export type IIngestOHLCResponse = IHistoryIngestResult;
 
 ---
 
-_创建于: 2025-12-19 | 最后更新: 2025-12-19_
+_创建于: 2025-12-19 | 最后更新: 2025-12-20_
