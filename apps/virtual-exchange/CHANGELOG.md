@@ -1,6 +1,14 @@
 # Change Log - @yuants/app-virtual-exchange
 
-This log was last generated on Thu, 18 Dec 2025 14:19:05 GMT and should not be manually modified.
+This log was last generated on Sat, 20 Dec 2025 07:03:37 GMT and should not be manually modified.
+
+## 0.11.3
+Sat, 20 Dec 2025 07:03:37 GMT
+
+### Patches
+
+- refactor
+- implement quote scheduler and refactor quote service
 
 ## 0.11.2
 Thu, 18 Dec 2025 14:19:05 GMT
