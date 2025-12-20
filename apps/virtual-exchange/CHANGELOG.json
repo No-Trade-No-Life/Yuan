@@ -2,6 +2,31 @@
   "name": "@yuants/app-virtual-exchange",
   "entries": [
     {
+      "version": "0.11.3",
+      "tag": "@yuants/app-virtual-exchange_v0.11.3",
+      "date": "Sat, 20 Dec 2025 07:03:37 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor"
+          },
+          {
+            "comment": "implement quote scheduler and refactor quote service"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.11.2",
       "tag": "@yuants/app-virtual-exchange_v0.11.2",
       "date": "Thu, 18 Dec 2025 14:19:05 GMT",
