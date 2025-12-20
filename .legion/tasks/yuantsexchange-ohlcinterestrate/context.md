@@ -10,14 +10,16 @@
 - 已实现：`provideOHLCService`/`provideInterestRateService`（写主表 + 写 `series_data_range`），并完成 `series_data_range` 的 SQL migration
 - 已将历史分页公共类型抽到 `libraries/exchange/src/types.ts`，避免 re-export 冲突
 - 已闭环全部 Review（含新增 direction/time 必传）
+- 已新增 `parseMetadataFromSchema` 单元测试：`libraries/exchange/src/parseMetadataFromSchema.test.ts`（覆盖 quote/ohlc/interest_rate 的 parse 函数正常/异常路径）
+- 已按要求把 `parseMetadataFromSchema` 测试拆成 3 个文件：`libraries/exchange/src/quote.test.ts`、`libraries/exchange/src/ohlc.test.ts`、`libraries/exchange/src/interest_rate.test.ts`
 
 ### 🟡 进行中
 
-- 阶段 4：验证与文档（当前环境缺少 `pnpm`，暂无法运行 `@yuants/exchange` build/typecheck）
+- 等待在具备工具链的环境运行 `@yuants/exchange` 的 jest/typecheck 验证
 
 ### ⚠️ 阻塞/待定
 
-- `pnpm` 命令不可用（`command not found: pnpm`）；`install-run-rush.js` 尝试安装 Rush 时 `spawnSync /bin/sh EPERM`，导致无法在本环境执行标准构建流程
+- 当前环境仍缺少 `pnpm` 且 Rush 安装受限，无法本地执行测试
 
 ---
 

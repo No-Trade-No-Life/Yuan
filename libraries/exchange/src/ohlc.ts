@@ -14,7 +14,6 @@ export interface IOHLCServiceMetadata {
   product_id_prefix: string;
   duration_list: string[];
   direction: SeriesFetchDirection;
-  max_items_per_page?: number;
 }
 
 /**
@@ -150,9 +149,6 @@ export const provideOHLCService = (
         duration: { type: 'string', enum: metadata.duration_list },
         direction: { const: metadata.direction },
         time: { type: 'string', format: 'date-time' },
-        limit: metadata.max_items_per_page
-          ? { type: 'number', maximum: metadata.max_items_per_page }
-          : { type: 'number' },
       },
     },
     async (msg) => {

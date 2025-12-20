@@ -87,8 +87,6 @@ export interface IInterestRateServiceMetadata {
     // (undocumented)
     direction: SeriesFetchDirection;
     // (undocumented)
-    max_items_per_page?: number;
-    // (undocumented)
     product_id_prefix: string;
 }
 
@@ -98,8 +96,6 @@ export interface IOHLCServiceMetadata {
     direction: SeriesFetchDirection;
     // (undocumented)
     duration_list: string[];
-    // (undocumented)
-    max_items_per_page?: number;
     // (undocumented)
     product_id_prefix: string;
 }

@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "yuantsexchange-ohlcinterestrate",
+  "currentTask": "telegram",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -45,16 +45,16 @@
     {
       "id": "telegram",
       "name": "移除 Telegram 遗留代码（前后端）并清理重构命名",
-      "status": "paused",
+      "status": "active",
       "createdAt": "2025-12-19T13:01:53.394Z",
-      "updatedAt": "2025-12-19T13:45:29.155Z"
+      "updatedAt": "2025-12-20T05:15:36.917Z"
     },
     {
       "id": "yuantsexchange-ohlcinterestrate",
       "name": "@yuants/exchange 增加 OHLC/InterestRate 历史数据写入服务",
-      "status": "active",
+      "status": "paused",
       "createdAt": "2025-12-19T13:45:29.155Z",
-      "updatedAt": "2025-12-19T14:54:41.244Z"
+      "updatedAt": "2025-12-20T05:21:05.473Z"
     }
   ],
   "pendingProposals": [

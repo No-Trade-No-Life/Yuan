@@ -269,3 +269,14 @@
 2025-12-19T14:54:27.159Z,legion_update_context,yuantsexchange-ohlcinterestrate,@yuants/exchange 增加 OHLC/InterestRate 历史数据写入服务,Claude,addFile: libraries/exchange/src/index.ts,success
 2025-12-19T14:54:30.192Z,legion_update_context,yuantsexchange-ohlcinterestrate,@yuants/exchange 增加 OHLC/InterestRate 历史数据写入服务,Claude,addFile: tools/sql-migration/sql/series_data_range.sql,success
 2025-12-19T14:54:41.245Z,legion_update_context,yuantsexchange-ohlcinterestrate,@yuants/exchange 增加 OHLC/InterestRate 历史数据写入服务,Claude,progress.completed: 已实现：`provideOHLCService`/`provideInterestRateService`（写主表 + 写 `series_data_range`），并完成 `series_data_range` 的 SQL migration,success
+2025-12-20T04:45:19.027Z,legion_list_reviews,telegram,移除 Telegram 遗留代码（前后端）并清理重构命名,Claude,"status: open, type: all",success
+2025-12-20T05:08:28.087Z,legion_list_reviews,telegram,移除 Telegram 遗留代码（前后端）并清理重构命名,Claude,"status: open, type: all",success
+2025-12-20T05:15:25.177Z,legion_list_reviews,telegram,移除 Telegram 遗留代码（前后端）并清理重构命名,Claude,status: open,success
+2025-12-20T05:15:32.486Z,legion_list_tasks,yuantsexchange-ohlcinterestrate,@yuants/exchange 增加 OHLC/InterestRate 历史数据写入服务,Claude,,success
+2025-12-20T05:15:36.919Z,legion_switch_task,telegram,移除 Telegram 遗留代码（前后端）并清理重构命名,Claude,taskId: telegram,success
+2025-12-20T05:15:39.111Z,legion_list_reviews,telegram,移除 Telegram 遗留代码（前后端）并清理重构命名,Claude,status: open,success
+2025-12-20T05:16:04.659Z,legion_read_context,telegram,移除 Telegram 遗留代码（前后端）并清理重构命名,Claude,"section: all, includeReviews: true",success
+2025-12-20T05:16:49.764Z,legion_get_status,telegram,移除 Telegram 遗留代码（前后端）并清理重构命名,Claude,,success
+2025-12-20T05:19:15.720Z,legion_update_context,yuantsexchange-ohlcinterestrate,@yuants/exchange 增加 OHLC/InterestRate 历史数据写入服务,Claude,addFile: libraries/exchange/src/parseMetadataFromSchema.test.ts,success
+2025-12-20T05:19:23.411Z,legion_update_context,yuantsexchange-ohlcinterestrate,@yuants/exchange 增加 OHLC/InterestRate 历史数据写入服务,Claude,progress.completed: 已新增 `parseMetadataFromSchema` 单元测试：`libraries/exchange/src/parseMetadataFromSchema.test.ts`（覆盖 quote/ohlc/interest_rate 的 parse 函数正常/异常路径）,success
+2025-12-20T05:21:05.475Z,legion_update_context,yuantsexchange-ohlcinterestrate,@yuants/exchange 增加 OHLC/InterestRate 历史数据写入服务,Claude,progress.completed: 已按要求把 `parseMetadataFromSchema` 测试拆成 3 个文件：`libraries/exchange/src/quote.test.ts`、`libraries/exchange/src/ohlc.test.ts`、`libraries/exchange/src/interest_rate.te,success

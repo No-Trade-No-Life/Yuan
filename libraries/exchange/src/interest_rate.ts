@@ -13,7 +13,6 @@ import { ISeriesIngestResult, SeriesFetchDirection } from './types';
 export interface IInterestRateServiceMetadata {
   product_id_prefix: string;
   direction: SeriesFetchDirection;
-  max_items_per_page?: number;
 }
 
 /**
@@ -130,9 +129,6 @@ export const provideInterestRateService = (
         product_id: { type: 'string', pattern: `^${metadata.product_id_prefix}` },
         direction: { const: metadata.direction },
         time: { type: 'string', format: 'date-time' },
-        limit: metadata.max_items_per_page
-          ? { type: 'number', maximum: metadata.max_items_per_page }
-          : { type: 'number' },
       },
     },
     async (msg) => {
