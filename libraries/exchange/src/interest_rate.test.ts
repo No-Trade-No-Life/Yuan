@@ -8,7 +8,7 @@ describe('parseInterestRateServiceMetadataFromSchema', () => {
       properties: {
         product_id: { type: 'string', pattern: '^BINANCE/' },
         direction: { const: 'forward' },
-        time: { type: 'string', format: 'date-time' },
+        time: { type: 'number' },
       },
     };
 

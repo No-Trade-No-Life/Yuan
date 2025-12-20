@@ -12,6 +12,7 @@
 - 已闭环全部 Review（含新增 direction/time 必传）
 - 已新增 `parseMetadataFromSchema` 单元测试：`libraries/exchange/src/parseMetadataFromSchema.test.ts`（覆盖 quote/ohlc/interest_rate 的 parse 函数正常/异常路径）
 - 已按要求把 `parseMetadataFromSchema` 测试拆成 3 个文件：`libraries/exchange/src/quote.test.ts`、`libraries/exchange/src/ohlc.test.ts`、`libraries/exchange/src/interest_rate.test.ts`
+- 同步接口变更：`IIngestOHLCRequest.time` / `IIngestInterestRateRequest.time` 改为毫秒级 `number`；已更新本任务 `plan.md` 中的 TS 类型、JSON Schema 与调度推进规则描述。
 
 ### 🟡 进行中
 

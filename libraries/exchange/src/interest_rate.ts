@@ -21,9 +21,8 @@ export interface IInterestRateServiceMetadata {
  */
 export interface IIngestInterestRateRequest {
   product_id: string;
-  limit?: number;
   direction: SeriesFetchDirection;
-  time: string;
+  time: number;
 }
 
 const schemaValidator = createValidator({
@@ -53,10 +52,9 @@ const schemaValidator = createValidator({
         },
         time: {
           type: 'object',
-          required: ['type', 'format'],
+          required: ['type'],
           properties: {
-            type: { type: 'string', const: 'string' },
-            format: { type: 'string', const: 'date-time' },
+            type: { type: 'string', const: 'number' },
           },
         },
       },
@@ -128,7 +126,7 @@ export const provideInterestRateService = (
       properties: {
         product_id: { type: 'string', pattern: `^${metadata.product_id_prefix}` },
         direction: { const: metadata.direction },
-        time: { type: 'string', format: 'date-time' },
+        time: { type: 'number' },
       },
     },
     async (msg) => {
