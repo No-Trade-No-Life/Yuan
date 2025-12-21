@@ -1,6 +1,13 @@
 # Change Log - @yuants/exchange
 
-This log was last generated on Sat, 20 Dec 2025 07:03:37 GMT and should not be manually modified.
+This log was last generated on Sun, 21 Dec 2025 04:56:52 GMT and should not be manually modified.
+
+## 0.8.1
+Sun, 21 Dec 2025 04:56:52 GMT
+
+### Patches
+
+- fix bugs
 
 ## 0.8.0
 Sat, 20 Dec 2025 07:03:37 GMT
