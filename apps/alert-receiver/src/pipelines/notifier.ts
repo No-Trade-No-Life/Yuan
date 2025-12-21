@@ -18,8 +18,9 @@ import {
 } from 'rxjs';
 import { renderAlertMessageCard } from '../feishu/render-alert-message-card';
 import type { IAlertGroup, IAlertMessageEntry, IAlertReceiveRoute, IAlertRecord } from '../types';
-import { computeGroupSeverity, getSeverityIndex, normalizeSeverity } from '../utils';
+import { computeGroupSeverity, normalizeSeverity } from '../utils';
 import { filterAlertsByRoute } from './label-filters';
+import { computeWantedUrgentPayload } from './urgent';
 
 const mapSeverityToRepeatInterval: Record<string, number> = {
   UNKNOWN: 30 * 60_000,
@@ -54,19 +55,6 @@ const normalizeRouteFromDb = (route: IAlertReceiveRoute): IAlertReceiveRoute => 
     label_schema: (route as any).label_schema ?? undefined,
   };
   return normalizedRoute;
-};
-
-const makeUrgentPayload = (
-  route: IAlertReceiveRoute,
-  groupSeverity: string,
-): { urgent: string; userIds: string[] } | undefined => {
-  if (route.urgent_user_list.length === 0) return undefined;
-  if (getSeverityIndex(groupSeverity) === -1) return undefined;
-  if (getSeverityIndex(groupSeverity) > getSeverityIndex(route.urgent_on_severity)) {
-    return undefined;
-  }
-
-  return { urgent: route.urgent_type, userIds: route.urgent_user_list };
 };
 
 const normalizeRecordFromDb = (record: IAlertRecord): IAlertRecord => {
@@ -276,7 +264,7 @@ const sendOrUpdateMessage = async (
   const existingMessageId = messageIndex.get(route.chat_id);
   const now = Date.now();
   // 先按路由/严重性判定是否“想要加急”
-  const wantedUrgentPayload = makeUrgentPayload(route, routeGroup.severity);
+  const wantedUrgentPayload = computeWantedUrgentPayload(route, routeGroup);
   // 再按 group_key + chat_id 做限频，决定本轮是否真正带 urgent
   const urgentAllowed =
     wantedUrgentPayload && allowUrgentForGroupRoute(routeGroup.group_key, route.chat_id, now);
