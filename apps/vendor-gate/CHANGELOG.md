@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-gate
 
-This log was last generated on Sat, 20 Dec 2025 07:03:37 GMT and should not be manually modified.
+This log was last generated on Sun, 21 Dec 2025 04:56:53 GMT and should not be manually modified.
+
+## 0.6.0
+Sun, 21 Dec 2025 04:56:52 GMT
+
+### Minor changes
+
+- add provideOHLCService and provideInterestRateService
 
 ## 0.5.4
 Sat, 20 Dec 2025 07:03:37 GMT

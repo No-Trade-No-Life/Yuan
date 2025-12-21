@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-okx",
-  "version": "0.30.6",
+  "version": "0.31.0",
   "main": "lib/index.js",
   "files": [
     "dist",
