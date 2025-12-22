@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "vendors-ingest-ohlc-interest-rate",
+  "currentTask": "vex-series-data-ohlcinterestrate-ohlc-v2",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -59,9 +59,30 @@
     {
       "id": "vendors-ingest-ohlc-interest-rate",
       "name": "vendors-ingest-ohlc-interest-rate",
-      "status": "active",
+      "status": "paused",
       "createdAt": "2025-12-20T06:17:22.445Z",
-      "updatedAt": "2025-12-20T14:41:52.070Z"
+      "updatedAt": "2025-12-21T14:29:28.426Z"
+    },
+    {
+      "id": "alert-receiver-resolverepeat",
+      "name": "alert-receiver 修复 resolve/repeat 加急与去重",
+      "status": "paused",
+      "createdAt": "2025-12-21T14:29:28.426Z",
+      "updatedAt": "2025-12-21T14:55:52.892Z"
+    },
+    {
+      "id": "task-42a439ec",
+      "name": "多账户切换：新增切换账户弹窗并保留本地凭据",
+      "status": "paused",
+      "createdAt": "2025-12-21T14:34:42.022Z",
+      "updatedAt": "2025-12-22T07:09:48.363Z"
+    },
+    {
+      "id": "vex-series-data-ohlcinterestrate-ohlc-v2",
+      "name": "VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移",
+      "status": "active",
+      "createdAt": "2025-12-22T07:09:48.363Z",
+      "updatedAt": "2025-12-22T08:47:00.243Z"
     }
   ],
   "pendingProposals": [
@@ -681,6 +702,238 @@
       "decidedAt": "2025-12-20T06:17:22.445Z",
       "decidedBy": "Claude",
       "createdTaskId": "vendors-ingest-ohlc-interest-rate"
+    },
+    {
+      "id": "proposal-mjft6t6y-5f10f9",
+      "name": "alert-receiver 修复 resolve/repeat 加急与去重",
+      "goal": "修复 alert-receiver 的 resolve/repeat 通知在加急与重复发送上的逻辑错误，确保只更新原有消息并按规则重复加急。",
+      "rationale": "当前 alert-receiver 在告警已解决（resolve）时也会触发“加急”，且 resolve/repeat 场景会重复发送新消息，造成频道噪音与错误提醒；需要把 resolve 的提示语义与消息更新/加急策略做成确定、可预测的行为。",
+      "points": [
+        "resolve 状态不应触发“加急/紧急”",
+        "resolve 的重复通知应更新同一条 message（edit/update），不应发送新 message",
+        "repeat 场景不应重复发新 message，而是对原 message 进行“重复加急”（例如再次提醒/更新加急状态/时间戳）",
+        "对 dedupe 的 key/存储策略做最小必要调整，避免回归 firing 场景",
+        "补充最小单测/集成测试覆盖 resolve/repeat 去重与更新行为"
+      ],
+      "scope": ["apps/alert-receiver/src/**", "docs/zh-Hans/monitoring-alerting.md（如需补充行为说明）"],
+      "phases": [
+        {
+          "name": "调研与复现",
+          "tasks": [
+            {
+              "description": "梳理 alert-receiver 的消息生命周期：firing→repeat→resolve 的状态机、messageId/threadId 的存储与 dedupe key 生成方式，并用最小输入复现 resolve 也加急、resolve/repeat 重复发消息的问题。",
+              "acceptance": "在任务 context 记录：触发条件、当前错误行为的代码路径、以及期望行为的规则（含边界条件）。"
+            }
+          ]
+        },
+        {
+          "name": "实现修复",
+          "tasks": [
+            {
+              "description": "调整 resolve 的处理：禁止进入加急路径；并确保 resolve 只会更新已有 message（不存在则按策略补发一次或记录告警）。",
+              "acceptance": "resolve 不再触发加急；resolve 事件不会产生同一告警的多条消息。"
+            },
+            {
+              "description": "调整 repeat 的处理：不再发送新 message；改为对原 message 执行更新并触发“重复加急”（例如更新卡片/追加提示/刷新加急标记）。",
+              "acceptance": "repeat 不产生新 message；重复触发时只会对同一 message 做可观察的重复加急更新。"
+            }
+          ]
+        },
+        {
+          "name": "验证与回归",
+          "tasks": [
+            {
+              "description": "为 resolve/repeat 的去重与 update 行为补充测试（优先对消息发送器/存储层做 mock），并做一次本地最小运行验证。",
+              "acceptance": "新增测试覆盖 3 个 bug 点且通过；记录手工验证步骤到 context 快速交接。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2025-12-21T14:14:53.770Z",
+      "status": "approved",
+      "decidedAt": "2025-12-21T14:29:28.426Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "alert-receiver-resolverepeat"
+    },
+    {
+      "id": "proposal-mjftw6kb-ad40b0",
+      "name": "多账户切换：新增切换账户弹窗并保留本地凭据",
+      "goal": "在导航栏新增“切换账户”功能，支持添加新账号并在多个 Supabase 登录账号间切换，同时历史账号凭据保留在 localStorage 中。",
+      "rationale": "当前前端仅支持单账号登录/退出（Supabase 单 session），用户需要在同一设备上管理多个账号并快速切换；同时要求新增账号仍走现有 Email+OTP 登录流程，并在切换/退出时保留历史账号凭据在 localStorage 以便随时切回。",
+      "points": [
+        "在用户菜单（退出登录上方）新增“切换账户”入口",
+        "设计并实现用于切换/添加账户的 Modal",
+        "新增账户必须走现有登录流程（/login 的 Email+OTP）",
+        "切换/退出时不删除历史账号凭据，本地可随时切回",
+        "将当前账号的 session 在 TOKEN_REFRESHED 等事件中持续同步到本地存储，保证可用性"
+      ],
+      "scope": [
+        "frontend/src/components/header/index.tsx",
+        "frontend/src/pages/login/index.tsx",
+        "frontend/src/hooks/useAuth.ts",
+        "frontend/src/library/request.ts",
+        "frontend/src/library/supabase.ts",
+        "frontend/src/components/(new) account-switcher modal",
+        "frontend/src/library/(new) multi-account session store"
+      ],
+      "phases": [
+        {
+          "name": "调研与方案确认",
+          "tasks": [
+            {
+              "description": "复核现有登录/退出入口与 Supabase session 持久化行为（useAuth、LoginPage、Header、request.ts 401 处理）",
+              "acceptance": "明确 session 来源、更新时机、退出行为；确认可通过 `supabase.auth.setSession` 进行会话切换"
+            },
+            {
+              "description": "确定 localStorage 数据结构与 key（含版本字段、字段安全性、迁移策略）",
+              "acceptance": "形成明确的数据模型与 key 命名，并列出兼容/迁移规则（例如 v1 结构）"
+            }
+          ]
+        },
+        {
+          "name": "多账户存储与切换逻辑",
+          "tasks": [
+            {
+              "description": "新增 multi-account session store（localStorage 读写、schema 校验、upsert、lastUsedAt 更新）",
+              "acceptance": "可在本地保存多个账户的 session（至少包含 email/userId/refresh_token/expires_at）；重复登录同一账户会更新记录"
+            },
+            {
+              "description": "在 `useAuth` 的 `onAuthStateChange` 中对 SIGNED_IN/TOKEN_REFRESHED/USER_UPDATED 等事件同步更新 store",
+              "acceptance": "活跃账户 token 刷新后，本地保存的对应 session 记录会随之更新，避免切回时 refresh_token 过期"
+            },
+            {
+              "description": "实现 `switchToAccount`：从 store 取目标 session 调用 `supabase.auth.setSession` 并处理失败场景",
+              "acceptance": "可在不走登录页的情况下切换到已保存账户；失败时给出明确提示且不删除本地记录"
+            },
+            {
+              "description": "调整“退出登录”逻辑与 401 强制登出逻辑：登出只影响当前会话，不清理 multi-account store",
+              "acceptance": "退出登录后 localStorage 中的历史账号记录仍在；重新登录/切换可继续使用"
+            }
+          ]
+        },
+        {
+          "name": "UI：Header 入口与切换 Modal",
+          "tasks": [
+            {
+              "description": "在 `Header` 的用户下拉菜单中，在“退出登录”上方新增“切换账户”项并打开 Modal",
+              "acceptance": "已登录时可看到“切换账户”入口；点击打开弹窗且不影响现有菜单项"
+            },
+            {
+              "description": "实现切换账户 Modal：展示当前账户、已保存账户列表、切换动作、添加账户入口",
+              "acceptance": "可从列表选择并切换；当前账户有清晰标识；提供“添加账户”按钮/链接"
+            },
+            {
+              "description": "接入“添加账户”流程：从 Modal 跳转 `/login` 走 Email+OTP；登录成功后写入 store 并返回来源页面（或默认页）",
+              "acceptance": "添加新账号不依赖 Modal 内登录；登录成功后能在 Modal 中看到新账号且可切换；返回路径符合设计"
+            }
+          ]
+        },
+        {
+          "name": "验证与回归",
+          "tasks": [
+            {
+              "description": "覆盖关键手测场景：添加两个账号、在两者间切换、刷新页面后仍可切换、退出登录后账号列表仍保留",
+              "acceptance": "上述场景在浏览器中验证通过，且不会出现“凭据被清空/丢失”"
+            },
+            {
+              "description": "验证异常与边界：目标 session 失效/refresh_token 过期、401 触发强制登出、localStorage 数据损坏",
+              "acceptance": "出现异常时有 toast 提示；不会 crash；不会删除历史记录；可引导用户重新走登录流程恢复该账号"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2025-12-21T14:34:37.499Z",
+      "status": "approved",
+      "decidedAt": "2025-12-21T14:34:42.022Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "task-42a439ec"
+    },
+    {
+      "id": "proposal-mjgtfwj3-549740",
+      "name": "VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移",
+      "goal": "在 virtual-exchange 新增 series-data 调度器，自动调度各 vendor 的 IngestOHLC/IngestInterestRate 进行拉新与回补，并改造 @yuants/exchange 的 OHLC 写库到新表 ohlc_v2（含 migration 与索引）。",
+      "rationale": "现有 vendor 已按 @yuants/exchange contract 注册 IngestOHLC/IngestInterestRate，但缺少 VEX 侧统一调度：需要按“当前时间优先拉新 + 闲暇向过去回补”的策略持续写库；同时 ohlc 表字段冗余（datasource_id/product_id/duration 已编码在 series_id），需迁移到更紧凑的 ohlc_v2 并对齐写库与索引。",
+      "points": [
+        "对齐 vendors-ingest-ohlc-interest-rate 与 @yuants/exchange ingest contract（time+direction、schema->metadata 解析、range 语义）",
+        "在 VEX 内发现所有 IngestOHLC/IngestInterestRate 服务并建立能力分组/实例池",
+        "调度策略：优先拉新（接近 now），闲暇回补（根据 series_data_range 向过去推进），包含全局/分组并发限制与 backoff",
+        "series_data_range 同 (series_id, table_name) 重叠区间在 transaction 中可合并，避免范围碎片爆炸",
+        "@yuants/exchange: OHLC_INSERT_COLUMNS 移除 datasource_id/product_id/duration；写入新表 ohlc_v2；并写 migration（series_id+created_at 索引）",
+        "若调度所需信息不足，提出最小新增 metadata（schema 非必填 const 字段）供 review"
+      ],
+      "scope": [
+        "apps/virtual-exchange/src/index.ts",
+        "apps/virtual-exchange/src/(new) series-data/*",
+        "libraries/exchange/src/ohlc.ts",
+        "tools/sql-migration/sql/ohlc_v2.sql",
+        "tools/sql-migration/sql/series_data_range.sql（可能仅新增索引/不改表结构）"
+      ],
+      "phases": [
+        {
+          "name": "调研与对齐",
+          "tasks": [
+            {
+              "description": "复核 ingest contract 与 VEX 现有调度模式：IngestOHLC/IngestInterestRate 的 schema->metadata 解析、time+direction 语义、range 计算与写入 series_data_range；参考 VEX quote scheduler 的 service 发现与 runner 模型",
+              "acceptance": "在 context.md 记录：两类 ingest 服务的能力矩阵抽象、VEX 侧可复用的发现/并发/队列模式、以及调度所需的最小输入（目标 series 来源、表名映射、推进规则）"
+            },
+            {
+              "description": "盘点现有表结构与迁移规范：series_data_range 主键/索引；ohlc/interest_rate 现状；明确 ohlc_v2 的字段/索引/trigger 需求与迁移策略（仅建表，不做数据搬迁）",
+              "acceptance": "在 plan.md 写清：ohlc_v2 DDL（幂等）、索引、trigger；并列出代码侧写库要点（OHLC_INSERT_COLUMNS 与 table_name/range 同步）"
+            }
+          ]
+        },
+        {
+          "name": "设计（先评审）",
+          "tasks": [
+            {
+              "description": "设计 series-data 模块的结构与对外调试入口：服务发现（terminalInfos$）、能力分组（method+meta）、series 枚举（基于 product 表 prefix + duration_list 组合 / 或新增配置表方案对比）、状态缓存（range union）",
+              "acceptance": "plan.md 给出模块文件划分、核心数据结构（ProviderGroup/SeriesKey/Job）、以及 2 套 series 来源方案（全量 product 扫描 vs 新增配置表）并标注推荐与原因"
+            },
+            {
+              "description": "设计调度算法：拉新(head) 与回补(tail) 两级优先队列；per-group 串行 + 全局并发；失败 backoff；推进规则仅依赖 range（不依赖 wrote_count）；支持 forward/backward 两种 direction",
+              "acceptance": "plan.md 给出：选 job 的伪代码/状态机、关键边界（重复拉取/空页/无 range）、以及可配置项（并发、拉新频率、回补速率、最早回补时间）"
+            },
+            {
+              "description": "设计 range 合并算法：同 (series_id, table_name) 的多条 range 读出后按 start_time 排序 merge；transaction 内 delete+insert（或 SQL CTE 聚合）保证并发安全",
+              "acceptance": "plan.md 给出：merge 判定（overlap/adjacent）、复杂度、SQL transaction 方案（锁粒度/隔离级别建议）、以及和写入端（vendor ingest）并发时的幂等性说明"
+            },
+            {
+              "description": "如需新增 metadata，提出最小字段并说明解析方式（通过 schema.properties.<field>.const，非 required）",
+              "acceptance": "plan.md 列出候选字段与用途（例如 interest_rate 的 recommended_poll_interval_ms），并标注是否必须/可选；留出 REVIEW block"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "在 apps/virtual-exchange 新增 series-data 模块：发现 IngestOHLC/IngestInterestRate 服务、枚举 series、执行 ingest 请求、读取/更新 series_data_range 并做 merge；接入 apps/virtual-exchange/src/index.ts 启动",
+              "acceptance": "VEX 启动后可持续运行：周期性拉新；空闲时回补；日志/指标可观察；可通过 env 控制启停与并发"
+            },
+            {
+              "description": "实现 ohlc_v2 migration 与 exchange 写库改造：新增 tools/sql-migration/sql/ohlc_v2.sql；修改 libraries/exchange/src/ohlc.ts 写入 ohlc_v2 且 range.table_name=ohlc_v2，并移除 datasource_id/product_id/duration 写入",
+              "acceptance": "migration 幂等；写库字段与表结构匹配；(series_id, created_at) 冲突键与索引一致；不影响 InterestRate 现有链路"
+            }
+          ]
+        },
+        {
+          "name": "验证与交接",
+          "tasks": [
+            {
+              "description": "补充最小验证：range merge 单测或脚本；在可运行环境验证一次 end-to-end（发现服务->触发 ingest->写库->range 合并）；记录如何观察调度状态/排障",
+              "acceptance": "tasks.md 记录可复现的验证步骤；context.md 写入快速交接（下一步/注意事项/回滚点）"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2025-12-22T07:09:44.175Z",
+      "status": "approved",
+      "decidedAt": "2025-12-22T07:09:48.363Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "vex-series-data-ohlcinterestrate-ohlc-v2"
     }
   ]
 }

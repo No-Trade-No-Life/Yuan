@@ -5,7 +5,7 @@
  */
 export interface IInterestRate {
   /**
-   * Series ID (Encoded as `encodePath(datasource_id, product_id)`)
+   * Series ID (Encoded as `product_id`)
    */
   series_id: string;
   /**
@@ -35,3 +35,24 @@ export interface IInterestRate {
   /** 结算价格 */
   settlement_price: string;
 }
+
+/**
+ * @public
+ */
+export const encodeInterestRateSeriesId = (product_id: string): string => {
+  return product_id;
+};
+
+/**
+ * @public
+ */
+export const decodeInterestRateSeriesId = (series_id: string): { product_id: string } => {
+  const product_id = (() => {
+    try {
+      return decodeURIComponent(series_id);
+    } catch {
+      return series_id;
+    }
+  })();
+  return { product_id };
+};

@@ -6,6 +6,15 @@
 
 import { Terminal } from '@yuants/protocol';
 
+// @public (undocumented)
+export const decodeOHLCSeriesId: (series_id: string) => {
+    product_id: string;
+    duration: string;
+};
+
+// @public (undocumented)
+export const encodeOHLCSeriesId: (product_id: string, duration: string) => string;
+
 // @public
 export interface IOHLC {
     close: string;
