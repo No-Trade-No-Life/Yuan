@@ -4,6 +4,14 @@
 
 ```ts
 
+// @public (undocumented)
+export const decodeInterestRateSeriesId: (series_id: string) => {
+    product_id: string;
+};
+
+// @public (undocumented)
+export const encodeInterestRateSeriesId: (product_id: string) => string;
+
 // @public
 export interface IInterestRate {
     created_at: string;

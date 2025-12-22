@@ -1,8 +1,7 @@
-import { IInterestRate } from '@yuants/data-interest-rate';
+import { encodeInterestRateSeriesId, IInterestRate } from '@yuants/data-interest-rate';
 import { IServiceOptions, Terminal } from '@yuants/protocol';
 import { createValidator } from '@yuants/protocol/lib/schema';
 import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
-import { encodePath } from '@yuants/utils';
 import { newError } from '../../utils/lib';
 import { ISeriesIngestResult, SeriesFetchDirection } from './types';
 
@@ -131,7 +130,7 @@ export const provideInterestRateService = (
     },
     async (msg) => {
       try {
-        const series_id = encodePath(msg.req.product_id);
+        const series_id = encodeInterestRateSeriesId(msg.req.product_id);
 
         const items = await fetchPage({ ...msg.req, series_id });
 

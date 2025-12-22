@@ -1,8 +1,8 @@
-import { IOHLC } from '@yuants/data-ohlc';
+import { encodeOHLCSeriesId, IOHLC } from '@yuants/data-ohlc';
 import { IServiceOptions, Terminal } from '@yuants/protocol';
 import { createValidator } from '@yuants/protocol/lib/schema';
 import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
-import { encodePath, formatTime } from '@yuants/utils';
+import { formatTime } from '@yuants/utils';
 import { newError } from '../../utils/lib';
 import { ISeriesIngestResult, SeriesFetchDirection } from './types';
 
@@ -88,9 +88,6 @@ export const parseOHLCServiceMetadataFromSchema = (schema: any): IOHLCServiceMet
 const OHLC_INSERT_COLUMNS: Array<keyof IOHLC> = [
   'series_id',
   'created_at',
-  'datasource_id',
-  'product_id',
-  'duration',
   'closed_at',
   'open',
   'high',
@@ -151,7 +148,7 @@ export const provideOHLCService = (
     },
     async (msg) => {
       try {
-        const series_id = encodePath(msg.req.product_id, msg.req.duration);
+        const series_id = encodeOHLCSeriesId(msg.req.product_id, msg.req.duration);
 
         const items = await fetchPage({ ...msg.req, series_id });
 
@@ -177,7 +174,7 @@ export const provideOHLCService = (
         if (normalized.length > 0) {
           await requestSQL(
             terminal,
-            buildInsertManyIntoTableSQL(normalized, 'ohlc', {
+            buildInsertManyIntoTableSQL(normalized, 'ohlc_v2', {
               columns: OHLC_INSERT_COLUMNS,
               conflictKeys: ['series_id', 'created_at'],
             }),
@@ -192,7 +189,7 @@ export const provideOHLCService = (
               [
                 {
                   series_id,
-                  table_name: 'ohlc',
+                  table_name: 'ohlc_v2',
                   start_time: range.start_time,
                   end_time: range.end_time,
                 },
