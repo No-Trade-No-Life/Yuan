@@ -5,7 +5,7 @@
  */
 export interface IOHLC {
   /**
-   * Series ID (Encoded as `encodePath(datasource_id, product_id, duration)`)
+   * Series ID (Encoded as `${product_id}/${duration}`)
    */
   series_id: string;
   /**
@@ -76,5 +76,29 @@ export interface IOHLC {
    */
   open_interest: string;
 }
+
+/**
+ * @public
+ */
+export const encodeOHLCSeriesId = (product_id: string, duration: string): string => {
+  return `${product_id}/${duration}`;
+};
+
+/**
+ * @public
+ */
+export const decodeOHLCSeriesId = (series_id: string): { product_id: string; duration: string } => {
+  const parts = series_id.split('/');
+  const duration = parts.pop() ?? '';
+  const rawProductId = parts.join('/');
+  const product_id = (() => {
+    try {
+      return decodeURIComponent(rawProductId);
+    } catch {
+      return rawProductId;
+    }
+  })();
+  return { product_id, duration };
+};
 
 export * from './provideOHLCDurationService';

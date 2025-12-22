@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-interest-rate",
+      "comment": "add series id encode/decode",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-interest-rate"
+}
