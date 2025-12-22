@@ -1,10 +1,19 @@
 import { IInterestRate } from '@yuants/data-interest-rate';
 import { provideInterestRateService } from '@yuants/exchange';
-import { Terminal } from '@yuants/protocol';
+import { IServiceOptions, Terminal } from '@yuants/protocol';
 import { decodePath, formatTime } from '@yuants/utils';
 import { getHistoryFundingRate, IUtaHistoricalFundingRate } from '../api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
+
+const INGEST_SERVICE_OPTIONS: IServiceOptions = {
+  concurrent: 1,
+  max_pending_requests: 20,
+  ingress_token_capacity: 2,
+  ingress_token_refill_interval: 1000,
+  egress_token_capacity: 1,
+  egress_token_refill_interval: 1000,
+};
 
 const PAGE_SIZE = 100;
 
@@ -147,6 +156,7 @@ provideInterestRateService(
     direction: 'backward',
   },
   fetchInterestRateHistoryBackward,
+  INGEST_SERVICE_OPTIONS,
 );
 
 provideInterestRateService(
@@ -156,4 +166,5 @@ provideInterestRateService(
     direction: 'backward',
   },
   fetchInterestRateHistoryBackward,
+  INGEST_SERVICE_OPTIONS,
 );
