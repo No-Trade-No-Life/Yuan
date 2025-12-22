@@ -347,3 +347,28 @@
 2025-12-20T13:00:02.927Z,legion_update_context,vendors-ingest-ohlc-interest-rate,vendors-ingest-ohlc-interest-rate,Claude,addFile: apps/vendor-gate/src/api/public-api.ts,success
 2025-12-20T13:01:07.573Z,legion_list_reviews,vendors-ingest-ohlc-interest-rate,vendors-ingest-ohlc-interest-rate,Claude,status: open,success
 2025-12-20T14:41:52.070Z,legion_update_context,vendors-ingest-ohlc-interest-rate,vendors-ingest-ohlc-interest-rate,Claude,addFile: apps/vendor-aster/src/api/public-api.ts,success
+2025-12-21T11:46:40.581Z,legion_update_context,vendors-ingest-ohlc-interest-rate,vendors-ingest-ohlc-interest-rate,Claude,addFile: .c1-cellar/vex-verify-ingest.ts,success
+2025-12-21T12:06:59.254Z,legion_update_context,vendors-ingest-ohlc-interest-rate,vendors-ingest-ohlc-interest-rate,Claude,progress.completed: 按最新约束重写 `.c1-cellar/vex-verify-ingest.ts`：无需参数；从 SQL `product` 表按 `datasource_id` 各取 5 个 `product_id`；固定测试 `PT5M/PT1H`；`direction` 从 service schema 解析；`time` 固定,success
+2025-12-21T12:19:16.437Z,legion_update_context,vendors-ingest-ohlc-interest-rate,vendors-ingest-ohlc-interest-rate,Claude,progress.completed: 调整 `.c1-cellar/vex-verify-ingest.ts` 的选样方式：从“按 datasource_id 取 5”改为“按每个 ingest service 的 `meta.product_id_prefix` 取 5”，确保覆盖每个 prefix 的路由与 schema const direction,success
+2025-12-21T14:14:03.836Z,legion_get_status,vendors-ingest-ohlc-interest-rate,vendors-ingest-ohlc-interest-rate,Claude,,success
+2025-12-21T14:14:11.548Z,legion_read_context,vendors-ingest-ohlc-interest-rate,vendors-ingest-ohlc-interest-rate,Claude,"section: all, includeReviews: true",success
+2025-12-21T14:14:11.817Z,legion_list_reviews,vendors-ingest-ohlc-interest-rate,vendors-ingest-ohlc-interest-rate,Claude,status: open,success
+2025-12-21T14:14:53.772Z,legion_propose_task,vendors-ingest-ohlc-interest-rate,vendors-ingest-ohlc-interest-rate,Claude,name: alert-receiver 修复 resolve/repeat 加急与去重,success
+2025-12-21T14:29:28.428Z,legion_approve_proposal,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,proposalId: proposal-mjft6t6y-5f10f9,success
+2025-12-21T14:29:32.027Z,legion_switch_task,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,taskId: alert-receiver-resolverepeat,success
+2025-12-21T14:29:35.034Z,legion_read_context,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,"section: all, includeReviews: true",success
+2025-12-21T14:29:35.580Z,legion_list_reviews,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,status: open,success
+2025-12-21T14:33:28.925Z,legion_update_tasks,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,completeTask: phase 1,success
+2025-12-21T14:34:07.245Z,legion_update_tasks,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,addTask: 在具备 rush/pnpm/heft 的环境运行 `apps/alert-receiver` 与 `apps/feishu-notifier` 的 `npm run build`，确认测试通过并验证 resolved/repeat 不再产生重复消息。,success
+2025-12-21T14:34:13.076Z,legion_create_task,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,goal: 在导航栏新增“切换账户”功能，支持添加新账号并在多个 Supabase 登录账号间切换，同时历史账号凭据保留在 localStorage 中。,failed
+2025-12-21T14:34:21.043Z,legion_update_tasks,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,addTask: 在具备 rush/pnpm/heft 的环境运行 `apps/alert-receiver` 与 `apps/feishu-notifier` 的 `npm run build`，确认测试通过并验证 resolved/repeat 不再产生重复消息。,success
+2025-12-21T14:34:27.594Z,legion_update_tasks,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,addDiscoveredTask: 在具备 rush/pnpm/heft 的环境运行 `apps/alert-receiver` 与 `apps/feishu-notifier` 的 `npm run build`，确认测试通过并手工验证 resolved/repeat 不再产生重复消息。,success
+2025-12-21T14:34:37.500Z,legion_propose_task,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,name: 多账户切换：新增切换账户弹窗并保留本地凭据,success
+2025-12-21T14:34:42.025Z,legion_approve_proposal,task-42a439ec,多账户切换：新增切换账户弹窗并保留本地凭据,Claude,proposalId: proposal-mjftw6kb-ad40b0,success
+2025-12-21T14:34:45.454Z,legion_update_context,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,addDecision: Resolved 组不触发加急；urgent 失败不应导致 sendMessage 失败,success
+2025-12-21T14:34:53.944Z,legion_update_context,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,addFile: apps/alert-receiver/src/pipelines/urgent.ts,success
+2025-12-21T14:34:54.057Z,legion_update_context,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,addFile: apps/alert-receiver/src/pipelines/urgent.test.ts,success
+2025-12-21T14:34:55.369Z,legion_update_context,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,addFile: apps/feishu-notifier/src/api.ts,success
+2025-12-21T14:34:56.798Z,legion_update_context,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,addFile: apps/feishu-notifier/src/api.test.ts,success
+2025-12-21T14:35:13.171Z,legion_update_context,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,handoff: 在有工具链的环境运行：`cd apps/alert-receiver && npm run build`，以及 `cd apps/feishu-notifier && npm run build`（会跑 jest）。,success
+2025-12-21T14:55:52.894Z,legion_update_context,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,addFile: .legion/tasks/alert-receiver-resolverepeat/plan.md,success

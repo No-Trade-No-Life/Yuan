@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "vendors-ingest-ohlc-interest-rate",
+  "currentTask": "task-42a439ec",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -59,9 +59,23 @@
     {
       "id": "vendors-ingest-ohlc-interest-rate",
       "name": "vendors-ingest-ohlc-interest-rate",
-      "status": "active",
+      "status": "paused",
       "createdAt": "2025-12-20T06:17:22.445Z",
-      "updatedAt": "2025-12-20T14:41:52.070Z"
+      "updatedAt": "2025-12-21T14:29:28.426Z"
+    },
+    {
+      "id": "alert-receiver-resolverepeat",
+      "name": "alert-receiver 修复 resolve/repeat 加急与去重",
+      "status": "paused",
+      "createdAt": "2025-12-21T14:29:28.426Z",
+      "updatedAt": "2025-12-21T14:55:52.892Z"
+    },
+    {
+      "id": "task-42a439ec",
+      "name": "多账户切换：新增切换账户弹窗并保留本地凭据",
+      "status": "active",
+      "createdAt": "2025-12-21T14:34:42.022Z",
+      "updatedAt": "2025-12-21T14:34:42.022Z"
     }
   ],
   "pendingProposals": [
@@ -681,6 +695,153 @@
       "decidedAt": "2025-12-20T06:17:22.445Z",
       "decidedBy": "Claude",
       "createdTaskId": "vendors-ingest-ohlc-interest-rate"
+    },
+    {
+      "id": "proposal-mjft6t6y-5f10f9",
+      "name": "alert-receiver 修复 resolve/repeat 加急与去重",
+      "goal": "修复 alert-receiver 的 resolve/repeat 通知在加急与重复发送上的逻辑错误，确保只更新原有消息并按规则重复加急。",
+      "rationale": "当前 alert-receiver 在告警已解决（resolve）时也会触发“加急”，且 resolve/repeat 场景会重复发送新消息，造成频道噪音与错误提醒；需要把 resolve 的提示语义与消息更新/加急策略做成确定、可预测的行为。",
+      "points": [
+        "resolve 状态不应触发“加急/紧急”",
+        "resolve 的重复通知应更新同一条 message（edit/update），不应发送新 message",
+        "repeat 场景不应重复发新 message，而是对原 message 进行“重复加急”（例如再次提醒/更新加急状态/时间戳）",
+        "对 dedupe 的 key/存储策略做最小必要调整，避免回归 firing 场景",
+        "补充最小单测/集成测试覆盖 resolve/repeat 去重与更新行为"
+      ],
+      "scope": ["apps/alert-receiver/src/**", "docs/zh-Hans/monitoring-alerting.md（如需补充行为说明）"],
+      "phases": [
+        {
+          "name": "调研与复现",
+          "tasks": [
+            {
+              "description": "梳理 alert-receiver 的消息生命周期：firing→repeat→resolve 的状态机、messageId/threadId 的存储与 dedupe key 生成方式，并用最小输入复现 resolve 也加急、resolve/repeat 重复发消息的问题。",
+              "acceptance": "在任务 context 记录：触发条件、当前错误行为的代码路径、以及期望行为的规则（含边界条件）。"
+            }
+          ]
+        },
+        {
+          "name": "实现修复",
+          "tasks": [
+            {
+              "description": "调整 resolve 的处理：禁止进入加急路径；并确保 resolve 只会更新已有 message（不存在则按策略补发一次或记录告警）。",
+              "acceptance": "resolve 不再触发加急；resolve 事件不会产生同一告警的多条消息。"
+            },
+            {
+              "description": "调整 repeat 的处理：不再发送新 message；改为对原 message 执行更新并触发“重复加急”（例如更新卡片/追加提示/刷新加急标记）。",
+              "acceptance": "repeat 不产生新 message；重复触发时只会对同一 message 做可观察的重复加急更新。"
+            }
+          ]
+        },
+        {
+          "name": "验证与回归",
+          "tasks": [
+            {
+              "description": "为 resolve/repeat 的去重与 update 行为补充测试（优先对消息发送器/存储层做 mock），并做一次本地最小运行验证。",
+              "acceptance": "新增测试覆盖 3 个 bug 点且通过；记录手工验证步骤到 context 快速交接。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2025-12-21T14:14:53.770Z",
+      "status": "approved",
+      "decidedAt": "2025-12-21T14:29:28.426Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "alert-receiver-resolverepeat"
+    },
+    {
+      "id": "proposal-mjftw6kb-ad40b0",
+      "name": "多账户切换：新增切换账户弹窗并保留本地凭据",
+      "goal": "在导航栏新增“切换账户”功能，支持添加新账号并在多个 Supabase 登录账号间切换，同时历史账号凭据保留在 localStorage 中。",
+      "rationale": "当前前端仅支持单账号登录/退出（Supabase 单 session），用户需要在同一设备上管理多个账号并快速切换；同时要求新增账号仍走现有 Email+OTP 登录流程，并在切换/退出时保留历史账号凭据在 localStorage 以便随时切回。",
+      "points": [
+        "在用户菜单（退出登录上方）新增“切换账户”入口",
+        "设计并实现用于切换/添加账户的 Modal",
+        "新增账户必须走现有登录流程（/login 的 Email+OTP）",
+        "切换/退出时不删除历史账号凭据，本地可随时切回",
+        "将当前账号的 session 在 TOKEN_REFRESHED 等事件中持续同步到本地存储，保证可用性"
+      ],
+      "scope": [
+        "frontend/src/components/header/index.tsx",
+        "frontend/src/pages/login/index.tsx",
+        "frontend/src/hooks/useAuth.ts",
+        "frontend/src/library/request.ts",
+        "frontend/src/library/supabase.ts",
+        "frontend/src/components/(new) account-switcher modal",
+        "frontend/src/library/(new) multi-account session store"
+      ],
+      "phases": [
+        {
+          "name": "调研与方案确认",
+          "tasks": [
+            {
+              "description": "复核现有登录/退出入口与 Supabase session 持久化行为（useAuth、LoginPage、Header、request.ts 401 处理）",
+              "acceptance": "明确 session 来源、更新时机、退出行为；确认可通过 `supabase.auth.setSession` 进行会话切换"
+            },
+            {
+              "description": "确定 localStorage 数据结构与 key（含版本字段、字段安全性、迁移策略）",
+              "acceptance": "形成明确的数据模型与 key 命名，并列出兼容/迁移规则（例如 v1 结构）"
+            }
+          ]
+        },
+        {
+          "name": "多账户存储与切换逻辑",
+          "tasks": [
+            {
+              "description": "新增 multi-account session store（localStorage 读写、schema 校验、upsert、lastUsedAt 更新）",
+              "acceptance": "可在本地保存多个账户的 session（至少包含 email/userId/refresh_token/expires_at）；重复登录同一账户会更新记录"
+            },
+            {
+              "description": "在 `useAuth` 的 `onAuthStateChange` 中对 SIGNED_IN/TOKEN_REFRESHED/USER_UPDATED 等事件同步更新 store",
+              "acceptance": "活跃账户 token 刷新后，本地保存的对应 session 记录会随之更新，避免切回时 refresh_token 过期"
+            },
+            {
+              "description": "实现 `switchToAccount`：从 store 取目标 session 调用 `supabase.auth.setSession` 并处理失败场景",
+              "acceptance": "可在不走登录页的情况下切换到已保存账户；失败时给出明确提示且不删除本地记录"
+            },
+            {
+              "description": "调整“退出登录”逻辑与 401 强制登出逻辑：登出只影响当前会话，不清理 multi-account store",
+              "acceptance": "退出登录后 localStorage 中的历史账号记录仍在；重新登录/切换可继续使用"
+            }
+          ]
+        },
+        {
+          "name": "UI：Header 入口与切换 Modal",
+          "tasks": [
+            {
+              "description": "在 `Header` 的用户下拉菜单中，在“退出登录”上方新增“切换账户”项并打开 Modal",
+              "acceptance": "已登录时可看到“切换账户”入口；点击打开弹窗且不影响现有菜单项"
+            },
+            {
+              "description": "实现切换账户 Modal：展示当前账户、已保存账户列表、切换动作、添加账户入口",
+              "acceptance": "可从列表选择并切换；当前账户有清晰标识；提供“添加账户”按钮/链接"
+            },
+            {
+              "description": "接入“添加账户”流程：从 Modal 跳转 `/login` 走 Email+OTP；登录成功后写入 store 并返回来源页面（或默认页）",
+              "acceptance": "添加新账号不依赖 Modal 内登录；登录成功后能在 Modal 中看到新账号且可切换；返回路径符合设计"
+            }
+          ]
+        },
+        {
+          "name": "验证与回归",
+          "tasks": [
+            {
+              "description": "覆盖关键手测场景：添加两个账号、在两者间切换、刷新页面后仍可切换、退出登录后账号列表仍保留",
+              "acceptance": "上述场景在浏览器中验证通过，且不会出现“凭据被清空/丢失”"
+            },
+            {
+              "description": "验证异常与边界：目标 session 失效/refresh_token 过期、401 触发强制登出、localStorage 数据损坏",
+              "acceptance": "出现异常时有 toast 提示；不会 crash；不会删除历史记录；可引导用户重新走登录流程恢复该账号"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2025-12-21T14:34:37.499Z",
+      "status": "approved",
+      "decidedAt": "2025-12-21T14:34:42.022Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "task-42a439ec"
     }
   ]
 }
