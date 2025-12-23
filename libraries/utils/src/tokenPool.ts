@@ -47,6 +47,15 @@ export interface ITokenPool {
   acquire(tokens?: number): Promise<void>;
 
   /**
+   * 同步获取令牌
+   *
+   * 如果当前可用令牌不足，则立即抛出错误
+   *
+   * @param tokens - 需要的令牌数量，默认值为 1
+   */
+  acquireSync(tokens?: number): void;
+
+  /**
    * 释放令牌
    * @param tokens - 释放的令牌数量，默认值为 1
    */
@@ -123,12 +132,17 @@ export const tokenPool = (poolId: string, options: TokenPoolOptions = {}): IToke
     sem.release(tokens);
   };
 
+  const acquireSync = (tokens: number = 1): void => {
+    sem.acquireSync(tokens);
+  };
+
   const read = (): number => {
     return sem.read();
   };
 
   return {
     acquire,
+    acquireSync,
     release,
     read,
   };

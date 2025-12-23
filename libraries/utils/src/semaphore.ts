@@ -40,6 +40,15 @@ export interface ISemaphore {
    * @param perms - 许可数量，默认值为 1
    */
   acquire(perms?: number): Promise<void>;
+
+  /**
+   * 同步获取许可
+   *
+   * 如果当前可用许可不足，则立即抛出错误
+   *
+   * @param perms
+   */
+  acquireSync(perms?: number): void;
   /**
    * 释放许可
    *
@@ -86,6 +95,18 @@ export const semaphore = (semaphoreId: string): ISemaphore => {
     });
   };
 
+  const acquireSync = (perms: number = 1): void => {
+    if (perms <= 0) throw newError('SEMAPHORE_INVALID_ACQUIRE_PERMS', { semaphoreId, perms });
+    // 如果有足够许可，立即获取
+    if (state!.available >= perms) {
+      state!.available -= perms;
+      return;
+    }
+
+    // 否则抛出错误
+    throw newError('SEMAPHORE_INSUFFICIENT_PERMS', { semaphoreId, perms });
+  };
+
   const release = (perms: number = 1): void => {
     if (perms <= 0) throw newError('SEMAPHORE_INVALID_RELEASE_PERMS', { semaphoreId, perms });
     state!.available += perms;
@@ -111,6 +132,7 @@ export const semaphore = (semaphoreId: string): ISemaphore => {
 
   return {
     acquire,
+    acquireSync,
     release,
     read,
   };
