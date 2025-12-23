@@ -2,12 +2,10 @@ import { IPosition } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { provideExchangeServices } from '@yuants/exchange';
 import { Terminal } from '@yuants/protocol';
-import { decodePath } from '@yuants/utils';
 import { ICredential } from '../api/client';
 import { listProducts } from '../public-data/product';
 import { getCredentialId } from './accounts/profile';
-import { getSpotAccountInfoSnapshot } from './accounts/spot';
-import { getUnifiedAccountInfo } from './accounts/unified';
+import { getPositions } from './accounts/unified';
 import { cancelOrder } from './orders/cancelOrder';
 import { getOrdersByProductId, listSpotOrders, listUnifiedUmOrders } from './orders/listOrders';
 import { modifyOrder } from './orders/modifyOrder';
@@ -27,13 +25,7 @@ provideExchangeServices<ICredential>(terminal, {
   },
   getCredentialId,
   listProducts,
-  getPositions: async function (credential: ICredential): Promise<IPosition[]> {
-    const [uFuturePositions, spotPositions] = await Promise.all([
-      getUnifiedAccountInfo(credential),
-      getSpotAccountInfoSnapshot(credential),
-    ]);
-    return [...uFuturePositions, ...spotPositions];
-  },
+  getPositions: getPositions,
   getOrders: async function (credential: ICredential): Promise<IOrder[]> {
     const [umOrders, spotOrders] = await Promise.all([
       listUnifiedUmOrders(credential),
@@ -45,16 +37,8 @@ provideExchangeServices<ICredential>(terminal, {
     credential: ICredential,
     product_id: string,
   ): Promise<IPosition[]> {
-    const [_, instType] = decodePath(product_id); // BINANCE/USDT-FUTURE/ADAUSDT
-    if (instType === 'SPOT') {
-      const positions = await getSpotAccountInfoSnapshot(credential);
-      return positions.filter((position) => position.product_id === product_id);
-    }
-    if (instType === 'USDT-FUTURE') {
-      const positions = await getUnifiedAccountInfo(credential);
-      return positions.filter((position) => position.product_id === product_id);
-    }
-    throw new Error(`Unsupported instType: ${instType}`);
+    const positions = await getPositions(credential);
+    return positions.filter((position) => position.product_id === product_id);
   },
   getOrdersByProductId,
   submitOrder,
