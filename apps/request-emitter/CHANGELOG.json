@@ -2,6 +2,32 @@
   "name": "@yuants/app-request-emitter",
   "entries": [
     {
+      "version": "0.1.26",
+      "tag": "@yuants/app-request-emitter_v0.1.26",
+      "date": "Tue, 23 Dec 2025 03:49:05 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.53.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.16.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.32`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.33`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.25",
       "tag": "@yuants/app-request-emitter_v0.1.25",
       "date": "Tue, 16 Dec 2025 13:39:47 GMT",

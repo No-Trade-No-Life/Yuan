@@ -1,6 +1,6 @@
 {
   "name": "@yuants/agent",
-  "version": "0.13.152",
+  "version": "0.13.153",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [
