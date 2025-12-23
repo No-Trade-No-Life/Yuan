@@ -32,6 +32,7 @@ import {
   getFuturePremiumIndex,
   getSpotBookTicker,
   getSpotExchangeInfo,
+  getSpotTickerPrice,
 } from '../api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
@@ -114,6 +115,26 @@ const futureBookTicker$ = defer(() => getFutureBookTicker({})).pipe(
   repeat({ delay: 1_000 }),
   retry({ delay: 30_000 }),
   shareReplay({ bufferSize: 1, refCount: true }),
+);
+
+const quoteFromSpotTicker$ = defer(() => getSpotTickerPrice({})).pipe(
+  mergeMap((entries) => from(entries || [])),
+  mergeMap((entry): Partial<IQuote>[] => [
+    {
+      datasource_id: 'BINANCE',
+      product_id: encodePath('BINANCE', 'SPOT', entry.symbol),
+      last_price: entry.price,
+      updated_at: formatTime(Date.now()),
+    },
+    {
+      datasource_id: 'BINANCE',
+      product_id: encodePath('BINANCE', 'MARGIN', entry.symbol),
+      last_price: entry.price,
+      updated_at: formatTime(Date.now()),
+    },
+  ]),
+  repeat({ delay: 1_000 }),
+  retry({ delay: 1_000 }),
 );
 
 const quoteFromPremiumIndex$ = futurePremiumIndex$.pipe(
@@ -263,6 +284,7 @@ const quote$ = merge(
   quoteFromOpenInterest$,
   quoteFromSpotBookTicker$,
   quoteFromMarginRates$,
+  quoteFromSpotTicker$,
 ).pipe(
   groupBy((quote) => quote.product_id),
   mergeMap((group$) =>
