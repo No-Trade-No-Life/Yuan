@@ -1,13 +1,37 @@
+import { createCache } from '@yuants/cache';
 import { IPosition, makeSpotPosition } from '@yuants/data-account';
+import { IQuote } from '@yuants/data-quote';
+import { Terminal } from '@yuants/protocol';
+import { escapeSQL, requestSQL } from '@yuants/sql';
 import { encodePath } from '@yuants/utils';
 import { isApiError } from '../../api/client';
-import { getUnifiedAccountBalance, getUnifiedUmAccount, ICredential } from '../../api/private-api';
-import { getSpotTickerPrice } from '../../api/public-api';
+import {
+  getFundingAsset,
+  getSpotAccountInfo,
+  getUnifiedAccountBalance,
+  getUnifiedUmAccount,
+  ICredential,
+} from '../../api/private-api';
 
-export const getUnifiedAccountInfo = async (credential: ICredential): Promise<IPosition[]> => {
-  const [balanceRes, umAccountRes] = await Promise.all([
+const terminal = Terminal.fromNodeEnv();
+
+const quoteCache = createCache<IQuote>(
+  async (product_id) => {
+    const sql = `select * from quote where product_id = ${escapeSQL(product_id)}`;
+    const [quote] = await requestSQL<IQuote[]>(terminal, sql);
+    return quote;
+  },
+  { expire: 10_000 },
+);
+
+export const getPositions = async (credential: ICredential): Promise<IPosition[]> => {
+  const [balanceRes, umAccountRes, res, fundingAsset] = await Promise.all([
     getUnifiedAccountBalance(credential),
     getUnifiedUmAccount(credential),
+    getSpotAccountInfo(credential, { omitZeroBalances: true }),
+    getFundingAsset(credential, {
+      timestamp: Date.now(),
+    }),
   ]);
   if (isApiError(balanceRes)) {
     throw new Error(balanceRes.msg);
@@ -15,10 +39,39 @@ export const getUnifiedAccountInfo = async (credential: ICredential): Promise<IP
   if (isApiError(umAccountRes)) {
     throw new Error(umAccountRes.msg);
   }
+  if (isApiError(res)) {
+    throw new Error(res.msg);
+  }
+  if (isApiError(fundingAsset)) {
+    throw new Error(fundingAsset.msg);
+  }
 
-  const positions: IPosition[] = umAccountRes.positions
-    .filter((position) => +position.positionAmt !== 0)
-    .map((position) => ({
+  const positions: IPosition[] = [];
+
+  for (const balance of [...res.balances, ...fundingAsset]) {
+    const volume = +balance.free + +balance.locked;
+    if (!volume) continue;
+    positions.push(
+      makeSpotPosition({
+        position_id: `spot/${balance.asset}`,
+        datasource_id: 'BINANCE',
+        product_id: encodePath('BINANCE', 'SPOT', `${balance.asset}`),
+        volume,
+        free_volume: +balance.free,
+        closable_price:
+          balance.asset === 'USDT'
+            ? 1
+            : +(
+                (await quoteCache.query(encodePath('BINANCE', 'SPOT', `${balance.asset}USDT`)))?.last_price ||
+                0
+              ),
+      }),
+    );
+  }
+
+  for (const position of umAccountRes.positions) {
+    if (+position.positionAmt === 0) continue;
+    positions.push({
       position_id: `${position.symbol}/${position.positionSide}`,
       datasource_id: 'BINANCE',
       product_id: encodePath('BINANCE', 'USDT-FUTURE', position.symbol),
@@ -40,39 +93,28 @@ export const getUnifiedAccountInfo = async (credential: ICredential): Promise<IP
         +position.positionAmt *
         (+position.entryPrice +
           (+position.positionAmt === 0 ? 0 : +position.unrealizedProfit / +position.positionAmt)),
-    }));
+    });
+  }
 
-  const prices = await getSpotTickerPrice({
-    symbols: JSON.stringify([
-      ...new Set([
-        ...balanceRes
-          .map((balance) => {
-            const match = balance.asset.match(/^LD(\w+)$/);
-            let symbol = balance.asset;
-            if (match) {
-              symbol = match[1];
-            }
-            if (symbol === 'USDT') return '';
-            return `${symbol}USDT`;
-          })
-          .filter(Boolean),
-      ]),
-    ]),
-  });
-  const balancePositions: IPosition[] = balanceRes.map((position) =>
-    makeSpotPosition({
-      position_id: `UNIFIED-SPOT/${position.asset}`,
-      datasource_id: 'BINANCE',
-      product_id: encodePath('BINANCE', 'UNIFIED-SPOT', position.asset),
-      volume: +position.totalWalletBalance,
-      free_volume: +position.crossMarginFree,
-      closable_price:
-        position.asset === 'USDT'
-          ? 1
-          : Array.isArray(prices)
-          ? +(prices.find((item) => item.symbol === `${position.asset}USDT`)?.price ?? 0)
-          : 0,
-    }),
-  );
-  return [...balancePositions, ...positions];
+  for (const position of balanceRes) {
+    if (+position.totalWalletBalance === 0) continue;
+    positions.push(
+      makeSpotPosition({
+        position_id: `UNIFIED-SPOT/${position.asset}`,
+        datasource_id: 'BINANCE',
+        product_id: encodePath('BINANCE', 'UNIFIED-SPOT', position.asset),
+        volume: +position.totalWalletBalance,
+        free_volume: +position.crossMarginFree,
+        closable_price:
+          position.asset === 'USDT'
+            ? 1
+            : +(
+                (await quoteCache.query(encodePath('BINANCE', 'SPOT', `${position.asset}USDT`)))
+                  ?.last_price || 0
+              ),
+      }),
+    );
+  }
+
+  return positions;
 };

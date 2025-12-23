@@ -16,6 +16,7 @@ export * from './escapeRegExp';
 export * from './format-time';
 export * from './fnv1a64Hex';
 export * from './hex';
+export * from './semaphore';
 export * from './path';
 export * from './roundToStep';
 export * from './rx-utils';

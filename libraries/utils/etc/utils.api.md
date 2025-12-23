@@ -108,6 +108,13 @@ export interface IEd25519KeyPair {
 }
 
 // @public
+export interface ISemaphore {
+    acquire(perms?: number): Promise<void>;
+    read(): number;
+    release(perms?: number): void;
+}
+
+// @public
 export const listWatch: <T, K>(keyFunc: (item: T) => string, consumer: (item: T) => Observable<K>, comparator?: (a: T, b: T) => boolean) => OperatorFunction<T[], K>;
 
 // @public
@@ -137,6 +144,9 @@ roundFn?: (x: number) => number): number;
 
 // @public
 export function scopeError<T>(type: string, context: Record<string, any> | (() => Record<string, any>), staff: () => T): T;
+
+// @public
+export const semaphore: (semaphoreId: string) => ISemaphore;
 
 // @public
 export function sha256(data: Uint8Array): Promise<Uint8Array>;

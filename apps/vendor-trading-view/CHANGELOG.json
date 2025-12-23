@@ -2,6 +2,41 @@
   "name": "@yuants/vendor-trading-view",
   "entries": [
     {
+      "version": "0.3.45",
+      "tag": "@yuants/vendor-trading-view_v0.3.45",
+      "date": "Tue, 23 Dec 2025 03:49:05 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.53.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-series\" to `0.3.54`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.32`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.5.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.16.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-ohlc\" to `0.5.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.33`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.44",
       "tag": "@yuants/vendor-trading-view_v0.3.44",
       "date": "Tue, 16 Dec 2025 13:39:47 GMT",

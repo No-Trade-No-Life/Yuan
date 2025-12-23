@@ -2,6 +2,26 @@
   "name": "@yuants/redis-channel",
   "entries": [
     {
+      "version": "0.2.13",
+      "tag": "@yuants/redis-channel_v0.2.13",
+      "date": "Tue, 23 Dec 2025 03:49:05 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.16.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.33`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.12",
       "tag": "@yuants/redis-channel_v0.2.12",
       "date": "Tue, 16 Dec 2025 13:39:47 GMT",

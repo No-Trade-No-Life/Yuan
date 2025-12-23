@@ -1,6 +1,13 @@
 # Change Log - @yuants/exchange
 
-This log was last generated on Sun, 21 Dec 2025 04:56:52 GMT and should not be manually modified.
+This log was last generated on Tue, 23 Dec 2025 03:49:05 GMT and should not be manually modified.
+
+## 0.8.2
+Tue, 23 Dec 2025 03:49:05 GMT
+
+### Patches
+
+- switch to ohlc v2
 
 ## 0.8.1
 Sun, 21 Dec 2025 04:56:52 GMT
