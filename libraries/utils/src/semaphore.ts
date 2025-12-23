@@ -6,7 +6,10 @@ import { newError } from './error';
  */
 interface WaitingRequest {
   resolve: () => void;
+  reject: (reason?: any) => void;
   perms: number;
+  signal?: AbortSignal;
+  cleanup?: () => void;
 }
 
 /**
@@ -38,8 +41,9 @@ export interface ISemaphore {
    * 按照先到先得的顺序 (FIFO) 获取许可，如果当前可用许可不足，则等待直到有足够许可可用。
    *
    * @param perms - 许可数量，默认值为 1
+   * @param signal - 可选的 AbortSignal，用于取消等待
    */
-  acquire(perms?: number): Promise<void>;
+  acquire(perms?: number, signal?: AbortSignal): Promise<void>;
 
   /**
    * 同步获取许可
@@ -81,8 +85,14 @@ export const semaphore = (semaphoreId: string): ISemaphore => {
     mapSemaphoreIdToState.set(semaphoreId, state);
   }
 
-  const acquire = async (perms: number = 1): Promise<void> => {
+  const acquire = async (perms: number = 1, signal?: AbortSignal): Promise<void> => {
     if (perms <= 0) throw newError('SEMAPHORE_INVALID_ACQUIRE_PERMS', { semaphoreId, perms });
+
+    // 如果信号已经触发，立即拒绝
+    if (signal?.aborted) {
+      throw newError('SEMAPHORE_ACQUIRE_ABORTED', { semaphoreId, perms });
+    }
+
     // 如果有足够许可，立即获取
     if (state!.available >= perms) {
       state!.available -= perms;
@@ -90,8 +100,34 @@ export const semaphore = (semaphoreId: string): ISemaphore => {
     }
 
     // 否则加入等待队列
-    return new Promise<void>((resolve) => {
-      state!.queue.push({ resolve, perms });
+    return new Promise<void>((resolve, reject) => {
+      const waitingRequest: WaitingRequest = { resolve, reject, perms, signal };
+      state!.queue.push(waitingRequest);
+
+      // 如果提供了 signal，设置 abort 事件监听器
+      if (signal) {
+        const onAbort = () => {
+          // 移除事件监听器
+          signal.removeEventListener('abort', onAbort);
+          // 清理存储的清理函数
+          if (waitingRequest.cleanup) {
+            waitingRequest.cleanup();
+          }
+          // 从队列中移除请求（如果仍在队列中）
+          const index = state!.queue.indexOf(waitingRequest);
+          if (index !== -1) {
+            state!.queue.splice(index, 1);
+            reject(newError('SEMAPHORE_ACQUIRE_ABORTED', { semaphoreId, perms }));
+          }
+          // 如果请求已被满足（不在队列中），则忽略
+        };
+        signal.addEventListener('abort', onAbort);
+        // 存储清理函数以便在请求被满足时移除监听器
+        waitingRequest.cleanup = () => {
+          signal.removeEventListener('abort', onAbort);
+          waitingRequest.cleanup = undefined;
+        };
+      }
     });
   };
 
@@ -118,6 +154,10 @@ export const semaphore = (semaphoreId: string): ISemaphore => {
         // 满足队首请求
         state!.queue.shift();
         state!.available -= next.perms;
+        // 清理事件监听器（如果存在）
+        if (next.cleanup) {
+          next.cleanup();
+        }
         next.resolve();
       } else {
         // 许可不足，停止处理

@@ -256,4 +256,56 @@ describe('semaphore', () => {
       expect(s.read()).toBe(0);
     });
   });
+
+  describe('cancellation', () => {
+    it('should cancel acquire when signal aborted', async () => {
+      const s = semaphore('test-cancel-1');
+      const controller = new AbortController();
+      s.release(1); // 确保有许可
+      // 立即获取许可
+      await s.acquire(1);
+      // 现在没有可用许可
+      const promise = s.acquire(1, controller.signal);
+      // 触发取消
+      controller.abort();
+      await expect(promise).rejects.toThrow('SEMAPHORE_ACQUIRE_ABORTED');
+    });
+
+    it('should not affect other waiting requests when cancelled', async () => {
+      const s = semaphore('test-cancel-2');
+      const controller = new AbortController();
+      s.release(1);
+      await s.acquire(1);
+      const cancelled = s.acquire(1, controller.signal);
+      const another = s.acquire(1); // 没有 signal
+      controller.abort();
+      await expect(cancelled).rejects.toThrow('SEMAPHORE_ACQUIRE_ABORTED');
+      // 另一个请求应该仍在等待
+      let resolved = false;
+      another.then(() => {
+        resolved = true;
+      });
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(resolved).toBe(false);
+      // 释放许可，另一个请求应该完成
+      s.release(1);
+      await another;
+      expect(resolved).toBe(true);
+    });
+
+    it('should ignore abort if request already satisfied', async () => {
+      const s = semaphore('test-cancel-3');
+      const controller = new AbortController();
+      s.release(2);
+      // 有足够许可，应该立即获取
+      const promise = s.acquire(1, controller.signal);
+      await promise; // 应该立即解决
+      // 现在触发取消，不应拒绝
+      controller.abort();
+      // 等待一下确保没有未处理的拒绝
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      // 如果没有未处理的拒绝，测试通过
+      expect(true).toBe(true);
+    });
+  });
 });
