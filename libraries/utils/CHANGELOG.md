@@ -1,6 +1,14 @@
 # Change Log - @yuants/utils
 
-This log was last generated on Tue, 23 Dec 2025 03:49:05 GMT and should not be manually modified.
+This log was last generated on Tue, 23 Dec 2025 08:55:22 GMT and should not be manually modified.
+
+## 0.17.0
+Tue, 23 Dec 2025 08:55:22 GMT
+
+### Minor changes
+
+- add token bucket support
+- add token pool features
 
 ## 0.16.0
 Tue, 23 Dec 2025 03:49:05 GMT

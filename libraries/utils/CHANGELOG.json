@@ -2,6 +2,26 @@
   "name": "@yuants/utils",
   "entries": [
     {
+      "version": "0.17.0",
+      "tag": "@yuants/utils_v0.17.0",
+      "date": "Tue, 23 Dec 2025 08:55:22 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add token bucket support"
+          },
+          {
+            "comment": "add token pool features"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.16.0",
       "tag": "@yuants/utils_v0.16.0",
       "date": "Tue, 23 Dec 2025 03:49:05 GMT",

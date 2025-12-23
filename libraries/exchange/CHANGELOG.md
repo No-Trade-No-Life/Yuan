@@ -1,6 +1,13 @@
 # Change Log - @yuants/exchange
 
-This log was last generated on Tue, 23 Dec 2025 03:49:05 GMT and should not be manually modified.
+This log was last generated on Tue, 23 Dec 2025 08:55:22 GMT and should not be manually modified.
+
+## 0.8.3
+Tue, 23 Dec 2025 08:55:22 GMT
+
+### Patches
+
+- feat: 优化提供利率和OHLC服务的数据库写入逻辑，合并数据行和系列数据范围的写入
 
 ## 0.8.2
 Tue, 23 Dec 2025 03:49:05 GMT
