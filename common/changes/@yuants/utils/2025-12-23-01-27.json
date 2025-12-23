@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/utils",
+      "comment": "add semaphore utils",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/utils"
+}
