@@ -50,7 +50,7 @@ export interface ISemaphore {
    *
    * 如果当前可用许可不足，则立即抛出错误
    *
-   * @param perms
+   * @param perms - 许可数量，默认值为 1
    */
   acquireSync(perms?: number): void;
   /**
