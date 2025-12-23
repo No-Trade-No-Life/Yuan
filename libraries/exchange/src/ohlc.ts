@@ -171,35 +171,51 @@ export const provideOHLCService = (
           open_interest: x.open_interest ?? '0',
         }));
 
-        if (normalized.length > 0) {
+        const range = computeOHLCPageRange(normalized);
+
+        // Atomic write: data rows + series_data_range in the same statement.
+        if (normalized.length > 0 && range) {
+          const writeOHLC = `${buildInsertManyIntoTableSQL(normalized, 'ohlc_v2', {
+            columns: OHLC_INSERT_COLUMNS,
+            conflictKeys: ['series_id', 'created_at'],
+          })} RETURNING 1`;
+
+          const writeRange = `${buildInsertManyIntoTableSQL(
+            [
+              {
+                series_id,
+                table_name: 'ohlc_v2',
+                start_time: range.start_time,
+                end_time: range.end_time,
+              },
+            ],
+            'series_data_range',
+            {
+              columns: ['series_id', 'table_name', 'start_time', 'end_time'],
+              ignoreConflict: true,
+            },
+          )} RETURNING 1`;
+
+          await requestSQL(
+            terminal,
+            `
+            WITH
+              write_ohlc AS (
+                ${writeOHLC}
+              ),
+              write_range AS (
+                ${writeRange}
+              )
+            SELECT 1 as ok;
+            `,
+          );
+        } else if (normalized.length > 0) {
           await requestSQL(
             terminal,
             buildInsertManyIntoTableSQL(normalized, 'ohlc_v2', {
               columns: OHLC_INSERT_COLUMNS,
               conflictKeys: ['series_id', 'created_at'],
             }),
-          );
-        }
-
-        const range = computeOHLCPageRange(normalized);
-        if (range) {
-          await requestSQL(
-            terminal,
-            buildInsertManyIntoTableSQL(
-              [
-                {
-                  series_id,
-                  table_name: 'ohlc_v2',
-                  start_time: range.start_time,
-                  end_time: range.end_time,
-                },
-              ],
-              'series_data_range',
-              {
-                columns: ['series_id', 'table_name', 'start_time', 'end_time'],
-                ignoreConflict: true,
-              },
-            ),
           );
         }
 

@@ -141,35 +141,51 @@ export const provideInterestRateService = (
           product_id: msg.req.product_id,
         }));
 
-        if (normalized.length > 0) {
+        const range = computeInterestRatePageRange(normalized);
+
+        // Atomic write: data rows + series_data_range in the same statement.
+        if (normalized.length > 0 && range) {
+          const writeInterestRate = `${buildInsertManyIntoTableSQL(normalized, 'interest_rate', {
+            columns: INTEREST_RATE_INSERT_COLUMNS,
+            conflictKeys: ['series_id', 'created_at'],
+          })} RETURNING 1`;
+
+          const writeRange = `${buildInsertManyIntoTableSQL(
+            [
+              {
+                series_id,
+                table_name: 'interest_rate',
+                start_time: range.start_time,
+                end_time: range.end_time,
+              },
+            ],
+            'series_data_range',
+            {
+              columns: ['series_id', 'table_name', 'start_time', 'end_time'],
+              ignoreConflict: true,
+            },
+          )} RETURNING 1`;
+
+          await requestSQL(
+            terminal,
+            `
+            WITH
+              write_interest_rate AS (
+                ${writeInterestRate}
+              ),
+              write_range AS (
+                ${writeRange}
+              )
+            SELECT 1 as ok;
+            `,
+          );
+        } else if (normalized.length > 0) {
           await requestSQL(
             terminal,
             buildInsertManyIntoTableSQL(normalized, 'interest_rate', {
               columns: INTEREST_RATE_INSERT_COLUMNS,
               conflictKeys: ['series_id', 'created_at'],
             }),
-          );
-        }
-
-        const range = computeInterestRatePageRange(normalized);
-        if (range) {
-          await requestSQL(
-            terminal,
-            buildInsertManyIntoTableSQL(
-              [
-                {
-                  series_id,
-                  table_name: 'interest_rate',
-                  start_time: range.start_time,
-                  end_time: range.end_time,
-                },
-              ],
-              'series_data_range',
-              {
-                columns: ['series_id', 'table_name', 'start_time', 'end_time'],
-                ignoreConflict: true,
-              },
-            ),
           );
         }
 

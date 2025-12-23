@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/exchange",
+      "comment": "feat: 优化提供利率和OHLC服务的数据库写入逻辑，合并数据行和系列数据范围的写入",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/exchange"
+}
