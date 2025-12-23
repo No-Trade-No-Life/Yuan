@@ -1,0 +1,1039 @@
+{
+  "range": {
+    "old": "10c4ab97a8103229fe0492d02b0b08f70609bba6",
+    "new": "2728fa254825747a1226b1e1d1bc105702a9166f",
+    "label": "10c4ab97a..2728fa254",
+    "startDate": "2025-12-22",
+    "endDate": "2025-12-22",
+    "commitCount": 4,
+    "generatedAt": "2025-12-23T00:06:18.022Z"
+  },
+  "contributors": [
+    {
+      "name": "Siyuan Wang",
+      "email": "c.one@thrimbda.com",
+      "commits": 3
+    },
+    {
+      "name": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "commits": 1
+    }
+  ],
+  "directoryAnalysis": {
+    "topLevel": [
+      {
+        "dir": "apps",
+        "fileCount": 17
+      },
+      {
+        "dir": "common",
+        "fileCount": 12
+      },
+      {
+        "dir": "libraries",
+        "fileCount": 6
+      },
+      {
+        "dir": ".legion",
+        "fileCount": 5
+      },
+      {
+        "dir": "docs",
+        "fileCount": 2
+      },
+      {
+        "dir": "tools",
+        "fileCount": 1
+      }
+    ],
+    "projects": [
+      {
+        "project": "common",
+        "fileCount": 12,
+        "marker": null
+      },
+      {
+        "project": ".legion",
+        "fileCount": 5,
+        "marker": null
+      },
+      {
+        "project": "apps/alert-receiver",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-aster",
+        "fileCount": 2,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-binance",
+        "fileCount": 2,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-bitget",
+        "fileCount": 2,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-gate",
+        "fileCount": 2,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-huobi",
+        "fileCount": 2,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-hyperliquid",
+        "fileCount": 2,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-okx",
+        "fileCount": 2,
+        "marker": "package.json"
+      },
+      {
+        "project": "docs",
+        "fileCount": 2,
+        "marker": null
+      },
+      {
+        "project": "libraries/data-interest-rate",
+        "fileCount": 2,
+        "marker": "package.json"
+      },
+      {
+        "project": "libraries/data-ohlc",
+        "fileCount": 2,
+        "marker": "package.json"
+      },
+      {
+        "project": "libraries/exchange",
+        "fileCount": 2,
+        "marker": "package.json"
+      },
+      {
+        "project": "tools/sql-migration",
+        "fileCount": 1,
+        "marker": "package.json"
+      }
+    ],
+    "markersUsed": [
+      "package.json",
+      "Cargo.toml",
+      "go.mod",
+      "requirements.txt",
+      "pyproject.toml",
+      "setup.py",
+      "pom.xml",
+      "build.gradle",
+      "build.gradle.kts",
+      "CMakeLists.txt",
+      "Makefile",
+      "pubspec.yaml",
+      "mix.exs",
+      "Gemfile",
+      "composer.json"
+    ]
+  },
+  "commits": [
+    {
+      "hash": "009c30e9a35590909e1dfb9a4c251d71e28b4fc2",
+      "short": "009c30e9a",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2025-12-22 14:36:53 +0800",
+      "subject": "feat: add daily git change report for 2025-12-22 - 2 commits (#2383)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 5241,
+          "deletions": 0,
+          "path": "docs/reports/git-changes-2025-12-22.json",
+          "changeType": "unknown",
+          "patch": null,
+          "codeSnippets": []
+        },
+        {
+          "additions": 130,
+          "deletions": 0,
+          "path": "docs/reports/git-changes-report-2025-12-22.md",
+          "changeType": "added",
+          "patch": "commit 009c30e9a35590909e1dfb9a4c251d71e28b4fc2\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Dec 22 14:36:53 2025 +0800\n\n    feat: add daily git change report for 2025-12-22 - 2 commits (#2383)\n    \n    Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/docs/reports/git-changes-report-2025-12-22.md b/docs/reports/git-changes-report-2025-12-22.md\nnew file mode 100644\nindex 000000000..94dcceccb\n--- /dev/null\n+++ b/docs/reports/git-changes-report-2025-12-22.md\n@@ -0,0 +1,130 @@\n+# Git 变更报告（b7747130f..10c4ab97a）\n+\n+## 1. 概览\n+\n+- **时间范围**：2025-12-21 至 2025-12-21\n+- **提交数量**：2 个提交\n+- **主要贡献者**：humblelittlec1[bot] (2)\n+- **热点目录**：apps (27 files), common (18 files), libraries (3 files)\n+- **生成时间**：2025-12-22T00:06:19.228Z\n+\n+## 2. 核心变更\n+\n+> ⚠️ **全覆盖要求**：此章节必须涵盖所有提交，不能遗漏任何一个 commit。\n+\n+### 2.1 版本更新与变更日志维护\n+\n+**相关提交**：`6fed53a74`\n+**作者**：humblelittlec1[bot]\n+\n+**设计意图**：\n+本次版本更新是为了同步多个 vendor 包的版本号至 0.9.0/0.12.0，并更新对应的 CHANGELOG 文件。主要目的是记录新增的 OHLC 和 Interest Rate 历史数据写入服务功能，确保版本管理和变更记录的一致性。通过自动化流程更新 package.json 版本号，并在 CHANGELOG 中详细记录功能变更、依赖更新和版本发布信息，为团队提供清晰的版本演进历史。\n+\n+**核心代码**：\n+[package.json:L3](apps/vendor-aster/package.json#L3)\n+\n+```json\n+{\n+  \"version\": \"0.9.0\",\n+}\n+```\n+\n+[CHANGELOG.md:L3-L8](apps/vendor-aster/CHANGELOG.md#L3-L8)\n+\n+```markdown\n+This log was last generated on Sun, 21 Dec 2025 04:56:52 GMT and should not be manually modified.\n+\n+## 0.9.0\n+Sun, 21 Dec 2025 04:56:52 GMT\n+\n+### Minor changes\n+\n+- add provideOHLCService and provideInterestRateService\n+```\n+\n+**影响范围**：\n+\n+- 影响模块：`vendor-aster`, `vendor-binance`, `vendor-bitget`, `vendor-gate`, `vendor-huobi`\n+- 需要关注：所有相关 vendor 包的版本号已统一更新，CHANGELOG 记录了新增的 OHLC 和 Interest Rate 服务功能\n+\n+**提交明细**：\n+\n+- `6fed53a74`: 更新多个 vendor 包的版本号至 0.9.0/0.12.0，并同步更新对应的 CHANGELOG 文件\n+\n+### 2.2 Git 变更报告自动化\n+\n+**相关提交**：`10c4ab97a`\n+**作者**：humblelittlec1[bot]\n+\n+**设计意图**：\n+添加每日 Git 变更报告自动化功能，为团队提供系统化的代码变更跟踪和审查工具。通过生成结构化的 JSON 数据和可读的 Markdown 报告，帮助团队成员快速了解每日代码变更情况，支持代码审查、发布说明和团队同步等场景。该功能基于 git-changes-reporter skill 实现，能够自动分析指定 commit 区间的代码变更，提取关键信息并按语义聚类呈现。\n+\n+**核心代码**：\n+[docs/reports/git-changes-2025-12-21.json:L1-L10](docs/reports/git-changes-2025-12-21.json#L1-L10)\n+\n+```json\n+{\n+  \"range\": {\n+    \"old\": \"1f09623951aa892c4977e2d098b66cb8252d5adf\",\n+    \"new\": \"b7747130f7ae76a2910f01099db91961c17daea7\",\n+    \"label\": \"1f0962395..b7747130f\",\n+    \"startDate\": \"2025-12-20\",\n+    \"endDate\": \"2025-12-20\",\n+    \"commitCount\": 5,\n+    \"generatedAt\": \"2025-12-21T00:06:23.388Z\"\n+  },\n+```\n+\n+**影响范围**：\n+\n+- 影响模块：`docs/reports` 目录下的报告生成系统\n+- 需要关注：新增了 git-changes-reporter skill 的自动化输出文件，为后续的代码变更跟踪提供了基础设施\n+\n+**提交明细**：\n+\n+- `10c4ab97a`: 添加 2025-12-21 的每日 Git 变更报告，包含 5 个提交的详细分析\n+\n+### 提交覆盖检查\n+\n+**本次报告涵盖的所有提交**：\n+\n+| 序号 | Commit | 作者 | 主题 | 所属章节 |\n+|------|--------|------|------|----------|\n+| 1 | `6fed53a74` | humblelittlec1[bot] | chore: bump version (#2381) | 2.1 |\n+| 2 | `10c4ab97a` | humblelittlec1[bot] | feat: add daily git change report for 2025-12-21 - 5 commits (#2380) | 2.2 |\n+\n+> ✅ 确认：所有 2 个提交均已在上述章节中覆盖\n+\n+## 3. 贡献者分析\n+\n+| 作者 | 提交数 | 主要贡献领域 | 关键提交 |\n+|------|--------|--------------|----------|\n+| humblelittlec1[bot] | 2 | 配置与环境、文档 | `6fed53a74`, `10c4ab97a` |\n+\n+## 4. 技术影响与风险\n+\n+### 兼容性影响\n+\n+- 无破坏性变更，所有版本更新均为向后兼容的 minor 版本升级\n+- CHANGELOG 文件格式保持不变，仅内容更新\n+\n+### 配置变更\n+\n+- 更新了多个 vendor 包的 package.json 版本号\n+- 新增了 docs/reports 目录用于存储 Git 变更报告\n+\n+### 性能影响\n+\n+- Git 变更报告生成可能会增加构建时间，但影响较小\n+- 报告文件存储在 docs/reports 目录，不影响运行时性能\n+\n+### 测试覆盖\n+\n+- 版本更新和 CHANGELOG 维护为自动化流程，无需额外测试\n+- Git 变更报告生成功能需要验证报告格式的正确性\n+\n+---\n+\n+**报告生成时间**：2025-12-22  \n+**工具版本**：git-changes-reporter 3.0.0  \n+**数据源**：docs/reports/git-changes-2025-12-22.json\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "38cebdd5e5cb3e5be2aec4679cdf1cba0f4e5a19",
+      "short": "38cebdd5e",
+      "author": "Siyuan Wang",
+      "email": "c.one@thrimbda.com",
+      "authoredAt": "2025-12-22 21:00:22 +0800",
+      "subject": "feat: 修复 alert-receiver 的 resolve/repeat 加急与去重逻辑 (#2382)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 164,
+          "deletions": 3,
+          "path": ".legion/config.json",
+          "changeType": "modified",
+          "patch": "commit 38cebdd5e5cb3e5be2aec4679cdf1cba0f4e5a19\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:00:22 2025 +0800\n\n    feat: 修复 alert-receiver 的 resolve/repeat 加急与去重逻辑 (#2382)\n    \n    - 更新当前任务为 \"task-42a439ec\" 并暂停 \"vendors-ingest-ohlc-interest-rate\" 任务\n    - 新增 alert-receiver 修复任务的上下文和详细设计文档\n    - 实现 urgent 处理逻辑，确保 resolve 状态不触发加急\n    - 添加单元测试以验证 urgent 处理逻辑的正确性\n    - 更新任务清单，记录各阶段的进展与完成情况\n\ndiff --git a/.legion/config.json b/.legion/config.json\nindex 0bf6b4aab..50378018c 100644\n--- a/.legion/config.json\n+++ b/.legion/config.json\n@@ -3 +3 @@\n-  \"currentTask\": \"vendors-ingest-ohlc-interest-rate\",\n+  \"currentTask\": \"task-42a439ec\",\n@@ -62 +62 @@\n-      \"status\": \"active\",\n+      \"status\": \"paused\",\n@@ -64 +64,15 @@\n-      \"updatedAt\": \"2025-12-20T14:41:52.070Z\"\n+      \"updatedAt\": \"2025-12-21T14:29:28.426Z\"\n+    },\n+    {\n+      \"id\": \"alert-receiver-resolverepeat\",\n+      \"name\": \"alert-receiver 修复 resolve/repeat 加急与去重\",\n+      \"status\": \"paused\",\n+      \"createdAt\": \"2025-12-21T14:29:28.426Z\",\n+      \"updatedAt\": \"2025-12-21T14:55:52.892Z\"\n+    },\n+    {\n+      \"id\": \"task-42a439ec\",\n+      \"name\": \"多账户切换：新增切换账户弹窗并保留本地凭据\",\n+      \"status\": \"active\",\n+      \"createdAt\": \"2025-12-21T14:34:42.022Z\",\n+      \"updatedAt\": \"2025-12-21T14:34:42.022Z\"\n@@ -683,0 +698,147 @@\n+    },\n+    {\n+      \"id\": \"proposal-mjft6t6y-5f10f9\",\n+      \"name\": \"alert-receiver 修复 resolve/repeat 加急与去重\",\n+      \"goal\": \"修复 alert-receiver 的 resolve/repeat 通知在加急与重复发送上的逻辑错误，确保只更新原有消息并按规则重复加急。\",\n+      \"rationale\": \"当前 alert-receiver 在告警已解决（resolve）时也会触发“加急”，且 resolve/repeat 场景会重复发送新消息，造成频道噪音与错误提醒；需要把 resolve 的提示语义与消息更新/加急策略做成确定、可预测的行为。\",\n+      \"points\": [\n+        \"resolve 状态不应触发“加急/紧急”\",\n+        \"resolve 的重复通知应更新同一条 message（edit/update），不应发送新 message\",\n+        \"repeat 场景不应重复发新 message，而是对原 message 进行“重复加急”（例如再次提醒/更新加急状态/时间戳）\",\n+        \"对 dedupe 的 key/存储策略做最小必要调整，避免回归 firing 场景\",\n+        \"补充最小单测/集成测试覆盖 resolve/repeat 去重与更新行为\"\n+      ],\n+      \"scope\": [\"apps/alert-receiver/src/**\", \"docs/zh-Hans/monitoring-alerting.md（如需补充行为说明）\"],\n+      \"phases\": [\n+        {\n+          \"name\": \"调研与复现\",\n+          \"tasks\": [\n+            {\n+              \"description\": \"梳理 alert-receiver 的消息生命周期：firing→repeat→resolve 的状态机、messageId/threadId 的存储与 dedupe key 生成方式，并用最小输入复现 resolve 也加急、resolve/repeat 重复发消息的问题。\",\n+              \"acceptance\": \"在任务 context 记录：触发条件、当前错误行为的代码路径、以及期望行为的规则（含边界条件）。\"\n+            }\n+          ]\n+        },\n+        {\n+          \"name\": \"实现修复\",\n+          \"tasks\": [\n+            {\n+              \"description\": \"调整 resolve 的处理：禁止进入加急路径；并确保 resolve 只会更新已有 message（不存在则按策略补发一次或记录告警）。\",\n+              \"acceptance\": \"resolve 不再触发加急；resolve 事件不会产生同一告警的多条消息。\"\n+            },\n+            {\n+              \"description\": \"调整 repeat 的处理：不再发送新 message；改为对原 message 执行更新并触发“重复加急”（例如更新卡片/追加提示/刷新加急标记）。\",\n+              \"acceptance\": \"repeat 不产生新 message；重复触发时只会对同一 message 做可观察的重复加急更新。\"\n+            }\n+          ]\n+        },\n+        {\n+          \"name\": \"验证与回归\",\n+          \"tasks\": [\n+            {\n+              \"description\": \"为 resolve/repeat 的去重与 update 行为补充测试（优先对消息发送器/存储层做 mock），并做一次本地最小运行验证。\",\n+              \"acceptance\": \"新增测试覆盖 3 个 bug 点且通过；记录手工验证步骤到 context 快速交接。\"\n+            }\n+          ]\n+        }\n+      ],\n+      \"proposedBy\": \"Claude\",\n+      \"proposedAt\": \"2025-12-21T14:14:53.770Z\",\n+      \"status\": \"approved\",\n+      \"decidedAt\": \"2025-12-21T14:29:28.426Z\",\n+      \"decidedBy\": \"Claude\",\n+      \"createdTaskId\": \"alert-receiver-resolverepeat\"\n+    },\n+    {\n+      \"id\": \"proposal-mjftw6kb-ad40b0\",\n+      \"name\": \"多账户切换：新增切换账户弹窗并保留本地凭据\",\n+      \"goal\": \"在导航栏新增“切换账户”功能，支持添加新账号并在多个 Supabase 登录账号间切换，同时历史账号凭据保留在 localStorage 中。\",\n+      \"rationale\": \"当前前端仅支持单账号登录/退出（Supabase 单 session），用户需要在同一设备上管理多个账号并快速切换；同时要求新增账号仍走现有 Email+OTP 登录流程，并在切换/退出时保留历史账号凭据在 localStorage 以便随时切回。\",\n+      \"points\": [\n+        \"在用户菜单（退出登录上方）新增“切换账户”入口\",\n+        \"设计并实现用于切换/添加账户的 Modal\",\n+        \"新增账户必须走现有登录流程（/login 的 Email+OTP）\",\n+        \"切换/退出时不删除历史账号凭据，本地可随时切回\",\n+        \"将当前账号的 session 在 TOKEN_REFRESHED 等事件中持续同步到本地存储，保证可用性\"\n+      ],\n+      \"scope\": [\n+        \"frontend/src/components/header/index.tsx\",\n+        \"frontend/src/pages/login/index.tsx\",\n+        \"frontend/src/hooks/useAuth.ts\",\n+        \"frontend/src/library/request.ts\",\n+        \"frontend/src/library/supabase.ts\",\n+        \"frontend/src/components/(new) account-switcher modal\",\n+        \"frontend/src/library/(new) multi-account session store\"\n+      ],\n+      \"phases\": [\n+        {\n+          \"name\": \"调研与方案确认\",\n+          \"tasks\": [\n+            {\n+              \"description\": \"复核现有登录/退出入口与 Supabase session 持久化行为（useAuth、LoginPage、Header、request.ts 401 处理）\",\n+              \"acceptance\": \"明确 session 来源、更新时机、退出行为；确认可通过 `supabase.auth.setSession` 进行会话切换\"\n+            },\n+            {\n+              \"description\": \"确定 localStorage 数据结构与 key（含版本字段、字段安全性、迁移策略）\",\n+              \"acceptance\": \"形成明确的数据模型与 key 命名，并列出兼容/迁移规则（例如 v1 结构）\"\n+            }\n+          ]\n+        },\n+        {\n+          \"name\": \"多账户存储与切换逻辑\",\n+          \"tasks\": [\n+            {\n+              \"description\": \"新增 multi-account session store（localStorage 读写、schema 校验、upsert、lastUsedAt 更新）\",\n+              \"acceptance\": \"可在本地保存多个账户的 session（至少包含 email/userId/refresh_token/expires_at）；重复登录同一账户会更新记录\"\n+            },\n+            {\n+              \"description\": \"在 `useAuth` 的 `onAuthStateChange` 中对 SIGNED_IN/TOKEN_REFRESHED/USER_UPDATED 等事件同步更新 store\",\n+              \"acceptance\": \"活跃账户 token 刷新后，本地保存的对应 session 记录会随之更新，避免切回时 refresh_token 过期\"\n+            },\n+            {\n+              \"description\": \"实现 `switchToAccount`：从 store 取目标 session 调用 `supabase.auth.setSession` 并处理失败场景\",\n+              \"acceptance\": \"可在不走登录页的情况下切换到已保存账户；失败时给出明确提示且不删除本地记录\"\n+            },\n+            {\n+              \"description\": \"调整“退出登录”逻辑与 401 强制登出逻辑：登出只影响当前会话，不清理 multi-account store\",\n+              \"acceptance\": \"退出登录后 localStorage 中的历史账号记录仍在；重新登录/切换可继续使用\"\n+            }\n+          ]\n+        },\n+        {\n+          \"name\": \"UI：Header 入口与切换 Modal\",\n+          \"tasks\": [\n+            {\n+              \"description\": \"在 `Header` 的用户下拉菜单中，在“退出登录”上方新增“切换账户”项并打开 Modal\",\n+              \"acceptance\": \"已登录时可看到“切换账户”入口；点击打开弹窗且不影响现有菜单项\"\n+            },\n+            {\n+              \"description\": \"实现切换账户 Modal：展示当前账户、已保存账户列表、切换动作、添加账户入口\",\n+              \"acceptance\": \"可从列表选择并切换；当前账户有清晰标识；提供“添加账户”按钮/链接\"\n+            },\n+            {\n+              \"description\": \"接入“添加账户”流程：从 Modal 跳转 `/login` 走 Email+OTP；登录成功后写入 store 并返回来源页面（或默认页）\",\n+              \"acceptance\": \"添加新账号不依赖 Modal 内登录；登录成功后能在 Modal 中看到新账号且可切换；返回路径符合设计\"\n+            }\n+          ]\n+        },\n+        {\n+          \"name\": \"验证与回归\",\n+          \"tasks\": [\n+            {\n+              \"description\": \"覆盖关键手测场景：添加两个账号、在两者间切换、刷新页面后仍可切换、退出登录后账号列表仍保留\",\n+              \"acceptance\": \"上述场景在浏览器中验证通过，且不会出现“凭据被清空/丢失”\"\n+            },\n+            {\n+              \"description\": \"验证异常与边界：目标 session 失效/refresh_token 过期、401 触发强制登出、localStorage 数据损坏\",\n+              \"acceptance\": \"出现异常时有 toast 提示；不会 crash；不会删除历史记录；可引导用户重新走登录流程恢复该账号\"\n+            }\n+          ]\n+        }\n+      ],\n+      \"proposedBy\": \"Claude\",\n+      \"proposedAt\": \"2025-12-21T14:34:37.499Z\",\n+      \"status\": \"approved\",\n+      \"decidedAt\": \"2025-12-21T14:34:42.022Z\",\n+      \"decidedBy\": \"Claude\",\n+      \"createdTaskId\": \"task-42a439ec\"\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 25,
+          "deletions": 0,
+          "path": ".legion/ledger.csv",
+          "changeType": "added",
+          "patch": "commit 38cebdd5e5cb3e5be2aec4679cdf1cba0f4e5a19\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:00:22 2025 +0800\n\n    feat: 修复 alert-receiver 的 resolve/repeat 加急与去重逻辑 (#2382)\n    \n    - 更新当前任务为 \"task-42a439ec\" 并暂停 \"vendors-ingest-ohlc-interest-rate\" 任务\n    - 新增 alert-receiver 修复任务的上下文和详细设计文档\n    - 实现 urgent 处理逻辑，确保 resolve 状态不触发加急\n    - 添加单元测试以验证 urgent 处理逻辑的正确性\n    - 更新任务清单，记录各阶段的进展与完成情况\n\ndiff --git a/.legion/ledger.csv b/.legion/ledger.csv\nindex 461730576..ca6437757 100644\n--- a/.legion/ledger.csv\n+++ b/.legion/ledger.csv\n@@ -349,0 +350,25 @@\n+2025-12-21T11:46:40.581Z,legion_update_context,vendors-ingest-ohlc-interest-rate,vendors-ingest-ohlc-interest-rate,Claude,addFile: .c1-cellar/vex-verify-ingest.ts,success\n+2025-12-21T12:06:59.254Z,legion_update_context,vendors-ingest-ohlc-interest-rate,vendors-ingest-ohlc-interest-rate,Claude,progress.completed: 按最新约束重写 `.c1-cellar/vex-verify-ingest.ts`：无需参数；从 SQL `product` 表按 `datasource_id` 各取 5 个 `product_id`；固定测试 `PT5M/PT1H`；`direction` 从 service schema 解析；`time` 固定,success\n+2025-12-21T12:19:16.437Z,legion_update_context,vendors-ingest-ohlc-interest-rate,vendors-ingest-ohlc-interest-rate,Claude,progress.completed: 调整 `.c1-cellar/vex-verify-ingest.ts` 的选样方式：从“按 datasource_id 取 5”改为“按每个 ingest service 的 `meta.product_id_prefix` 取 5”，确保覆盖每个 prefix 的路由与 schema const direction,success\n+2025-12-21T14:14:03.836Z,legion_get_status,vendors-ingest-ohlc-interest-rate,vendors-ingest-ohlc-interest-rate,Claude,,success\n+2025-12-21T14:14:11.548Z,legion_read_context,vendors-ingest-ohlc-interest-rate,vendors-ingest-ohlc-interest-rate,Claude,\"section: all, includeReviews: true\",success\n+2025-12-21T14:14:11.817Z,legion_list_reviews,vendors-ingest-ohlc-interest-rate,vendors-ingest-ohlc-interest-rate,Claude,status: open,success\n+2025-12-21T14:14:53.772Z,legion_propose_task,vendors-ingest-ohlc-interest-rate,vendors-ingest-ohlc-interest-rate,Claude,name: alert-receiver 修复 resolve/repeat 加急与去重,success\n+2025-12-21T14:29:28.428Z,legion_approve_proposal,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,proposalId: proposal-mjft6t6y-5f10f9,success\n+2025-12-21T14:29:32.027Z,legion_switch_task,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,taskId: alert-receiver-resolverepeat,success\n+2025-12-21T14:29:35.034Z,legion_read_context,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,\"section: all, includeReviews: true\",success\n+2025-12-21T14:29:35.580Z,legion_list_reviews,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,status: open,success\n+2025-12-21T14:33:28.925Z,legion_update_tasks,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,completeTask: phase 1,success\n+2025-12-21T14:34:07.245Z,legion_update_tasks,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,addTask: 在具备 rush/pnpm/heft 的环境运行 `apps/alert-receiver` 与 `apps/feishu-notifier` 的 `npm run build`，确认测试通过并验证 resolved/repeat 不再产生重复消息。,success\n+2025-12-21T14:34:13.076Z,legion_create_task,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,goal: 在导航栏新增“切换账户”功能，支持添加新账号并在多个 Supabase 登录账号间切换，同时历史账号凭据保留在 localStorage 中。,failed\n+2025-12-21T14:34:21.043Z,legion_update_tasks,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,addTask: 在具备 rush/pnpm/heft 的环境运行 `apps/alert-receiver` 与 `apps/feishu-notifier` 的 `npm run build`，确认测试通过并验证 resolved/repeat 不再产生重复消息。,success\n+2025-12-21T14:34:27.594Z,legion_update_tasks,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,addDiscoveredTask: 在具备 rush/pnpm/heft 的环境运行 `apps/alert-receiver` 与 `apps/feishu-notifier` 的 `npm run build`，确认测试通过并手工验证 resolved/repeat 不再产生重复消息。,success\n+2025-12-21T14:34:37.500Z,legion_propose_task,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,name: 多账户切换：新增切换账户弹窗并保留本地凭据,success\n+2025-12-21T14:34:42.025Z,legion_approve_proposal,task-42a439ec,多账户切换：新增切换账户弹窗并保留本地凭据,Claude,proposalId: proposal-mjftw6kb-ad40b0,success\n+2025-12-21T14:34:45.454Z,legion_update_context,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,addDecision: Resolved 组不触发加急；urgent 失败不应导致 sendMessage 失败,success\n+2025-12-21T14:34:53.944Z,legion_update_context,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,addFile: apps/alert-receiver/src/pipelines/urgent.ts,success\n+2025-12-21T14:34:54.057Z,legion_update_context,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,addFile: apps/alert-receiver/src/pipelines/urgent.test.ts,success\n+2025-12-21T14:34:55.369Z,legion_update_context,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,addFile: apps/feishu-notifier/src/api.ts,success\n+2025-12-21T14:34:56.798Z,legion_update_context,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,addFile: apps/feishu-notifier/src/api.test.ts,success\n+2025-12-21T14:35:13.171Z,legion_update_context,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,handoff: 在有工具链的环境运行：`cd apps/alert-receiver && npm run build`，以及 `cd apps/feishu-notifier && npm run build`（会跑 jest）。,success\n+2025-12-21T14:55:52.894Z,legion_update_context,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,addFile: .legion/tasks/alert-receiver-resolverepeat/plan.md,success\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "direction",
+              "code": "2025-12-21T12:19:16.437Z,legion_update_context,vendors-ingest-ohlc-interest-rate,vendors-ingest-ohlc-interest-rate,Claude,progress.completed: 调整 `.c1-cellar/vex-verify-ingest.ts` 的选样方式：从“按 datasource_id 取 5”改为“按每个 ingest service 的 `meta.product_id_prefix` 取 5”，确保覆盖每个 prefix 的路由与 schema const direction,success\n2025-12-21T14:14:03.836Z,legion_get_status,vendors-ingest-ohlc-interest-rate,vendors-ingest-ohlc-interest-rate,Claude,,success\n2025-12-21T14:14:11.548Z,legion_read_context,vendors-ingest-ohlc-interest-rate,vendors-ingest-ohlc-interest-rate,Claude,\"section: all, includeReviews: true\",success\n2025-12-21T14:14:11.817Z,legion_list_reviews,vendors-ingest-ohlc-interest-rate,vendors-ingest-ohlc-interest-rate,Claude,status: open,success\n2025-12-21T14:14:53.772Z,legion_propose_task,vendors-ingest-ohlc-interest-rate,vendors-ingest-ohlc-interest-rate,Claude,name: alert-receiver 修复 resolve/repeat 加急与去重,success\n2025-12-21T14:29:28.428Z,legion_approve_proposal,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,proposalId: proposal-mjft6t6y-5f10f9,success\n2025-12-21T14:29:32.027Z,legion_switch_task,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,taskId: alert-receiver-resolverepeat,success\n2025-12-21T14:29:35.034Z,legion_read_context,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,\"section: all, includeReviews: true\",success\n2025-12-21T14:29:35.580Z,legion_list_reviews,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,status: open,success\n2025-12-21T14:33:28.925Z,legion_update_tasks,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,completeTask: phase 1,success\n2025-12-21T14:34:07.245Z,legion_update_tasks,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,addTask: 在具备 rush/pnpm/heft 的环境运行 `apps/alert-receiver` 与 `apps/feishu-notifier` 的 `npm run build`，确认测试通过并验证 resolved/repeat 不再产生重复消息。,success\n2025-12-21T14:34:13.076Z,legion_create_task,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,goal: 在导航栏新增“切换账户”功能，支持添加新账号并在多个 Supabase 登录账号间切换，同时历史账号凭据保留在 localStorage 中。,failed\n2025-12-21T14:34:21.043Z,legion_update_tasks,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,addTask: 在具备 rush/pnpm/heft 的环境运行 `apps/alert-receiver` 与 `apps/feishu-notifier` 的 `npm run build`，确认测试通过并验证 resolved/repeat 不再产生重复消息。,success\n2025-12-21T14:34:27.594Z,legion_update_tasks,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,addDiscoveredTask: 在具备 rush/pnpm/heft 的环境运行 `apps/alert-receiver` 与 `apps/feishu-notifier` 的 `npm run build`，确认测试通过并手工验证 resolved/repeat 不再产生重复消息。,success\n2025-12-21T14:34:37.500Z,legion_propose_task,alert-receiver-resolverepeat,alert-receiver 修复 resolve/repeat 加急与去重,Claude,name: 多账户切换：新增切换账户弹窗并保留本地凭据,success",
+              "lineStart": 352,
+              "lineEnd": 375
+            }
+          ]
+        },
+        {
+          "additions": 51,
+          "deletions": 0,
+          "path": ".legion/tasks/alert-receiver-resolverepeat/context.md",
+          "changeType": "added",
+          "patch": "commit 38cebdd5e5cb3e5be2aec4679cdf1cba0f4e5a19\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:00:22 2025 +0800\n\n    feat: 修复 alert-receiver 的 resolve/repeat 加急与去重逻辑 (#2382)\n    \n    - 更新当前任务为 \"task-42a439ec\" 并暂停 \"vendors-ingest-ohlc-interest-rate\" 任务\n    - 新增 alert-receiver 修复任务的上下文和详细设计文档\n    - 实现 urgent 处理逻辑，确保 resolve 状态不触发加急\n    - 添加单元测试以验证 urgent 处理逻辑的正确性\n    - 更新任务清单，记录各阶段的进展与完成情况\n\ndiff --git a/.legion/tasks/alert-receiver-resolverepeat/context.md b/.legion/tasks/alert-receiver-resolverepeat/context.md\nnew file mode 100644\nindex 000000000..8bfcb904d\n--- /dev/null\n+++ b/.legion/tasks/alert-receiver-resolverepeat/context.md\n@@ -0,0 +1,51 @@\n+# alert-receiver 修复 resolve/repeat 加急与去重 - 上下文\n+\n+## 会话进展 (2025-12-21)\n+\n+### ✅ 已完成\n+\n+- 定位重复发送根因：`FeishuClient.sendMessage` 在 urgent patch 失败时会 throw，导致 message_id 未写回 DB，下一轮误判为无历史 message 而反复 `SendMessage`\n+- 修复 resolve 也加急：对 `Resolved` 路由组禁止生成 urgent payload\n+- 修复重复发送：`sendMessage` 的 urgent 失败不再影响返回 message_id，后续走 `UpdateMessage` 而非重复 `SendMessage`\n+- 补充最小单测：覆盖 `Resolved` 不加急、urgent 失败不致命\n+- 补全 `.legion/tasks/alert-receiver-resolverepeat/plan.md`：增加现状分析、关键不变量、按场景定义的目标行为、伪代码级实现方案、测试与发布/回滚策略、review checklist\n+\n+### 🟡 进行中\n+\n+(暂无)\n+\n+### ⚠️ 阻塞/待定\n+\n+(暂无)\n+\n+---\n+\n+## 关键文件\n+\n+(暂无)\n+\n+---\n+\n+## 关键决策\n+\n+| 决策                                                        | 原因                                                                                                                                              | 替代方案                                                                                                                | 日期       |\n+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ---------- |\n+| Resolved 组不触发加急；urgent 失败不应导致 sendMessage 失败 | Resolved 的语义是“告警结束/已恢复”，不应再触发加急；Feishu urgent 是额外增强能力，失败不应破坏消息生命周期（否则会造成重复 SendMessage/频道噪音） | 1) 保持 throw 并在 alert-receiver 侧补偿写回 message_id；2) 彻底禁用 SendMessage 的 urgent，改为后置独立服务触发 urgent | 2025-12-21 |\n+\n+---\n+\n+## 快速交接\n+\n+**下次继续从这里开始：**\n+\n+1. 在有工具链的环境运行：`cd apps/alert-receiver && npm run build`，以及 `cd apps/feishu-notifier && npm run build`（会跑 jest）。\n+2. 在测试/预发用一条会触发 urgent 的告警验证：1) 首次 firing 发送卡片；2) resolved 更新同一条消息且不加急；3) repeat 只更新并在冷却允许时再次加急；4) 人为让 Feishu urgent API 返回非 0 时，不再出现重复 SendMessage。\n+\n+**注意事项：**\n+\n+- 本次修复的关键点在 `apps/feishu-notifier/src/api.ts`：SendMessage 的 urgent 失败改为非致命，避免 message_id 丢失导致重复发送。\n+- `apps/alert-receiver/src/pipelines/notifier.ts` 通过 `computeWantedUrgentPayload` 禁止 Resolved 组生成 urgent。\n+\n+---\n+\n+_最后更新: 2025-12-21 22:55 by Claude_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 174,
+          "deletions": 0,
+          "path": ".legion/tasks/alert-receiver-resolverepeat/plan.md",
+          "changeType": "added",
+          "patch": "commit 38cebdd5e5cb3e5be2aec4679cdf1cba0f4e5a19\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:00:22 2025 +0800\n\n    feat: 修复 alert-receiver 的 resolve/repeat 加急与去重逻辑 (#2382)\n    \n    - 更新当前任务为 \"task-42a439ec\" 并暂停 \"vendors-ingest-ohlc-interest-rate\" 任务\n    - 新增 alert-receiver 修复任务的上下文和详细设计文档\n    - 实现 urgent 处理逻辑，确保 resolve 状态不触发加急\n    - 添加单元测试以验证 urgent 处理逻辑的正确性\n    - 更新任务清单，记录各阶段的进展与完成情况\n\ndiff --git a/.legion/tasks/alert-receiver-resolverepeat/plan.md b/.legion/tasks/alert-receiver-resolverepeat/plan.md\nnew file mode 100644\nindex 000000000..d993bcc9f\n--- /dev/null\n+++ b/.legion/tasks/alert-receiver-resolverepeat/plan.md\n@@ -0,0 +1,174 @@\n+# alert-receiver 修复 resolve/repeat 加急与去重（详细设计）\n+\n+## 1. 背景与问题定义\n+\n+`alert-receiver` 的通知链路是：Prometheus firing 快照 → 写 `alert_record` → notifier 读取未 finalized 记录聚合告警组 → 按 `alert_receive_route` 渲染飞书卡片并发送/更新。\n+\n+当前线上观察到 3 类错误行为（均会导致群聊噪音/误提醒）：\n+\n+1. **resolve 信息也被加急**：告警已恢复（Resolved）仍触发紧急电话/SMS/App 加急，这是语义错误。\n+2. **resolve 信息重复发送**：同一条告警组在 resolve 时不应该发新 message，而应对“首次 firing 产生的那条 message”做 Update；但实际会出现多条“已解决”卡片。\n+3. **repeat 信息重复发送**：repeat 的本意是“更新卡片 + 可能再次加急”，不应重复 SendMessage；实际会反复发新 message。\n+\n+## 2. 术语与不变量\n+\n+### 2.1 术语\n+\n+- **告警实例（alert）**：`alert_record` 的一行（主键 `id` = fingerprint）。\n+- **告警组（group）**：按 `group_name`/`group_key` 聚合的一组 alerts（notifier 的工作单元）。\n+- **路由（route）**：`alert_receive_route` 中的一条配置（按 `label_schema` 过滤后决定是否向某 chat 发送）。\n+- **消息绑定（message binding）**：`message_ids` 中的 `{ route_id(chat_id), message_id }`，用于将“某告警实例/组”绑定到“某群聊里的一条飞书消息”。\n+- **加急（urgent）**：飞书对消息的额外“紧急触达”能力（app/sms/phone），不是消息发送本身的一部分。\n+\n+### 2.2 必须满足的不变量（设计约束）\n+\n+1. **每个 (group_key, chat_id) 在同一生命周期内最多只有 1 条飞书消息**：后续状态变化/重复提醒只能 `UpdateMessage`。\n+2. **Resolved 语义永不加急**：Resolved/已恢复只做信息同步，不触达“紧急渠道”。\n+3. **urgent 必须是 best-effort**：无论 urgent 触发成功与否，都不应让“消息发送/更新”失败；否则会破坏 (1) 并引发重复 SendMessage。\n+4. **message_id 必须可持久化并可恢复**：服务重启后，应尽可能通过 DB 中的 `message_ids` 继续 Update，而不是重新 Send。\n+\n+## 3. 现状实现速览（便于 review 对齐）\n+\n+关键实现文件：\n+\n+- `apps/alert-receiver/src/pipelines/prometheus-alert.ts`：对账写 `alert_record` 的 firing/resolved。\n+- `apps/alert-receiver/src/pipelines/notifier.ts`：\n+  - 周期查询 `finalized=false` 的 `alert_record`\n+  - 聚合成 group\n+  - 对每个 group×route 渲染卡片并 `Feishu/SendMessage` 或 `Feishu/UpdateMessage`\n+  - 写回 `message_ids`\n+  - 对仍未终态的 group 用定时器 repeat（实现 repeat 通知语义）\n+- `apps/feishu-notifier/src/api.ts`：`FeishuClient.sendMessage/updateMessage`，其中 urgent 通过额外 PATCH endpoint 触发。\n+\n+当前导致“重复发送”的关键风险点：\n+\n+- `FeishuClient.sendMessage` 在触发 urgent 失败时会 `throw`，但消息本体**可能已经发送成功**并返回了 `message_id`。\n+- notifier 捕获错误后不会写回 `message_ids`，下一轮会把该 route 视为“无历史 message”，从而再次 `SendMessage` → 形成重复消息（resolve/repeat/firing 都可能触发）。\n+\n+## 4. 目标行为（按场景定义，可直接对照写代码）\n+\n+### 4.1 firing（首次出现）\n+\n+- 若 DB 中已存在该 route 的 `message_id`：执行 `UpdateMessage`（幂等更新）。\n+- 否则：执行 `SendMessage`，并**无论 urgent 成功与否**都要拿到 `message_id` 并写回 DB。\n+- urgent 触发条件：group 非 Resolved 且 severity 达到 route 配置阈值，且未命中冷却。\n+\n+### 4.2 repeat（周期性重复提醒）\n+\n+- 必须走 `UpdateMessage`（不发新消息）。\n+- urgent 行为：在冷却允许时可“再次加急”（本质上就是对同一 `message_id` 再次触发 urgent PATCH）。\n+\n+### 4.3 resolve（全部恢复）\n+\n+- 必须走 `UpdateMessage`（不发新消息）。\n+- **绝不加急**（无论 severity 如何）。\n+\n+> 待确认的边界：如果 resolve 时 DB 中不存在 `message_id`（极端情况），是否允许补发 1 条“已解决”消息？\n+>\n+> - 推荐默认：不补发，只记录日志（避免 resolved 反向制造噪音）。\n+> - 但为了“状态可见性”，也可以选择补发 1 条（仍然不加急）。\n+> - 本任务优先解决“重复发送/重复加急”，该策略需要你最终拍板。\n+\n+## 5. 详细设计（可直接按此落代码）\n+\n+### 5.1 urgent 判定函数（纯函数，可测）\n+\n+新增纯函数（建议单独文件）：\n+\n+```ts\n+computeWantedUrgentPayload(route, group) => { urgent, userIds } | undefined\n+```\n+\n+规则：\n+\n+1. `group.status === 'Resolved'` → `undefined`\n+2. `route.urgent_user_list` 为空 → `undefined`\n+3. `group.severity` 不在已知列表 → `undefined`\n+4. `group.severity` 严重程度“高于或等于” `route.urgent_on_severity` → 返回 payload，否则 `undefined`\n+\n+### 5.2 urgent 冷却（限频，避免 repeat 频繁打扰）\n+\n+沿用现有内存 Map（不改 DB）：\n+\n+- `URGENT_MIN_INTERVAL_MS = env ALERT_URGENT_MIN_INTERVAL_MS || 10min`\n+- key：`${group_key}::${chat_id}`\n+- 行为：距离上次加急不足 `URGENT_MIN_INTERVAL_MS` 则本轮不带 urgent。\n+\n+### 5.3 notifier 的 send/update 主流程（伪代码）\n+\n+位置：`apps/alert-receiver/src/pipelines/notifier.ts` 的 `sendOrUpdateMessage`。\n+\n+```ts\n+existingMessageId = messageIndex.get(route.chat_id)\n+\n+wanted = computeWantedUrgentPayload(route, routeGroup)\n+urgentPayload = wanted && allowUrgentForGroupRoute(routeGroup.group_key, route.chat_id, now)\n+  ? wanted\n+  : undefined\n+\n+payload = existingMessageId\n+  ? { msg_type:'interactive', content: card, message_id: existingMessageId, ...(urgentPayload?) }\n+  : { msg_type:'interactive', content: card, receive_id: chat_id, receive_id_type:'chat_id', ...(urgentPayload?) }\n+\n+serviceName = existingMessageId ? 'Feishu/UpdateMessage' : 'Feishu/SendMessage'\n+result = requestForResponse(serviceName, payload)\n+\n+if result.code !== 0 => throw（notifier 层记录错误即可，不应写回错误数据）\n+\n+messageId = result.data?.message_id ?? existingMessageId\n+if messageId => messageIndex.set(route.chat_id, messageId)\n+\n+if urgentPayload => lastUrgentAtByGroupRoute.set(key, now)\n+```\n+\n+关键点：\n+\n+- urgent 决策发生在 notifier；真正触发 urgent 的细节在 feishu-notifier 内部完成。\n+- 只要 `SendMessage/UpdateMessage` 本体成功，就必须能得到稳定的 `message_id`（见 5.4）。\n+\n+### 5.4 feishu-notifier：SendMessage 的 urgent 失败必须非致命\n+\n+位置：`apps/feishu-notifier/src/api.ts` 的 `FeishuClient.sendMessage`。\n+\n+修改点：\n+\n+- 发送消息本体成功后拿到 `message_id`，立刻作为返回值的基础。\n+- urgent PATCH 对每个 userId 单独 try/catch：\n+  - 失败：`console.error('Feishu/UrgentError', urgent, messageId, userId, err)`，但不 throw\n+  - 继续处理剩余 userId\n+- 若 urgent 指定但 `urgent_user_list` 缺失/为空：记录错误并直接返回 `message_id`（不 throw）\n+\n+这样 notifier 才能稳定写回 `message_ids`，从根源上消除“send 成功但由于 urgent 抛错导致 message_id 丢失”的重复发送。\n+\n+## 6. 测试设计（最小但覆盖关键回归）\n+\n+### 6.1 单测：Resolved 不加急\n+\n+- 输入：`group.status='Resolved'`、severity 任意\n+- 断言：`computeWantedUrgentPayload(...) === undefined`\n+\n+### 6.2 单测：urgent 失败不影响 sendMessage 返回\n+\n+- mock `globalThis.fetch`：\n+  - 第一次（SendMessage endpoint）返回 `{ code:0, data:{ message_id:'m1' } }`\n+  - 第二次（urgent endpoint）返回 `{ code:1 }`\n+- 断言：`sendMessage(...)` resolve `{ message_id:'m1' }`，不 reject\n+\n+> 若你希望更强的回归覆盖，可以加 1 个 notifier 级别的测试（mock Terminal client）验证：当 SendMessage 的 urgent 失败时，notifier 仍会写回 DB 并在下一轮使用 UpdateMessage 而不是 SendMessage。\n+\n+## 7. 发布/回滚策略\n+\n+- 发布风险低：不改 DB schema，不改对外接口，只改变“Resolved 的加急条件”和“urgent 失败的异常传播方式”。\n+- 可观测性：关注日志 `Feishu/UrgentError` 与 notifier 的 `SendOrUpdateMessageFailed`，确认不再出现“同组重复 SendMessage”。\n+- 回滚：如发现 urgent 失败后不应吞掉（业务要求强一致），可回滚 sendMessage 的 try/catch；但必须同时补偿“message_id 写回机制”，否则会回到重复发送问题。\n+\n+## 8. Review 清单（你可以照此逐条打勾）\n+\n+- [ ] Resolved 组永不携带 urgent 参数（包括 UpdateMessage）\n+- [ ] repeat 只触发 UpdateMessage（不再出现重复 SendMessage）\n+- [ ] SendMessage 成功但 urgent 失败时，仍能写回 `message_id`，下一轮必走 UpdateMessage\n+- [ ] 日志中 urgent 失败只出现 `Feishu/UrgentError`，不再导致 notifier 报 `SendOrUpdateMessageFailed`\n+\n+---\n+\n+_创建于: 2025-12-21 | 最后更新: 2025-12-21_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 38,
+          "deletions": 0,
+          "path": ".legion/tasks/alert-receiver-resolverepeat/tasks.md",
+          "changeType": "added",
+          "patch": "commit 38cebdd5e5cb3e5be2aec4679cdf1cba0f4e5a19\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:00:22 2025 +0800\n\n    feat: 修复 alert-receiver 的 resolve/repeat 加急与去重逻辑 (#2382)\n    \n    - 更新当前任务为 \"task-42a439ec\" 并暂停 \"vendors-ingest-ohlc-interest-rate\" 任务\n    - 新增 alert-receiver 修复任务的上下文和详细设计文档\n    - 实现 urgent 处理逻辑，确保 resolve 状态不触发加急\n    - 添加单元测试以验证 urgent 处理逻辑的正确性\n    - 更新任务清单，记录各阶段的进展与完成情况\n\ndiff --git a/.legion/tasks/alert-receiver-resolverepeat/tasks.md b/.legion/tasks/alert-receiver-resolverepeat/tasks.md\nnew file mode 100644\nindex 000000000..687d468e7\n--- /dev/null\n+++ b/.legion/tasks/alert-receiver-resolverepeat/tasks.md\n@@ -0,0 +1,38 @@\n+# alert-receiver 修复 resolve/repeat 加急与去重 - 任务清单\n+\n+## 快速恢复\n+\n+**当前阶段**: 阶段 1 - 调研与复现\n+**当前任务**: (none)\n+**进度**: 4/4 任务完成\n+\n+---\n+\n+## 阶段 1: 调研与复现 ✅ COMPLETE\n+\n+- [x] 梳理 alert-receiver 的消息生命周期：firing→repeat→resolve 的状态机、messageId/threadId 的存储与 dedupe key 生成方式，并用最小输入复现 resolve 也加急、resolve/repeat 重复发消息的问题。 | 验收: 在任务 context 记录：触发条件、当前错误行为的代码路径、以及期望行为的规则（含边界条件）。 ← CURRENT\n+\n+---\n+\n+## 阶段 2: 实现修复 ✅ COMPLETE\n+\n+- [x] 调整 resolve 的处理：禁止进入加急路径；并确保 resolve 只会更新已有 message（不存在则按策略补发一次或记录告警）。 | 验收: resolve 不再触发加急；resolve 事件不会产生同一告警的多条消息。\n+- [x] 调整 repeat 的处理：不再发送新 message；改为对原 message 执行更新并触发“重复加急”（例如更新卡片/追加提示/刷新加急标记）。 | 验收: repeat 不产生新 message；重复触发时只会对同一 message 做可观察的重复加急更新。\n+\n+---\n+\n+## 阶段 3: 验证与回归 🟡 IN PROGRESS\n+\n+- [x] 为 resolve/repeat 的去重与 update 行为补充测试（优先对消息发送器/存储层做 mock），并做一次本地最小运行验证。 | 验收: 新增测试覆盖 3 个 bug 点且通过；记录手工验证步骤到 context 快速交接。\n+\n+---\n+\n+## 发现的新任务\n+\n+(暂无)\n+\n+- [ ] 在具备 rush/pnpm/heft 的环境运行 `apps/alert-receiver` 与 `apps/feishu-notifier` 的 `npm run build`，确认测试通过并手工验证 resolved/repeat 不再产生重复消息。 | 来源: 本环境缺少 rush/pnpm/heft，无法运行 build/test\n+\n+---\n+\n+_最后更新: 2025-12-21 22:34_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 3,
+          "deletions": 15,
+          "path": "apps/alert-receiver/src/pipelines/notifier.ts",
+          "changeType": "modified",
+          "patch": "commit 38cebdd5e5cb3e5be2aec4679cdf1cba0f4e5a19\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:00:22 2025 +0800\n\n    feat: 修复 alert-receiver 的 resolve/repeat 加急与去重逻辑 (#2382)\n    \n    - 更新当前任务为 \"task-42a439ec\" 并暂停 \"vendors-ingest-ohlc-interest-rate\" 任务\n    - 新增 alert-receiver 修复任务的上下文和详细设计文档\n    - 实现 urgent 处理逻辑，确保 resolve 状态不触发加急\n    - 添加单元测试以验证 urgent 处理逻辑的正确性\n    - 更新任务清单，记录各阶段的进展与完成情况\n\ndiff --git a/apps/alert-receiver/src/pipelines/notifier.ts b/apps/alert-receiver/src/pipelines/notifier.ts\nindex aacbb169e..e3c24bf8d 100644\n--- a/apps/alert-receiver/src/pipelines/notifier.ts\n+++ b/apps/alert-receiver/src/pipelines/notifier.ts\n@@ -21 +21 @@ import type { IAlertGroup, IAlertMessageEntry, IAlertReceiveRoute, IAlertRecord\n-import { computeGroupSeverity, getSeverityIndex, normalizeSeverity } from '../utils';\n+import { computeGroupSeverity, normalizeSeverity } from '../utils';\n@@ -22,0 +23 @@ import { filterAlertsByRoute } from './label-filters';\n+import { computeWantedUrgentPayload } from './urgent';\n@@ -59,13 +59,0 @@ const normalizeRouteFromDb = (route: IAlertReceiveRoute): IAlertReceiveRoute =>\n-const makeUrgentPayload = (\n-  route: IAlertReceiveRoute,\n-  groupSeverity: string,\n-): { urgent: string; userIds: string[] } | undefined => {\n-  if (route.urgent_user_list.length === 0) return undefined;\n-  if (getSeverityIndex(groupSeverity) === -1) return undefined;\n-  if (getSeverityIndex(groupSeverity) > getSeverityIndex(route.urgent_on_severity)) {\n-    return undefined;\n-  }\n-\n-  return { urgent: route.urgent_type, userIds: route.urgent_user_list };\n-};\n-\n@@ -279 +267 @@ const sendOrUpdateMessage = async (\n-  const wantedUrgentPayload = makeUrgentPayload(route, routeGroup.severity);\n+  const wantedUrgentPayload = computeWantedUrgentPayload(route, routeGroup);\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "wantedUrgentPayload",
+              "code": "const wantedUrgentPayload = computeWantedUrgentPayload(route, routeGroup);",
+              "lineStart": 267,
+              "lineEnd": 268
+            }
+          ]
+        },
+        {
+          "additions": 38,
+          "deletions": 0,
+          "path": "apps/alert-receiver/src/pipelines/urgent.test.ts",
+          "changeType": "added",
+          "patch": "commit 38cebdd5e5cb3e5be2aec4679cdf1cba0f4e5a19\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:00:22 2025 +0800\n\n    feat: 修复 alert-receiver 的 resolve/repeat 加急与去重逻辑 (#2382)\n    \n    - 更新当前任务为 \"task-42a439ec\" 并暂停 \"vendors-ingest-ohlc-interest-rate\" 任务\n    - 新增 alert-receiver 修复任务的上下文和详细设计文档\n    - 实现 urgent 处理逻辑，确保 resolve 状态不触发加急\n    - 添加单元测试以验证 urgent 处理逻辑的正确性\n    - 更新任务清单，记录各阶段的进展与完成情况\n\ndiff --git a/apps/alert-receiver/src/pipelines/urgent.test.ts b/apps/alert-receiver/src/pipelines/urgent.test.ts\nnew file mode 100644\nindex 000000000..e2f3041ea\n--- /dev/null\n+++ b/apps/alert-receiver/src/pipelines/urgent.test.ts\n@@ -0,0 +1,38 @@\n+import type { IAlertGroup, IAlertReceiveRoute } from '../types';\n+import { computeWantedUrgentPayload } from './urgent';\n+\n+const makeRoute = (overrides?: Partial<IAlertReceiveRoute>): IAlertReceiveRoute => ({\n+  chat_id: 'chat_1',\n+  enabled: true,\n+  urgent_on_severity: 'ERROR',\n+  urgent_type: 'app',\n+  urgent_user_list: ['u1'],\n+  created_at: '',\n+  updated_at: '',\n+  ...overrides,\n+});\n+\n+const makeGroup = (overrides?: Partial<IAlertGroup>): IAlertGroup => ({\n+  alert_name: 'a',\n+  group_key: 'g',\n+  severity: 'CRITICAL',\n+  alerts: [],\n+  status: 'Firing',\n+  finalized: false,\n+  version: '',\n+  ...overrides,\n+});\n+\n+describe('computeWantedUrgentPayload', () => {\n+  it('does not urgent for Resolved group', () => {\n+    const route = makeRoute();\n+    const group = makeGroup({ status: 'Resolved', severity: 'CRITICAL' });\n+    expect(computeWantedUrgentPayload(route, group)).toBeUndefined();\n+  });\n+\n+  it('allows urgent for Firing group when severity matches', () => {\n+    const route = makeRoute({ urgent_on_severity: 'ERROR' });\n+    const group = makeGroup({ status: 'Firing', severity: 'ERROR' });\n+    expect(computeWantedUrgentPayload(route, group)).toEqual({ urgent: 'app', userIds: ['u1'] });\n+  });\n+});\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "makeRoute",
+              "code": "const makeRoute = (overrides?: Partial<IAlertReceiveRoute>): IAlertReceiveRoute => ({\n  chat_id: 'chat_1',\n  enabled: true,\n  urgent_on_severity: 'ERROR',\n  urgent_type: 'app',\n  urgent_user_list: ['u1'],\n  created_at: '',\n  updated_at: '',\n  ...overrides,\n});\n",
+              "lineStart": 4,
+              "lineEnd": 14
+            },
+            {
+              "type": "function",
+              "name": "makeGroup",
+              "code": "const makeGroup = (overrides?: Partial<IAlertGroup>): IAlertGroup => ({\n  alert_name: 'a',\n  group_key: 'g',\n  severity: 'CRITICAL',\n  alerts: [],\n  status: 'Firing',\n  finalized: false,\n  version: '',\n  ...overrides,\n});\n\ndescribe('computeWantedUrgentPayload', () => {\n  it('does not urgent for Resolved group', () => {",
+              "lineStart": 15,
+              "lineEnd": 27
+            },
+            {
+              "type": "function",
+              "name": "route",
+              "code": "const route = makeRoute();",
+              "lineStart": 28,
+              "lineEnd": 28
+            },
+            {
+              "type": "function",
+              "name": "group",
+              "code": "  const group = makeGroup({ status: 'Resolved', severity: 'CRITICAL' });\n  expect(computeWantedUrgentPayload(route, group)).toBeUndefined();\n});\n\nit('allows urgent for Firing group when severity matches', () => {",
+              "lineStart": 29,
+              "lineEnd": 33
+            },
+            {
+              "type": "function",
+              "name": "route",
+              "code": "const route = makeRoute({ urgent_on_severity: 'ERROR' });",
+              "lineStart": 34,
+              "lineEnd": 34
+            },
+            {
+              "type": "function",
+              "name": "group",
+              "code": "    const group = makeGroup({ status: 'Firing', severity: 'ERROR' });\n    expect(computeWantedUrgentPayload(route, group)).toEqual({ urgent: 'app', userIds: ['u1'] });\n  });\n});",
+              "lineStart": 35,
+              "lineEnd": 39
+            }
+          ]
+        },
+        {
+          "additions": 23,
+          "deletions": 0,
+          "path": "apps/alert-receiver/src/pipelines/urgent.ts",
+          "changeType": "added",
+          "patch": "commit 38cebdd5e5cb3e5be2aec4679cdf1cba0f4e5a19\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:00:22 2025 +0800\n\n    feat: 修复 alert-receiver 的 resolve/repeat 加急与去重逻辑 (#2382)\n    \n    - 更新当前任务为 \"task-42a439ec\" 并暂停 \"vendors-ingest-ohlc-interest-rate\" 任务\n    - 新增 alert-receiver 修复任务的上下文和详细设计文档\n    - 实现 urgent 处理逻辑，确保 resolve 状态不触发加急\n    - 添加单元测试以验证 urgent 处理逻辑的正确性\n    - 更新任务清单，记录各阶段的进展与完成情况\n\ndiff --git a/apps/alert-receiver/src/pipelines/urgent.ts b/apps/alert-receiver/src/pipelines/urgent.ts\nnew file mode 100644\nindex 000000000..41c9ca243\n--- /dev/null\n+++ b/apps/alert-receiver/src/pipelines/urgent.ts\n@@ -0,0 +1,23 @@\n+import type { IAlertGroup, IAlertReceiveRoute } from '../types';\n+import { getSeverityIndex } from '../utils';\n+\n+const makeUrgentPayload = (\n+  route: IAlertReceiveRoute,\n+  groupSeverity: string,\n+): { urgent: string; userIds: string[] } | undefined => {\n+  if (route.urgent_user_list.length === 0) return undefined;\n+  if (getSeverityIndex(groupSeverity) === -1) return undefined;\n+  if (getSeverityIndex(groupSeverity) > getSeverityIndex(route.urgent_on_severity)) {\n+    return undefined;\n+  }\n+\n+  return { urgent: route.urgent_type, userIds: route.urgent_user_list };\n+};\n+\n+export const computeWantedUrgentPayload = (\n+  route: IAlertReceiveRoute,\n+  group: IAlertGroup,\n+): { urgent: string; userIds: string[] } | undefined => {\n+  if (group.status === 'Resolved') return undefined;\n+  return makeUrgentPayload(route, group.severity);\n+};\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "makeUrgentPayload",
+              "code": "const makeUrgentPayload = (\n  route: IAlertReceiveRoute,\n  groupSeverity: string,\n): { urgent: string; userIds: string[] } | undefined => {\n  if (route.urgent_user_list.length === 0) return undefined;\n  if (getSeverityIndex(groupSeverity) === -1) return undefined;\n  if (getSeverityIndex(groupSeverity) > getSeverityIndex(route.urgent_on_severity)) {\n    return undefined;\n  }\n\n  return { urgent: route.urgent_type, userIds: route.urgent_user_list };\n};\n",
+              "lineStart": 4,
+              "lineEnd": 16
+            },
+            {
+              "type": "function",
+              "name": "computeWantedUrgentPayload",
+              "code": "export const computeWantedUrgentPayload = (\n  route: IAlertReceiveRoute,\n  group: IAlertGroup,\n): { urgent: string; userIds: string[] } | undefined => {\n  if (group.status === 'Resolved') return undefined;\n  return makeUrgentPayload(route, group.severity);\n};",
+              "lineStart": 17,
+              "lineEnd": 24
+            }
+          ]
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/app-alert-receiver/2025-12-21-15-03.json",
+          "changeType": "added",
+          "patch": "commit 38cebdd5e5cb3e5be2aec4679cdf1cba0f4e5a19\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:00:22 2025 +0800\n\n    feat: 修复 alert-receiver 的 resolve/repeat 加急与去重逻辑 (#2382)\n    \n    - 更新当前任务为 \"task-42a439ec\" 并暂停 \"vendors-ingest-ohlc-interest-rate\" 任务\n    - 新增 alert-receiver 修复任务的上下文和详细设计文档\n    - 实现 urgent 处理逻辑，确保 resolve 状态不触发加急\n    - 添加单元测试以验证 urgent 处理逻辑的正确性\n    - 更新任务清单，记录各阶段的进展与完成情况\n\ndiff --git a/common/changes/@yuants/app-alert-receiver/2025-12-21-15-03.json b/common/changes/@yuants/app-alert-receiver/2025-12-21-15-03.json\nnew file mode 100644\nindex 000000000..1b425aa77\n--- /dev/null\n+++ b/common/changes/@yuants/app-alert-receiver/2025-12-21-15-03.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/app-alert-receiver\",\n+      \"comment\": \"fix alert receiver\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/app-alert-receiver\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "4cefb69a6ebc0dd08a7c21a02713150c74a8e9a4",
+      "short": "4cefb69a6",
+      "author": "Siyuan Wang",
+      "email": "c.one@thrimbda.com",
+      "authoredAt": "2025-12-22 21:49:07 +0800",
+      "subject": "feat: 添加对系列 ID 的编码/解码功能，并更新相关文档和数据库结构 (#2385)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/data-interest-rate/2025-12-22-09-12.json",
+          "changeType": "added",
+          "patch": "commit 4cefb69a6ebc0dd08a7c21a02713150c74a8e9a4\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:49:07 2025 +0800\n\n    feat: 添加对系列 ID 的编码/解码功能，并更新相关文档和数据库结构 (#2385)\n\ndiff --git a/common/changes/@yuants/data-interest-rate/2025-12-22-09-12.json b/common/changes/@yuants/data-interest-rate/2025-12-22-09-12.json\nnew file mode 100644\nindex 000000000..33a0a2ba7\n--- /dev/null\n+++ b/common/changes/@yuants/data-interest-rate/2025-12-22-09-12.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/data-interest-rate\",\n+      \"comment\": \"add series id encode/decode\",\n+      \"type\": \"minor\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/data-interest-rate\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/data-ohlc/2025-12-22-09-12.json",
+          "changeType": "added",
+          "patch": "commit 4cefb69a6ebc0dd08a7c21a02713150c74a8e9a4\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:49:07 2025 +0800\n\n    feat: 添加对系列 ID 的编码/解码功能，并更新相关文档和数据库结构 (#2385)\n\ndiff --git a/common/changes/@yuants/data-ohlc/2025-12-22-09-12.json b/common/changes/@yuants/data-ohlc/2025-12-22-09-12.json\nnew file mode 100644\nindex 000000000..7c8ba9de6\n--- /dev/null\n+++ b/common/changes/@yuants/data-ohlc/2025-12-22-09-12.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/data-ohlc\",\n+      \"comment\": \"add series id encode/decode\",\n+      \"type\": \"minor\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/data-ohlc\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/exchange/2025-12-22-09-12.json",
+          "changeType": "added",
+          "patch": "commit 4cefb69a6ebc0dd08a7c21a02713150c74a8e9a4\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:49:07 2025 +0800\n\n    feat: 添加对系列 ID 的编码/解码功能，并更新相关文档和数据库结构 (#2385)\n\ndiff --git a/common/changes/@yuants/exchange/2025-12-22-09-12.json b/common/changes/@yuants/exchange/2025-12-22-09-12.json\nnew file mode 100644\nindex 000000000..e24905866\n--- /dev/null\n+++ b/common/changes/@yuants/exchange/2025-12-22-09-12.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/exchange\",\n+      \"comment\": \"switch to ohlc v2\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/exchange\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/tool-sql-migration/2025-12-22-09-12.json",
+          "changeType": "added",
+          "patch": "commit 4cefb69a6ebc0dd08a7c21a02713150c74a8e9a4\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:49:07 2025 +0800\n\n    feat: 添加对系列 ID 的编码/解码功能，并更新相关文档和数据库结构 (#2385)\n\ndiff --git a/common/changes/@yuants/tool-sql-migration/2025-12-22-09-12.json b/common/changes/@yuants/tool-sql-migration/2025-12-22-09-12.json\nnew file mode 100644\nindex 000000000..21a6595a7\n--- /dev/null\n+++ b/common/changes/@yuants/tool-sql-migration/2025-12-22-09-12.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/tool-sql-migration\",\n+      \"comment\": \"\",\n+      \"type\": \"none\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/tool-sql-migration\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 0,
+          "path": "libraries/data-interest-rate/etc/data-interest-rate.api.md",
+          "changeType": "added",
+          "patch": "commit 4cefb69a6ebc0dd08a7c21a02713150c74a8e9a4\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:49:07 2025 +0800\n\n    feat: 添加对系列 ID 的编码/解码功能，并更新相关文档和数据库结构 (#2385)\n\ndiff --git a/libraries/data-interest-rate/etc/data-interest-rate.api.md b/libraries/data-interest-rate/etc/data-interest-rate.api.md\nindex feb35c489..dcb7aed88 100644\n--- a/libraries/data-interest-rate/etc/data-interest-rate.api.md\n+++ b/libraries/data-interest-rate/etc/data-interest-rate.api.md\n@@ -6,0 +7,8 @@\n+// @public (undocumented)\r\n+export const decodeInterestRateSeriesId: (series_id: string) => {\r\n+    product_id: string;\r\n+};\r\n+\r\n+// @public (undocumented)\r\n+export const encodeInterestRateSeriesId: (product_id: string) => string;\r\n+\r\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "decodeInterestRateSeriesId",
+              "code": "export const decodeInterestRateSeriesId: (series_id: string) => {\r\n    product_id: string;\r\n};\r\n\r\n// @public (undocumented)\r",
+              "lineStart": 8,
+              "lineEnd": 12
+            },
+            {
+              "type": "function",
+              "name": "encodeInterestRateSeriesId",
+              "code": "export const encodeInterestRateSeriesId: (product_id: string) => string;\r\n\r",
+              "lineStart": 13,
+              "lineEnd": 15
+            }
+          ]
+        },
+        {
+          "additions": 22,
+          "deletions": 1,
+          "path": "libraries/data-interest-rate/src/index.ts",
+          "changeType": "modified",
+          "patch": "commit 4cefb69a6ebc0dd08a7c21a02713150c74a8e9a4\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:49:07 2025 +0800\n\n    feat: 添加对系列 ID 的编码/解码功能，并更新相关文档和数据库结构 (#2385)\n\ndiff --git a/libraries/data-interest-rate/src/index.ts b/libraries/data-interest-rate/src/index.ts\nindex 1b5d81065..eccdbbeb9 100644\n--- a/libraries/data-interest-rate/src/index.ts\n+++ b/libraries/data-interest-rate/src/index.ts\n@@ -8 +8 @@ export interface IInterestRate {\n-   * Series ID (Encoded as `encodePath(datasource_id, product_id)`)\n+   * Series ID (Encoded as `product_id`)\n@@ -37,0 +38,21 @@ export interface IInterestRate {\n+\n+/**\n+ * @public\n+ */\n+export const encodeInterestRateSeriesId = (product_id: string): string => {\n+  return product_id;\n+};\n+\n+/**\n+ * @public\n+ */\n+export const decodeInterestRateSeriesId = (series_id: string): { product_id: string } => {\n+  const product_id = (() => {\n+    try {\n+      return decodeURIComponent(series_id);\n+    } catch {\n+      return series_id;\n+    }\n+  })();\n+  return { product_id };\n+};\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "encodeInterestRateSeriesId",
+              "code": "export const encodeInterestRateSeriesId = (product_id: string): string => {\n  return product_id;\n};\n\n/**\n * @public\n */",
+              "lineStart": 42,
+              "lineEnd": 48
+            },
+            {
+              "type": "function",
+              "name": "decodeInterestRateSeriesId",
+              "code": "export const decodeInterestRateSeriesId = (series_id: string): { product_id: string } => {",
+              "lineStart": 49,
+              "lineEnd": 49
+            },
+            {
+              "type": "function",
+              "name": "product_id",
+              "code": "  const product_id = (() => {\n    try {\n      return decodeURIComponent(series_id);\n    } catch {\n      return series_id;\n    }\n  })();\n  return { product_id };\n};",
+              "lineStart": 50,
+              "lineEnd": 59
+            }
+          ]
+        },
+        {
+          "additions": 9,
+          "deletions": 0,
+          "path": "libraries/data-ohlc/etc/data-ohlc.api.md",
+          "changeType": "added",
+          "patch": "commit 4cefb69a6ebc0dd08a7c21a02713150c74a8e9a4\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:49:07 2025 +0800\n\n    feat: 添加对系列 ID 的编码/解码功能，并更新相关文档和数据库结构 (#2385)\n\ndiff --git a/libraries/data-ohlc/etc/data-ohlc.api.md b/libraries/data-ohlc/etc/data-ohlc.api.md\nindex ade17c709..c705855f5 100644\n--- a/libraries/data-ohlc/etc/data-ohlc.api.md\n+++ b/libraries/data-ohlc/etc/data-ohlc.api.md\n@@ -8,0 +9,9 @@ import { Terminal } from '@yuants/protocol';\n+// @public (undocumented)\r\n+export const decodeOHLCSeriesId: (series_id: string) => {\r\n+    product_id: string;\r\n+    duration: string;\r\n+};\r\n+\r\n+// @public (undocumented)\r\n+export const encodeOHLCSeriesId: (product_id: string, duration: string) => string;\r\n+\r\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "decodeOHLCSeriesId",
+              "code": "export const decodeOHLCSeriesId: (series_id: string) => {\r\n    product_id: string;\r\n    duration: string;\r\n};\r\n\r\n// @public (undocumented)\r",
+              "lineStart": 10,
+              "lineEnd": 15
+            },
+            {
+              "type": "function",
+              "name": "encodeOHLCSeriesId",
+              "code": "export const encodeOHLCSeriesId: (product_id: string, duration: string) => string;\r\n\r",
+              "lineStart": 16,
+              "lineEnd": 18
+            }
+          ]
+        },
+        {
+          "additions": 25,
+          "deletions": 1,
+          "path": "libraries/data-ohlc/src/index.ts",
+          "changeType": "modified",
+          "patch": "commit 4cefb69a6ebc0dd08a7c21a02713150c74a8e9a4\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:49:07 2025 +0800\n\n    feat: 添加对系列 ID 的编码/解码功能，并更新相关文档和数据库结构 (#2385)\n\ndiff --git a/libraries/data-ohlc/src/index.ts b/libraries/data-ohlc/src/index.ts\nindex c23ed18f8..1e48ec617 100644\n--- a/libraries/data-ohlc/src/index.ts\n+++ b/libraries/data-ohlc/src/index.ts\n@@ -8 +8 @@ export interface IOHLC {\n-   * Series ID (Encoded as `encodePath(datasource_id, product_id, duration)`)\n+   * Series ID (Encoded as `${product_id}/${duration}`)\n@@ -79,0 +80,24 @@ export interface IOHLC {\n+/**\n+ * @public\n+ */\n+export const encodeOHLCSeriesId = (product_id: string, duration: string): string => {\n+  return `${product_id}/${duration}`;\n+};\n+\n+/**\n+ * @public\n+ */\n+export const decodeOHLCSeriesId = (series_id: string): { product_id: string; duration: string } => {\n+  const parts = series_id.split('/');\n+  const duration = parts.pop() ?? '';\n+  const rawProductId = parts.join('/');\n+  const product_id = (() => {\n+    try {\n+      return decodeURIComponent(rawProductId);\n+    } catch {\n+      return rawProductId;\n+    }\n+  })();\n+  return { product_id, duration };\n+};\n+\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "encodeOHLCSeriesId",
+              "code": "export const encodeOHLCSeriesId = (product_id: string, duration: string): string => {\n  return `${product_id}/${duration}`;\n};\n\n/**\n * @public\n */",
+              "lineStart": 83,
+              "lineEnd": 89
+            },
+            {
+              "type": "function",
+              "name": "decodeOHLCSeriesId",
+              "code": "export const decodeOHLCSeriesId = (series_id: string): { product_id: string; duration: string } => {",
+              "lineStart": 90,
+              "lineEnd": 90
+            },
+            {
+              "type": "function",
+              "name": "parts",
+              "code": "const parts = series_id.split('/');",
+              "lineStart": 91,
+              "lineEnd": 91
+            },
+            {
+              "type": "function",
+              "name": "duration",
+              "code": "const duration = parts.pop() ?? '';",
+              "lineStart": 92,
+              "lineEnd": 92
+            },
+            {
+              "type": "function",
+              "name": "rawProductId",
+              "code": "const rawProductId = parts.join('/');",
+              "lineStart": 93,
+              "lineEnd": 93
+            },
+            {
+              "type": "function",
+              "name": "product_id",
+              "code": "  const product_id = (() => {\n    try {\n      return decodeURIComponent(rawProductId);\n    } catch {\n      return rawProductId;\n    }\n  })();\n  return { product_id, duration };\n};\n",
+              "lineStart": 94,
+              "lineEnd": 104
+            }
+          ]
+        },
+        {
+          "additions": 2,
+          "deletions": 3,
+          "path": "libraries/exchange/src/interest_rate.ts",
+          "changeType": "modified",
+          "patch": "commit 4cefb69a6ebc0dd08a7c21a02713150c74a8e9a4\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:49:07 2025 +0800\n\n    feat: 添加对系列 ID 的编码/解码功能，并更新相关文档和数据库结构 (#2385)\n\ndiff --git a/libraries/exchange/src/interest_rate.ts b/libraries/exchange/src/interest_rate.ts\nindex 58ca713cc..01c6a6129 100644\n--- a/libraries/exchange/src/interest_rate.ts\n+++ b/libraries/exchange/src/interest_rate.ts\n@@ -1 +1 @@\n-import { IInterestRate } from '@yuants/data-interest-rate';\n+import { encodeInterestRateSeriesId, IInterestRate } from '@yuants/data-interest-rate';\n@@ -5 +4,0 @@ import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';\n-import { encodePath } from '@yuants/utils';\n@@ -134 +133 @@ export const provideInterestRateService = (\n-        const series_id = encodePath(msg.req.product_id);\n+        const series_id = encodeInterestRateSeriesId(msg.req.product_id);\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "series_id",
+              "code": "const series_id = encodeInterestRateSeriesId(msg.req.product_id);",
+              "lineStart": 133,
+              "lineEnd": 134
+            }
+          ]
+        },
+        {
+          "additions": 5,
+          "deletions": 8,
+          "path": "libraries/exchange/src/ohlc.ts",
+          "changeType": "modified",
+          "patch": "commit 4cefb69a6ebc0dd08a7c21a02713150c74a8e9a4\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:49:07 2025 +0800\n\n    feat: 添加对系列 ID 的编码/解码功能，并更新相关文档和数据库结构 (#2385)\n\ndiff --git a/libraries/exchange/src/ohlc.ts b/libraries/exchange/src/ohlc.ts\nindex 7f9a7a80d..89e999499 100644\n--- a/libraries/exchange/src/ohlc.ts\n+++ b/libraries/exchange/src/ohlc.ts\n@@ -1 +1 @@\n-import { IOHLC } from '@yuants/data-ohlc';\n+import { encodeOHLCSeriesId, IOHLC } from '@yuants/data-ohlc';\n@@ -5 +5 @@ import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';\n-import { encodePath, formatTime } from '@yuants/utils';\n+import { formatTime } from '@yuants/utils';\n@@ -91,3 +90,0 @@ const OHLC_INSERT_COLUMNS: Array<keyof IOHLC> = [\n-  'datasource_id',\n-  'product_id',\n-  'duration',\n@@ -154 +151 @@ export const provideOHLCService = (\n-        const series_id = encodePath(msg.req.product_id, msg.req.duration);\n+        const series_id = encodeOHLCSeriesId(msg.req.product_id, msg.req.duration);\n@@ -180 +177 @@ export const provideOHLCService = (\n-            buildInsertManyIntoTableSQL(normalized, 'ohlc', {\n+            buildInsertManyIntoTableSQL(normalized, 'ohlc_v2', {\n@@ -195 +192 @@ export const provideOHLCService = (\n-                  table_name: 'ohlc',\n+                  table_name: 'ohlc_v2',\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "series_id",
+              "code": "const series_id = encodeOHLCSeriesId(msg.req.product_id, msg.req.duration);\n    buildInsertManyIntoTableSQL(normalized, 'ohlc_v2', {\n          table_name: 'ohlc_v2',",
+              "lineStart": 151,
+              "lineEnd": 193
+            }
+          ]
+        },
+        {
+          "additions": 23,
+          "deletions": 0,
+          "path": "tools/sql-migration/sql/ohlc_v2.sql",
+          "changeType": "added",
+          "patch": "commit 4cefb69a6ebc0dd08a7c21a02713150c74a8e9a4\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:49:07 2025 +0800\n\n    feat: 添加对系列 ID 的编码/解码功能，并更新相关文档和数据库结构 (#2385)\n\ndiff --git a/tools/sql-migration/sql/ohlc_v2.sql b/tools/sql-migration/sql/ohlc_v2.sql\nnew file mode 100644\nindex 000000000..1bca751b7\n--- /dev/null\n+++ b/tools/sql-migration/sql/ohlc_v2.sql\n@@ -0,0 +1,23 @@\n+-- ohlc_v2 表（去除 datasource_id/product_id/duration 三列；这些信息已被 series_id 编码覆盖）\n+CREATE TABLE IF NOT EXISTS\n+    ohlc_v2 (\n+        series_id TEXT NOT NULL,\n+        created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,\n+        closed_at TIMESTAMPTZ NOT NULL,\n+        open TEXT NOT NULL,\n+        high TEXT NOT NULL,\n+        low TEXT NOT NULL,\n+        CLOSE TEXT NOT NULL,\n+        volume TEXT,\n+        open_interest TEXT,\n+        updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,\n+        PRIMARY KEY (series_id, created_at)\n+    );\n+\n+CREATE INDEX IF NOT EXISTS idx_ohlc_v2_series_id_created_at ON ohlc_v2 (series_id, created_at DESC);\n+\n+CREATE\n+OR REPLACE TRIGGER auto_update_updated_at BEFORE\n+UPDATE ON ohlc_v2 FOR EACH ROW\n+EXECUTE FUNCTION update_updated_at_column ();\n+\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "2728fa254825747a1226b1e1d1bc105702a9166f",
+      "short": "2728fa254",
+      "author": "Siyuan Wang",
+      "email": "c.one@thrimbda.com",
+      "authoredAt": "2025-12-22 21:55:35 +0800",
+      "subject": "feat: 添加服务选项以优化并发请求处理 (#2386)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 11,
+          "deletions": 1,
+          "path": "apps/vendor-aster/src/services/interest-rate-service.ts",
+          "changeType": "modified",
+          "patch": "commit 2728fa254825747a1226b1e1d1bc105702a9166f\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:55:35 2025 +0800\n\n    feat: 添加服务选项以优化并发请求处理 (#2386)\n\ndiff --git a/apps/vendor-aster/src/services/interest-rate-service.ts b/apps/vendor-aster/src/services/interest-rate-service.ts\nindex 3113b2a85..4af49f8aa 100644\n--- a/apps/vendor-aster/src/services/interest-rate-service.ts\n+++ b/apps/vendor-aster/src/services/interest-rate-service.ts\n@@ -3 +3 @@ import { IInterestRate } from '@yuants/data-interest-rate';\n-import { Terminal } from '@yuants/protocol';\n+import { IServiceOptions, Terminal } from '@yuants/protocol';\n@@ -8,0 +9,9 @@ const terminal = Terminal.fromNodeEnv();\n+const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n+  concurrent: 1,\n+  max_pending_requests: 20,\n+  ingress_token_capacity: 2,\n+  ingress_token_refill_interval: 1000,\n+  egress_token_capacity: 1,\n+  egress_token_refill_interval: 1000,\n+};\n+\n@@ -49,0 +59 @@ provideInterestRateService(\n+  INGEST_SERVICE_OPTIONS,\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "INGEST_SERVICE_OPTIONS",
+              "code": "const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n  concurrent: 1,\n  max_pending_requests: 20,\n  ingress_token_capacity: 2,\n  ingress_token_refill_interval: 1000,\n  egress_token_capacity: 1,\n  egress_token_refill_interval: 1000,\n};\n\n  INGEST_SERVICE_OPTIONS,",
+              "lineStart": 9,
+              "lineEnd": 60
+            }
+          ]
+        },
+        {
+          "additions": 12,
+          "deletions": 1,
+          "path": "apps/vendor-aster/src/services/ohlc-service.ts",
+          "changeType": "modified",
+          "patch": "commit 2728fa254825747a1226b1e1d1bc105702a9166f\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:55:35 2025 +0800\n\n    feat: 添加服务选项以优化并发请求处理 (#2386)\n\ndiff --git a/apps/vendor-aster/src/services/ohlc-service.ts b/apps/vendor-aster/src/services/ohlc-service.ts\nindex 45c9c44df..27af3ee2e 100644\n--- a/apps/vendor-aster/src/services/ohlc-service.ts\n+++ b/apps/vendor-aster/src/services/ohlc-service.ts\n@@ -3 +3 @@ import { IOHLC } from '@yuants/data-ohlc';\n-import { Terminal } from '@yuants/protocol';\n+import { IServiceOptions, Terminal } from '@yuants/protocol';\n@@ -8,0 +9,9 @@ const terminal = Terminal.fromNodeEnv();\n+const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n+  concurrent: 1,\n+  max_pending_requests: 20,\n+  ingress_token_capacity: 2,\n+  ingress_token_refill_interval: 1000,\n+  egress_token_capacity: 1,\n+  egress_token_refill_interval: 1000,\n+};\n+\n@@ -120,0 +130 @@ provideOHLCService(\n+  INGEST_SERVICE_OPTIONS,\n@@ -130,0 +141 @@ provideOHLCService(\n+  INGEST_SERVICE_OPTIONS,\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "INGEST_SERVICE_OPTIONS",
+              "code": "const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n  concurrent: 1,\n  max_pending_requests: 20,\n  ingress_token_capacity: 2,\n  ingress_token_refill_interval: 1000,\n  egress_token_capacity: 1,\n  egress_token_refill_interval: 1000,\n};\n\n  INGEST_SERVICE_OPTIONS,\n  INGEST_SERVICE_OPTIONS,",
+              "lineStart": 9,
+              "lineEnd": 142
+            }
+          ]
+        },
+        {
+          "additions": 12,
+          "deletions": 1,
+          "path": "apps/vendor-binance/src/services/interest-rate-service.ts",
+          "changeType": "modified",
+          "patch": "commit 2728fa254825747a1226b1e1d1bc105702a9166f\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:55:35 2025 +0800\n\n    feat: 添加服务选项以优化并发请求处理 (#2386)\n\ndiff --git a/apps/vendor-binance/src/services/interest-rate-service.ts b/apps/vendor-binance/src/services/interest-rate-service.ts\nindex 45d73bedc..a02934aa6 100644\n--- a/apps/vendor-binance/src/services/interest-rate-service.ts\n+++ b/apps/vendor-binance/src/services/interest-rate-service.ts\n@@ -3 +3 @@ import { provideInterestRateService } from '@yuants/exchange';\n-import { Terminal } from '@yuants/protocol';\n+import { IServiceOptions, Terminal } from '@yuants/protocol';\n@@ -9,0 +10,9 @@ const terminal = Terminal.fromNodeEnv();\n+const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n+  concurrent: 1,\n+  max_pending_requests: 20,\n+  ingress_token_capacity: 2,\n+  ingress_token_refill_interval: 1000,\n+  egress_token_capacity: 1,\n+  egress_token_refill_interval: 1000,\n+};\n+\n@@ -82,0 +92 @@ provideInterestRateService(\n+  INGEST_SERVICE_OPTIONS,\n@@ -91,0 +102 @@ provideInterestRateService(\n+  INGEST_SERVICE_OPTIONS,\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "INGEST_SERVICE_OPTIONS",
+              "code": "const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n  concurrent: 1,\n  max_pending_requests: 20,\n  ingress_token_capacity: 2,\n  ingress_token_refill_interval: 1000,\n  egress_token_capacity: 1,\n  egress_token_refill_interval: 1000,\n};\n\n  INGEST_SERVICE_OPTIONS,\n  INGEST_SERVICE_OPTIONS,",
+              "lineStart": 10,
+              "lineEnd": 103
+            }
+          ]
+        },
+        {
+          "additions": 13,
+          "deletions": 1,
+          "path": "apps/vendor-binance/src/services/ohlc-service.ts",
+          "changeType": "modified",
+          "patch": "commit 2728fa254825747a1226b1e1d1bc105702a9166f\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:55:35 2025 +0800\n\n    feat: 添加服务选项以优化并发请求处理 (#2386)\n\ndiff --git a/apps/vendor-binance/src/services/ohlc-service.ts b/apps/vendor-binance/src/services/ohlc-service.ts\nindex e8394f918..7ee341606 100644\n--- a/apps/vendor-binance/src/services/ohlc-service.ts\n+++ b/apps/vendor-binance/src/services/ohlc-service.ts\n@@ -3 +3 @@ import { provideOHLCService } from '@yuants/exchange';\n-import { Terminal } from '@yuants/protocol';\n+import { IServiceOptions, Terminal } from '@yuants/protocol';\n@@ -8,0 +9,9 @@ const terminal = Terminal.fromNodeEnv();\n+const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n+  concurrent: 1,\n+  max_pending_requests: 20,\n+  ingress_token_capacity: 2,\n+  ingress_token_refill_interval: 1000,\n+  egress_token_capacity: 1,\n+  egress_token_refill_interval: 1000,\n+};\n+\n@@ -96,0 +106 @@ provideOHLCService(\n+  INGEST_SERVICE_OPTIONS,\n@@ -106,0 +117 @@ provideOHLCService(\n+  INGEST_SERVICE_OPTIONS,\n@@ -116,0 +128 @@ provideOHLCService(\n+  INGEST_SERVICE_OPTIONS,\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "INGEST_SERVICE_OPTIONS",
+              "code": "const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n  concurrent: 1,\n  max_pending_requests: 20,\n  ingress_token_capacity: 2,\n  ingress_token_refill_interval: 1000,\n  egress_token_capacity: 1,\n  egress_token_refill_interval: 1000,\n};\n\n  INGEST_SERVICE_OPTIONS,\n  INGEST_SERVICE_OPTIONS,\n  INGEST_SERVICE_OPTIONS,",
+              "lineStart": 9,
+              "lineEnd": 129
+            }
+          ]
+        },
+        {
+          "additions": 12,
+          "deletions": 1,
+          "path": "apps/vendor-bitget/src/services/interest-rate-service.ts",
+          "changeType": "modified",
+          "patch": "commit 2728fa254825747a1226b1e1d1bc105702a9166f\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:55:35 2025 +0800\n\n    feat: 添加服务选项以优化并发请求处理 (#2386)\n\ndiff --git a/apps/vendor-bitget/src/services/interest-rate-service.ts b/apps/vendor-bitget/src/services/interest-rate-service.ts\nindex 7682c282e..55d507ec5 100644\n--- a/apps/vendor-bitget/src/services/interest-rate-service.ts\n+++ b/apps/vendor-bitget/src/services/interest-rate-service.ts\n@@ -3 +3 @@ import { provideInterestRateService } from '@yuants/exchange';\n-import { Terminal } from '@yuants/protocol';\n+import { IServiceOptions, Terminal } from '@yuants/protocol';\n@@ -8,0 +9,9 @@ const terminal = Terminal.fromNodeEnv();\n+const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n+  concurrent: 1,\n+  max_pending_requests: 20,\n+  ingress_token_capacity: 2,\n+  ingress_token_refill_interval: 1000,\n+  egress_token_capacity: 1,\n+  egress_token_refill_interval: 1000,\n+};\n+\n@@ -149,0 +159 @@ provideInterestRateService(\n+  INGEST_SERVICE_OPTIONS,\n@@ -158,0 +169 @@ provideInterestRateService(\n+  INGEST_SERVICE_OPTIONS,\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "INGEST_SERVICE_OPTIONS",
+              "code": "const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n  concurrent: 1,\n  max_pending_requests: 20,\n  ingress_token_capacity: 2,\n  ingress_token_refill_interval: 1000,\n  egress_token_capacity: 1,\n  egress_token_refill_interval: 1000,\n};\n\n  INGEST_SERVICE_OPTIONS,\n  INGEST_SERVICE_OPTIONS,",
+              "lineStart": 9,
+              "lineEnd": 170
+            }
+          ]
+        },
+        {
+          "additions": 13,
+          "deletions": 1,
+          "path": "apps/vendor-bitget/src/services/ohlc-service.ts",
+          "changeType": "modified",
+          "patch": "commit 2728fa254825747a1226b1e1d1bc105702a9166f\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:55:35 2025 +0800\n\n    feat: 添加服务选项以优化并发请求处理 (#2386)\n\ndiff --git a/apps/vendor-bitget/src/services/ohlc-service.ts b/apps/vendor-bitget/src/services/ohlc-service.ts\nindex 99be1e6cc..0ba08de33 100644\n--- a/apps/vendor-bitget/src/services/ohlc-service.ts\n+++ b/apps/vendor-bitget/src/services/ohlc-service.ts\n@@ -3 +3 @@ import { provideOHLCService } from '@yuants/exchange';\n-import { Terminal } from '@yuants/protocol';\n+import { IServiceOptions, Terminal } from '@yuants/protocol';\n@@ -8,0 +9,9 @@ const terminal = Terminal.fromNodeEnv();\n+const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n+  concurrent: 1,\n+  max_pending_requests: 20,\n+  ingress_token_capacity: 2,\n+  ingress_token_refill_interval: 1000,\n+  egress_token_capacity: 1,\n+  egress_token_refill_interval: 1000,\n+};\n+\n@@ -76,0 +86 @@ provideOHLCService(\n+  INGEST_SERVICE_OPTIONS,\n@@ -86,0 +97 @@ provideOHLCService(\n+  INGEST_SERVICE_OPTIONS,\n@@ -96,0 +108 @@ provideOHLCService(\n+  INGEST_SERVICE_OPTIONS,\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "INGEST_SERVICE_OPTIONS",
+              "code": "const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n  concurrent: 1,\n  max_pending_requests: 20,\n  ingress_token_capacity: 2,\n  ingress_token_refill_interval: 1000,\n  egress_token_capacity: 1,\n  egress_token_refill_interval: 1000,\n};\n\n  INGEST_SERVICE_OPTIONS,\n  INGEST_SERVICE_OPTIONS,\n  INGEST_SERVICE_OPTIONS,",
+              "lineStart": 9,
+              "lineEnd": 109
+            }
+          ]
+        },
+        {
+          "additions": 11,
+          "deletions": 1,
+          "path": "apps/vendor-gate/src/services/interest-rate-service.ts",
+          "changeType": "modified",
+          "patch": "commit 2728fa254825747a1226b1e1d1bc105702a9166f\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:55:35 2025 +0800\n\n    feat: 添加服务选项以优化并发请求处理 (#2386)\n\ndiff --git a/apps/vendor-gate/src/services/interest-rate-service.ts b/apps/vendor-gate/src/services/interest-rate-service.ts\nindex 2711ce117..88767416b 100644\n--- a/apps/vendor-gate/src/services/interest-rate-service.ts\n+++ b/apps/vendor-gate/src/services/interest-rate-service.ts\n@@ -3 +3 @@ import { provideInterestRateService } from '@yuants/exchange';\n-import { Terminal } from '@yuants/protocol';\n+import { IServiceOptions, Terminal } from '@yuants/protocol';\n@@ -8,0 +9,9 @@ const terminal = Terminal.fromNodeEnv();\n+const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n+  concurrent: 1,\n+  max_pending_requests: 20,\n+  ingress_token_capacity: 2,\n+  ingress_token_refill_interval: 1000,\n+  egress_token_capacity: 1,\n+  egress_token_refill_interval: 1000,\n+};\n+\n@@ -48,0 +58 @@ provideInterestRateService(\n+  INGEST_SERVICE_OPTIONS,\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "INGEST_SERVICE_OPTIONS",
+              "code": "const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n  concurrent: 1,\n  max_pending_requests: 20,\n  ingress_token_capacity: 2,\n  ingress_token_refill_interval: 1000,\n  egress_token_capacity: 1,\n  egress_token_refill_interval: 1000,\n};\n\n  INGEST_SERVICE_OPTIONS,",
+              "lineStart": 9,
+              "lineEnd": 59
+            }
+          ]
+        },
+        {
+          "additions": 12,
+          "deletions": 1,
+          "path": "apps/vendor-gate/src/services/ohlc-service.ts",
+          "changeType": "modified",
+          "patch": "commit 2728fa254825747a1226b1e1d1bc105702a9166f\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:55:35 2025 +0800\n\n    feat: 添加服务选项以优化并发请求处理 (#2386)\n\ndiff --git a/apps/vendor-gate/src/services/ohlc-service.ts b/apps/vendor-gate/src/services/ohlc-service.ts\nindex 9e5b037cf..4fda4f79d 100644\n--- a/apps/vendor-gate/src/services/ohlc-service.ts\n+++ b/apps/vendor-gate/src/services/ohlc-service.ts\n@@ -3 +3 @@ import { provideOHLCService } from '@yuants/exchange';\n-import { Terminal } from '@yuants/protocol';\n+import { IServiceOptions, Terminal } from '@yuants/protocol';\n@@ -8,0 +9,9 @@ const terminal = Terminal.fromNodeEnv();\n+const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n+  concurrent: 1,\n+  max_pending_requests: 20,\n+  ingress_token_capacity: 2,\n+  ingress_token_refill_interval: 1000,\n+  egress_token_capacity: 1,\n+  egress_token_refill_interval: 1000,\n+};\n+\n@@ -136,0 +146 @@ provideOHLCService(\n+  INGEST_SERVICE_OPTIONS,\n@@ -146,0 +157 @@ provideOHLCService(\n+  INGEST_SERVICE_OPTIONS,\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "INGEST_SERVICE_OPTIONS",
+              "code": "const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n  concurrent: 1,\n  max_pending_requests: 20,\n  ingress_token_capacity: 2,\n  ingress_token_refill_interval: 1000,\n  egress_token_capacity: 1,\n  egress_token_refill_interval: 1000,\n};\n\n  INGEST_SERVICE_OPTIONS,\n  INGEST_SERVICE_OPTIONS,",
+              "lineStart": 9,
+              "lineEnd": 158
+            }
+          ]
+        },
+        {
+          "additions": 11,
+          "deletions": 1,
+          "path": "apps/vendor-huobi/src/services/interest-rate-service.ts",
+          "changeType": "modified",
+          "patch": "commit 2728fa254825747a1226b1e1d1bc105702a9166f\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:55:35 2025 +0800\n\n    feat: 添加服务选项以优化并发请求处理 (#2386)\n\ndiff --git a/apps/vendor-huobi/src/services/interest-rate-service.ts b/apps/vendor-huobi/src/services/interest-rate-service.ts\nindex 3180227cd..55fd2de15 100644\n--- a/apps/vendor-huobi/src/services/interest-rate-service.ts\n+++ b/apps/vendor-huobi/src/services/interest-rate-service.ts\n@@ -3 +3 @@ import { provideInterestRateService } from '@yuants/exchange';\n-import { Terminal } from '@yuants/protocol';\n+import { IServiceOptions, Terminal } from '@yuants/protocol';\n@@ -8,0 +9,9 @@ const terminal = Terminal.fromNodeEnv();\n+const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n+  concurrent: 1,\n+  max_pending_requests: 20,\n+  ingress_token_capacity: 2,\n+  ingress_token_refill_interval: 1000,\n+  egress_token_capacity: 1,\n+  egress_token_refill_interval: 1000,\n+};\n+\n@@ -124,0 +134 @@ provideInterestRateService(\n+  INGEST_SERVICE_OPTIONS,\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "INGEST_SERVICE_OPTIONS",
+              "code": "const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n  concurrent: 1,\n  max_pending_requests: 20,\n  ingress_token_capacity: 2,\n  ingress_token_refill_interval: 1000,\n  egress_token_capacity: 1,\n  egress_token_refill_interval: 1000,\n};\n\n  INGEST_SERVICE_OPTIONS,",
+              "lineStart": 9,
+              "lineEnd": 135
+            }
+          ]
+        },
+        {
+          "additions": 12,
+          "deletions": 1,
+          "path": "apps/vendor-huobi/src/services/ohlc-service.ts",
+          "changeType": "modified",
+          "patch": "commit 2728fa254825747a1226b1e1d1bc105702a9166f\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:55:35 2025 +0800\n\n    feat: 添加服务选项以优化并发请求处理 (#2386)\n\ndiff --git a/apps/vendor-huobi/src/services/ohlc-service.ts b/apps/vendor-huobi/src/services/ohlc-service.ts\nindex b1588e4a3..6a050e775 100644\n--- a/apps/vendor-huobi/src/services/ohlc-service.ts\n+++ b/apps/vendor-huobi/src/services/ohlc-service.ts\n@@ -3 +3 @@ import { provideOHLCService } from '@yuants/exchange';\n-import { Terminal } from '@yuants/protocol';\n+import { IServiceOptions, Terminal } from '@yuants/protocol';\n@@ -8,0 +9,9 @@ const terminal = Terminal.fromNodeEnv();\n+const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n+  concurrent: 1,\n+  max_pending_requests: 20,\n+  ingress_token_capacity: 2,\n+  ingress_token_refill_interval: 1000,\n+  egress_token_capacity: 1,\n+  egress_token_refill_interval: 1000,\n+};\n+\n@@ -129,0 +139 @@ provideOHLCService(\n+  INGEST_SERVICE_OPTIONS,\n@@ -139,0 +150 @@ provideOHLCService(\n+  INGEST_SERVICE_OPTIONS,\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "INGEST_SERVICE_OPTIONS",
+              "code": "const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n  concurrent: 1,\n  max_pending_requests: 20,\n  ingress_token_capacity: 2,\n  ingress_token_refill_interval: 1000,\n  egress_token_capacity: 1,\n  egress_token_refill_interval: 1000,\n};\n\n  INGEST_SERVICE_OPTIONS,\n  INGEST_SERVICE_OPTIONS,",
+              "lineStart": 9,
+              "lineEnd": 151
+            }
+          ]
+        },
+        {
+          "additions": 11,
+          "deletions": 1,
+          "path": "apps/vendor-hyperliquid/src/services/interest-rate-service.ts",
+          "changeType": "modified",
+          "patch": "commit 2728fa254825747a1226b1e1d1bc105702a9166f\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:55:35 2025 +0800\n\n    feat: 添加服务选项以优化并发请求处理 (#2386)\n\ndiff --git a/apps/vendor-hyperliquid/src/services/interest-rate-service.ts b/apps/vendor-hyperliquid/src/services/interest-rate-service.ts\nindex 5eb252b2b..95dd36d49 100644\n--- a/apps/vendor-hyperliquid/src/services/interest-rate-service.ts\n+++ b/apps/vendor-hyperliquid/src/services/interest-rate-service.ts\n@@ -3 +3 @@ import { provideInterestRateService } from '@yuants/exchange';\n-import { Terminal } from '@yuants/protocol';\n+import { IServiceOptions, Terminal } from '@yuants/protocol';\n@@ -8,0 +9,9 @@ const terminal = Terminal.fromNodeEnv();\n+const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n+  concurrent: 1,\n+  max_pending_requests: 20,\n+  ingress_token_capacity: 2,\n+  ingress_token_refill_interval: 1000,\n+  egress_token_capacity: 1,\n+  egress_token_refill_interval: 1000,\n+};\n+\n@@ -50,0 +60 @@ provideInterestRateService(\n+  INGEST_SERVICE_OPTIONS,\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "INGEST_SERVICE_OPTIONS",
+              "code": "const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n  concurrent: 1,\n  max_pending_requests: 20,\n  ingress_token_capacity: 2,\n  ingress_token_refill_interval: 1000,\n  egress_token_capacity: 1,\n  egress_token_refill_interval: 1000,\n};\n\n  INGEST_SERVICE_OPTIONS,",
+              "lineStart": 9,
+              "lineEnd": 61
+            }
+          ]
+        },
+        {
+          "additions": 12,
+          "deletions": 1,
+          "path": "apps/vendor-hyperliquid/src/services/ohlc-service.ts",
+          "changeType": "modified",
+          "patch": "commit 2728fa254825747a1226b1e1d1bc105702a9166f\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:55:35 2025 +0800\n\n    feat: 添加服务选项以优化并发请求处理 (#2386)\n\ndiff --git a/apps/vendor-hyperliquid/src/services/ohlc-service.ts b/apps/vendor-hyperliquid/src/services/ohlc-service.ts\nindex 61cd4b3c4..ba7652ab6 100644\n--- a/apps/vendor-hyperliquid/src/services/ohlc-service.ts\n+++ b/apps/vendor-hyperliquid/src/services/ohlc-service.ts\n@@ -3 +3 @@ import { provideOHLCService } from '@yuants/exchange';\n-import { Terminal } from '@yuants/protocol';\n+import { IServiceOptions, Terminal } from '@yuants/protocol';\n@@ -8,0 +9,9 @@ const terminal = Terminal.fromNodeEnv();\n+const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n+  concurrent: 1,\n+  max_pending_requests: 20,\n+  ingress_token_capacity: 2,\n+  ingress_token_refill_interval: 1000,\n+  egress_token_capacity: 1,\n+  egress_token_refill_interval: 1000,\n+};\n+\n@@ -82,0 +92 @@ provideOHLCService(\n+  INGEST_SERVICE_OPTIONS,\n@@ -92,0 +103 @@ provideOHLCService(\n+  INGEST_SERVICE_OPTIONS,\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "INGEST_SERVICE_OPTIONS",
+              "code": "const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n  concurrent: 1,\n  max_pending_requests: 20,\n  ingress_token_capacity: 2,\n  ingress_token_refill_interval: 1000,\n  egress_token_capacity: 1,\n  egress_token_refill_interval: 1000,\n};\n\n  INGEST_SERVICE_OPTIONS,\n  INGEST_SERVICE_OPTIONS,",
+              "lineStart": 9,
+              "lineEnd": 104
+            }
+          ]
+        },
+        {
+          "additions": 12,
+          "deletions": 1,
+          "path": "apps/vendor-okx/src/services/interest-rate-service.ts",
+          "changeType": "modified",
+          "patch": "commit 2728fa254825747a1226b1e1d1bc105702a9166f\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:55:35 2025 +0800\n\n    feat: 添加服务选项以优化并发请求处理 (#2386)\n\ndiff --git a/apps/vendor-okx/src/services/interest-rate-service.ts b/apps/vendor-okx/src/services/interest-rate-service.ts\nindex d4efc6db9..b368f881e 100644\n--- a/apps/vendor-okx/src/services/interest-rate-service.ts\n+++ b/apps/vendor-okx/src/services/interest-rate-service.ts\n@@ -3 +3 @@ import { provideInterestRateService } from '@yuants/exchange';\n-import { Terminal } from '@yuants/protocol';\n+import { IServiceOptions, Terminal } from '@yuants/protocol';\n@@ -8,0 +9,9 @@ const terminal = Terminal.fromNodeEnv();\n+const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n+  concurrent: 1,\n+  max_pending_requests: 20,\n+  ingress_token_capacity: 2,\n+  ingress_token_refill_interval: 1000,\n+  egress_token_capacity: 1,\n+  egress_token_refill_interval: 1000,\n+};\n+\n@@ -94,0 +104 @@ provideInterestRateService(\n+  INGEST_SERVICE_OPTIONS,\n@@ -103,0 +114 @@ provideInterestRateService(\n+  INGEST_SERVICE_OPTIONS,\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "INGEST_SERVICE_OPTIONS",
+              "code": "const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n  concurrent: 1,\n  max_pending_requests: 20,\n  ingress_token_capacity: 2,\n  ingress_token_refill_interval: 1000,\n  egress_token_capacity: 1,\n  egress_token_refill_interval: 1000,\n};\n\n  INGEST_SERVICE_OPTIONS,\n  INGEST_SERVICE_OPTIONS,",
+              "lineStart": 9,
+              "lineEnd": 115
+            }
+          ]
+        },
+        {
+          "additions": 13,
+          "deletions": 1,
+          "path": "apps/vendor-okx/src/services/ohlc-service.ts",
+          "changeType": "modified",
+          "patch": "commit 2728fa254825747a1226b1e1d1bc105702a9166f\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:55:35 2025 +0800\n\n    feat: 添加服务选项以优化并发请求处理 (#2386)\n\ndiff --git a/apps/vendor-okx/src/services/ohlc-service.ts b/apps/vendor-okx/src/services/ohlc-service.ts\nindex fa686c562..6ee7b3ac7 100644\n--- a/apps/vendor-okx/src/services/ohlc-service.ts\n+++ b/apps/vendor-okx/src/services/ohlc-service.ts\n@@ -3 +3 @@ import { IOHLC } from '@yuants/data-ohlc';\n-import { Terminal } from '@yuants/protocol';\n+import { IServiceOptions, Terminal } from '@yuants/protocol';\n@@ -8,0 +9,9 @@ const terminal = Terminal.fromNodeEnv();\n+const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n+  concurrent: 1,\n+  max_pending_requests: 20,\n+  ingress_token_capacity: 2,\n+  ingress_token_refill_interval: 1000,\n+  egress_token_capacity: 1,\n+  egress_token_refill_interval: 1000,\n+};\n+\n@@ -79,0 +89 @@ provideOHLCService(\n+  INGEST_SERVICE_OPTIONS,\n@@ -89,0 +100 @@ provideOHLCService(\n+  INGEST_SERVICE_OPTIONS,\n@@ -99,0 +111 @@ provideOHLCService(\n+  INGEST_SERVICE_OPTIONS,\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "INGEST_SERVICE_OPTIONS",
+              "code": "const INGEST_SERVICE_OPTIONS: IServiceOptions = {\n  concurrent: 1,\n  max_pending_requests: 20,\n  ingress_token_capacity: 2,\n  ingress_token_refill_interval: 1000,\n  egress_token_capacity: 1,\n  egress_token_refill_interval: 1000,\n};\n\n  INGEST_SERVICE_OPTIONS,\n  INGEST_SERVICE_OPTIONS,\n  INGEST_SERVICE_OPTIONS,",
+              "lineStart": 9,
+              "lineEnd": 112
+            }
+          ]
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-aster/2025-12-22-09-12.json",
+          "changeType": "added",
+          "patch": "commit 2728fa254825747a1226b1e1d1bc105702a9166f\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:55:35 2025 +0800\n\n    feat: 添加服务选项以优化并发请求处理 (#2386)\n\ndiff --git a/common/changes/@yuants/vendor-aster/2025-12-22-09-12.json b/common/changes/@yuants/vendor-aster/2025-12-22-09-12.json\nnew file mode 100644\nindex 000000000..b88514c8d\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-aster/2025-12-22-09-12.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-aster\",\n+      \"comment\": \"add service option\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-aster\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-binance/2025-12-22-09-12.json",
+          "changeType": "added",
+          "patch": "commit 2728fa254825747a1226b1e1d1bc105702a9166f\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:55:35 2025 +0800\n\n    feat: 添加服务选项以优化并发请求处理 (#2386)\n\ndiff --git a/common/changes/@yuants/vendor-binance/2025-12-22-09-12.json b/common/changes/@yuants/vendor-binance/2025-12-22-09-12.json\nnew file mode 100644\nindex 000000000..f39e290f1\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-binance/2025-12-22-09-12.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-binance\",\n+      \"comment\": \"add service option\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-binance\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-bitget/2025-12-22-09-12.json",
+          "changeType": "added",
+          "patch": "commit 2728fa254825747a1226b1e1d1bc105702a9166f\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:55:35 2025 +0800\n\n    feat: 添加服务选项以优化并发请求处理 (#2386)\n\ndiff --git a/common/changes/@yuants/vendor-bitget/2025-12-22-09-12.json b/common/changes/@yuants/vendor-bitget/2025-12-22-09-12.json\nnew file mode 100644\nindex 000000000..f12b02bd8\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-bitget/2025-12-22-09-12.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-bitget\",\n+      \"comment\": \"add service option\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-bitget\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-gate/2025-12-22-09-12.json",
+          "changeType": "added",
+          "patch": "commit 2728fa254825747a1226b1e1d1bc105702a9166f\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:55:35 2025 +0800\n\n    feat: 添加服务选项以优化并发请求处理 (#2386)\n\ndiff --git a/common/changes/@yuants/vendor-gate/2025-12-22-09-12.json b/common/changes/@yuants/vendor-gate/2025-12-22-09-12.json\nnew file mode 100644\nindex 000000000..774a84a63\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-gate/2025-12-22-09-12.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-gate\",\n+      \"comment\": \"add service option\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-gate\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-huobi/2025-12-22-09-12.json",
+          "changeType": "added",
+          "patch": "commit 2728fa254825747a1226b1e1d1bc105702a9166f\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:55:35 2025 +0800\n\n    feat: 添加服务选项以优化并发请求处理 (#2386)\n\ndiff --git a/common/changes/@yuants/vendor-huobi/2025-12-22-09-12.json b/common/changes/@yuants/vendor-huobi/2025-12-22-09-12.json\nnew file mode 100644\nindex 000000000..78cddf613\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-huobi/2025-12-22-09-12.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-huobi\",\n+      \"comment\": \"add service option\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-huobi\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-hyperliquid/2025-12-22-09-12.json",
+          "changeType": "added",
+          "patch": "commit 2728fa254825747a1226b1e1d1bc105702a9166f\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:55:35 2025 +0800\n\n    feat: 添加服务选项以优化并发请求处理 (#2386)\n\ndiff --git a/common/changes/@yuants/vendor-hyperliquid/2025-12-22-09-12.json b/common/changes/@yuants/vendor-hyperliquid/2025-12-22-09-12.json\nnew file mode 100644\nindex 000000000..96c8f811a\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-hyperliquid/2025-12-22-09-12.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-hyperliquid\",\n+      \"comment\": \"add service option\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-hyperliquid\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/2025-12-22-09-12.json",
+          "changeType": "added",
+          "patch": "commit 2728fa254825747a1226b1e1d1bc105702a9166f\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Dec 22 21:55:35 2025 +0800\n\n    feat: 添加服务选项以优化并发请求处理 (#2386)\n\ndiff --git a/common/changes/@yuants/vendor-okx/2025-12-22-09-12.json b/common/changes/@yuants/vendor-okx/2025-12-22-09-12.json\nnew file mode 100644\nindex 000000000..aaa6a6150\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-okx/2025-12-22-09-12.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-okx\",\n+      \"comment\": \"add service option\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-okx\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    }
+  ],
+  "analysis": {
+    "domains": [
+      {
+        "name": "API请求优化与限速",
+        "commits": [
+          "009c30e9a",
+          "38cebdd5e",
+          "4cefb69a6",
+          "2728fa254"
+        ],
+        "files": [
+          "docs/reports/git-changes-2025-12-22.json",
+          "docs/reports/git-changes-report-2025-12-22.md",
+          ".legion/config.json",
+          ".legion/ledger.csv",
+          ".legion/tasks/alert-receiver-resolverepeat/context.md",
+          ".legion/tasks/alert-receiver-resolverepeat/plan.md",
+          ".legion/tasks/alert-receiver-resolverepeat/tasks.md",
+          "apps/alert-receiver/src/pipelines/notifier.ts",
+          "apps/alert-receiver/src/pipelines/urgent.test.ts",
+          "apps/alert-receiver/src/pipelines/urgent.ts"
+        ]
+      },
+      {
+        "name": "安全与鉴权",
+        "commits": [
+          "009c30e9a",
+          "38cebdd5e",
+          "4cefb69a6",
+          "2728fa254"
+        ],
+        "files": [
+          "docs/reports/git-changes-2025-12-22.json",
+          "docs/reports/git-changes-report-2025-12-22.md",
+          ".legion/config.json",
+          ".legion/ledger.csv",
+          ".legion/tasks/alert-receiver-resolverepeat/context.md",
+          ".legion/tasks/alert-receiver-resolverepeat/plan.md",
+          ".legion/tasks/alert-receiver-resolverepeat/tasks.md",
+          "apps/alert-receiver/src/pipelines/notifier.ts",
+          "apps/alert-receiver/src/pipelines/urgent.test.ts",
+          "apps/alert-receiver/src/pipelines/urgent.ts"
+        ]
+      },
+      {
+        "name": "订单与交易",
+        "commits": [
+          "009c30e9a",
+          "38cebdd5e",
+          "4cefb69a6",
+          "2728fa254"
+        ],
+        "files": [
+          "docs/reports/git-changes-2025-12-22.json",
+          "docs/reports/git-changes-report-2025-12-22.md",
+          ".legion/config.json",
+          ".legion/ledger.csv",
+          ".legion/tasks/alert-receiver-resolverepeat/context.md",
+          ".legion/tasks/alert-receiver-resolverepeat/plan.md",
+          ".legion/tasks/alert-receiver-resolverepeat/tasks.md",
+          "apps/alert-receiver/src/pipelines/notifier.ts",
+          "apps/alert-receiver/src/pipelines/urgent.test.ts",
+          "apps/alert-receiver/src/pipelines/urgent.ts"
+        ]
+      },
+      {
+        "name": "账户管理",
+        "commits": [
+          "009c30e9a",
+          "38cebdd5e",
+          "4cefb69a6",
+          "2728fa254"
+        ],
+        "files": [
+          "docs/reports/git-changes-2025-12-22.json",
+          "docs/reports/git-changes-report-2025-12-22.md",
+          ".legion/config.json",
+          ".legion/ledger.csv",
+          ".legion/tasks/alert-receiver-resolverepeat/context.md",
+          ".legion/tasks/alert-receiver-resolverepeat/plan.md",
+          ".legion/tasks/alert-receiver-resolverepeat/tasks.md",
+          "apps/alert-receiver/src/pipelines/notifier.ts",
+          "apps/alert-receiver/src/pipelines/urgent.test.ts",
+          "apps/alert-receiver/src/pipelines/urgent.ts"
+        ]
+      },
+      {
+        "name": "市场数据",
+        "commits": [
+          "009c30e9a",
+          "38cebdd5e",
+          "4cefb69a6",
+          "2728fa254"
+        ],
+        "files": [
+          "docs/reports/git-changes-2025-12-22.json",
+          "docs/reports/git-changes-report-2025-12-22.md",
+          ".legion/config.json",
+          ".legion/ledger.csv",
+          ".legion/tasks/alert-receiver-resolverepeat/context.md",
+          ".legion/tasks/alert-receiver-resolverepeat/plan.md",
+          ".legion/tasks/alert-receiver-resolverepeat/tasks.md",
+          "apps/alert-receiver/src/pipelines/notifier.ts",
+          "apps/alert-receiver/src/pipelines/urgent.test.ts",
+          "apps/alert-receiver/src/pipelines/urgent.ts"
+        ]
+      },
+      {
+        "name": "配置与环境",
+        "commits": [
+          "009c30e9a",
+          "38cebdd5e",
+          "4cefb69a6",
+          "2728fa254"
+        ],
+        "files": [
+          "docs/reports/git-changes-2025-12-22.json",
+          "docs/reports/git-changes-report-2025-12-22.md",
+          ".legion/config.json",
+          ".legion/ledger.csv",
+          ".legion/tasks/alert-receiver-resolverepeat/context.md",
+          ".legion/tasks/alert-receiver-resolverepeat/plan.md",
+          ".legion/tasks/alert-receiver-resolverepeat/tasks.md",
+          "apps/alert-receiver/src/pipelines/notifier.ts",
+          "apps/alert-receiver/src/pipelines/urgent.test.ts",
+          "apps/alert-receiver/src/pipelines/urgent.ts"
+        ]
+      },
+      {
+        "name": "文档",
+        "commits": [
+          "009c30e9a",
+          "38cebdd5e",
+          "4cefb69a6"
+        ],
+        "files": [
+          "docs/reports/git-changes-2025-12-22.json",
+          "docs/reports/git-changes-report-2025-12-22.md",
+          ".legion/config.json",
+          ".legion/ledger.csv",
+          ".legion/tasks/alert-receiver-resolverepeat/context.md",
+          ".legion/tasks/alert-receiver-resolverepeat/plan.md",
+          ".legion/tasks/alert-receiver-resolverepeat/tasks.md",
+          "apps/alert-receiver/src/pipelines/notifier.ts",
+          "apps/alert-receiver/src/pipelines/urgent.test.ts",
+          "apps/alert-receiver/src/pipelines/urgent.ts"
+        ]
+      },
+      {
+        "name": "测试",
+        "commits": [
+          "38cebdd5e"
+        ],
+        "files": [
+          ".legion/config.json",
+          ".legion/ledger.csv",
+          ".legion/tasks/alert-receiver-resolverepeat/context.md",
+          ".legion/tasks/alert-receiver-resolverepeat/plan.md",
+          ".legion/tasks/alert-receiver-resolverepeat/tasks.md",
+          "apps/alert-receiver/src/pipelines/notifier.ts",
+          "apps/alert-receiver/src/pipelines/urgent.test.ts",
+          "apps/alert-receiver/src/pipelines/urgent.ts",
+          "common/changes/@yuants/app-alert-receiver/2025-12-21-15-03.json"
+        ]
+      },
+      {
+        "name": "接口重构",
+        "commits": [
+          "4cefb69a6"
+        ],
+        "files": [
+          "common/changes/@yuants/data-interest-rate/2025-12-22-09-12.json",
+          "common/changes/@yuants/data-ohlc/2025-12-22-09-12.json",
+          "common/changes/@yuants/exchange/2025-12-22-09-12.json",
+          "common/changes/@yuants/tool-sql-migration/2025-12-22-09-12.json",
+          "libraries/data-interest-rate/etc/data-interest-rate.api.md",
+          "libraries/data-interest-rate/src/index.ts",
+          "libraries/data-ohlc/etc/data-ohlc.api.md",
+          "libraries/data-ohlc/src/index.ts",
+          "libraries/exchange/src/interest_rate.ts",
+          "libraries/exchange/src/ohlc.ts"
+        ]
+      }
+    ],
+    "riskIndicators": []
+  },
+  "metadata": {
+    "tool": "git-changes-reporter",
+    "version": "3.0.0",
+    "repository": "/home/runner/work/Yuan/Yuan"
+  }
+}
