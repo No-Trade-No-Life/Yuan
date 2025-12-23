@@ -4,6 +4,8 @@
 
 ```ts
 
+/// <reference types="node" />
+
 import { IRegistry } from '@yuants/prometheus';
 import { Observable } from 'rxjs';
 import { OperatorFunction } from 'rxjs';
@@ -115,6 +117,19 @@ export interface ISemaphore {
 }
 
 // @public
+export interface ITokenBucket extends Disposable {
+    acquire(tokens?: number): Promise<void>;
+    read(): number;
+}
+
+// @public
+export interface ITokenPool {
+    acquire(tokens?: number): Promise<void>;
+    read(): number;
+    release(tokens?: number): void;
+}
+
+// @public
 export const listWatch: <T, K>(keyFunc: (item: T) => string, consumer: (item: T) => Observable<K>, comparator?: (a: T, b: T) => boolean) => OperatorFunction<T[], K>;
 
 // @public
@@ -165,6 +180,24 @@ export const subjectToNativeSubject: <T>(subject$: Subject<T>) => NativeSubject<
 
 // @public
 export const switchMapWithComplete: <T, U>(fn: (obj: T) => Observable<U>) => (source$: Observable<T>) => Observable<U>;
+
+// @public
+export const tokenBucket: (bucketId: string, options?: TokenBucketOptions) => ITokenBucket;
+
+// @public
+export interface TokenBucketOptions {
+    capacity?: number;
+    refillAmount?: number;
+    refillInterval?: number;
+}
+
+// @public
+export const tokenPool: (poolId: string, options?: TokenPoolOptions) => ITokenPool;
+
+// @public
+export interface TokenPoolOptions {
+    capacity?: number;
+}
 
 // @public
 export const UUID: () => string;
