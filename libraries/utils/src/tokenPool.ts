@@ -43,8 +43,18 @@ export interface ITokenPool {
    * 如果当前令牌不足，则等待直到有足够令牌可用。
    *
    * @param tokens - 需要的令牌数量，默认值为 1
+   * @param signal - 可选的 AbortSignal，用于取消等待
    */
-  acquire(tokens?: number): Promise<void>;
+  acquire(tokens?: number, signal?: AbortSignal): Promise<void>;
+
+  /**
+   * 同步获取令牌
+   *
+   * 如果当前可用令牌不足，则立即抛出错误
+   *
+   * @param tokens - 需要的令牌数量，默认值为 1
+   */
+  acquireSync(tokens?: number): void;
 
   /**
    * 释放令牌
@@ -90,7 +100,7 @@ export const tokenPool = (poolId: string, options: TokenPoolOptions = {}): IToke
     sem.release(CAPACITY); // 初始化时填满令牌桶
   }
 
-  const acquire = async (tokens: number = 1): Promise<void> => {
+  const acquire = async (tokens: number = 1, signal?: AbortSignal): Promise<void> => {
     // 请求的令牌数必须为正整数
     if (tokens <= 0) {
       throw newError('TOKEN_POOL_INVALID_ACQUIRE_TOKENS', { poolId, tokens });
@@ -105,7 +115,7 @@ export const tokenPool = (poolId: string, options: TokenPoolOptions = {}): IToke
     }
 
     // 使用 semaphore 的 acquire 方法，它会处理队列和等待
-    await sem.acquire(tokens);
+    await sem.acquire(tokens, signal);
   };
 
   const release = (tokens: number = 1): void => {
@@ -123,12 +133,17 @@ export const tokenPool = (poolId: string, options: TokenPoolOptions = {}): IToke
     sem.release(tokens);
   };
 
+  const acquireSync = (tokens: number = 1): void => {
+    sem.acquireSync(tokens);
+  };
+
   const read = (): number => {
     return sem.read();
   };
 
   return {
     acquire,
+    acquireSync,
     release,
     read,
   };

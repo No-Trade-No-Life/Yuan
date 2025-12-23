@@ -111,20 +111,23 @@ export interface IEd25519KeyPair {
 
 // @public
 export interface ISemaphore {
-    acquire(perms?: number): Promise<void>;
+    acquire(perms?: number, signal?: AbortSignal): Promise<void>;
+    acquireSync(perms?: number): void;
     read(): number;
     release(perms?: number): void;
 }
 
 // @public
 export interface ITokenBucket extends Disposable {
-    acquire(tokens?: number): Promise<void>;
+    acquire(tokens?: number, signal?: AbortSignal): Promise<void>;
+    acquireSync(tokens?: number): void;
     read(): number;
 }
 
 // @public
 export interface ITokenPool {
-    acquire(tokens?: number): Promise<void>;
+    acquire(tokens?: number, signal?: AbortSignal): Promise<void>;
+    acquireSync(tokens?: number): void;
     read(): number;
     release(tokens?: number): void;
 }

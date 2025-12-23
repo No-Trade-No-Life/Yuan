@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/utils",
+      "comment": "add acquireSync",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/utils"
+}
