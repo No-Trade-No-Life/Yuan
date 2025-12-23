@@ -1,6 +1,6 @@
 {
   "name": "@yuants/data-product",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [
