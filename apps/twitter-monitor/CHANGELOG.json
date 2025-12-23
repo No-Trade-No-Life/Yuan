@@ -2,6 +2,32 @@
   "name": "@yuants/app-twitter-monitor",
   "entries": [
     {
+      "version": "0.1.38",
+      "tag": "@yuants/app-twitter-monitor_v0.1.38",
+      "date": "Tue, 23 Dec 2025 03:49:05 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.53.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.16.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.32`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.33`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.37",
       "tag": "@yuants/app-twitter-monitor_v0.1.37",
       "date": "Tue, 16 Dec 2025 13:39:47 GMT",
