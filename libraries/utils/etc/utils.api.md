@@ -123,6 +123,13 @@ export interface ITokenBucket extends Disposable {
 }
 
 // @public
+export interface ITokenPool {
+    acquire(tokens?: number): Promise<void>;
+    read(): number;
+    release(tokens?: number): void;
+}
+
+// @public
 export const listWatch: <T, K>(keyFunc: (item: T) => string, consumer: (item: T) => Observable<K>, comparator?: (a: T, b: T) => boolean) => OperatorFunction<T[], K>;
 
 // @public
@@ -182,6 +189,14 @@ export interface TokenBucketOptions {
     capacity?: number;
     refillAmount?: number;
     refillInterval?: number;
+}
+
+// @public
+export const tokenPool: (poolId: string, options?: TokenPoolOptions) => ITokenPool;
+
+// @public
+export interface TokenPoolOptions {
+    capacity?: number;
 }
 
 // @public
