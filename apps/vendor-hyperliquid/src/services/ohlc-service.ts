@@ -1,19 +1,10 @@
 import { IOHLC } from '@yuants/data-ohlc';
 import { provideOHLCService } from '@yuants/exchange';
-import { IServiceOptions, Terminal } from '@yuants/protocol';
+import { Terminal } from '@yuants/protocol';
 import { convertDurationToOffset, decodePath, formatTime } from '@yuants/utils';
 import { getCandleSnapshot } from '../api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
-
-const INGEST_SERVICE_OPTIONS: IServiceOptions = {
-  concurrent: 1,
-  max_pending_requests: 20,
-  ingress_token_capacity: 2,
-  ingress_token_refill_interval: 1000,
-  egress_token_capacity: 1,
-  egress_token_refill_interval: 1000,
-};
 
 const DURATION_TO_HYPERLIQUID_INTERVAL: Record<string, string> = {
   PT1M: '1m',
@@ -89,7 +80,6 @@ provideOHLCService(
     direction: 'backward',
   },
   fetchOHLCPageBackward,
-  INGEST_SERVICE_OPTIONS,
 );
 
 provideOHLCService(
@@ -100,5 +90,4 @@ provideOHLCService(
     direction: 'backward',
   },
   fetchOHLCPageBackward,
-  INGEST_SERVICE_OPTIONS,
 );

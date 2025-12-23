@@ -1,20 +1,11 @@
 import { IInterestRate } from '@yuants/data-interest-rate';
 import { provideInterestRateService } from '@yuants/exchange';
-import { IServiceOptions, Terminal } from '@yuants/protocol';
+import { Terminal } from '@yuants/protocol';
 import { decodePath, formatTime } from '@yuants/utils';
 import { getMarginInterestRateHistory } from '../api/private-api';
 import { getFutureFundingRate } from '../api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
-
-const INGEST_SERVICE_OPTIONS: IServiceOptions = {
-  concurrent: 1,
-  max_pending_requests: 20,
-  ingress_token_capacity: 2,
-  ingress_token_refill_interval: 1000,
-  egress_token_capacity: 1,
-  egress_token_refill_interval: 1000,
-};
 
 const WINDOW_MS = 365 * 24 * 3600_000;
 
@@ -89,7 +80,6 @@ provideInterestRateService(
     direction: 'forward',
   },
   fetchUsdtFutureFundingRateForward,
-  INGEST_SERVICE_OPTIONS,
 );
 
 provideInterestRateService(
@@ -99,5 +89,4 @@ provideInterestRateService(
     direction: 'forward',
   },
   fetchMarginBorrowRateForward,
-  INGEST_SERVICE_OPTIONS,
 );
