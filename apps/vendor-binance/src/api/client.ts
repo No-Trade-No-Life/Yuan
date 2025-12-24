@@ -1,5 +1,5 @@
 import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
-import { encodeHex, formatTime, HmacSHA256, newError } from '@yuants/utils';
+import { encodeHex, formatTime, HmacSHA256, newError, tokenBucket } from '@yuants/utils';
 
 const MetricBinanceApiUsedWeight = GlobalPrometheusRegistry.gauge('binance_api_used_weight', '');
 const MetricBinanceApiCounter = GlobalPrometheusRegistry.counter('binance_api_request_total', '');
@@ -18,6 +18,24 @@ export interface IApiError {
   code: number;
   msg: string;
 }
+
+export const spotAPIBucket = tokenBucket('api.binance.com', {
+  capacity: 6000,
+  refillInterval: 60_000,
+  refillAmount: 6000,
+});
+
+export const futureAPIBucket = tokenBucket('fapi.binance.com', {
+  capacity: 2400,
+  refillInterval: 60_000,
+  refillAmount: 2400,
+});
+
+export const unifiedAPIBucket = tokenBucket('papi.binance.com', {
+  capacity: 1200,
+  refillInterval: 60_000,
+  refillAmount: 1200,
+});
 
 // 每个接口单独进行主动限流控制
 const mapPathToRetryAfterUntil: Record<string, number> = {};

@@ -101,6 +101,23 @@
 
 > 仅记录已结束的会话;进行中的内容放在第 11 节,收尾后再搬运;最新记录置顶。
 
+### 2025-12-24 — Codex
+
+- **本轮摘要**：
+  - private-api 每个请求在调用 `requestPrivate` 前按 endpoint host 获取 `tokenBucket` 并 `acquireSync(权重)`，权重取自接口注释（条件权重在方法内判定）；不抽 wrapper，不加 host guard。
+  - public-api 同步做主动限流：每个请求在调用 `requestPublic` 前执行 `tokenBucket(url.host).acquireSync(weight)`。
+  - client.ts 新增 3 个 tokenBucket（`api.binance.com`/`fapi.binance.com`/`papi.binance.com`）作为首次 create，private-api 侧仅获取既有桶。
+  - 新增最小单测覆盖 host 路由与条件权重（private/public 各一套）。
+- **修改的文件**：
+  - `apps/vendor-binance/src/api/client.ts`
+  - `apps/vendor-binance/src/api/private-api.ts`
+  - `apps/vendor-binance/src/api/public-api.ts`
+  - `apps/vendor-binance/src/api/private-api.rateLimit.test.ts`
+  - `apps/vendor-binance/src/api/public-api.rateLimit.test.ts`
+- **运行的测试 / 检查**：
+  - `npx tsc --noEmit --project tsconfig.json`（workdir: apps/vendor-binance）
+  - `npx heft test --clean`（workdir: apps/vendor-binance）
+
 ### 2025-12-04 — Codex
 
 - **本轮摘要**：
