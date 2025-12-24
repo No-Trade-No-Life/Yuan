@@ -22,8 +22,8 @@ async function handleSwapOrder(order: IOrder, credential: ICredential): Promise<
     positionInfo.data.map((v) => [v.contract_code, v.lever_rate]),
   );
 
-  const lever_rate = mapContractCodeToRate[order.product_id] ?? 20;
   const [, instType, contractCode] = decodePath(order.product_id);
+  const lever_rate = mapContractCodeToRate[contractCode] ?? 20;
   const params = {
     contract_code: contractCode,
     contract_type: 'swap',
@@ -43,7 +43,7 @@ async function handleSwapOrder(order: IOrder, credential: ICredential): Promise<
   console.info(formatTime(Date.now()), 'SubmitOrder', JSON.stringify(result), JSON.stringify(params));
 
   if (result.status !== 'ok') {
-    throw new Error(`Failed to submit swap order: status=${result.status}`);
+    throw newError(`HTX_SUBMIT_ORDER_FAILED`, { result });
   }
   return { order_id: result.data.order_id_str };
 }

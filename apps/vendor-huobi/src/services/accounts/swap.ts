@@ -17,10 +17,10 @@ export const getSwapAccountInfo = async (credential: ICredential): Promise<IPosi
     if (v.margin_balance === 0) continue;
     positions.push(
       makeSpotPosition({
-        position_id: encodePath('HTX', 'SWAP-MARGIN', v.margin_asset),
+        position_id: encodePath('HTX', 'SWAP-ASSET', v.margin_asset),
         datasource_id: 'HTX',
-        product_id: encodePath('HTX', 'SWAP-MARGIN', v.margin_asset),
-        volume: +v.margin_balance,
+        product_id: encodePath('HTX', 'SWAP-ASSET', v.margin_asset),
+        volume: +v.margin_static,
         free_volume: +v.withdraw_available,
         closable_price: usdAssets.has(v.margin_asset) ? 1 : 0,
       }),

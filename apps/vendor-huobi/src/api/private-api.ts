@@ -105,6 +105,7 @@ export const getUnifiedAccountInfo = (
   data: {
     margin_asset: string;
     margin_balance: number;
+    margin_static: number;
     cross_margin_static: number;
     cross_profit_unreal: number;
     withdraw_available: number;
