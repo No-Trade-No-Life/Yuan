@@ -110,6 +110,19 @@ export interface IEd25519KeyPair {
 }
 
 // @public
+export interface IResourcePool {
+    acquire(tokens?: number, signal?: AbortSignal): Promise<void>;
+    acquireSync(tokens?: number): void;
+    read(): number;
+    release(tokens?: number): void;
+}
+
+// @public
+export interface IResourcePoolOptions {
+    capacity?: number;
+}
+
+// @public
 export interface ISemaphore {
     acquire(perms?: number, signal?: AbortSignal): Promise<void>;
     acquireSync(perms?: number): void;
@@ -122,14 +135,6 @@ export interface ITokenBucket extends Disposable {
     acquire(tokens?: number, signal?: AbortSignal): Promise<void>;
     acquireSync(tokens?: number): void;
     read(): number;
-}
-
-// @public
-export interface ITokenPool {
-    acquire(tokens?: number, signal?: AbortSignal): Promise<void>;
-    acquireSync(tokens?: number): void;
-    read(): number;
-    release(tokens?: number): void;
 }
 
 // @public
@@ -155,6 +160,9 @@ export const rateLimitMap: <A, B, C>(fn: (obj: A) => Observable<B>, reject: (obj
     count: number;
     period: number;
 }, scheduler?: SchedulerLike) => (source$: Observable<A>) => Observable<B | C>;
+
+// @public
+export const resourcePool: (poolId: string, options?: IResourcePoolOptions) => IResourcePool;
 
 // @public (undocumented)
 export function roundToStep(value: number, step: number,
@@ -192,14 +200,6 @@ export interface TokenBucketOptions {
     capacity?: number;
     refillAmount?: number;
     refillInterval?: number;
-}
-
-// @public
-export const tokenPool: (poolId: string, options?: TokenPoolOptions) => ITokenPool;
-
-// @public
-export interface TokenPoolOptions {
-    capacity?: number;
 }
 
 // @public

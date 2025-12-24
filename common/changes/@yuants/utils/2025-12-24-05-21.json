@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/utils",
+      "comment": "rename token pool to resource pool",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/utils"
+}
