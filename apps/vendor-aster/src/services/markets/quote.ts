@@ -32,6 +32,7 @@ import {
 } from '../../api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
+const DISABLE_OPEN_INTEREST = process.env.DISABLE_OPEN_INTEREST === 'true';
 const DEFAULT_OPEN_INTEREST_REQUEST_INTERVAL_MS = 500;
 const OPEN_INTEREST_TTL = process.env.OPEN_INTEREST_TTL ? Number(process.env.OPEN_INTEREST_TTL) : 120_000;
 
@@ -183,7 +184,11 @@ const quoteFromFundingRate$ = fundingRate$.pipe(
   ),
 );
 
-const quote$ = merge(quoteFromTicker$, quoteFromOpenInterest$, quoteFromFundingRate$).pipe(
+const quote$ = merge(
+  quoteFromTicker$,
+  quoteFromFundingRate$,
+  DISABLE_OPEN_INTEREST ? of() : quoteFromOpenInterest$,
+).pipe(
   groupBy((quote) => quote.product_id),
   mergeMap((group$) =>
     group$.pipe(
