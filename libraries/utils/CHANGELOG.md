@@ -1,6 +1,17 @@
 # Change Log - @yuants/utils
 
-This log was last generated on Tue, 23 Dec 2025 08:55:22 GMT and should not be manually modified.
+This log was last generated on Wed, 24 Dec 2025 10:03:02 GMT and should not be manually modified.
+
+## 0.18.0
+Wed, 24 Dec 2025 10:03:02 GMT
+
+### Minor changes
+
+- add acquireSync
+
+### Patches
+
+- rename token pool to resource pool
 
 ## 0.17.0
 Tue, 23 Dec 2025 08:55:22 GMT

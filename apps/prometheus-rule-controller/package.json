@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-prometheus-rule-controller",
-  "version": "0.3.37",
+  "version": "0.3.38",
   "main": "lib/index.js",
   "bin": "lib/cli.js",
   "files": [

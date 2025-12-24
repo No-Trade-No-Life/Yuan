@@ -2,6 +2,28 @@
   "name": "@yuants/utils",
   "entries": [
     {
+      "version": "0.18.0",
+      "tag": "@yuants/utils_v0.18.0",
+      "date": "Wed, 24 Dec 2025 10:03:02 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add acquireSync"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "rename token pool to resource pool"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.17.0",
       "tag": "@yuants/utils_v0.17.0",
       "date": "Tue, 23 Dec 2025 08:55:22 GMT",
