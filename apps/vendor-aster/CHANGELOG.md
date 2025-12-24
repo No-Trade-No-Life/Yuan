@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-aster
 
-This log was last generated on Wed, 24 Dec 2025 10:03:02 GMT and should not be manually modified.
+This log was last generated on Wed, 24 Dec 2025 11:00:24 GMT and should not be manually modified.
+
+## 0.9.4
+Wed, 24 Dec 2025 11:00:24 GMT
+
+### Patches
+
+- DISABLE_OPEN_INTEREST
 
 ## 0.9.3
 Wed, 24 Dec 2025 10:03:02 GMT

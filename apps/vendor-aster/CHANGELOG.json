@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-aster",
   "entries": [
     {
+      "version": "0.9.4",
+      "tag": "@yuants/vendor-aster_v0.9.4",
+      "date": "Wed, 24 Dec 2025 11:00:24 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "DISABLE_OPEN_INTEREST"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.9.3",
       "tag": "@yuants/vendor-aster_v0.9.3",
       "date": "Wed, 24 Dec 2025 10:03:02 GMT",
