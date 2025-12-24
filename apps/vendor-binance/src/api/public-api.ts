@@ -1,3 +1,4 @@
+import { scopeError, tokenBucket } from '@yuants/utils';
 import { requestPublic } from './client';
 
 export interface IFutureExchangeFilter extends Record<string, string | number | boolean | undefined> {
@@ -97,13 +98,26 @@ export interface IMarginPair {
 /**
  * 获取交易规则和交易对
  *
- * https://binance-docs.github.io/apidocs/futures/cn/#0f3f2d5ee7
+ * 权重: 1
+ *
+ * https://developers.binance.com/docs/zh-CN/derivatives/usds-margined-futures/market-data/rest-api/Exchange-Information
  */
-export const getFutureExchangeInfo = (): Promise<IFutureExchangeInfo> =>
-  requestPublic<IFutureExchangeInfo>('GET', 'https://fapi.binance.com/fapi/v1/exchangeInfo');
+export const getFutureExchangeInfo = (): Promise<IFutureExchangeInfo> => {
+  const endpoint = 'https://fapi.binance.com/fapi/v1/exchangeInfo';
+  const url = new URL(endpoint);
+  const weight = 1;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
+  );
+  return requestPublic<IFutureExchangeInfo>('GET', endpoint);
+};
 
 /**
  * 查询资金费率历史
+ *
+ * 权重: /fapi/v1/fundingInfo共享500/5min/IP
  *
  * https://developers.binance.com/docs/zh-CN/derivatives/usds-margined-futures/market-data/rest-api/Get-Funding-Rate-History
  */
@@ -112,8 +126,22 @@ export const getFutureFundingRate = (params: {
   startTime?: number;
   endTime?: number;
   limit?: number;
-}): Promise<IFutureFundingRateEntry[]> =>
-  requestPublic<IFutureFundingRateEntry[]>('GET', 'https://fapi.binance.com/fapi/v1/fundingRate', params);
+}): Promise<IFutureFundingRateEntry[]> => {
+  const endpoint = 'https://fapi.binance.com/fapi/v1/fundingRate';
+  const url = new URL(endpoint);
+  const weight = 1;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () =>
+      tokenBucket(url.host + 'fundingRate', {
+        capacity: 500,
+        refillAmount: 500,
+        refillInterval: 300_000,
+      }).acquireSync(weight),
+  );
+  return requestPublic<IFutureFundingRateEntry[]>('GET', endpoint, params);
+};
 
 /**
  * 最新标记价格和资金费率
@@ -124,8 +152,25 @@ export const getFutureFundingRate = (params: {
  *
  * https://developers.binance.com/docs/zh-CN/derivatives/usds-margined-futures/market-data/rest-api/Mark-Price
  */
-export const getFuturePremiumIndex = (params: { symbol?: string }): Promise<IFuturePremiumIndexEntry[]> =>
-  requestPublic<IFuturePremiumIndexEntry[]>('GET', 'https://fapi.binance.com/fapi/v1/premiumIndex', params);
+export const getFuturePremiumIndex = (params: { symbol?: string }): Promise<IFuturePremiumIndexEntry[]> => {
+  const endpoint = 'https://fapi.binance.com/fapi/v1/premiumIndex';
+  const url = new URL(endpoint);
+  const weight = params?.symbol ? 1 : 10;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    {
+      method: 'GET',
+      endpoint,
+      host: url.host,
+      path: url.pathname,
+      bucketId: url.host,
+      weight,
+      hasSymbol: !!params?.symbol,
+    },
+    () => tokenBucket(url.host).acquireSync(weight),
+  );
+  return requestPublic<IFuturePremiumIndexEntry[]>('GET', endpoint, params);
+};
 
 /**
  * 当前最优挂单
@@ -136,12 +181,25 @@ export const getFuturePremiumIndex = (params: { symbol?: string }): Promise<IFut
  *
  * https://developers.binance.com/docs/zh-CN/derivatives/usds-margined-futures/market-data/rest-api/Symbol-Order-Book-Ticker
  */
-export const getFutureBookTicker = (params?: { symbol?: string }): Promise<IFutureBookTickerEntry[]> =>
-  requestPublic<IFutureBookTickerEntry[]>(
-    'GET',
-    'https://fapi.binance.com/fapi/v1/ticker/bookTicker',
-    params,
+export const getFutureBookTicker = (params?: { symbol?: string }): Promise<IFutureBookTickerEntry[]> => {
+  const endpoint = 'https://fapi.binance.com/fapi/v1/ticker/bookTicker';
+  const url = new URL(endpoint);
+  const weight = params?.symbol ? 2 : 5;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    {
+      method: 'GET',
+      endpoint,
+      host: url.host,
+      path: url.pathname,
+      bucketId: url.host,
+      weight,
+      hasSymbol: !!params?.symbol,
+    },
+    () => tokenBucket(url.host).acquireSync(weight),
   );
+  return requestPublic<IFutureBookTickerEntry[]>('GET', endpoint, params);
+};
 
 /**
  * 获取未平仓合约数
@@ -152,8 +210,17 @@ export const getFutureBookTicker = (params?: { symbol?: string }): Promise<IFutu
  *
  * https://developers.binance.com/docs/zh-CN/derivatives/usds-margined-futures/market-data/rest-api/Open-Interest
  */
-export const getFutureOpenInterest = (params: { symbol: string }): Promise<IFutureOpenInterest> =>
-  requestPublic<IFutureOpenInterest>('GET', 'https://fapi.binance.com/fapi/v1/openInterest', params);
+export const getFutureOpenInterest = (params: { symbol: string }): Promise<IFutureOpenInterest> => {
+  const endpoint = 'https://fapi.binance.com/fapi/v1/openInterest';
+  const url = new URL(endpoint);
+  const weight = 1;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
+  );
+  return requestPublic<IFutureOpenInterest>('GET', endpoint, params);
+};
 export interface ISpotBookTickerEntry {
   symbol: string;
   bidPrice: string;
@@ -165,10 +232,29 @@ export interface ISpotBookTickerEntry {
 /**
  * 当前最优挂单 (Spot)
  *
- * https://binance-docs.github.io/apidocs/spot/cn/#5393cd0851
+ * 权重: 单交易对 2，不带 symbol 4
+ *
+ * https://developers.binance.com/docs/zh-CN/binance-spot-api-docs/rest-api/market-data-endpoints#%E6%9C%80%E4%BC%98%E6%8C%82%E5%8D%95%E6%8E%A5%E5%8F%A3
  */
-export const getSpotBookTicker = (params?: { symbol?: string }): Promise<ISpotBookTickerEntry[]> =>
-  requestPublic<ISpotBookTickerEntry[]>('GET', 'https://api.binance.com/api/v3/ticker/bookTicker', params);
+export const getSpotBookTicker = (params?: { symbol?: string }): Promise<ISpotBookTickerEntry[]> => {
+  const endpoint = 'https://api.binance.com/api/v3/ticker/bookTicker';
+  const url = new URL(endpoint);
+  const weight = params?.symbol ? 2 : 4;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    {
+      method: 'GET',
+      endpoint,
+      host: url.host,
+      path: url.pathname,
+      bucketId: url.host,
+      weight,
+      hasSymbol: !!params?.symbol,
+    },
+    () => tokenBucket(url.host).acquireSync(weight),
+  );
+  return requestPublic<ISpotBookTickerEntry[]>('GET', endpoint, params);
+};
 
 export interface ISpotExchangeFilter extends Record<string, string | number | boolean | undefined> {
   filterType: string;
@@ -211,21 +297,46 @@ export interface ISpotExchangeInfo {
 /**
  * 获取现货交易规则和交易对
  *
+ * 权重: 20
+ *
  * https://developers.binance.com/docs/zh-CN/binance-spot-api-docs/rest-api/general-endpoints#%E4%BA%A4%E6%98%93%E8%A7%84%E8%8C%83%E4%BF%A1%E6%81%AF
  */
-export const getSpotExchangeInfo = (): Promise<ISpotExchangeInfo> =>
-  requestPublic<ISpotExchangeInfo>('GET', 'https://api.binance.com/api/v3/exchangeInfo');
+export const getSpotExchangeInfo = (): Promise<ISpotExchangeInfo> => {
+  const endpoint = 'https://api.binance.com/api/v3/exchangeInfo';
+  const url = new URL(endpoint);
+  const weight = 20;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
+  );
+  return requestPublic<ISpotExchangeInfo>('GET', endpoint);
+};
 
 /**
  * 获取当前现货报价
  *
- *https://developers.binance.com/docs/zh-CN/binance-spot-api-docs/rest-api/market-data-endpoints#%E6%9C%80%E6%96%B0%E4%BB%B7%E6%A0%BC%E6%8E%A5%E5%8F%A3
+ * 权重: 单交易对 2，不带 symbol 4
+ *
+ * https://developers.binance.com/docs/zh-CN/binance-spot-api-docs/rest-api/market-data-endpoints#%E6%9C%80%E6%96%B0%E4%BB%B7%E6%A0%BC%E6%8E%A5%E5%8F%A3
  */
 export const getSpotTickerPrice = (params?: {
-  symbolStatus?: 'TRADING' | 'HALT' | 'BREAK';
+  symbol?: string;
+  symbols?: string;
+  symbolStatus?: string;
 }): Promise<
   {
     symbol: string;
     price: string;
   }[]
-> => requestPublic('GET', 'https://api.binance.com/api/v3/ticker/price', params);
+> => {
+  const endpoint = 'https://api.binance.com/api/v3/ticker/price';
+  const url = new URL(endpoint);
+  const weight = params?.symbol ? 2 : 4;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
+  );
+  return requestPublic('GET', endpoint, params);
+};

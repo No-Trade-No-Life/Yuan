@@ -1,3 +1,5 @@
+import { scopeError, tokenBucket } from '@yuants/utils';
+
 import { getDefaultCredential, IApiError, ICredential, requestPrivate } from './client';
 export type { ICredential };
 
@@ -237,12 +239,17 @@ export interface IUMIncomeRecord {
  *
  * https://developers.binance.com/docs/zh-CN/derivatives/portfolio-margin/account/Account-Information
  */
-export const getUnifiedAccountInfo = (credential: ICredential): Promise<IUnifiedAccountInfo | IApiError> =>
-  requestPrivate<IUnifiedAccountInfo | IApiError>(
-    credential,
-    'GET',
-    'https://papi.binance.com/papi/v1/account',
+export const getUnifiedAccountInfo = (credential: ICredential): Promise<IUnifiedAccountInfo | IApiError> => {
+  const endpoint = 'https://papi.binance.com/papi/v1/account';
+  const url = new URL(endpoint);
+  const weight = 20;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
   );
+  return requestPrivate<IUnifiedAccountInfo | IApiError>(credential, 'GET', endpoint);
+};
 
 /**
  * 获取UM账户信息
@@ -253,12 +260,17 @@ export const getUnifiedAccountInfo = (credential: ICredential): Promise<IUnified
  *
  * https://developers.binance.com/docs/zh-CN/derivatives/portfolio-margin/account/Get-UM-Account-Detail
  */
-export const getUnifiedUmAccount = (credential: ICredential): Promise<IUnifiedUmAccount | IApiError> =>
-  requestPrivate<IUnifiedUmAccount | IApiError>(
-    credential,
-    'GET',
-    'https://papi.binance.com/papi/v1/um/account',
+export const getUnifiedUmAccount = (credential: ICredential): Promise<IUnifiedUmAccount | IApiError> => {
+  const endpoint = 'https://papi.binance.com/papi/v1/um/account';
+  const url = new URL(endpoint);
+  const weight = 5;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
   );
+  return requestPrivate<IUnifiedUmAccount | IApiError>(credential, 'GET', endpoint);
+};
 
 /**
  * 查看当前全部UM挂单(USER_DATA)
@@ -274,13 +286,25 @@ export const getUnifiedUmOpenOrders = (
   params?: {
     symbol?: string;
   },
-): Promise<IUnifiedUmOpenOrder[]> =>
-  requestPrivate<IUnifiedUmOpenOrder[]>(
-    credential,
-    'GET',
-    'https://papi.binance.com/papi/v1/um/openOrders',
-    params,
+): Promise<IUnifiedUmOpenOrder[]> => {
+  const endpoint = 'https://papi.binance.com/papi/v1/um/openOrders';
+  const url = new URL(endpoint);
+  const weight = params?.symbol ? 1 : 40;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    {
+      method: 'GET',
+      endpoint,
+      host: url.host,
+      path: url.pathname,
+      bucketId: url.host,
+      weight,
+      hasSymbol: !!params?.symbol,
+    },
+    () => tokenBucket(url.host).acquireSync(weight),
   );
+  return requestPrivate<IUnifiedUmOpenOrder[]>(credential, 'GET', endpoint, params);
+};
 
 /**
  * 查询账户余额(USER_DATA)
@@ -296,13 +320,17 @@ export const getUnifiedAccountBalance = (
   params?: {
     assets?: string;
   },
-): Promise<IUnifiedAccountBalanceEntry[] | IApiError> =>
-  requestPrivate<IUnifiedAccountBalanceEntry[] | IApiError>(
-    credential,
-    'GET',
-    'https://papi.binance.com/papi/v1/balance',
-    params,
+): Promise<IUnifiedAccountBalanceEntry[] | IApiError> => {
+  const endpoint = 'https://papi.binance.com/papi/v1/balance';
+  const url = new URL(endpoint);
+  const weight = 20;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
   );
+  return requestPrivate<IUnifiedAccountBalanceEntry[] | IApiError>(credential, 'GET', endpoint, params);
+};
 
 /**
  * 账户信息 (USER_DATA)
@@ -316,13 +344,17 @@ export const getSpotAccountInfo = (
   params?: {
     omitZeroBalances?: boolean;
   },
-): Promise<ISpotAccountInfo | IApiError> =>
-  requestPrivate<ISpotAccountInfo | IApiError>(
-    credential,
-    'GET',
-    'https://api.binance.com/api/v3/account',
-    params,
+): Promise<ISpotAccountInfo | IApiError> => {
+  const endpoint = 'https://api.binance.com/api/v3/account';
+  const url = new URL(endpoint);
+  const weight = 20;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
   );
+  return requestPrivate<ISpotAccountInfo | IApiError>(credential, 'GET', endpoint, params);
+};
 
 /**
  * Current open orders (USER_DATA)
@@ -336,13 +368,25 @@ export const getSpotOpenOrders = (
   params?: {
     symbol?: string;
   },
-): Promise<ISpotOrder[] | IApiError> =>
-  requestPrivate<ISpotOrder[] | IApiError>(
-    credential,
-    'GET',
-    'https://api.binance.com/api/v3/openOrders',
-    params,
+): Promise<ISpotOrder[] | IApiError> => {
+  const endpoint = 'https://api.binance.com/api/v3/openOrders';
+  const url = new URL(endpoint);
+  const weight = params?.symbol ? 6 : 80;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    {
+      method: 'GET',
+      endpoint,
+      host: url.host,
+      path: url.pathname,
+      bucketId: url.host,
+      weight,
+      hasSymbol: !!params?.symbol,
+    },
+    () => tokenBucket(url.host).acquireSync(weight),
   );
+  return requestPrivate<ISpotOrder[] | IApiError>(credential, 'GET', endpoint, params);
+};
 
 /**
  * New order (TRADE)
@@ -373,13 +417,17 @@ export const postSpotOrder = (
     pegOffsetValue?: number;
     pegOffsetType?: string;
   },
-): Promise<ISpotNewOrderResponse | IApiError> =>
-  requestPrivate<ISpotNewOrderResponse | IApiError>(
-    credential,
-    'POST',
-    'https://api.binance.com/api/v3/order',
-    params,
+): Promise<ISpotNewOrderResponse | IApiError> => {
+  const endpoint = 'https://api.binance.com/api/v3/order';
+  const url = new URL(endpoint);
+  const weight = 1;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
   );
+  return requestPrivate<ISpotNewOrderResponse | IApiError>(credential, 'POST', endpoint, params);
+};
 
 /**
  * Cancel order (TRADE)
@@ -397,13 +445,17 @@ export const deleteSpotOrder = (
     newClientOrderId?: string;
     cancelRestrictions?: string;
   },
-): Promise<ISpotOrder | IApiError> =>
-  requestPrivate<ISpotOrder | IApiError>(
-    credential,
-    'DELETE',
-    'https://api.binance.com/api/v3/order',
-    params,
+): Promise<ISpotOrder | IApiError> => {
+  const endpoint = 'https://api.binance.com/api/v3/order';
+  const url = new URL(endpoint);
+  const weight = 1;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'DELETE', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
   );
+  return requestPrivate<ISpotOrder | IApiError>(credential, 'DELETE', endpoint, params);
+};
 
 /**
  * 用户万向划转(USER_DATA)
@@ -425,13 +477,17 @@ export const postAssetTransfer = (
     fromSymbol?: string;
     toSymbol?: string;
   },
-): Promise<IAssetTransferResponse | IApiError> =>
-  requestPrivate<IAssetTransferResponse | IApiError>(
-    credential,
-    'POST',
-    'https://api.binance.com/sapi/v1/asset/transfer',
-    params,
+): Promise<IAssetTransferResponse | IApiError> => {
+  const endpoint = 'https://api.binance.com/sapi/v1/asset/transfer';
+  const url = new URL(endpoint);
+  const weight = 900;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
   );
+  return requestPrivate<IAssetTransferResponse | IApiError>(credential, 'POST', endpoint, params);
+};
 
 /**
  * 统一账户资金归集(TRADE)
@@ -444,8 +500,17 @@ export const postAssetTransfer = (
  *
  * ISSUE(2024-07-18): 目前这是唯一能够将资金从原 U 本位合约账户转入统一账户的接口。
  */
-export const postUnifiedAccountAutoCollection = (credential: ICredential): Promise<{ msg: string }> =>
-  requestPrivate<{ msg: string }>(credential, 'POST', 'https://papi.binance.com/papi/v1/auto-collection');
+export const postUnifiedAccountAutoCollection = (credential: ICredential): Promise<{ msg: string }> => {
+  const endpoint = 'https://papi.binance.com/papi/v1/auto-collection';
+  const url = new URL(endpoint);
+  const weight = 750;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
+  );
+  return requestPrivate<{ msg: string }>(credential, 'POST', endpoint);
+};
 
 /**
  * 获取充值地址(支持多网络)(USER_DATA)
@@ -463,13 +528,17 @@ export const getDepositAddress = (
     network?: string;
     amount?: number;
   },
-): Promise<IDepositAddress> =>
-  requestPrivate<IDepositAddress>(
-    credential,
-    'GET',
-    'https://api.binance.com/sapi/v1/capital/deposit/address',
-    params,
+): Promise<IDepositAddress> => {
+  const endpoint = 'https://api.binance.com/sapi/v1/capital/deposit/address';
+  const url = new URL(endpoint);
+  const weight = 10;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
   );
+  return requestPrivate<IDepositAddress>(credential, 'GET', endpoint, params);
+};
 
 /**
  * 查询子账户列表(适用主账户)
@@ -486,13 +555,17 @@ export const getSubAccountList = (
     page?: number;
     limit?: number;
   },
-): Promise<ISubAccountListResponse | IApiError> =>
-  requestPrivate<ISubAccountListResponse | IApiError>(
-    credential,
-    'GET',
-    'https://api.binance.com/sapi/v1/sub-account/list',
-    params,
+): Promise<ISubAccountListResponse | IApiError> => {
+  const endpoint = 'https://api.binance.com/sapi/v1/sub-account/list';
+  const url = new URL(endpoint);
+  const weight = 1;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
   );
+  return requestPrivate<ISubAccountListResponse | IApiError>(credential, 'GET', endpoint, params);
+};
 
 /**
  * 提币(USER_DATA)
@@ -514,13 +587,17 @@ export const postWithdraw = (
     name?: string;
     walletType?: number;
   },
-): Promise<{ id: string } | IApiError> =>
-  requestPrivate<{ id: string } | IApiError>(
-    credential,
-    'POST',
-    'https://api.binance.com/sapi/v1/capital/withdraw/apply',
-    params,
+): Promise<{ id: string } | IApiError> => {
+  const endpoint = 'https://api.binance.com/sapi/v1/capital/withdraw/apply';
+  const url = new URL(endpoint);
+  const weight = 600;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
   );
+  return requestPrivate<{ id: string } | IApiError>(credential, 'POST', endpoint, params);
+};
 
 /**
  * 获取提币历史(支持多网络)(USER_DATA)
@@ -545,13 +622,17 @@ export const getWithdrawHistory = (
     startTime?: number;
     endTime?: number;
   },
-): Promise<IWithdrawRecord[]> =>
-  requestPrivate<IWithdrawRecord[]>(
-    credential,
-    'GET',
-    'https://api.binance.com/sapi/v1/capital/withdraw/history',
-    params,
+): Promise<IWithdrawRecord[]> => {
+  const endpoint = 'https://api.binance.com/sapi/v1/capital/withdraw/history';
+  const url = new URL(endpoint);
+  const weight = 1;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
   );
+  return requestPrivate<IWithdrawRecord[]>(credential, 'GET', endpoint, params);
+};
 
 /**
  * 获取充值历史(支持多网络)
@@ -572,13 +653,17 @@ export const getDepositHistory = (
     limit?: number;
     txId?: string;
   },
-): Promise<IDepositRecord[]> =>
-  requestPrivate<IDepositRecord[]>(
-    credential,
-    'GET',
-    'https://api.binance.com/sapi/v1/capital/deposit/hisrec',
-    params,
+): Promise<IDepositRecord[]> => {
+  const endpoint = 'https://api.binance.com/sapi/v1/capital/deposit/hisrec';
+  const url = new URL(endpoint);
+  const weight = 1;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
   );
+  return requestPrivate<IDepositRecord[]>(credential, 'GET', endpoint, params);
+};
 
 /**
  * UM下单(TRADE)
@@ -603,13 +688,17 @@ export const postUmOrder = (
     selfTradePreventionMode?: string;
     goodTillDate?: number;
   },
-): Promise<IUnifiedUmOrderResponse | IApiError> =>
-  requestPrivate<IUnifiedUmOrderResponse | IApiError>(
-    credential,
-    'POST',
-    'https://papi.binance.com/papi/v1/um/order',
-    params,
+): Promise<IUnifiedUmOrderResponse | IApiError> => {
+  const endpoint = 'https://papi.binance.com/papi/v1/um/order';
+  const url = new URL(endpoint);
+  const weight = 1;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
   );
+  return requestPrivate<IUnifiedUmOrderResponse | IApiError>(credential, 'POST', endpoint, params);
+};
 
 export const deleteUmOrder = (
   credential: ICredential,
@@ -618,13 +707,17 @@ export const deleteUmOrder = (
     orderId?: string | number;
     origClientOrderId?: string;
   },
-): Promise<IUnifiedUmOrderResponse | IApiError> =>
-  requestPrivate<IUnifiedUmOrderResponse | IApiError>(
-    credential,
-    'DELETE',
-    'https://papi.binance.com/papi/v1/um/order',
-    params,
+): Promise<IUnifiedUmOrderResponse | IApiError> => {
+  const endpoint = 'https://papi.binance.com/papi/v1/um/order';
+  const url = new URL(endpoint);
+  const weight = 1;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'DELETE', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
   );
+  return requestPrivate<IUnifiedUmOrderResponse | IApiError>(credential, 'DELETE', endpoint, params);
+};
 
 /**
  * 获取UM损益资金流水(USER_DATA)
@@ -644,8 +737,17 @@ export const getUMIncome = (
     limit?: number;
     timestamp?: number;
   },
-): Promise<IUMIncomeRecord[]> =>
-  requestPrivate<IUMIncomeRecord[]>(credential, 'GET', 'https://api.binance.com/papi/v1/um/income', params);
+): Promise<IUMIncomeRecord[]> => {
+  const endpoint = 'https://api.binance.com/papi/v1/um/income';
+  const url = new URL(endpoint);
+  const weight = 30;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
+  );
+  return requestPrivate<IUMIncomeRecord[]>(credential, 'GET', endpoint, params);
+};
 
 /**
  * Cancel an Existing Order and Send a New Order (TRADE)
@@ -680,13 +782,17 @@ export const postSpotOrderCancelReplace = (
     pegOffsetValue?: number;
     pegOffsetType?: string;
   },
-): Promise<ISpotNewOrderResponse | IApiError> =>
-  requestPrivate<ISpotNewOrderResponse | IApiError>(
-    credential,
-    'POST',
-    'https://api.binance.com/api/v3/order/cancelReplace',
-    params,
+): Promise<ISpotNewOrderResponse | IApiError> => {
+  const endpoint = 'https://api.binance.com/api/v3/order/cancelReplace';
+  const url = new URL(endpoint);
+  const weight = 1;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
   );
+  return requestPrivate<ISpotNewOrderResponse | IApiError>(credential, 'POST', endpoint, params);
+};
 
 /**
  * Modify Order (TRADE)
@@ -708,13 +814,17 @@ export const putUmOrder = (
     recvWindow?: number;
     timestamp?: number;
   },
-): Promise<IUnifiedUmOrderResponse | IApiError> =>
-  requestPrivate<IUnifiedUmOrderResponse | IApiError>(
-    credential,
-    'PUT',
-    'https://papi.binance.com/papi/v1/um/order',
-    params,
+): Promise<IUnifiedUmOrderResponse | IApiError> => {
+  const endpoint = 'https://papi.binance.com/papi/v1/um/order';
+  const url = new URL(endpoint);
+  const weight = 1;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'PUT', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
   );
+  return requestPrivate<IUnifiedUmOrderResponse | IApiError>(credential, 'PUT', endpoint, params);
+};
 export interface IMarginPair {
   id: string;
   symbol: string;
@@ -734,12 +844,15 @@ export interface IMarginPair {
  */
 export const getMarginAllPairs = (params?: { symbol?: string }): Promise<IMarginPair[]> => {
   const credential = getDefaultCredential();
-  return requestPrivate<IMarginPair[]>(
-    credential,
-    'GET',
-    'https://api.binance.com/sapi/v1/margin/allPairs',
-    params,
+  const endpoint = 'https://api.binance.com/sapi/v1/margin/allPairs';
+  const url = new URL(endpoint);
+  const weight = 1;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
   );
+  return requestPrivate<IMarginPair[]>(credential, 'GET', endpoint, params);
 };
 
 /**
@@ -757,12 +870,20 @@ export const getMarginNextHourlyInterestRate = (params: {
   }[]
 > => {
   const credential = getDefaultCredential();
+  const endpoint = 'https://api.binance.com/sapi/v1/margin/next-hourly-interest-rate';
+  const url = new URL(endpoint);
+  const weight = 1;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
+  );
   return requestPrivate<
     {
       asset: string;
       nextHourlyInterestRate: string;
     }[]
-  >(credential, 'GET', 'https://api.binance.com/sapi/v1/margin/next-hourly-interest-rate', params);
+  >(credential, 'GET', endpoint, params);
 };
 
 /**
@@ -785,6 +906,14 @@ export const getMarginInterestRateHistory = (params: {
   }[]
 > => {
   const credential = getDefaultCredential();
+  const endpoint = 'https://api.binance.com/sapi/v1/margin/interestRateHistory';
+  const url = new URL(endpoint);
+  const weight = 1;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
+  );
   return requestPrivate<
     {
       asset: string;
@@ -792,7 +921,7 @@ export const getMarginInterestRateHistory = (params: {
       timestamp: number;
       vipLevel: number;
     }[]
-  >(credential, 'GET', 'https://api.binance.com/sapi/v1/margin/interestRateHistory', params);
+  >(credential, 'GET', endpoint, params);
 };
 
 /**
@@ -811,6 +940,14 @@ export const getUserAsset = (
     recvWindow?: number;
   },
 ) => {
+  const endpoint = 'https://api.binance.com/sapi/v3/asset/getUserAsset';
+  const url = new URL(endpoint);
+  const weight = 1;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
+  );
   return requestPrivate<
     | {
         asset: string;
@@ -822,7 +959,7 @@ export const getUserAsset = (
         btcValuation: string;
       }[]
     | IApiError
-  >(credential, 'POST', 'https://api.binance.com/sapi/v3/asset/getUserAsset', params);
+  >(credential, 'POST', endpoint, params);
 };
 
 /**
@@ -841,6 +978,14 @@ export const getFundingAsset = (
     recvWindow?: number;
   },
 ) => {
+  const endpoint = 'https://api.binance.com/sapi/v1/asset/get-funding-asset';
+  const url = new URL(endpoint);
+  const weight = 1;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
+  );
   return requestPrivate<
     | {
         asset: string;
@@ -852,5 +997,5 @@ export const getFundingAsset = (
         btcValuation: string;
       }[]
     | IApiError
-  >(credential, 'POST', 'https://api.binance.com/sapi/v1/asset/get-funding-asset', params);
+  >(credential, 'POST', endpoint, params);
 };
