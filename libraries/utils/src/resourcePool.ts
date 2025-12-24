@@ -2,22 +2,22 @@ import { newError } from './error';
 import { semaphore } from './semaphore';
 
 /**
- * 令牌池配置选项
+ * 资源池配置选项
  * @public
  */
-export interface TokenPoolOptions {
+export interface IResourcePoolOptions {
   /**
-   * 令牌池容量
+   * 资源池容量
    * @defaultValue 1
    */
   capacity?: number;
 }
 
 /**
- * 令牌池内部状态
+ * 资源池内部状态
  * @internal
  */
-interface ITokenPoolState {
+interface IResourcePoolState {
   capacity: number;
 }
 
@@ -25,17 +25,14 @@ interface ITokenPoolState {
  * 令牌池状态映射
  * @internal
  */
-const mapTokenPoolIdToState = new Map<string, ITokenPoolState>();
+const mapResourcePoolIdToState = new Map<string, IResourcePoolState>();
 
 /**
- * 令牌桶操作接口
- *
- * 令牌桶按照固定速率补充令牌，用于限制请求速率。
- * 使用 semaphore 原语管理令牌获取和队列。
+ * 资源池操作接口
  *
  * @public
  */
-export interface ITokenPool {
+export interface IResourcePool {
   /**
    * 获取令牌
    *
@@ -71,30 +68,30 @@ export interface ITokenPool {
 }
 
 /**
- * 创建或获取一个令牌池，本质上是一个带有容量限制的信号量。
+ * 创建或获取一个资源池，本质上是一个带有容量限制的信号量。
  *
- * @param options - 令牌池配置选项
- * @returns 令牌池对象
+ * @param options - 资源池配置选项
+ * @returns 资源池对象
  * @public
  */
-export const tokenPool = (poolId: string, options: TokenPoolOptions = {}): ITokenPool => {
+export const resourcePool = (poolId: string, options: IResourcePoolOptions = {}): IResourcePool => {
   const CAPACITY = options.capacity ?? 1;
 
   // 验证配置
   if (CAPACITY <= 0) {
-    throw newError('TOKEN_POOL_INVALID_CAPACITY', { poolId, capacity: CAPACITY });
+    throw newError('RESOURCE_POOL_INVALID_CAPACITY', { poolId, capacity: CAPACITY });
   }
 
-  const sem = semaphore(`token-pool:${poolId}`);
+  const sem = semaphore(`resource-pool:${poolId}`);
 
   // 获取或创建状态
-  let state = mapTokenPoolIdToState.get(poolId);
+  let state = mapResourcePoolIdToState.get(poolId);
   if (!state) {
-    const newState: ITokenPoolState = {
+    const newState: IResourcePoolState = {
       capacity: CAPACITY,
     };
 
-    mapTokenPoolIdToState.set(poolId, newState);
+    mapResourcePoolIdToState.set(poolId, newState);
     state = newState;
 
     sem.release(CAPACITY); // 初始化时填满令牌桶
@@ -103,11 +100,11 @@ export const tokenPool = (poolId: string, options: TokenPoolOptions = {}): IToke
   const acquire = async (tokens: number = 1, signal?: AbortSignal): Promise<void> => {
     // 请求的令牌数必须为正整数
     if (tokens <= 0) {
-      throw newError('TOKEN_POOL_INVALID_ACQUIRE_TOKENS', { poolId, tokens });
+      throw newError('RESOURCE_POOL_INVALID_ACQUIRE_TOKENS', { poolId, tokens });
     }
     // 请求的令牌数不能超过容量，否则永远无法满足请求
     if (tokens > state!.capacity) {
-      throw newError('TOKEN_POOL_INSUFFICIENT_CAPACITY', {
+      throw newError('RESOURCE_POOL_INSUFFICIENT_CAPACITY', {
         poolId,
         tokens,
         capacity: CAPACITY,
@@ -121,10 +118,10 @@ export const tokenPool = (poolId: string, options: TokenPoolOptions = {}): IToke
   const release = (tokens: number = 1): void => {
     // 释放的令牌数必须为正整数
     if (tokens <= 0) {
-      throw newError('TOKEN_POOL_INVALID_RELEASE_TOKENS', { poolId, tokens });
+      throw newError('RESOURCE_POOL_INVALID_RELEASE_TOKENS', { poolId, tokens });
     }
     if (sem.read() + tokens > state!.capacity) {
-      throw newError('TOKEN_POOL_RELEASE_EXCEEDS_CAPACITY', {
+      throw newError('RESOURCE_POOL_RELEASE_EXCEEDS_CAPACITY', {
         poolId,
         tokens,
         capacity: CAPACITY,
