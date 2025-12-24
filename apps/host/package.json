@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-host",
-  "version": "0.11.3",
+  "version": "0.11.4",
   "description": "Host",
   "main": "lib/index.js",
   "bin": "lib/cli.js",
