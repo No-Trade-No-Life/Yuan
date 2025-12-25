@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
-import { mkdir, writeFile } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
+const { mkdir, writeFile } = require('node:fs/promises');
+const { dirname, resolve } = require('node:path');
+const { execFile } = require('node:child_process');
+const { promisify } = require('node:util');
 
 const exec = promisify(execFile);
 

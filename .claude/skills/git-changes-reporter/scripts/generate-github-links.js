@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
-import { readFile, writeFile } from 'node:fs/promises';
-import { URL } from 'node:url';
+const { readFile, writeFile } = require('node:fs/promises');
+const { URL } = require('node:url');
 
 const usage = () => {
   console.error(

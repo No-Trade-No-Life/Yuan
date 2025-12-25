@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
-import { readFile } from 'node:fs/promises';
+const { readFile } = require('node:fs/promises');
 
 const usage = () => {
   console.error(
