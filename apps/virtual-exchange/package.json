@@ -17,6 +17,8 @@
     "@yuants/data-account": "workspace:*",
     "@yuants/data-order": "workspace:*",
     "@yuants/data-quote": "workspace:*",
+    "@yuants/data-ohlc": "workspace:*",
+    "@yuants/data-interest-rate": "workspace:*",
     "@yuants/secret": "workspace:*",
     "@yuants/sql": "workspace:*",
     "@yuants/exchange": "workspace:*",

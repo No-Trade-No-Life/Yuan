@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-virtual-exchange",
+      "comment": "add series data scheduler logic",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/app-virtual-exchange"
+}
