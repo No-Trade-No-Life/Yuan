@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "task-42a439ec",
+  "currentTask": "vex-series-data-ohlcinterestrate-ohlc-v2",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -73,9 +73,30 @@
     {
       "id": "task-42a439ec",
       "name": "多账户切换：新增切换账户弹窗并保留本地凭据",
-      "status": "active",
+      "status": "paused",
       "createdAt": "2025-12-21T14:34:42.022Z",
-      "updatedAt": "2025-12-21T14:34:42.022Z"
+      "updatedAt": "2025-12-22T07:09:48.363Z"
+    },
+    {
+      "id": "vex-series-data-ohlcinterestrate-ohlc-v2",
+      "name": "VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移",
+      "status": "active",
+      "createdAt": "2025-12-22T07:09:48.363Z",
+      "updatedAt": "2025-12-25T10:36:18.437Z"
+    },
+    {
+      "id": "binance-private-api-host-tokenbucket",
+      "name": "Binance private-api 按 host 选择 tokenBucket 并按权重限流",
+      "status": "archived",
+      "createdAt": "2025-12-24T13:32:36.757Z",
+      "updatedAt": "2025-12-24T15:45:37.993Z"
+    },
+    {
+      "id": "aster-publicprivate-api-host-tokenbucket",
+      "name": "Aster public/private API 按 host 选择 tokenBucket 并主动限流",
+      "status": "archived",
+      "createdAt": "2025-12-24T15:32:00.428Z",
+      "updatedAt": "2025-12-24T15:45:22.634Z"
     }
   ],
   "pendingProposals": [
@@ -842,6 +863,222 @@
       "decidedAt": "2025-12-21T14:34:42.022Z",
       "decidedBy": "Claude",
       "createdTaskId": "task-42a439ec"
+    },
+    {
+      "id": "proposal-mjgtfwj3-549740",
+      "name": "VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移",
+      "goal": "在 virtual-exchange 新增 series-data 调度器，自动调度各 vendor 的 IngestOHLC/IngestInterestRate 进行拉新与回补，并改造 @yuants/exchange 的 OHLC 写库到新表 ohlc_v2（含 migration 与索引）。",
+      "rationale": "现有 vendor 已按 @yuants/exchange contract 注册 IngestOHLC/IngestInterestRate，但缺少 VEX 侧统一调度：需要按“当前时间优先拉新 + 闲暇向过去回补”的策略持续写库；同时 ohlc 表字段冗余（datasource_id/product_id/duration 已编码在 series_id），需迁移到更紧凑的 ohlc_v2 并对齐写库与索引。",
+      "points": [
+        "对齐 vendors-ingest-ohlc-interest-rate 与 @yuants/exchange ingest contract（time+direction、schema->metadata 解析、range 语义）",
+        "在 VEX 内发现所有 IngestOHLC/IngestInterestRate 服务并建立能力分组/实例池",
+        "调度策略：优先拉新（接近 now），闲暇回补（根据 series_data_range 向过去推进），包含全局/分组并发限制与 backoff",
+        "series_data_range 同 (series_id, table_name) 重叠区间在 transaction 中可合并，避免范围碎片爆炸",
+        "@yuants/exchange: OHLC_INSERT_COLUMNS 移除 datasource_id/product_id/duration；写入新表 ohlc_v2；并写 migration（series_id+created_at 索引）",
+        "若调度所需信息不足，提出最小新增 metadata（schema 非必填 const 字段）供 review"
+      ],
+      "scope": [
+        "apps/virtual-exchange/src/index.ts",
+        "apps/virtual-exchange/src/(new) series-data/*",
+        "libraries/exchange/src/ohlc.ts",
+        "tools/sql-migration/sql/ohlc_v2.sql",
+        "tools/sql-migration/sql/series_data_range.sql（可能仅新增索引/不改表结构）"
+      ],
+      "phases": [
+        {
+          "name": "调研与对齐",
+          "tasks": [
+            {
+              "description": "复核 ingest contract 与 VEX 现有调度模式：IngestOHLC/IngestInterestRate 的 schema->metadata 解析、time+direction 语义、range 计算与写入 series_data_range；参考 VEX quote scheduler 的 service 发现与 runner 模型",
+              "acceptance": "在 context.md 记录：两类 ingest 服务的能力矩阵抽象、VEX 侧可复用的发现/并发/队列模式、以及调度所需的最小输入（目标 series 来源、表名映射、推进规则）"
+            },
+            {
+              "description": "盘点现有表结构与迁移规范：series_data_range 主键/索引；ohlc/interest_rate 现状；明确 ohlc_v2 的字段/索引/trigger 需求与迁移策略（仅建表，不做数据搬迁）",
+              "acceptance": "在 plan.md 写清：ohlc_v2 DDL（幂等）、索引、trigger；并列出代码侧写库要点（OHLC_INSERT_COLUMNS 与 table_name/range 同步）"
+            }
+          ]
+        },
+        {
+          "name": "设计（先评审）",
+          "tasks": [
+            {
+              "description": "设计 series-data 模块的结构与对外调试入口：服务发现（terminalInfos$）、能力分组（method+meta）、series 枚举（基于 product 表 prefix + duration_list 组合 / 或新增配置表方案对比）、状态缓存（range union）",
+              "acceptance": "plan.md 给出模块文件划分、核心数据结构（ProviderGroup/SeriesKey/Job）、以及 2 套 series 来源方案（全量 product 扫描 vs 新增配置表）并标注推荐与原因"
+            },
+            {
+              "description": "设计调度算法：拉新(head) 与回补(tail) 两级优先队列；per-group 串行 + 全局并发；失败 backoff；推进规则仅依赖 range（不依赖 wrote_count）；支持 forward/backward 两种 direction",
+              "acceptance": "plan.md 给出：选 job 的伪代码/状态机、关键边界（重复拉取/空页/无 range）、以及可配置项（并发、拉新频率、回补速率、最早回补时间）"
+            },
+            {
+              "description": "设计 range 合并算法：同 (series_id, table_name) 的多条 range 读出后按 start_time 排序 merge；transaction 内 delete+insert（或 SQL CTE 聚合）保证并发安全",
+              "acceptance": "plan.md 给出：merge 判定（overlap/adjacent）、复杂度、SQL transaction 方案（锁粒度/隔离级别建议）、以及和写入端（vendor ingest）并发时的幂等性说明"
+            },
+            {
+              "description": "如需新增 metadata，提出最小字段并说明解析方式（通过 schema.properties.<field>.const，非 required）",
+              "acceptance": "plan.md 列出候选字段与用途（例如 interest_rate 的 recommended_poll_interval_ms），并标注是否必须/可选；留出 REVIEW block"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "在 apps/virtual-exchange 新增 series-data 模块：发现 IngestOHLC/IngestInterestRate 服务、枚举 series、执行 ingest 请求、读取/更新 series_data_range 并做 merge；接入 apps/virtual-exchange/src/index.ts 启动",
+              "acceptance": "VEX 启动后可持续运行：周期性拉新；空闲时回补；日志/指标可观察；可通过 env 控制启停与并发"
+            },
+            {
+              "description": "实现 ohlc_v2 migration 与 exchange 写库改造：新增 tools/sql-migration/sql/ohlc_v2.sql；修改 libraries/exchange/src/ohlc.ts 写入 ohlc_v2 且 range.table_name=ohlc_v2，并移除 datasource_id/product_id/duration 写入",
+              "acceptance": "migration 幂等；写库字段与表结构匹配；(series_id, created_at) 冲突键与索引一致；不影响 InterestRate 现有链路"
+            }
+          ]
+        },
+        {
+          "name": "验证与交接",
+          "tasks": [
+            {
+              "description": "补充最小验证：range merge 单测或脚本；在可运行环境验证一次 end-to-end（发现服务->触发 ingest->写库->range 合并）；记录如何观察调度状态/排障",
+              "acceptance": "tasks.md 记录可复现的验证步骤；context.md 写入快速交接（下一步/注意事项/回滚点）"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2025-12-22T07:09:44.175Z",
+      "status": "approved",
+      "decidedAt": "2025-12-22T07:09:48.363Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "vex-series-data-ohlcinterestrate-ohlc-v2"
+    },
+    {
+      "id": "proposal-mjk1o7kc-2adac7",
+      "name": "Binance private-api 按 host 选择 tokenBucket 并按权重限流",
+      "goal": "在 apps/vendor-binance 的 private-api 发起请求前，根据 URL host 选择对应的 tokenBucket，并按接口权重调用 acquireSync 做限流。",
+      "rationale": "当前 private-api 可能对不同 host 的请求共用同一限流桶，无法匹配 Binance 文档对不同域名/接口权重的限制；按 host 路由到 client.ts 中已定义的 3 个 tokenBucket，并在请求前按权重 acquireSync，可避免触发限流并保持实现一致。",
+      "points": [
+        "复用 apps/vendor-binance/src/api/client.ts 中已定义的 3 个 tokenBucket（首次 create，后续仅用 bucketId 获取，不再传 options）",
+        "在 private-api 里对每次请求解析 URL host，映射到对应 bucketId（未知 host 走默认 bucket，并在 metadata 记录）",
+        "请求前 `bucket.acquireSync(weight)`；weight 来自方法文档注释中的“权重”",
+        "用 `scopeError` 包装 metadata（host、pathname、method、weight、bucketId、query/hash 的安全摘录），token 不够时自动 throw，不捕获",
+        "不改动公共 API；修改尽量局部并保持可读性",
+        "补一个最小单测：给不同 host 的 URL 断言选择不同 bucketId + weight 被传入（可用 spy/mock）"
+      ],
+      "scope": [
+        "apps/vendor-binance/src/api/private-api.ts",
+        "apps/vendor-binance/src/api/client.ts",
+        "apps/vendor-binance/src/api/__tests__/private-api.rateLimit.test.ts（如目录/测试框架已有）"
+      ],
+      "phases": [
+        {
+          "name": "调研",
+          "tasks": [
+            {
+              "description": "阅读 apps/vendor-binance/src/api/client.ts 中 3 个 tokenBucket 的定义（bucketId/用途/参数），梳理 private-api 发请求的统一入口与 URL 生成方式，并确认方法注释里“权重”的表达形式",
+              "acceptance": "context.md 记录：3 个 bucket 的 bucketId 与对应 host 范围；private-api 的请求入口位置；权重从注释到代码的映射方式"
+            }
+          ]
+        },
+        {
+          "name": "设计（先让你 review）",
+          "tasks": [
+            {
+              "description": "在 plan.md 写清 host->bucket 的映射规则、默认策略、以及 acquireSync 的统一封装函数；并给出一个可复制的使用示例（你要求的例子会写在 plan.md）",
+              "acceptance": "plan.md 包含一个最小代码示例：给定 url/weight，如何选桶并 acquireSync；并留一个 REVIEW block 让你确认映射是否正确"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "在 private-api 的请求发送前插入“选择 bucket + acquireSync(weight)”逻辑；用 scopeError 记录 metadata；确保调用 tokenBucket 时不重复传 options",
+              "acceptance": "不同 host 的请求会命中不同 bucket；token 不足会 throw（不捕获）；metadata 中能看到 host/weight/bucketId"
+            }
+          ]
+        },
+        {
+          "name": "验证",
+          "tasks": [
+            {
+              "description": "补充/更新最小测试或脚本验证：不同 host 选择不同桶；weight 透传到 acquireSync；并运行相关 test/lint/tsc（取仓库现有最小可运行路径）",
+              "acceptance": "新增测试通过；prettier 格式化无噪音；无明显类型错误"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2025-12-24T13:23:27.181Z",
+      "status": "approved",
+      "decidedAt": "2025-12-24T13:32:36.757Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "binance-private-api-host-tokenbucket"
+    },
+    {
+      "id": "proposal-mjk5y7i3-ba29d0",
+      "name": "Aster public/private API 按 host 选择 tokenBucket 并主动限流",
+      "goal": "在 apps/vendor-aster 的 public-api/private-api 发起请求前，根据 URL host 选择对应的 tokenBucket，并在请求前按权重调用 acquireSync 做限流。",
+      "rationale": "Aster API 已在 Session Notes 标注容易触发 429；参考本次 Binance 的实现方式，把限流前置到每个具体 API 调用点，按 host 复用 tokenBucket 并记录 scopeError metadata，可减少 IP/账户被限速并提升可观测性。",
+      "points": [
+        "在模块初始化阶段创建按 host 区分的 tokenBucket（至少覆盖 fapi.asterdex.com / sapi.asterdex.com）",
+        "public-api/private-api 每个具体 API 方法在 fetch 前执行：解析 endpoint 得到 url.host -> tokenBucket(url.host).acquireSync(weight)",
+        "weight 优先来自接口注释/文档；若 Aster 文档未提供 weight，先统一按 1，并在 plan/context 记录待补齐点",
+        "使用 scopeError 仅包裹 acquireSync，记录 metadata（method/endpoint/host/path/bucketId/weight/关键条件参数），token 不足直接 throw 不捕获",
+        "新增最小单测：不同 host 选择不同 bucket；weight 透传到 acquireSync",
+        "更新 apps/vendor-aster/SESSION_NOTES.md：记录改动摘要与本地验证命令/结果"
+      ],
+      "scope": [
+        "apps/vendor-aster/src/api/private-api.ts",
+        "apps/vendor-aster/src/api/public-api.ts",
+        "apps/vendor-aster/src/api/(新增)rate-limit.ts 或 client.ts",
+        "apps/vendor-aster/src/api/*rateLimit.test.ts（按现有测试框架落地）",
+        "apps/vendor-aster/SESSION_NOTES.md",
+        ".legion/tasks/<new-task>/plan.md",
+        ".legion/tasks/<new-task>/context.md",
+        ".legion/tasks/<new-task>/tasks.md"
+      ],
+      "phases": [
+        {
+          "name": "调研",
+          "tasks": [
+            {
+              "description": "梳理 vendor-aster 的 baseURL host 列表与请求入口；确认 Aster 文档是否提供 weight/频率信息（或是否能从 exchangeInfo.rateLimits 推断）",
+              "acceptance": "context.md 记录：涉及的 host 列表、每类 host 的限流桶配置来源/默认值、weight 规则（已知/未知）"
+            }
+          ]
+        },
+        {
+          "name": "设计（先 review）",
+          "tasks": [
+            {
+              "description": "在 plan.md 写清 host->bucket 规则、tokenBucket 创建位置与参数、以及每个 API 方法调用 acquireSync 的示例；留 REVIEW 给你确认",
+              "acceptance": "plan.md 有可复制示例 + REVIEW block；你确认后再开始改代码"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "落地 tokenBucket 初始化 + public-api/private-api 的每个具体 API 方法请求前 acquireSync(weight)（不抽 wrapper）；用 scopeError 注入 metadata",
+              "acceptance": "所有 API 调用点都经过 acquireSync；不同 host 走不同 bucket；无多余抽象；异常不吞"
+            }
+          ]
+        },
+        {
+          "name": "验证与交接",
+          "tasks": [
+            {
+              "description": "补最小测试或脚本验证 host 路由与 weight；运行 tsc/测试并把结果写入 SESSION_NOTES 与 context 快速交接",
+              "acceptance": "`npx tsc --noEmit --project apps/vendor-aster/tsconfig.json` 通过；相关测试通过；文档包含可复现命令"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2025-12-24T15:23:12.127Z",
+      "status": "approved",
+      "decidedAt": "2025-12-24T15:32:00.428Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "aster-publicprivate-api-host-tokenbucket"
     }
   ]
 }

@@ -1519,6 +1519,8 @@ importers:
       '@types/node': '22'
       '@yuants/cache': workspace:*
       '@yuants/data-account': workspace:*
+      '@yuants/data-interest-rate': workspace:*
+      '@yuants/data-ohlc': workspace:*
       '@yuants/data-order': workspace:*
       '@yuants/data-product': workspace:*
       '@yuants/data-quote': workspace:*
@@ -1534,6 +1536,8 @@ importers:
     dependencies:
       '@yuants/cache': link:../../libraries/cache
       '@yuants/data-account': link:../../libraries/data-account
+      '@yuants/data-interest-rate': link:../../libraries/data-interest-rate
+      '@yuants/data-ohlc': link:../../libraries/data-ohlc
       '@yuants/data-order': link:../../libraries/data-order
       '@yuants/data-product': link:../../libraries/data-product
       '@yuants/data-quote': link:../../libraries/data-quote
