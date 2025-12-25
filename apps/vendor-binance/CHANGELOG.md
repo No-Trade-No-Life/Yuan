@@ -1,6 +1,14 @@
 # Change Log - @yuants/vendor-binance
 
-This log was last generated on Wed, 24 Dec 2025 10:03:02 GMT and should not be manually modified.
+This log was last generated on Thu, 25 Dec 2025 16:03:50 GMT and should not be manually modified.
+
+## 0.12.4
+Thu, 25 Dec 2025 16:03:50 GMT
+
+### Patches
+
+- implement token bucket
+- fix binance papi rate limit
 
 ## 0.12.3
 Wed, 24 Dec 2025 10:03:02 GMT

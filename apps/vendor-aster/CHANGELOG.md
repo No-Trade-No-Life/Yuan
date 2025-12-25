@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-aster
 
-This log was last generated on Wed, 24 Dec 2025 11:00:24 GMT and should not be manually modified.
+This log was last generated on Thu, 25 Dec 2025 16:03:50 GMT and should not be manually modified.
+
+## 0.9.5
+Thu, 25 Dec 2025 16:03:50 GMT
+
+### Patches
+
+- apply for new tokenbucket
 
 ## 0.9.4
 Wed, 24 Dec 2025 11:00:24 GMT
