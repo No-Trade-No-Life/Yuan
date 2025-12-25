@@ -2,6 +2,26 @@
   "name": "@yuants/vendor-binance",
   "entries": [
     {
+      "version": "0.12.4",
+      "tag": "@yuants/vendor-binance_v0.12.4",
+      "date": "Thu, 25 Dec 2025 16:03:50 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "implement token bucket"
+          },
+          {
+            "comment": "fix binance papi rate limit"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.12.3",
       "tag": "@yuants/vendor-binance_v0.12.3",
       "date": "Wed, 24 Dec 2025 10:03:02 GMT",
