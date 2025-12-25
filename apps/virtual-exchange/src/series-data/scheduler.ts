@@ -11,7 +11,7 @@ import {
 import { Terminal } from '@yuants/protocol';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import { convertDurationToOffset, encodePath, formatTime } from '@yuants/utils';
-import { catchError, defer, EMPTY, filter, from, map, mergeMap, repeat, tap, toArray } from 'rxjs';
+import { catchError, defer, EMPTY, filter, from, map, mergeMap, repeat, tap, timer, toArray } from 'rxjs';
 import { createFifoQueue } from './fifo-queue';
 
 const terminal = Terminal.fromNodeEnv();
@@ -22,7 +22,13 @@ const onlyProductIdPrefix = (process.env.VEX_SERIES_DATA_ONLY_PRODUCT_ID_PREFIX 
 const CONFIG = {
   tickIntervalMs: 1_000,
   scanFullLoopIntervalMs: 5 * 60_000,
+  /**
+   * Maximum number of inflight series data ingest requests.
+   */
   maxInflight: 20,
+  /**
+   * Only run tail jobs when the global head backlog is below this threshold.
+   */
   tailOnlyWhenGlobalHeadBelow: 20,
   defaultInterestRateHeadLagMs: 8 * 60 * 60_000,
   defaultForwardSeedWindowMs: 24 * 60 * 60_000,
@@ -130,7 +136,6 @@ const mapSeriesKeyToState = new Map<string, ISeriesState>();
 let inflight = 0;
 let scanIndex = 0;
 let capRunIndex = 0;
-let lastQueueLogAt = 0;
 const LOG_QUEUE_INTERVAL_MS = Number(process.env.VEX_SERIES_DATA_LOG_QUEUE_INTERVAL_MS ?? '10000');
 
 const getOrCreateCapState = (capKey: string): ICapabilityState => {
@@ -435,6 +440,7 @@ const executeJob = async (capState: ICapabilityState, job: IJob) => {
   else capState.pendingTail.delete(job.seriesKey);
 
   try {
+    // make sure each request overlaps existing ranges
     const time = computeRequestTime(series, job.kind);
     const result = await requestIngest(series, time);
 
@@ -476,43 +482,6 @@ const executeJob = async (capState: ICapabilityState, job: IJob) => {
   }
 };
 
-const logQueuesIfNeeded = () => {
-  const now = Date.now();
-  if (now - lastQueueLogAt < LOG_QUEUE_INTERVAL_MS) return;
-  lastQueueLogAt = now;
-
-  const caps = capabilities
-    .map((cap) => {
-      const s = getOrCreateCapState(cap.capKey);
-      return {
-        capKey: cap.capKey,
-        head: s.headQueue.size(),
-        tail: s.tailQueue.size(),
-        inflight: s.inflight,
-        backoffMs: s.backoffMs,
-        nextEligibleAt: s.nextEligibleAt,
-      };
-    })
-    .filter((x) => x.inflight || x.head > 0 || x.tail > 0 || x.nextEligibleAt > now)
-    .slice(0, 20)
-    .map(
-      (x) =>
-        `cap=${x.capKey} head=${x.head} tail=${x.tail} inflight=${x.inflight ? 1 : 0} backoff_ms=${
-          x.backoffMs
-        }${x.nextEligibleAt > now ? ` next=${formatTime(x.nextEligibleAt)}` : ''}`,
-    );
-
-  console.info(
-    formatTime(now),
-    '[VEX][SeriesData]Queues',
-    `inflight=${inflight}`,
-    `cap_count=${capabilities.length}`,
-    `global_head_backlog=${computeGlobalHeadBacklog()}`,
-    `series_count=${mapSeriesKeyToState.size}`,
-    caps.length ? `caps=[${caps.join(' | ')}]` : 'caps=[]',
-  );
-};
-
 const computeGlobalHeadBacklog = (): number => {
   let total = 0;
   for (const s of mapCapKeyToState.values()) {
@@ -525,6 +494,7 @@ const pickNextRunnableCap = (now: number): ICapabilityState | undefined => {
   if (capabilities.length === 0) return;
   const n = capabilities.length;
   for (let i = 0; i < n; i++) {
+    // Round-robin pick
     const cap = capabilities[capRunIndex++ % n];
     const capState = getOrCreateCapState(cap.capKey);
     if (capState.inflight) continue;
@@ -605,8 +575,6 @@ const tick = async () => {
     console.error(formatTime(Date.now()), '[VEX][SeriesData]ScanFailed', `${e}`);
   }
 
-  logQueuesIfNeeded();
-
   const now = Date.now();
   while (inflight < CONFIG.maxInflight) {
     const capState = pickNextRunnableCap(now);
@@ -620,7 +588,7 @@ const tick = async () => {
 
     capState.inflight = true;
     inflight++;
-    void executeJob(capState, next.job).finally(() => {
+    executeJob(capState, next.job).finally(() => {
       capState.inflight = false;
       inflight--;
     });
@@ -661,6 +629,41 @@ if (!isEnabled) {
         },
       },
     };
+  });
+
+  // Setup trace log
+  timer(0, LOG_QUEUE_INTERVAL_MS).subscribe(() => {
+    const now = Date.now();
+    const caps = capabilities
+      .map((cap) => {
+        const s = getOrCreateCapState(cap.capKey);
+        return {
+          capKey: cap.capKey,
+          head: s.headQueue.size(),
+          tail: s.tailQueue.size(),
+          inflight: s.inflight,
+          backoffMs: s.backoffMs,
+          nextEligibleAt: s.nextEligibleAt,
+        };
+      })
+      .filter((x) => x.inflight || x.head > 0 || x.tail > 0 || x.nextEligibleAt > now)
+      .slice(0, 20)
+      .map(
+        (x) =>
+          `cap=${x.capKey} head=${x.head} tail=${x.tail} inflight=${x.inflight ? 1 : 0} backoff_ms=${
+            x.backoffMs
+          }${x.nextEligibleAt > now ? ` next=${formatTime(x.nextEligibleAt)}` : ''}`,
+      );
+
+    console.info(
+      formatTime(now),
+      '[VEX][SeriesData]Queues',
+      `inflight=${inflight}`,
+      `cap_count=${capabilities.length}`,
+      `global_head_backlog=${computeGlobalHeadBacklog()}`,
+      `series_count=${mapSeriesKeyToState.size}`,
+      caps.length ? `caps=[${caps.join(' | ')}]` : 'caps=[]',
+    );
   });
 
   terminal.terminalInfos$
