@@ -1,6 +1,8 @@
-import { encodeHex, HmacSHA256, newError } from '@yuants/utils';
+import { encodeHex, HmacSHA256, newError, scopeError, tokenBucket } from '@yuants/utils';
 
 import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
+
+import './client';
 
 const MetricsAsterApiCallCounter = GlobalPrometheusRegistry.counter(
   'aster_api_call',
@@ -61,7 +63,7 @@ const request = async <T>(
   method: string,
   baseURL: string,
   endpoint: string,
-  params: any = {},
+  params: Record<string, unknown> = {},
 ): Promise<T> => {
   const url = new URL(baseURL);
   url.pathname = endpoint;
@@ -109,84 +111,95 @@ const request = async <T>(
   }
 };
 
-const createApi =
-  (baseURL: string) =>
-  <TReq, TRes>(method: string, endpoint: string) =>
-  (credential: ICredential, params: TReq) =>
-    request<TRes>(credential, method, baseURL, endpoint, params);
-
-const createFutureApi = createApi('https://fapi.asterdex.com');
-const createSpotApi = createApi('https://sapi.asterdex.com');
+const FutureBaseURL = 'https://fapi.asterdex.com';
+const SpotBaseURL = 'https://sapi.asterdex.com';
 
 /**
  * 获取账户信息
  *
+ * Weight: 5
+ *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#%E8%B4%A6%E6%88%B7%E4%BF%A1%E6%81%AFv4-user_data
  */
-export const getFApiV4Account = createFutureApi<
-  {},
-  {
-    feeTier: number;
-    canTrade: boolean;
-    canDeposit: boolean;
-    canWithdraw: boolean;
-    updateTime: number;
-    totalInitialMargin: string;
-    totalMaintMargin: string;
-    totalWalletBalance: string;
-    totalUnrealizedProfit: string;
-    totalMarginBalance: string;
-    totalPositionInitialMargin: string;
-    totalOpenOrderInitialMargin: string;
-    totalCrossWalletBalance: string;
-    totalCrossUnPnl: string;
-    availableBalance: string;
+export const getFApiV4Account = (
+  credential: ICredential,
+  params: Record<string, never>,
+): Promise<{
+  feeTier: number;
+  canTrade: boolean;
+  canDeposit: boolean;
+  canWithdraw: boolean;
+  updateTime: number;
+  totalInitialMargin: string;
+  totalMaintMargin: string;
+  totalWalletBalance: string;
+  totalUnrealizedProfit: string;
+  totalMarginBalance: string;
+  totalPositionInitialMargin: string;
+  totalOpenOrderInitialMargin: string;
+  totalCrossWalletBalance: string;
+  totalCrossUnPnl: string;
+  availableBalance: string;
+  maxWithdrawAmount: string;
+  assets: {
+    asset: string;
+    walletBalance: string;
+    unrealizedProfit: string;
+    marginBalance: string;
+    maintMargin: string;
+    initialMargin: string;
+    positionInitialMargin: string;
+    openOrderInitialMargin: string;
     maxWithdrawAmount: string;
-    assets: {
-      asset: string;
-      walletBalance: string;
-      unrealizedProfit: string;
-      marginBalance: string;
-      maintMargin: string;
-      initialMargin: string;
-      positionInitialMargin: string;
-      openOrderInitialMargin: string;
-      maxWithdrawAmount: string;
-      crossWalletBalance: string;
-      crossUnPnl: string;
-      availableBalance: string;
-      marginAvailable: boolean;
-      updateTime: number;
-    }[];
-    positions: {
-      symbol: string;
-      initialMargin: string;
-      maintMargin: string;
-      unrealizedProfit: string;
-      positionInitialMargin: string;
-      openOrderInitialMargin: string;
-      leverage: string;
-      isolated: boolean;
-      entryPrice: string;
-      maxNotional: string;
-      positionSide: 'BOTH' | 'LONG' | 'SHORT';
-      positionAmt: string;
-      notional: string;
-      isolatedWallet: string;
-      updateTime: number;
-    }[];
-  }
->('GET', '/fapi/v4/account');
+    crossWalletBalance: string;
+    crossUnPnl: string;
+    availableBalance: string;
+    marginAvailable: boolean;
+    updateTime: number;
+  }[];
+  positions: {
+    symbol: string;
+    initialMargin: string;
+    maintMargin: string;
+    unrealizedProfit: string;
+    positionInitialMargin: string;
+    openOrderInitialMargin: string;
+    leverage: string;
+    isolated: boolean;
+    entryPrice: string;
+    maxNotional: string;
+    positionSide: 'BOTH' | 'LONG' | 'SHORT';
+    positionAmt: string;
+    notional: string;
+    isolatedWallet: string;
+    updateTime: number;
+  }[];
+}> => {
+  const endpoint = '/fapi/v4/account';
+  const url = new URL(FutureBaseURL);
+  url.pathname = endpoint;
+  const weight = 5;
+  scopeError(
+    'ASTER_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
+  );
+  return request(credential, 'GET', FutureBaseURL, endpoint, params);
+};
 
 /**
  * 用户持仓风险V2 (USER_DATA)
  *
+ * Weight: 5
+ *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#%E7%94%A8%E6%88%B7%E6%8C%81%E4%BB%93%E9%A3%8E%E9%99%A9v2-user_data
  */
-export const getFApiV2PositionRisk = createFutureApi<
-  {
+export const getFApiV2PositionRisk = (
+  credential: ICredential,
+  params: {
     symbol?: string;
   },
+): Promise<
   {
     entryPrice: string;
     marginType: string;
@@ -202,25 +215,60 @@ export const getFApiV2PositionRisk = createFutureApi<
     positionSide: string;
     updateTime: number;
   }[]
->('GET', '/fapi/v2/positionRisk');
+> => {
+  const endpoint = '/fapi/v2/positionRisk';
+  const url = new URL(FutureBaseURL);
+  url.pathname = endpoint;
+  const weight = 5;
+  scopeError(
+    'ASTER_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
+  );
+  return request(credential, 'GET', FutureBaseURL, endpoint, params);
+};
 
-export const getFApiV2Balance = createFutureApi<
-  {},
+/**
+ * Weight: 5
+ *
+ * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#L2840-L2855
+ */
+export const getFApiV2Balance = (
+  credential: ICredential,
+  params: Record<string, never>,
+): Promise<
   {
-    accountAlias: string; // 账户唯一识别码
-    asset: string; // 资产
-    balance: string; // 总余额
-    crossWalletBalance: string; // 全仓余额
-    crossUnPnl: string; // 全仓持仓未实现盈亏
-    availableBalance: string; // 下单可用余额
-    maxWithdrawAmount: string; // 最大可转出余额
-    marginAvailable: boolean; // 是否可用作联合保证金
+    accountAlias: string;
+    asset: string;
+    balance: string;
+    crossWalletBalance: string;
+    crossUnPnl: string;
+    availableBalance: string;
+    maxWithdrawAmount: string;
+    marginAvailable: boolean;
     updateTime: number;
   }[]
->('GET', '/fapi/v2/balance');
+> => {
+  const endpoint = '/fapi/v2/balance';
+  const url = new URL(FutureBaseURL);
+  url.pathname = endpoint;
+  const weight = 5;
+  scopeError(
+    'ASTER_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
+  );
+  return request(credential, 'GET', FutureBaseURL, endpoint, params);
+};
 
-export const postFApiV1Order = createFutureApi<
-  {
+/**
+ * Weight: 1 by order
+ *
+ * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#post-fapiv1order-%E7%9A%84%E7%A4%BA%E4%BE%8B
+ */
+export const postFApiV1Order = (
+  credential: ICredential,
+  params: {
     symbol: string;
     side: 'BUY' | 'SELL';
     positionSide?: 'BOTH' | 'LONG' | 'SHORT';
@@ -237,79 +285,192 @@ export const postFApiV1Order = createFutureApi<
     price?: number;
     timeInForce?: 'GTC' | 'IOC' | 'FOK' | 'GTX' | 'HIDDEN';
   },
-  {}
->('POST', '/fapi/v1/order');
+): Promise<Record<string, never>> => {
+  const endpoint = '/fapi/v1/order';
+  const url = new URL(FutureBaseURL);
+  url.pathname = endpoint;
+  const weight = 1;
+  scopeError(
+    'ASTER_FUTURE_ORDER_API_SECOND_RATE_LIMIT',
+    { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket('order/future/second').acquireSync(weight),
+  );
+  scopeError(
+    'ASTER_FUTURE_ORDER_API_MINUTE_RATE_LIMIT',
+    { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket('order/future/minute').acquireSync(weight),
+  );
+  return request(credential, 'POST', FutureBaseURL, endpoint, params);
+};
 
 /**
  * 查询当前挂单 (永续)
  *
+ * Weight: with symbol 1, without symbol 40
+ *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#L2728-L2766
  */
-export const getFApiV1OpenOrders = createFutureApi<
-  {
+export const getFApiV1OpenOrders = (
+  credential: ICredential,
+  params: {
     symbol?: string;
   },
-  IAsterFutureOpenOrder[]
->('GET', '/fapi/v1/openOrders');
+): Promise<IAsterFutureOpenOrder[]> => {
+  const endpoint = '/fapi/v1/openOrders';
+  const url = new URL(FutureBaseURL);
+  url.pathname = endpoint;
+  const weight = params?.symbol ? 1 : 40;
+  scopeError(
+    'ASTER_API_RATE_LIMIT',
+    {
+      method: 'GET',
+      endpoint,
+      host: url.host,
+      path: url.pathname,
+      bucketId: url.host,
+      weight,
+      hasSymbol: !!params?.symbol,
+    },
+    () => tokenBucket(url.host).acquireSync(weight),
+  );
+  return request(credential, 'GET', FutureBaseURL, endpoint, params);
+};
 
 /**
  * 查询当前挂单 (现货)
  *
+ * Weight: with symbol 1, without symbol 40
+ *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-spot-api_CN.md#L1196-L1234
  */
-export const getApiV1OpenOrders = createSpotApi<
-  {
+export const getApiV1OpenOrders = (
+  credential: ICredential,
+  params: {
     symbol?: string;
   },
-  IAsterSpotOpenOrder[]
->('GET', '/api/v1/openOrders');
+): Promise<IAsterSpotOpenOrder[]> => {
+  const endpoint = '/api/v1/openOrders';
+  const url = new URL(SpotBaseURL);
+  url.pathname = endpoint;
+  const weight = params?.symbol ? 1 : 40;
+  scopeError(
+    'ASTER_API_RATE_LIMIT',
+    {
+      method: 'GET',
+      endpoint,
+      host: url.host,
+      path: url.pathname,
+      bucketId: url.host,
+      weight,
+      hasSymbol: !!params?.symbol,
+    },
+    () => tokenBucket(url.host).acquireSync(weight),
+  );
+  return request(credential, 'GET', SpotBaseURL, endpoint, params);
+};
 
-export const deleteFApiV1Order = createFutureApi<
-  {
+/**
+ * Weight: 1
+ *
+ * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#L2498-L2516
+ */
+export const deleteFApiV1Order = (
+  credential: ICredential,
+  params: {
     symbol: string;
     orderId?: string | number;
     origClientOrderId?: string;
   },
-  {}
->('DELETE', '/fapi/v1/order');
+): Promise<Record<string, never>> => {
+  const endpoint = '/fapi/v1/order';
+  const url = new URL(FutureBaseURL);
+  url.pathname = endpoint;
+  const weight = 1;
+  scopeError(
+    'ASTER_FUTURE_ORDER_API_SECOND_RATE_LIMIT',
+    { method: 'DELETE', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket('order/future/second').acquireSync(weight),
+  );
+  scopeError(
+    'ASTER_FUTURE_ORDER_API_MINUTE_RATE_LIMIT',
+    { method: 'DELETE', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket('order/future/minute').acquireSync(weight),
+  );
+  return request(credential, 'DELETE', FutureBaseURL, endpoint, params);
+};
 
 /**
  * 获取账户信息 (现货)
  *
+ * Weight: 5
+ *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-spot-api_CN.md#%E8%B4%A6%E6%88%B7%E4%BF%A1%E6%81%AF-user_data
  */
-export const getApiV1Account = createSpotApi<
-  {},
-  {
-    feeTier: number;
-    canTrade: boolean;
-    canDeposit: boolean;
-    canWithdraw: boolean;
-    canBurnAsset: boolean;
-    updateTime: number;
-    balances: {
-      asset: string;
-      free: string;
-      locked: string;
-    }[];
-  }
->('GET', '/api/v1/account');
+export const getApiV1Account = (
+  credential: ICredential,
+  params: Record<string, never>,
+): Promise<{
+  feeTier: number;
+  canTrade: boolean;
+  canDeposit: boolean;
+  canWithdraw: boolean;
+  canBurnAsset: boolean;
+  updateTime: number;
+  balances: {
+    asset: string;
+    free: string;
+    locked: string;
+  }[];
+}> => {
+  const endpoint = '/api/v1/account';
+  const url = new URL(SpotBaseURL);
+  url.pathname = endpoint;
+  const weight = 5;
+  scopeError(
+    'ASTER_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
+  );
+  return request(credential, 'GET', SpotBaseURL, endpoint, params);
+};
 
 /**
  * 获取最新价格
+ *
+ * Weight: without symbol 2 (current implementation)
+ *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-spot-api_CN.md#%E6%9C%80%E6%96%B0%E4%BB%B7%E6%A0%BC
  */
-export const getApiV1TickerPrice = createSpotApi<
-  {},
+export const getApiV1TickerPrice = (
+  credential: ICredential,
+  params: Record<string, never>,
+): Promise<
   {
     symbol: string;
     price: string;
     time: number;
   }[]
->('GET', '/api/v1/ticker/price');
+> => {
+  const endpoint = '/api/v1/ticker/price';
+  const url = new URL(SpotBaseURL);
+  url.pathname = endpoint;
+  const weight = 2;
+  scopeError(
+    'ASTER_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
+  );
+  return request(credential, 'GET', SpotBaseURL, endpoint, params);
+};
 
-export const postApiV1Order = createSpotApi<
-  {
+/**
+ * Weight: 1
+ *
+ * https://github.com/asterdex/api-docs/blob/master/aster-finance-spot-api_CN.md#post-apiv1order-%E7%9A%84%E7%A4%BA%E4%BE%8B
+ */
+export const postApiV1Order = (
+  credential: ICredential,
+  params: {
     symbol: string;
     side: 'BUY' | 'SELL';
     type: 'MARKET' | 'LIMIT' | 'STOP' | 'STOP_MARKET' | 'TAKE_PROFIT' | 'TAKE_PROFIT_MARKET';
@@ -318,21 +479,54 @@ export const postApiV1Order = createSpotApi<
     quoteOrderQty?: number;
     price?: number;
   },
-  {
-    orderId: number; // 系统的订单ID
-  }
->('POST', '/api/v1/order');
+): Promise<{
+  orderId: number;
+}> => {
+  const endpoint = '/api/v1/order';
+  const url = new URL(SpotBaseURL);
+  url.pathname = endpoint;
+  const weight = 1;
+  scopeError(
+    'ASTER_SPOT_ORDER_API_SECOND_RATE_LIMIT',
+    { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket('order/spot/second').acquireSync(weight),
+  );
+  scopeError(
+    'ASTER_SPOT_ORDER_API_MINUTE_RATE_LIMIT',
+    { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket('order/spot/minute').acquireSync(weight),
+  );
+  return request(credential, 'POST', SpotBaseURL, endpoint, params);
+};
 
 /**
  * 取消有效订单 (现货)
  *
+ * Weight: 1
+ *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-spot-api_CN.md#L1040-L1074
  */
-export const deleteApiV1Order = createSpotApi<
-  {
+export const deleteApiV1Order = (
+  credential: ICredential,
+  params: {
     symbol: string;
     orderId?: string | number;
     origClientOrderId?: string;
   },
-  {}
->('DELETE', '/api/v1/order');
+): Promise<Record<string, never>> => {
+  const endpoint = '/api/v1/order';
+  const url = new URL(SpotBaseURL);
+  url.pathname = endpoint;
+  const weight = 1;
+  scopeError(
+    'ASTER_SPOT_ORDER_API_SECOND_RATE_LIMIT',
+    { method: 'DELETE', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket('order/spot/second').acquireSync(weight),
+  );
+  scopeError(
+    'ASTER_SPOT_ORDER_API_MINUTE_RATE_LIMIT',
+    { method: 'DELETE', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket('order/spot/minute').acquireSync(weight),
+  );
+  return request(credential, 'DELETE', SpotBaseURL, endpoint, params);
+};

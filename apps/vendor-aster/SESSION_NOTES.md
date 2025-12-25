@@ -112,6 +112,22 @@
 
 ## 6. 最近几轮工作记录（Recent Sessions）
 
+### 2025-12-24 — Codex
+
+- **本轮摘要**：
+  - 在 `api/private-api.ts` 与 `api/public-api.ts` 的每个具体 API 方法中：按 endpoint host 获取 `tokenBucket` 并 `acquireSync(权重)` 做主动限流；使用 `scopeError('ASTER_API_RATE_LIMIT', metadata, () => acquireSync)` 记录必要上下文，不捕获 token 不足异常。
+  - 新增 `api/client.ts` 在模块初始化阶段创建 `fapi.asterdex.com` / `sapi.asterdex.com` 两个 bucket（按文档 exchangeInfo 的 `REQUEST_WEIGHT` 上限 2400/min 与 6000/min），后续调用仅使用 `tokenBucket(url.host)` 获取既有桶（不再传 options）。
+  - 新增最小单测覆盖 host 路由与条件权重（openOrders/tickerPrice/klines）。
+- **修改的文件**：
+  - `apps/vendor-aster/src/api/client.ts`
+  - `apps/vendor-aster/src/api/private-api.ts`
+  - `apps/vendor-aster/src/api/public-api.ts`
+  - `apps/vendor-aster/src/api/private-api.rateLimit.test.ts`
+  - `apps/vendor-aster/src/api/public-api.rateLimit.test.ts`
+- **运行的测试 / 检查**：
+  - `npx tsc --noEmit --project tsconfig.json`（workdir: apps/vendor-aster）
+  - `npx heft test --clean`（workdir: apps/vendor-aster）
+
 ### 2025-12-04 — Codex
 
 - **本轮摘要**：
@@ -224,7 +240,7 @@
 
 - [ ] 在 `apps/vendor-aster/README.md` 或 docs 中补充凭证环境变量 (`ADDRESS`, `API_ADDRESS`, `API_KEY`, `SECRET_KEY`, `OPEN_INTEREST_TTL`) 的配置示例与默认值。
 - [ ] 评估是否需实现 transfer / withdraw 状态机（TRC20 / 内部划转），若需要则在 `services/transfer.ts` 中复用其他 vendor 的模式。
-- [ ] 使用 `request*WithFlowControl` 或等效机制为高频 REST (account, quote) 增加限频保护，避免触发 Aster API 429。
+- [x] 为 REST helper 增加主动限流（tokenBucket + acquireSync + scopeError），按 host 区分 bucket 并按接口权重扣减，避免触发 Aster API 429。（2025-12-24）
 
 ### 7.3 想法 / Nice-to-have
 
@@ -240,7 +256,7 @@
 - **Open Interest API 无官方说明**：`getFApiV1OpenInterest` 可能变更响应结构，如异常需在本文件记录并考虑重试/降级策略。
 - **凭证环境变量缺失**：`ADDRESS`、`API_KEY`, `SECRET_KEY` 未设置时默认凭证链路直接失败，且错误日志不明显。
 - **E2E 依赖外部账户状态**：`src/e2e/submit-order.e2e.test.ts` 要求账户无持仓且有可用余额，否则测试会直接报错。
-- **Rate Limit**：Aster API 限速类似 Binance，连续多次调用 `postFApiV1Order` 或 `getFApiV1OpenOrders` 容易返回 429，需要节流或退避。
+- **Rate Limit**：已在 `api/public-api.ts` / `api/private-api.ts` 加入按 host + 权重的主动限流；但 `getFApiV1OpenInterest` / `getApiV1Klines` 的权重口径仍需持续校验，避免自限流过严或仍触发 429。
 
 ---
 
