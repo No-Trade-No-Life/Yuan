@@ -32,6 +32,12 @@ export const futureAPIBucket = tokenBucket('fapi.binance.com', {
 });
 
 export const unifiedAPIBucket = tokenBucket('papi.binance.com', {
+  capacity: 6000,
+  refillInterval: 60_000,
+  refillAmount: 6000,
+});
+
+export const unifiedOrderAPIBucket = tokenBucket('order/unified/minute', {
   capacity: 1200,
   refillInterval: 60_000,
   refillAmount: 1200,

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-binance",
+      "comment": "fix binance papi rate limit",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-binance"
+}

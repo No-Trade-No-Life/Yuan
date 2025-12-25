@@ -693,9 +693,9 @@ export const postUmOrder = (
   const url = new URL(endpoint);
   const weight = 1;
   scopeError(
-    'BINANCE_API_RATE_LIMIT',
+    'BINANCE_UNIFIED_ORDER_API_RATE_LIMIT',
     { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket(url.host).acquireSync(weight),
+    () => tokenBucket('order/unified/minute').acquireSync(weight),
   );
   return requestPrivate<IUnifiedUmOrderResponse | IApiError>(credential, 'POST', endpoint, params);
 };
@@ -712,9 +712,9 @@ export const deleteUmOrder = (
   const url = new URL(endpoint);
   const weight = 1;
   scopeError(
-    'BINANCE_API_RATE_LIMIT',
+    'BINANCE_UNIFIED_ORDER_API_RATE_LIMIT',
     { method: 'DELETE', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket(url.host).acquireSync(weight),
+    () => tokenBucket('order/unified/minute').acquireSync(weight),
   );
   return requestPrivate<IUnifiedUmOrderResponse | IApiError>(credential, 'DELETE', endpoint, params);
 };
@@ -738,7 +738,7 @@ export const getUMIncome = (
     timestamp?: number;
   },
 ): Promise<IUMIncomeRecord[]> => {
-  const endpoint = 'https://api.binance.com/papi/v1/um/income';
+  const endpoint = 'https://papi.binance.com/papi/v1/um/income';
   const url = new URL(endpoint);
   const weight = 30;
   scopeError(
