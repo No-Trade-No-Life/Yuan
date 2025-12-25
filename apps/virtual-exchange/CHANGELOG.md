@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-virtual-exchange
 
-This log was last generated on Thu, 25 Dec 2025 16:03:50 GMT and should not be manually modified.
+This log was last generated on Thu, 25 Dec 2025 16:59:52 GMT and should not be manually modified.
+
+## 0.12.1
+Thu, 25 Dec 2025 16:59:52 GMT
+
+### Patches
+
+- import series data scheduler
 
 ## 0.12.0
 Thu, 25 Dec 2025 16:03:50 GMT
