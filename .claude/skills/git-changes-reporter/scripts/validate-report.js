@@ -5,7 +5,7 @@ const { readFile } = require('node:fs/promises');
 const usage = () => {
   console.error(
     [
-      'Usage: validate-report.js <markdown_file>',
+      'Usage: validate-report.js <markdown_file> [options]',
       '',
       'Validate Markdown report quality against skill requirements.',
       '',
@@ -16,12 +16,32 @@ const usage = () => {
       'Arguments:',
       '  <markdown_file>  Path to Markdown report file',
       '',
+      'Options:',
+      '  --json <path>      Path to JSON data file (auto-enables strict validation)',
+      '  --basic            Disable strict validation (only basic format checks)',
+      '  --checklist        Show agent verification checklist after validation',
+      '',
+      'Strict validation (auto-enabled with --json):',
+      '  ✅ Verify commit coverage (100% of JSON commits)',
+      '  ✅ Verify file references exist in repository',
+      '  ✅ Verify commit hashes exist in repository',
+      '',
       'Exit codes:',
       '  0  - Report passes all checks',
       '  1  - Report has issues',
       '',
       'Examples:',
+      '  # Basic validation (format checks only)',
       '  validate-report.js docs/reports/git-changes-2025-12-05.md',
+      '',
+      '  # Strict validation (auto-enabled with --json)',
+      '  validate-report.js report.md --json changes.json',
+      '',
+      '  # With agent checklist',
+      '  validate-report.js report.md --json changes.json --checklist',
+      '',
+      '  # Force basic mode even with JSON',
+      '  validate-report.js report.md --json changes.json --basic',
     ].join('\n'),
   );
 };
@@ -225,9 +245,20 @@ const checkCommitHashFormat = (content, result) => {
 
   if (lineNumbers.length > 0) {
     result.fail(
-      `发现可疑的数字引用 ${lineNumbers.slice(0, 5).join(', ')} - 可能错误使用了 JSON 行号作为 commit ID`,
+      `❌ 发现可疑的数字引用 ${lineNumbers.slice(0, 5).join(', ')} - 可能错误使用了 JSON 行号作为 commit ID`,
     );
     result.fail('  正确的 commit ID 应该是 7+ 位十六进制字符，如 `b285cde59`');
+    result.fail('');
+    result.fail('💡 如何修复：');
+    result.fail('  1. 在 JSON 文件中搜索对应行号的内容');
+    result.fail('  2. 找到该 commit 的 "short" 字段（如 "b285cde59"）');
+    result.fail('  3. 将报告中的行号替换为正确的 commit hash');
+    result.fail('');
+    result.fail('📝 验证命令示例：');
+    result.fail('  # 在 JSON 中查找某个 commit');
+    result.fail('  jq \'.commits[] | select(.short == "b285cde59")\' changes.json');
+    result.fail('  # 列出所有 commit hash');
+    result.fail("  jq '.commits[] | .short' changes.json");
   }
 
   // Check for proper commit hash format (7+ hex characters)
@@ -458,20 +489,233 @@ const checkCommitSummaries = (content, result) => {
 };
 
 /**
+ * Verify all commits in JSON are covered in the report (strict mode)
+ * @param {string} content - Report markdown content
+ * @param {object} jsonData - Parsed JSON data
+ * @param {CheckResult} result
+ */
+const checkCommitCoverage = (content, jsonData, result) => {
+  const allCommits = new Set(jsonData.commits.map((c) => c.short));
+  const mentionedCommits = new Set();
+
+  // Extract all commit references from report (backtick format: `abc123de`)
+  const commitRefs = content.matchAll(/`([0-9a-f]{7,})`/g);
+  for (const match of commitRefs) {
+    mentionedCommits.add(match[1]);
+  }
+
+  const missing = [...allCommits].filter((c) => !mentionedCommits.has(c));
+  const extra = [...mentionedCommits].filter((c) => !allCommits.has(c));
+
+  if (missing.length === 0 && extra.length === 0) {
+    result.pass(`✅ 提交覆盖率 100% (${allCommits.size}/${allCommits.size})`);
+  } else {
+    if (missing.length > 0) {
+      result.fail(
+        `❌ 遗漏 ${missing.length} 个提交: ${missing.slice(0, 3).join(', ')}${
+          missing.length > 3 ? '...' : ''
+        }`,
+      );
+      result.fail(`   💡 提示: 在 JSON 中搜索这些 commit，确保它们出现在报告的"核心变更"或"提交明细"中`);
+    }
+    if (extra.length > 0) {
+      result.warn(
+        `⚠️  引用了 ${extra.length} 个不在 JSON 中的提交: ${extra.slice(0, 3).join(', ')}${
+          extra.length > 3 ? '...' : ''
+        }`,
+      );
+      result.warn(`   💡 提示: 这些可能是错误的 commit hash，请检查 JSON 文件`);
+    }
+  }
+};
+
+/**
+ * Verify file references point to actual files in the repository (strict mode)
+ * @param {string} content - Report markdown content
+ * @param {CheckResult} result
+ */
+const checkFileExistence = async (content, result) => {
+  const { execFile } = require('node:child_process');
+  const { promisify } = require('node:util');
+  const exec = promisify(execFile);
+
+  // Extract all file paths from markdown links: [name](path/to/file.ts#L1-L10)
+  const fileRefs = content.matchAll(/\[[^\]]+\]\(([^)#]+)#L\d+-L\d+\)/g);
+  const uniquePaths = new Set();
+
+  for (const match of fileRefs) {
+    uniquePaths.add(match[1]);
+  }
+
+  if (uniquePaths.size === 0) {
+    return;
+  }
+
+  try {
+    // Use git ls-files to check if paths exist in repo
+    const { stdout } = await exec('git', ['ls-files']);
+    const repoFiles = new Set(stdout.split('\n').filter(Boolean));
+
+    const missingFiles = [...uniquePaths].filter((path) => !repoFiles.has(path));
+
+    if (missingFiles.length === 0) {
+      result.pass(`✅ 所有 ${uniquePaths.size} 个文件引用均存在于仓库中`);
+    } else {
+      result.fail(`❌ ${missingFiles.length} 个文件引用不存在于仓库中:`);
+      missingFiles.slice(0, 5).forEach((file) => {
+        result.fail(`   - ${file}`);
+      });
+      if (missingFiles.length > 5) {
+        result.fail(`   ...以及其他 ${missingFiles.length - 5} 个文件`);
+      }
+      result.fail(`   💡 提示: 使用 'git ls-files | grep <filename>' 查找正确的路径`);
+    }
+  } catch (error) {
+    result.warn('⚠️  无法验证文件存在性（不在 git 仓库中或 git 不可用）');
+  }
+};
+
+/**
+ * Verify commit hashes exist in the git repository (strict mode)
+ * @param {string} content - Report markdown content
+ * @param {CheckResult} result
+ */
+const checkCommitExistence = async (content, result) => {
+  const { execFile } = require('node:child_process');
+  const { promisify } = require('node:util');
+  const exec = promisify(execFile);
+
+  // Extract all commit hashes from report
+  const commitRefs = content.matchAll(/`([0-9a-f]{7,})`/g);
+  const uniqueCommits = new Set();
+
+  for (const match of commitRefs) {
+    uniqueCommits.add(match[1]);
+  }
+
+  if (uniqueCommits.size === 0) {
+    return;
+  }
+
+  const invalidCommits = [];
+
+  for (const commit of uniqueCommits) {
+    try {
+      await exec('git', ['cat-file', '-t', commit]);
+      // Commit exists
+    } catch {
+      invalidCommits.push(commit);
+    }
+  }
+
+  if (invalidCommits.length === 0) {
+    result.pass(`✅ 所有 ${uniqueCommits.size} 个 commit 引用均存在于仓库中`);
+  } else {
+    result.fail(`❌ ${invalidCommits.length} 个 commit 不存在于仓库中: ${invalidCommits.join(', ')}`);
+    result.fail(`   💡 提示: 使用 'git log --oneline' 查找正确的 commit hash`);
+  }
+};
+
+/**
+ * Generate verification checklist for agent to review
+ * @param {string} content - Report markdown content
+ * @param {object} jsonData - JSON data
+ */
+const generateChecklist = (content, jsonData) => {
+  console.info('\n' + '='.repeat(60));
+  console.info('📋 Agent 二次确认清单');
+  console.info('='.repeat(60));
+
+  // 1. Commit coverage
+  const allCommits = jsonData.commits.map((c) => c.short);
+  console.info('\n1️⃣  提交覆盖检查：');
+  console.info(`   JSON 中共有 ${allCommits.length} 个提交`);
+  console.info(`   请确认报告中包含所有这些提交：`);
+  allCommits.slice(0, 5).forEach((commit, i) => {
+    const subject = jsonData.commits[i].subject;
+    console.info(
+      `      ${i + 1}. \`${commit}\` - ${subject.substring(0, 60)}${subject.length > 60 ? '...' : ''}`,
+    );
+  });
+  if (allCommits.length > 5) {
+    console.info(`      ...以及其他 ${allCommits.length - 5} 个提交`);
+  }
+
+  // 2. Code snippets
+  const codeBlocks = content.match(/```[\s\S]*?```/g) || [];
+  console.info(`\n2️⃣  代码片段检查（共 ${codeBlocks.length} 个）：`);
+  console.info('   请确认每个代码片段：');
+  console.info('   - 来源于实际文件（可通过 git show <commit>:<path> 验证）');
+  console.info('   - 行号引用正确');
+  console.info('   - 代码内容准确（未胡编乱造）');
+
+  // 3. File references
+  const fileRefs = content.matchAll(/\[([^\]]+:L\d+-L\d+)\]\(([^)]+)\)/g);
+  const refs = [...fileRefs];
+  console.info(`\n3️⃣  文件引用检查（共 ${refs.length} 个）：`);
+  if (refs.length > 0) {
+    console.info('   前 5 个引用：');
+    refs.slice(0, 5).forEach((match) => {
+      console.info(`   - ${match[1]} → ${match[2]}`);
+    });
+    if (refs.length > 5) {
+      console.info(`   ...以及其他 ${refs.length - 5} 个引用`);
+    }
+  }
+
+  console.info('\n✅ 请在提交报告前完成以上确认');
+  console.info('='.repeat(60));
+};
+
+/**
  * Main function
  */
 const main = async () => {
-  const markdownFile = process.argv[2];
+  // Parse command line arguments
+  const args = process.argv.slice(2);
+  let markdownFile = null;
+  let jsonFile = null;
+  let basicMode = false;
+  let showChecklist = false;
 
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--json' && i + 1 < args.length) {
+      jsonFile = args[++i];
+    } else if (args[i] === '--basic') {
+      basicMode = true;
+    } else if (args[i] === '--checklist') {
+      showChecklist = true;
+    } else if (!markdownFile && !args[i].startsWith('--')) {
+      markdownFile = args[i];
+    }
+  }
+
+  // Validate required arguments
   if (!markdownFile) {
     usage();
     process.exit(1);
   }
 
+  if (showChecklist && !jsonFile) {
+    console.error('❌ Error: --checklist requires --json parameter');
+    process.exit(1);
+  }
+
+  // Strict mode is enabled by default when JSON is provided (unless --basic is specified)
+  const strictMode = jsonFile && !basicMode;
+
+  // Display validation mode
   console.info(`Validating report: ${markdownFile}`);
+  if (strictMode) {
+    console.info(`Mode: 🔍 Strict (with ${jsonFile})`);
+  } else if (jsonFile && basicMode) {
+    console.info(`Mode: 📝 Basic (--basic mode, JSON available but strict checks disabled)`);
+  } else {
+    console.info('Mode: 📝 Basic (format checks only)');
+  }
   console.info('='.repeat(60));
 
-  // Read file
+  // Read markdown file
   let content;
   try {
     content = await readFile(markdownFile, 'utf8');
@@ -480,9 +724,21 @@ const main = async () => {
     process.exit(1);
   }
 
+  // Read JSON file if provided
+  let jsonData = null;
+  if (jsonFile) {
+    try {
+      const jsonContent = await readFile(jsonFile, 'utf8');
+      jsonData = JSON.parse(jsonContent);
+    } catch (error) {
+      console.error(`❌ Error reading JSON file: ${error.message}`);
+      process.exit(1);
+    }
+  }
+
   const result = new CheckResult();
 
-  // Run all checks
+  // Run basic checks
   checkRequiredSections(content, result);
   checkOverview(content, result);
   checkCodeSnippets(content, result);
@@ -494,20 +750,42 @@ const main = async () => {
   checkRiskAssessment(content, result);
   checkCommitSummaries(content, result);
 
+  // Run strict validation checks (async)
+  if (strictMode && jsonData) {
+    console.info('\n🔍 Running strict validation...');
+    checkCommitCoverage(content, jsonData, result);
+    await checkFileExistence(content, result);
+    await checkCommitExistence(content, result);
+  }
+
   // Print results
   result.print();
+
+  // Generate checklist if requested
+  if (showChecklist && jsonData && !result.hasFailures()) {
+    generateChecklist(content, jsonData);
+  }
 
   // Exit with appropriate code
   if (result.hasFailures()) {
     console.info('\n💡 Tip: 参考以下文件改进报告：');
     console.info('   - references/report-template.md（正确格式）');
     console.info('   - references/bad-examples.md（常见错误）');
+    if (strictMode) {
+      console.info('\n🔍 Strict mode tips:');
+      console.info('   - 使用 jq 查询 JSON: jq \'.commits[] | select(.short == "abc123")\' changes.json');
+      console.info('   - 验证文件存在: git ls-files | grep <filename>');
+      console.info('   - 验证 commit: git cat-file -t <hash>');
+    }
     process.exit(1);
   } else if (result.warnings.length > 0) {
     console.info('\n✨ 报告通过基本检查，但有一些建议可以改进质量');
     process.exit(0);
   } else {
     console.info('\n🎉 报告通过所有质量检查！');
+    if (strictMode) {
+      console.info('   ✅ 严格验证通过：commit 覆盖率 100%、所有引用真实有效');
+    }
     process.exit(0);
   }
 };

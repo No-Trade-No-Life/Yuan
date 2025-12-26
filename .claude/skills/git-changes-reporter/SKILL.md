@@ -112,11 +112,72 @@ Read JSON offset=X limit=200  # 特定 commit 的详细信息
 
 ### 阶段三：质量验证
 
-**目的**：确保报告符合质量要求
+**目的**：确保报告符合质量要求，防止胡编乱造
+
+#### 第一次验证：基础检查
+
+验证报告格式和结构完整性：
 
 ```bash
 .claude/skills/git-changes-reporter/scripts/validate-report.js <markdown_file>
 ```
+
+**检查内容**：
+
+- 必需章节（概览、核心变更、贡献者、风险评估）
+- 代码片段格式
+- 文件引用格式
+- Commit hash 格式
+- 设计意图完整性
+
+#### 第二次验证：严格模式（默认启用）
+
+验证报告内容真实性，防止胡编乱造：
+
+```bash
+# 严格模式已默认启用（提供 --json 即可）
+.claude/skills/git-changes-reporter/scripts/validate-report.js <markdown_file> \
+  --json <json_file>
+```
+
+**严格模式自动检查**：
+
+- ✅ **Commit 覆盖率**：确保 100% 覆盖 JSON 中所有 commits，无遗漏
+- ✅ **文件引用真实性**：验证所有文件路径存在于仓库（通过 `git ls-files`）
+- ✅ **Commit hash 真实性**：验证所有 commit hash 存在于仓库（通过 `git cat-file`）
+
+**如需仅做格式检查**（不推荐）：
+
+```bash
+# 使用 --basic 禁用严格验证
+.claude/skills/git-changes-reporter/scripts/validate-report.js <markdown_file> \
+  --json <json_file> \
+  --basic
+```
+
+#### 第三次验证：人工复查清单（可选）
+
+生成二次确认清单供 Agent 逐项复查：
+
+```bash
+.claude/skills/git-changes-reporter/scripts/validate-report.js <markdown_file> \
+  --json <json_file> \
+  --checklist
+```
+
+**清单内容**：
+
+- 列出所有应覆盖的 commits
+- 统计代码片段数量
+- 显示文件引用列表
+
+**工作流建议**：
+
+1. **首次生成报告**：先运行基础验证，修复格式问题
+2. **内容完善后**：运行严格模式（**默认启用**，只需提供 `--json`），确保内容真实性
+3. **提交前**：使用 `--checklist` 进行人工复查
+
+**重要**：严格验证已默认启用，Agent 无法跳过真实性检查，有效防止胡编乱造。
 
 ## 报告模板与关键要求
 
