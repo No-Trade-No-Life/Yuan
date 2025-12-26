@@ -1,11 +1,43 @@
-import { formatTime } from '@yuants/utils';
+import { formatTime, scopeError, tokenBucket } from '@yuants/utils';
 
 // Huobi API 根域名
 const SWAP_API_ROOT = 'api.hbdm.com';
 const SPOT_API_ROOT = 'api.huobi.pro';
 
+type HuobiBusiness = 'spot' | 'linear-swap';
+type HuobiPublicInterfaceType = 'market' | 'non-market';
+
+const acquire = (bucketId: string, meta: Record<string, unknown>) => {
+  const bucket = tokenBucket(bucketId);
+  scopeError('HUOBI_API_RATE_LIMIT', { ...meta, bucketId }, () => bucket.acquireSync(1));
+};
+
+// https://www.htx.com/zh-cn/opend/newApiPages/?id=474
+// 行情类：同一个 IP，总共 1s 最多 800 个请求（合约业务共享总额度）
+const marketDataIPAllBucketId = 'HUOBI_PUBLIC_MARKET_IP_1S_ALL';
+tokenBucket(marketDataIPAllBucketId, {
+  capacity: 800,
+  refillInterval: 1000,
+  refillAmount: 800,
+});
+
+// 行情类：按业务线拆分（用于交割/币本位永续/U本位分开限频）
+const marketDataSpotBucketId = 'HUOBI_PUBLIC_MARKET_IP_1S_SPOT';
+tokenBucket(marketDataSpotBucketId, { capacity: 800, refillInterval: 1000, refillAmount: 800 });
+
+const marketDataLinearSwapBucketId = 'HUOBI_PUBLIC_MARKET_IP_1S_LINEAR_SWAP';
+tokenBucket(marketDataLinearSwapBucketId, { capacity: 800, refillInterval: 1000, refillAmount: 800 });
+
+// 非行情类公开接口：同一个 IP，3s 最多 120 次请求
+const nonMarketDataIPBucketId = 'HUOBI_PUBLIC_NON_MARKET_IP_3S_ALL';
+tokenBucket(nonMarketDataIPBucketId, {
+  capacity: 120,
+  refillInterval: 3000,
+  refillAmount: 120,
+});
+
 /**
- * 公共 API 请求方法
+ * 公共 API 请求方法（不负责限流；限流由调用点选择对应 helper）
  */
 async function publicRequest(method: string, path: string, api_root: string, params?: any) {
   const url = new URL(`https://${api_root}${path}`);
@@ -36,6 +68,56 @@ async function publicRequest(method: string, path: string, api_root: string, par
     throw e;
   }
 }
+
+const spotMarketRequest = async (method: string, path: string, params?: any) => {
+  const meta = {
+    method,
+    api_root: SPOT_API_ROOT,
+    path,
+    business: 'spot' as HuobiBusiness,
+    interfaceType: 'market' as HuobiPublicInterfaceType,
+  };
+  acquire(marketDataIPAllBucketId, meta);
+  acquire(marketDataSpotBucketId, meta);
+  return publicRequest(method, path, SPOT_API_ROOT, params);
+};
+
+const spotNonMarketRequest = async (method: string, path: string, params?: any) => {
+  const meta = {
+    method,
+    api_root: SPOT_API_ROOT,
+    path,
+    business: 'spot' as HuobiBusiness,
+    interfaceType: 'non-market' as HuobiPublicInterfaceType,
+  };
+  acquire(nonMarketDataIPBucketId, meta);
+  return publicRequest(method, path, SPOT_API_ROOT, params);
+};
+
+const linearSwapMarketRequest = async (method: string, path: string, params?: any) => {
+  const meta = {
+    method,
+    api_root: SWAP_API_ROOT,
+    path,
+    business: 'linear-swap' as HuobiBusiness,
+    interfaceType: 'market' as HuobiPublicInterfaceType,
+  };
+  acquire(marketDataIPAllBucketId, meta);
+  acquire(marketDataLinearSwapBucketId, meta);
+  return publicRequest(method, path, SWAP_API_ROOT, params);
+};
+
+const linearSwapNonMarketRequest = async (method: string, path: string, params?: any) => {
+  const meta = {
+    method,
+    api_root: SWAP_API_ROOT,
+    path,
+    business: 'linear-swap' as HuobiBusiness,
+    interfaceType: 'non-market' as HuobiPublicInterfaceType,
+  };
+  acquire(nonMarketDataIPBucketId, meta);
+  return publicRequest(method, path, SWAP_API_ROOT, params);
+};
 
 // ==================== 公共 API 方法 ====================
 
@@ -69,7 +151,7 @@ export function getPerpetualContractSymbols(params?: {
   }[];
   ts: string;
 }> {
-  return publicRequest('GET', '/linear-swap-api/v1/swap_contract_info', SWAP_API_ROOT, params);
+  return linearSwapNonMarketRequest('GET', '/linear-swap-api/v1/swap_contract_info', params);
 }
 
 /**
@@ -118,7 +200,7 @@ export function getSpotSymbols(): Promise<{
   err_code: string;
   err_msg: string;
 }> {
-  return publicRequest('GET', '/v2/settings/common/symbols', SPOT_API_ROOT);
+  return spotNonMarketRequest('GET', '/v2/settings/common/symbols');
 }
 
 /**
@@ -132,7 +214,7 @@ export function getSpotTick(params: { symbol: string }): Promise<{
     close: number;
   };
 }> {
-  return publicRequest('GET', `/market/detail/merged`, SPOT_API_ROOT, params);
+  return spotMarketRequest('GET', `/market/detail/merged`, params);
 }
 
 /**
@@ -163,7 +245,7 @@ export function getSpotHistoryKline(params: {
     count?: number;
   }[];
 }> {
-  return publicRequest('GET', `/market/history/kline`, SPOT_API_ROOT, params);
+  return spotMarketRequest('GET', `/market/history/kline`, params);
 }
 
 /**
@@ -171,7 +253,7 @@ export function getSpotHistoryKline(params: {
  *
  * 接口权限: 读取
  *
- * 限频: 其他非行情类的公开接口，比如获取指数信息，限价信息，交割结算、平台持仓信息等，所有用户都是每个IP3秒最多240次请求（所有该IP的非行情类的公开接口请求共享3秒240次的额度）
+ * 限频: 其他非行情类的公开接口，比如获取指数信息，限价信息，交割结算、平台持仓信息等，所有用户都是每个IP3秒最多120次请求（所有该IP的非行情类的公开接口请求共享3秒120次的额度）
  *
  * 接口描述: 该接口支持全仓模式和逐仓模式
  *
@@ -191,7 +273,7 @@ export function getSwapBatchFundingRate(params: { contract_code?: string }): Pro
     trade_partition: string;
   }[];
 }> {
-  return publicRequest('GET', `/linear-swap-api/v1/swap_batch_funding_rate`, SWAP_API_ROOT, params);
+  return linearSwapNonMarketRequest('GET', `/linear-swap-api/v1/swap_batch_funding_rate`, params);
 }
 
 /**
@@ -232,7 +314,7 @@ export function getSwapMarketTrade(params: { contract_code?: string; business_ty
   };
   ts: number;
 }> {
-  return publicRequest('GET', `/linear-swap-ex/market/trade`, SWAP_API_ROOT, params);
+  return linearSwapMarketRequest('GET', `/linear-swap-ex/market/trade`, params);
 }
 
 /**
@@ -262,7 +344,7 @@ export function getSwapOpenInterest(params: {
   }[];
   ts: number;
 }> {
-  return publicRequest('GET', '/linear-swap-api/v1/swap_open_interest', SWAP_API_ROOT, params);
+  return linearSwapMarketRequest('GET', '/linear-swap-api/v1/swap_open_interest', params);
 }
 
 /**
@@ -295,7 +377,7 @@ export function getSwapMarketBbo(params: { contract_code?: string }): Promise<{
   }[];
   ts: number;
 }> {
-  return publicRequest('GET', `/linear-swap-ex/market/bbo`, SWAP_API_ROOT, params);
+  return linearSwapMarketRequest('GET', `/linear-swap-ex/market/bbo`, params);
 }
 
 /**
@@ -327,7 +409,7 @@ export function getSwapHistoricalFundingRate(params: {
     total_size: number;
   };
 }> {
-  return publicRequest('GET', `/linear-swap-api/v1/swap_historical_funding_rate`, SWAP_API_ROOT, params);
+  return linearSwapNonMarketRequest('GET', `/linear-swap-api/v1/swap_historical_funding_rate`, params);
 }
 
 /**
@@ -356,7 +438,7 @@ export function getSwapHistoryKline(params: {
     count?: number;
   }[];
 }> {
-  return publicRequest('GET', `/linear-swap-ex/market/history/kline`, SWAP_API_ROOT, params);
+  return linearSwapMarketRequest('GET', `/linear-swap-ex/market/history/kline`, params);
 }
 
 /**
@@ -373,7 +455,7 @@ export function getSwapCrossLadderMargin(params?: {
   status: string;
   data: Array<{ contract_code: string; pair: string; list: Array<{ lever_rate: number }> }>;
 }> {
-  return publicRequest('GET', '/linear-swap-api/v1/swap_cross_ladder_margin', SWAP_API_ROOT, params);
+  return linearSwapNonMarketRequest('GET', '/linear-swap-api/v1/swap_cross_ladder_margin', params);
 }
 
 /**
@@ -415,7 +497,7 @@ export function getV2ReferenceCurrencies(params: { currency?: string; authorized
     instStatus: string;
   }[];
 }> {
-  return publicRequest('GET', '/v2/reference/currencies', SPOT_API_ROOT, params);
+  return spotNonMarketRequest('GET', '/v2/reference/currencies', params);
 }
 
 /**
@@ -441,4 +523,4 @@ export const getSpotMarketTickers = (): Promise<{
   }[];
   status: string;
   ts: number;
-}> => publicRequest('GET', '/market/tickers', SPOT_API_ROOT);
+}> => spotMarketRequest('GET', '/market/tickers');

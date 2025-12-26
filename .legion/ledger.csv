@@ -571,3 +571,24 @@
 2025-12-25T10:36:18.441Z,legion_update_context,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,addDecision: 调度器每次请求 time 都主动制造 overlap（backward: time 向未来偏移；forward: time 向过去偏移），避免返回 touch 段导致 strict overlap merge 无法收敛。,success
 2025-12-25T14:10:30.088Z,legion_list_reviews,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,status: open,success
 2025-12-25T14:17:49.320Z,legion_list_reviews,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,status: open,success
+2025-12-25T16:33:30.161Z,legion_get_status,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,,success
+2025-12-25T16:33:37.417Z,legion_list_reviews,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,status: open,success
+2025-12-25T16:33:44.331Z,legion_archive_task,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,taskId: vex-series-data-ohlcinterestrate-ohlc-v2,success
+2025-12-25T16:36:15.713Z,legion_propose_task,,,Claude,name: Huobi public/private API tokenBucket：按业务与接口类型主动限流,success
+2025-12-25T16:39:56.391Z,legion_approve_proposal,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,proposalId: proposal-mjlo00k5-ff52d3,success
+2025-12-25T16:40:00.977Z,legion_switch_task,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,taskId: huobi-publicprivate-api-tokenbucket,success
+2025-12-25T16:40:04.669Z,legion_read_context,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,"section: all, includeReviews: true",success
+2025-12-25T16:40:08.658Z,legion_update_tasks,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,setCurrentTask: phase 1,success
+2025-12-25T16:40:12.743Z,legion_update_context,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,,success
+2025-12-25T16:40:24.634Z,legion_update_context,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,progress.completed: 已确认当前 tokenBucket 定义位置：public-api.ts 里有 `marketDataAPIBucket(800/1s)` 与 `nonMarketDataAPIBucket(120/3s)`；private-api.ts 里有 `tradeAPIBucket(36/3s)` 与 `queryAPIBu,success
+2025-12-25T16:40:28.321Z,legion_update_tasks,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,completeTask: phase 1,success
+2025-12-25T16:47:42.896Z,legion_list_reviews,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,status: open,success
+2025-12-25T16:47:50.469Z,legion_archive_task,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,taskId: huobi-publicprivate-api-tokenbucket,success
+2025-12-25T16:48:37.548Z,legion_get_status,,,Claude,,success
+2025-12-25T16:49:16.538Z,legion_get_status,,,Claude,,success
+2025-12-25T16:49:16.611Z,legion_list_reviews,,,Claude,status: open,failed
+2025-12-25T16:49:21.317Z,legion_list_proposals,,,Claude,status: pending,success
+2025-12-25T16:51:11.059Z,legion_list_reviews,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,status: open,success
+2025-12-25T17:04:29.949Z,legion_switch_task,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,taskId: huobi-publicprivate-api-tokenbucket,success
+2025-12-25T17:04:34.837Z,legion_list_reviews,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,status: open,success
+2025-12-25T17:04:35.396Z,legion_read_context,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,"section: all, includeReviews: true",success
