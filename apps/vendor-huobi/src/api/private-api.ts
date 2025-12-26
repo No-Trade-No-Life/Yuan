@@ -1,4 +1,7 @@
-import { encodeBase64, formatTime, HmacSHA256 } from '@yuants/utils';
+import { encodeBase64, formatTime, HmacSHA256, scopeError, tokenBucket } from '@yuants/utils';
+
+const SPOT_API_ROOT = 'api.huobi.pro';
+const LINEAR_SWAP_API_ROOT = 'api.hbdm.com';
 
 export interface ICredential {
   access_key: string;
@@ -12,13 +15,42 @@ export const getDefaultCredential = (): ICredential => {
   };
 };
 
-export const privateRequest = async (
+// https://www.htx.com/zh-cn/opend/newApiPages/?id=474
+type HuobiBusiness = 'spot' | 'linear-swap';
+type HuobiPrivateInterfaceType = 'trade' | 'query';
+
+const createdBuckets = new Set<string>();
+const getOrCreatePrivateBucket = (bucketId: string) => {
+  if (!createdBuckets.has(bucketId)) {
+    createdBuckets.add(bucketId);
+    tokenBucket(bucketId, { capacity: 36, refillAmount: 36, refillInterval: 3000 });
+  }
+  return tokenBucket(bucketId);
+};
+
+const acquirePrivate = (bucketId: string, meta: Record<string, unknown>) => {
+  const bucket = getOrCreatePrivateBucket(bucketId);
+  scopeError('HUOBI_API_RATE_LIMIT', { ...meta, bucketId }, () => bucket.acquireSync(1));
+};
+
+const privateRequestWithRateLimit = async (
   credential: ICredential,
+  interfaceType: HuobiPrivateInterfaceType,
+  business: HuobiBusiness,
   method: string,
   path: string,
   api_root: string,
   params?: any,
 ) => {
+  const meta = { method, api_root, path, business, interfaceType, access_key: credential.access_key };
+
+  const interfaceTypeUpper = interfaceType.toUpperCase();
+  const businessUpper = business.toUpperCase();
+  const globalBucketId = `HUOBI_PRIVATE_${interfaceTypeUpper}_UID_3S_ALL:${credential.access_key}`;
+  const businessBucketId = `HUOBI_PRIVATE_${interfaceTypeUpper}_UID_3S_${businessUpper}:${credential.access_key}`;
+  acquirePrivate(globalBucketId, meta);
+  acquirePrivate(businessBucketId, meta);
+
   const requestParams = `AccessKeyId=${
     credential.access_key
   }&SignatureMethod=HmacSHA256&SignatureVersion=2&Timestamp=${encodeURIComponent(
@@ -63,6 +95,18 @@ export const privateRequest = async (
   }
 };
 
+const spotPrivateQueryRequest = (credential: ICredential, method: string, path: string, params?: any) =>
+  privateRequestWithRateLimit(credential, 'query', 'spot', method, path, SPOT_API_ROOT, params);
+
+const spotPrivateTradeRequest = (credential: ICredential, method: string, path: string, params?: any) =>
+  privateRequestWithRateLimit(credential, 'trade', 'spot', method, path, SPOT_API_ROOT, params);
+
+const linearSwapPrivateQueryRequest = (credential: ICredential, method: string, path: string, params?: any) =>
+  privateRequestWithRateLimit(credential, 'query', 'linear-swap', method, path, LINEAR_SWAP_API_ROOT, params);
+
+const linearSwapPrivateTradeRequest = (credential: ICredential, method: string, path: string, params?: any) =>
+  privateRequestWithRateLimit(credential, 'trade', 'linear-swap', method, path, LINEAR_SWAP_API_ROOT, params);
+
 /**
  * 获取账户信息
  *
@@ -79,7 +123,7 @@ export const getAccount = (
     subtype: string;
   }[];
 }> => {
-  return privateRequest(credential, 'GET', '/v1/account/accounts', 'api.huobi.pro');
+  return spotPrivateQueryRequest(credential, 'GET', '/v1/account/accounts');
 };
 
 /**
@@ -88,7 +132,7 @@ export const getAccount = (
  * https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec491c9-7773-11ed-9966-0242ac110003
  */
 export const getUid = (credential: ICredential): Promise<{ data: number; code: number }> => {
-  return privateRequest(credential, 'GET', '/v2/user/uid', 'api.huobi.pro');
+  return spotPrivateQueryRequest(credential, 'GET', '/v2/user/uid');
 };
 
 /**
@@ -111,7 +155,7 @@ export const getUnifiedAccountInfo = (
     withdraw_available: number;
   }[];
 }> => {
-  return privateRequest(credential, 'GET', '/linear-swap-api/v3/unified_account_info', 'api.hbdm.com');
+  return linearSwapPrivateQueryRequest(credential, 'GET', '/linear-swap-api/v3/unified_account_info');
 };
 
 /**
@@ -155,11 +199,10 @@ export const getSwapCrossPositionInfo = (
     liquidation_price?: number;
   }[];
 }> => {
-  return privateRequest(
+  return linearSwapPrivateQueryRequest(
     credential,
     'POST',
     '/linear-swap-api/v1/swap_cross_position_info',
-    'api.hbdm.com',
     params,
   );
 };
@@ -195,11 +238,10 @@ export const getSwapOpenOrders = (
     }[];
   };
 }> => {
-  return privateRequest(
+  return linearSwapPrivateQueryRequest(
     credential,
     'POST',
     '/linear-swap-api/v1/swap_cross_openorders',
-    'api.hbdm.com',
     params,
   );
 };
@@ -222,7 +264,7 @@ export const getSpotAccountBalance = (
     }[];
   };
 }> => {
-  return privateRequest(credential, 'GET', `/v1/account/accounts/${account_uid}/balance`, 'api.huobi.pro');
+  return spotPrivateQueryRequest(credential, 'GET', `/v1/account/accounts/${account_uid}/balance`);
 };
 
 /**
@@ -240,7 +282,7 @@ export const getCrossMarginLoanInfo = (
     'loanable-amt': string;
   }[];
 }> => {
-  return privateRequest(credential, 'GET', '/v1/cross-margin/loan-info', 'api.huobi.pro');
+  return spotPrivateQueryRequest(credential, 'GET', '/v1/cross-margin/loan-info');
 };
 
 /**
@@ -263,7 +305,7 @@ export const postSpotOrder = (
     'client-order-id'?: string;
   },
 ): Promise<{ success: boolean; code: number; message: string; data: { orderId: number } }> => {
-  return privateRequest(credential, 'POST', `/v1/order/auto/place`, 'api.huobi.pro', params);
+  return spotPrivateTradeRequest(credential, 'POST', `/v1/order/auto/place`, params);
 };
 
 /**
@@ -285,7 +327,7 @@ export const postSwapOrder = (
     channel_code?: string;
   },
 ): Promise<{ status: string; ts: number; data: { order_id: number; order_id_str: string } }> => {
-  return privateRequest(credential, 'POST', '/linear-swap-api/v1/swap_cross_order', 'api.hbdm.com', params);
+  return linearSwapPrivateTradeRequest(credential, 'POST', '/linear-swap-api/v1/swap_cross_order', params);
 };
 
 /**
@@ -305,7 +347,7 @@ export const getSpotAccountDepositAddresses = (
     address: string;
   }[];
 }> => {
-  return privateRequest(credential, 'GET', `/v2/account/deposit/address`, 'api.huobi.pro', params);
+  return spotPrivateQueryRequest(credential, 'GET', `/v2/account/deposit/address`, params);
 };
 
 /**
@@ -323,7 +365,7 @@ export const getAccountLedger = (
     transactAmt: number;
   }[];
 }> => {
-  return privateRequest(credential, 'GET', `/v2/account/ledger`, 'api.huobi.pro', params);
+  return spotPrivateQueryRequest(credential, 'GET', `/v2/account/ledger`, params);
 };
 
 /**
@@ -338,7 +380,7 @@ export const postSuperMarginAccountTransferOut = (
     amount: string;
   },
 ): Promise<{ status: string; data: number }> => {
-  return privateRequest(credential, 'POST', `/v1/cross-margin/transfer-out`, 'api.huobi.pro', params);
+  return spotPrivateTradeRequest(credential, 'POST', `/v1/cross-margin/transfer-out`, params);
 };
 
 /**
@@ -353,7 +395,7 @@ export const postSuperMarginAccountTransferIn = (
     amount: string;
   },
 ): Promise<{ status: string; data: number }> => {
-  return privateRequest(credential, 'POST', `/v1/cross-margin/transfer-in`, 'api.huobi.pro', params);
+  return spotPrivateTradeRequest(credential, 'POST', `/v1/cross-margin/transfer-in`, params);
 };
 
 /**
@@ -371,7 +413,7 @@ export const postSpotAccountTransfer = (
     'margin-account': string;
   },
 ): Promise<{ success: boolean; data: number; code: number; message: string }> => {
-  return privateRequest(credential, 'POST', `/v2/account/transfer`, 'api.huobi.pro', params);
+  return spotPrivateTradeRequest(credential, 'POST', `/v2/account/transfer`, params);
 };
 
 /**
@@ -386,7 +428,7 @@ export const postBorrow = (
   status: string;
   data: number;
 }> => {
-  return privateRequest(credential, 'POST', `/v1/cross-margin/orders`, 'api.huobi.pro', params);
+  return spotPrivateTradeRequest(credential, 'POST', `/v1/cross-margin/orders`, params);
 };
 
 /**
@@ -407,7 +449,7 @@ export const postWithdraw = (
   status: string;
   data: number;
 }> => {
-  return privateRequest(credential, 'POST', `/v1/dw/withdraw/api/create`, 'api.huobi.pro', params);
+  return spotPrivateTradeRequest(credential, 'POST', `/v1/dw/withdraw/api/create`, params);
 };
 
 /**
@@ -443,7 +485,7 @@ export const getDepositWithdrawHistory = (
     'update-at': number;
   }[];
 }> => {
-  return privateRequest(credential, 'GET', `/v1/query/deposit-withdraw`, 'api.huobi.pro', params);
+  return spotPrivateQueryRequest(credential, 'GET', `/v1/query/deposit-withdraw`, params);
 };
 
 /**
@@ -468,7 +510,7 @@ export const postSubUserTransfer = (
   data: number;
   status: string;
 }> => {
-  return privateRequest(credential, 'POST', '/v1/subuser/transfer', 'api.huobi.pro', params);
+  return spotPrivateTradeRequest(credential, 'POST', '/v1/subuser/transfer', params);
 };
 
 /**
@@ -493,7 +535,7 @@ export const getSubUserList = (
   nextId?: number;
   ok: boolean;
 }> => {
-  return privateRequest(credential, 'GET', `/v2/sub-user/user-list`, 'api.huobi.pro', params);
+  return spotPrivateQueryRequest(credential, 'GET', `/v2/sub-user/user-list`, params);
 };
 
 /**
@@ -520,7 +562,7 @@ export const getSwapUnifiedAccountType = (
     account_type: number;
   };
 }> => {
-  return privateRequest(credential, 'GET', '/linear-swap-api/v3/swap_unified_account_type', 'api.hbdm.com');
+  return linearSwapPrivateQueryRequest(credential, 'GET', '/linear-swap-api/v3/swap_unified_account_type');
 };
 
 /**
@@ -547,11 +589,10 @@ export const postSwapSwitchAccountType = (
     account_type: number;
   };
 }> => {
-  return privateRequest(
+  return linearSwapPrivateTradeRequest(
     credential,
     'POST',
     '/linear-swap-api/v3/swap_switch_account_type',
-    'api.hbdm.com',
     params,
   );
 };
@@ -601,7 +642,7 @@ export const getV2ReferenceCurrencies = (
     instStatus: string;
   }[];
 }> => {
-  return privateRequest(credential, 'GET', '/v2/reference/currencies', 'api.huobi.pro', params);
+  return spotPrivateQueryRequest(credential, 'GET', '/v2/reference/currencies', params);
 };
 
 /**
@@ -640,5 +681,5 @@ export const getAccountHistory = (
     'transact-time': string;
   }[];
 }> => {
-  return privateRequest(credential, 'GET', '/v1/account/history', 'api.huobi.pro', params);
+  return spotPrivateQueryRequest(credential, 'GET', '/v1/account/history', params);
 };

@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "vex-series-data-ohlcinterestrate-ohlc-v2",
+  "currentTask": "huobi-publicprivate-api-tokenbucket",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -80,9 +80,9 @@
     {
       "id": "vex-series-data-ohlcinterestrate-ohlc-v2",
       "name": "VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移",
-      "status": "active",
+      "status": "archived",
       "createdAt": "2025-12-22T07:09:48.363Z",
-      "updatedAt": "2025-12-25T10:36:18.437Z"
+      "updatedAt": "2025-12-25T16:33:44.326Z"
     },
     {
       "id": "binance-private-api-host-tokenbucket",
@@ -97,6 +97,13 @@
       "status": "archived",
       "createdAt": "2025-12-24T15:32:00.428Z",
       "updatedAt": "2025-12-24T15:45:22.634Z"
+    },
+    {
+      "id": "huobi-publicprivate-api-tokenbucket",
+      "name": "Huobi public/private API tokenBucket：按业务与接口类型主动限流",
+      "status": "active",
+      "createdAt": "2025-12-25T16:39:56.385Z",
+      "updatedAt": "2025-12-25T17:04:29.941Z"
     }
   ],
   "pendingProposals": [
@@ -1079,6 +1086,72 @@
       "decidedAt": "2025-12-24T15:32:00.428Z",
       "decidedBy": "Claude",
       "createdTaskId": "aster-publicprivate-api-host-tokenbucket"
+    },
+    {
+      "id": "proposal-mjlo00k5-ff52d3",
+      "name": "Huobi public/private API tokenBucket：按业务与接口类型主动限流",
+      "goal": "在 apps/vendor-huobi 的 public-api/private-api 发起请求前，按业务线（交割/币本位永续/U本位/现货）与接口类型（行情/非行情，交易/查询）选择对应 tokenBucket 并 acquireSync(1) 做主动限流。",
+      "rationale": "Huobi/HTX 的公开与私有 REST 都有明确的 IP/UID 级访问上限；当前仓库已创建 tokenBucket 但未在请求前实际扣减，容易触发 429/封禁。将限流前置到 publicRequest/privateRequest，并按业务线拆分 bucket，可同时满足“交割/币本位永续/U本位分开限频”与“行情/非行情、交易/查询分开额度”的要求。",
+      "points": [
+        "复用你已在 public-api/private-api 创建的 bucket（必要时按业务线补齐命名与参数）；调用点只 acquireSync，不捕获 token 不足异常",
+        "publicRequest：按 path 判断行情类 vs 非行情类；行情类按 1s/800（IP 维度），非行情按 3s/120（IP 维度）",
+        "privateRequest：按 path/方法/语义判断交易 vs 查询；普通用户按 3s/36（trade）与 3s/36（query）（UID 维度，代码以 access_key 作为隔离 key）；并按业务线（交割/币本位永续/U本位）拆分桶",
+        "交割合约/币本位永续/U本位/现货：根据 api_root + path 前缀（例如 /linear-swap-, /swap-, /contract- 等）与必要时的参数（contract_code/business_type）判断",
+        "用 scopeError 包裹 acquireSync 记录 metadata（api_root/path/method/bucketId/type/business），异常直接 throw",
+        "补最小单测：不同业务/接口类型会选择不同 bucket；并运行 vendor-huobi 的 tsc/heft test"
+      ],
+      "scope": [
+        "apps/vendor-huobi/src/api/public-api.ts",
+        "apps/vendor-huobi/src/api/private-api.ts",
+        "apps/vendor-huobi/SESSION_NOTES.md（若存在）或等效上下文文件",
+        ".legion/tasks/<new-task>/plan.md",
+        ".legion/tasks/<new-task>/context.md",
+        ".legion/tasks/<new-task>/tasks.md"
+      ],
+      "phases": [
+        {
+          "name": "调研",
+          "tasks": [
+            {
+              "description": "梳理 vendor-huobi 现有 tokenBucket 定义与所有请求入口；列出业务线识别规则（交割/币本位永续/U本位/现货）与接口类型识别规则（行情/非行情、交易/查询）",
+              "acceptance": "context.md 记录 bucket 列表（bucketId/参数/用途）、识别规则、以及不确定点与默认策略"
+            }
+          ]
+        },
+        {
+          "name": "设计（先写文档）",
+          "tasks": [
+            {
+              "description": "在 plan.md 写清 bucket 选择矩阵（业务线×接口类型→bucket），并给出一个可复制的示例（在 publicRequest/privateRequest 中 acquireSync）",
+              "acceptance": "plan.md 有示例 + 明确的默认策略（例如无法识别时的保守选择）"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "在 publicRequest/privateRequest 中插入 acquireSync(1)；必要时补齐/重命名 bucket 定义；确保每次请求都会走限流",
+              "acceptance": "所有 public/private 请求在 fetch 前都会 acquireSync；业务线/接口类型正确路由；不捕获 token 不足异常"
+            }
+          ]
+        },
+        {
+          "name": "验证与交接",
+          "tasks": [
+            {
+              "description": "新增最小单测并运行 vendor-huobi 的 tsc/heft test；更新 context/SESSION_NOTES 写入可复现命令与后续 TODO",
+              "acceptance": "测试通过；文档包含可复现命令；context.md 有快速交接"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2025-12-25T16:36:15.703Z",
+      "status": "approved",
+      "decidedAt": "2025-12-25T16:39:56.385Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "huobi-publicprivate-api-tokenbucket"
     }
   ]
 }
