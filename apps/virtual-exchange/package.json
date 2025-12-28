@@ -8,7 +8,8 @@
     "temp"
   ],
   "scripts": {
-    "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
+    "build": "heft test --clean",
+    "test": "heft test --clean"
   },
   "dependencies": {
     "@yuants/protocol": "workspace:*",
@@ -27,7 +28,6 @@
     "ajv": "~8.12.0"
   },
   "devDependencies": {
-    "@microsoft/api-extractor": "~7.30.0",
     "@rushstack/heft": "~0.47.5",
     "@rushstack/heft-jest-plugin": "~0.16.8",
     "@rushstack/heft-node-rig": "~1.10.7",
