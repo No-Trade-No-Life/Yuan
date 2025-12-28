@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-virtual-exchange
 
-This log was last generated on Thu, 25 Dec 2025 16:59:52 GMT and should not be manually modified.
+This log was last generated on Sun, 28 Dec 2025 14:50:18 GMT and should not be manually modified.
+
+## 0.13.0
+Sun, 28 Dec 2025 14:50:18 GMT
+
+### Minor changes
+
+- add backward collector
 
 ## 0.12.1
 Thu, 25 Dec 2025 16:59:52 GMT

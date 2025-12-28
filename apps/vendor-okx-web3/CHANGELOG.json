@@ -2,6 +2,35 @@
   "name": "@yuants/vendor-okx-web3",
   "entries": [
     {
+      "version": "0.1.42",
+      "tag": "@yuants/vendor-okx-web3_v0.1.42",
+      "date": "Sun, 28 Dec 2025 14:50:18 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.53.7`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.19.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.35`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.11.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.36`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.41",
       "tag": "@yuants/vendor-okx-web3_v0.1.41",
       "date": "Wed, 24 Dec 2025 10:03:02 GMT",
