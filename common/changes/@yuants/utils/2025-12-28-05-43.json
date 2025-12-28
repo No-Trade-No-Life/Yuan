@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/utils",
+      "comment": "support Explicit Resource Management for semaphore and resourcePool",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/utils"
+}

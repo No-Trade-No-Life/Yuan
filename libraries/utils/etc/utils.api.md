@@ -111,8 +111,8 @@ export interface IEd25519KeyPair {
 
 // @public
 export interface IResourcePool {
-    acquire(tokens?: number, signal?: AbortSignal): Promise<void>;
-    acquireSync(tokens?: number): void;
+    acquire(tokens?: number, signal?: AbortSignal): Promise<Disposable>;
+    acquireSync(tokens?: number): Disposable;
     read(): number;
     release(tokens?: number): void;
 }
@@ -124,8 +124,8 @@ export interface IResourcePoolOptions {
 
 // @public
 export interface ISemaphore {
-    acquire(perms?: number, signal?: AbortSignal): Promise<void>;
-    acquireSync(perms?: number): void;
+    acquire(perms?: number, signal?: AbortSignal): Promise<Disposable>;
+    acquireSync(perms?: number): Disposable;
     read(): number;
     release(perms?: number): void;
 }
