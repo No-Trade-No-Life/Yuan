@@ -1,0 +1,888 @@
+{
+  "range": {
+    "old": "04b906f0d5b88d7ca5d52e0e2ed12ffb655a0845",
+    "new": "a3371032e14f7d0721b1defcf1c166a61a5f84cd",
+    "label": "04b906f0d..a3371032e",
+    "startDate": "2025-12-26",
+    "endDate": "2025-12-26",
+    "commitCount": 3,
+    "generatedAt": "2025-12-27T00:06:14.360Z"
+  },
+  "contributors": [
+    {
+      "name": "Siyuan Wang",
+      "email": "c.one@thrimbda.com",
+      "commits": 3
+    }
+  ],
+  "directoryAnalysis": {
+    "topLevel": [
+      {
+        "dir": ".legion",
+        "fileCount": 5
+      },
+      {
+        "dir": ".claude",
+        "fileCount": 2
+      },
+      {
+        "dir": "apps",
+        "fileCount": 2
+      },
+      {
+        "dir": ".github",
+        "fileCount": 1
+      },
+      {
+        "dir": "common",
+        "fileCount": 1
+      }
+    ],
+    "projects": [
+      {
+        "project": ".legion",
+        "fileCount": 5,
+        "marker": null
+      },
+      {
+        "project": ".claude",
+        "fileCount": 2,
+        "marker": null
+      },
+      {
+        "project": "apps/vendor-huobi",
+        "fileCount": 2,
+        "marker": "package.json"
+      },
+      {
+        "project": ".github",
+        "fileCount": 1,
+        "marker": null
+      },
+      {
+        "project": "common",
+        "fileCount": 1,
+        "marker": null
+      }
+    ],
+    "markersUsed": [
+      "package.json",
+      "Cargo.toml",
+      "go.mod",
+      "requirements.txt",
+      "pyproject.toml",
+      "setup.py",
+      "pom.xml",
+      "build.gradle",
+      "build.gradle.kts",
+      "CMakeLists.txt",
+      "Makefile",
+      "pubspec.yaml",
+      "mix.exs",
+      "Gemfile",
+      "composer.json"
+    ]
+  },
+  "commits": [
+    {
+      "hash": "cb5126ccdefa165f4da1a7087222320bbc90e6fd",
+      "short": "cb5126ccd",
+      "author": "Siyuan Wang",
+      "email": "c.one@thrimbda.com",
+      "authoredAt": "2025-12-26 12:09:34 +0800",
+      "subject": "feat: implement token bucket for Huobi public/private API rate limiting (#2415)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 76,
+          "deletions": 3,
+          "path": ".legion/config.json",
+          "changeType": "modified",
+          "patch": "commit cb5126ccdefa165f4da1a7087222320bbc90e6fd\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Fri Dec 26 12:09:34 2025 +0800\n\n    feat: implement token bucket for Huobi public/private API rate limiting (#2415)\n    \n    - Updated config to switch current task to Huobi token bucket implementation.\n    - Archived previous VEX series data task and added new Huobi task with detailed proposal.\n    - Enhanced ledger to track task progress and decisions related to Huobi API rate limiting.\n    - Created context and plan documents outlining the implementation strategy for token buckets.\n    - Refactored public and private API methods to integrate rate limiting using token buckets.\n    - Added helper functions for managing rate limits based on business and interface types.\n\ndiff --git a/.legion/config.json b/.legion/config.json\nindex 48e076fea..8b8157484 100644\n--- a/.legion/config.json\n+++ b/.legion/config.json\n@@ -3 +3 @@\n-  \"currentTask\": \"vex-series-data-ohlcinterestrate-ohlc-v2\",\n+  \"currentTask\": \"huobi-publicprivate-api-tokenbucket\",\n@@ -83 +83 @@\n-      \"status\": \"active\",\n+      \"status\": \"archived\",\n@@ -85 +85 @@\n-      \"updatedAt\": \"2025-12-25T10:36:18.437Z\"\n+      \"updatedAt\": \"2025-12-25T16:33:44.326Z\"\n@@ -99,0 +100,7 @@\n+    },\n+    {\n+      \"id\": \"huobi-publicprivate-api-tokenbucket\",\n+      \"name\": \"Huobi public/private API tokenBucket：按业务与接口类型主动限流\",\n+      \"status\": \"active\",\n+      \"createdAt\": \"2025-12-25T16:39:56.385Z\",\n+      \"updatedAt\": \"2025-12-25T17:04:29.941Z\"\n@@ -1081,0 +1089,66 @@\n+    },\n+    {\n+      \"id\": \"proposal-mjlo00k5-ff52d3\",\n+      \"name\": \"Huobi public/private API tokenBucket：按业务与接口类型主动限流\",\n+      \"goal\": \"在 apps/vendor-huobi 的 public-api/private-api 发起请求前，按业务线（交割/币本位永续/U本位/现货）与接口类型（行情/非行情，交易/查询）选择对应 tokenBucket 并 acquireSync(1) 做主动限流。\",\n+      \"rationale\": \"Huobi/HTX 的公开与私有 REST 都有明确的 IP/UID 级访问上限；当前仓库已创建 tokenBucket 但未在请求前实际扣减，容易触发 429/封禁。将限流前置到 publicRequest/privateRequest，并按业务线拆分 bucket，可同时满足“交割/币本位永续/U本位分开限频”与“行情/非行情、交易/查询分开额度”的要求。\",\n+      \"points\": [\n+        \"复用你已在 public-api/private-api 创建的 bucket（必要时按业务线补齐命名与参数）；调用点只 acquireSync，不捕获 token 不足异常\",\n+        \"publicRequest：按 path 判断行情类 vs 非行情类；行情类按 1s/800（IP 维度），非行情按 3s/120（IP 维度）\",\n+        \"privateRequest：按 path/方法/语义判断交易 vs 查询；普通用户按 3s/36（trade）与 3s/36（query）（UID 维度，代码以 access_key 作为隔离 key）；并按业务线（交割/币本位永续/U本位）拆分桶\",\n+        \"交割合约/币本位永续/U本位/现货：根据 api_root + path 前缀（例如 /linear-swap-, /swap-, /contract- 等）与必要时的参数（contract_code/business_type）判断\",\n+        \"用 scopeError 包裹 acquireSync 记录 metadata（api_root/path/method/bucketId/type/business），异常直接 throw\",\n+        \"补最小单测：不同业务/接口类型会选择不同 bucket；并运行 vendor-huobi 的 tsc/heft test\"\n+      ],\n+      \"scope\": [\n+        \"apps/vendor-huobi/src/api/public-api.ts\",\n+        \"apps/vendor-huobi/src/api/private-api.ts\",\n+        \"apps/vendor-huobi/SESSION_NOTES.md（若存在）或等效上下文文件\",\n+        \".legion/tasks/<new-task>/plan.md\",\n+        \".legion/tasks/<new-task>/context.md\",\n+        \".legion/tasks/<new-task>/tasks.md\"\n+      ],\n+      \"phases\": [\n+        {\n+          \"name\": \"调研\",\n+          \"tasks\": [\n+            {\n+              \"description\": \"梳理 vendor-huobi 现有 tokenBucket 定义与所有请求入口；列出业务线识别规则（交割/币本位永续/U本位/现货）与接口类型识别规则（行情/非行情、交易/查询）\",\n+              \"acceptance\": \"context.md 记录 bucket 列表（bucketId/参数/用途）、识别规则、以及不确定点与默认策略\"\n+            }\n+          ]\n+        },\n+        {\n+          \"name\": \"设计（先写文档）\",\n+          \"tasks\": [\n+            {\n+              \"description\": \"在 plan.md 写清 bucket 选择矩阵（业务线×接口类型→bucket），并给出一个可复制的示例（在 publicRequest/privateRequest 中 acquireSync）\",\n+              \"acceptance\": \"plan.md 有示例 + 明确的默认策略（例如无法识别时的保守选择）\"\n+            }\n+          ]\n+        },\n+        {\n+          \"name\": \"实现\",\n+          \"tasks\": [\n+            {\n+              \"description\": \"在 publicRequest/privateRequest 中插入 acquireSync(1)；必要时补齐/重命名 bucket 定义；确保每次请求都会走限流\",\n+              \"acceptance\": \"所有 public/private 请求在 fetch 前都会 acquireSync；业务线/接口类型正确路由；不捕获 token 不足异常\"\n+            }\n+          ]\n+        },\n+        {\n+          \"name\": \"验证与交接\",\n+          \"tasks\": [\n+            {\n+              \"description\": \"新增最小单测并运行 vendor-huobi 的 tsc/heft test；更新 context/SESSION_NOTES 写入可复现命令与后续 TODO\",\n+              \"acceptance\": \"测试通过；文档包含可复现命令；context.md 有快速交接\"\n+            }\n+          ]\n+        }\n+      ],\n+      \"proposedBy\": \"Claude\",\n+      \"proposedAt\": \"2025-12-25T16:36:15.703Z\",\n+      \"status\": \"approved\",\n+      \"decidedAt\": \"2025-12-25T16:39:56.385Z\",\n+      \"decidedBy\": \"Claude\",\n+      \"createdTaskId\": \"huobi-publicprivate-api-tokenbucket\"\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 21,
+          "deletions": 0,
+          "path": ".legion/ledger.csv",
+          "changeType": "added",
+          "patch": "commit cb5126ccdefa165f4da1a7087222320bbc90e6fd\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Fri Dec 26 12:09:34 2025 +0800\n\n    feat: implement token bucket for Huobi public/private API rate limiting (#2415)\n    \n    - Updated config to switch current task to Huobi token bucket implementation.\n    - Archived previous VEX series data task and added new Huobi task with detailed proposal.\n    - Enhanced ledger to track task progress and decisions related to Huobi API rate limiting.\n    - Created context and plan documents outlining the implementation strategy for token buckets.\n    - Refactored public and private API methods to integrate rate limiting using token buckets.\n    - Added helper functions for managing rate limits based on business and interface types.\n\ndiff --git a/.legion/ledger.csv b/.legion/ledger.csv\nindex 3741fc7ae..b83cd9e25 100644\n--- a/.legion/ledger.csv\n+++ b/.legion/ledger.csv\n@@ -573,0 +574,21 @@\n+2025-12-25T16:33:30.161Z,legion_get_status,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,,success\n+2025-12-25T16:33:37.417Z,legion_list_reviews,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,status: open,success\n+2025-12-25T16:33:44.331Z,legion_archive_task,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,taskId: vex-series-data-ohlcinterestrate-ohlc-v2,success\n+2025-12-25T16:36:15.713Z,legion_propose_task,,,Claude,name: Huobi public/private API tokenBucket：按业务与接口类型主动限流,success\n+2025-12-25T16:39:56.391Z,legion_approve_proposal,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,proposalId: proposal-mjlo00k5-ff52d3,success\n+2025-12-25T16:40:00.977Z,legion_switch_task,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,taskId: huobi-publicprivate-api-tokenbucket,success\n+2025-12-25T16:40:04.669Z,legion_read_context,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,\"section: all, includeReviews: true\",success\n+2025-12-25T16:40:08.658Z,legion_update_tasks,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,setCurrentTask: phase 1,success\n+2025-12-25T16:40:12.743Z,legion_update_context,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,,success\n+2025-12-25T16:40:24.634Z,legion_update_context,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,progress.completed: 已确认当前 tokenBucket 定义位置：public-api.ts 里有 `marketDataAPIBucket(800/1s)` 与 `nonMarketDataAPIBucket(120/3s)`；private-api.ts 里有 `tradeAPIBucket(36/3s)` 与 `queryAPIBu,success\n+2025-12-25T16:40:28.321Z,legion_update_tasks,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,completeTask: phase 1,success\n+2025-12-25T16:47:42.896Z,legion_list_reviews,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,status: open,success\n+2025-12-25T16:47:50.469Z,legion_archive_task,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,taskId: huobi-publicprivate-api-tokenbucket,success\n+2025-12-25T16:48:37.548Z,legion_get_status,,,Claude,,success\n+2025-12-25T16:49:16.538Z,legion_get_status,,,Claude,,success\n+2025-12-25T16:49:16.611Z,legion_list_reviews,,,Claude,status: open,failed\n+2025-12-25T16:49:21.317Z,legion_list_proposals,,,Claude,status: pending,success\n+2025-12-25T16:51:11.059Z,legion_list_reviews,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,status: open,success\n+2025-12-25T17:04:29.949Z,legion_switch_task,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,taskId: huobi-publicprivate-api-tokenbucket,success\n+2025-12-25T17:04:34.837Z,legion_list_reviews,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,status: open,success\n+2025-12-25T17:04:35.396Z,legion_read_context,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,\"section: all, includeReviews: true\",success\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 59,
+          "deletions": 0,
+          "path": ".legion/tasks/huobi-publicprivate-api-tokenbucket/context.md",
+          "changeType": "added",
+          "patch": "commit cb5126ccdefa165f4da1a7087222320bbc90e6fd\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Fri Dec 26 12:09:34 2025 +0800\n\n    feat: implement token bucket for Huobi public/private API rate limiting (#2415)\n    \n    - Updated config to switch current task to Huobi token bucket implementation.\n    - Archived previous VEX series data task and added new Huobi task with detailed proposal.\n    - Enhanced ledger to track task progress and decisions related to Huobi API rate limiting.\n    - Created context and plan documents outlining the implementation strategy for token buckets.\n    - Refactored public and private API methods to integrate rate limiting using token buckets.\n    - Added helper functions for managing rate limits based on business and interface types.\n\ndiff --git a/.legion/tasks/huobi-publicprivate-api-tokenbucket/context.md b/.legion/tasks/huobi-publicprivate-api-tokenbucket/context.md\nnew file mode 100644\nindex 000000000..c14bd5e6e\n--- /dev/null\n+++ b/.legion/tasks/huobi-publicprivate-api-tokenbucket/context.md\n@@ -0,0 +1,59 @@\n+# Huobi public/private API tokenBucket：按业务与接口类型主动限流 - 上下文\n+\n+## 会话进展 (2025-12-26)\n+\n+### ✅ 已完成\n+\n+- 已确认 tokenBucket 定义与使用位置：public-api/private-api 在模块初始化阶段 create 固定 bucket（IP 维度），private-api 按 `access_key` 动态 create per-UID bucket；请求侧只 `acquireSync(1)`（不捕获 token 不足异常）\n+- 已调整实现为“调用点写死，不做运行时识别”：public/private 都提供固定的 request helper（按 business + interfaceType），exported API 直接选用对应 helper\n+- 已在 plan.md 写清 bucket 选择矩阵（业务线 × 接口类型 →bucket）与可复制示例（包含“global + business 双桶扣减”的策略）\n+- 已在 `publicRequest` / `privateRequest` 中接入 `scopeError + acquireSync(1)` 并补齐 bucketId 命名（便于排障）\n+- 已新增最小单测：`apps/vendor-huobi/src/api/public-api.rateLimit.test.ts`、`apps/vendor-huobi/src/api/private-api.rateLimit.test.ts`\n+- 已验证（apps/vendor-huobi）：`npx tsc --noEmit --project tsconfig.json`、`npx heft test --clean`\n+\n+### 🟡 进行中\n+\n+- (暂无)\n+\n+### ⚠️ 阻塞/待定\n+\n+(暂无)\n+\n+---\n+\n+## 关键文件\n+\n+- `apps/vendor-huobi/src/api/public-api.ts`: publicRequest（将接入 market/non-market + business bucket）\n+- `apps/vendor-huobi/src/api/private-api.ts`: privateRequest（将接入 trade/query + business bucket）\n+- `.legion/tasks/huobi-publicprivate-api-tokenbucket/plan.md`: bucket 选择矩阵与示例\n+- `apps/vendor-huobi/src/api/public-api.rateLimit.test.ts`: public bucket 路由最小验证\n+- `apps/vendor-huobi/src/api/private-api.rateLimit.test.ts`: private bucket 路由最小验证\n+\n+---\n+\n+## 关键决策\n+\n+| 决策                                                                                                                                  | 原因                                                                                                                     | 替代方案                                                             | 日期       |\n+| ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- | ---------- |\n+| 对“交割/币本位永续/U 本位分开限频”与“共享总额度”两种口径同时满足：对行情类与私有 trade/query 同时扣减 global bucket + business bucket | 用户需求要求业务线拆分；限频描述又存在“总额度共享”的口径；双桶扣减可同时保证不超总量、也保留业务维度可观测性             | 只扣 global（不做业务拆分）；或只扣 business（可能绕过总量共享上限） | 2025-12-26 |\n+| 不做无调用点的预留（swap/contract）                                                                                                   | 当前 vendor-huobi 实际只覆盖 spot 与 linear-swap；保留未用分支会误导维护者，且容易让文档与代码“看起来支持但实际上没覆盖” | 保留 /swap- /contract- 的 path 预留分支与 bucketId                   | 2025-12-26 |\n+| 不做运行时识别（开闭原则）：在调用点显式选择 request helper                                                                           | 新增业务/接口类型时，只需要新增对应 helper 与调用点引用，不需要回头改一个“分类器”从而牵动大量已有逻辑                    | 在 request 内通过 api_root/path/method 自动识别                      | 2025-12-26 |\n+\n+---\n+\n+## 快速交接\n+\n+**下次继续从这里开始：**\n+\n+1. 校验“行情类 market data”的口径是否需要包含更多接口（例如深度/聚合行情/溢价指数/预测资金费率 K 线等）；如需要，补充 `isPublicMarketDataRequest` 的规则\n+2. 若后续要接入币本位永续/交割合约：不要“预留”，而是在真正新增调用点时直接新增对应 request helper + 最小测试\n+3. 如需更细分（例如 trade/query 之外的子类），在 plan.md 补充新的判定规则并加最小测试\n+\n+**注意事项：**\n+\n+- tokenBucket 第一次调用是 create：保持 bucket 定义在模块顶层；请求侧只调用 `acquireSync(1)`\n+- `swap_cross_openorders` / `swap_cross_position_info` 属于“查询接口但使用 POST”，需要从 trade 规则里排除\n+\n+---\n+\n+_最后更新: 2025-12-26 11:20 by Codex_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 90,
+          "deletions": 0,
+          "path": ".legion/tasks/huobi-publicprivate-api-tokenbucket/plan.md",
+          "changeType": "added",
+          "patch": "commit cb5126ccdefa165f4da1a7087222320bbc90e6fd\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Fri Dec 26 12:09:34 2025 +0800\n\n    feat: implement token bucket for Huobi public/private API rate limiting (#2415)\n    \n    - Updated config to switch current task to Huobi token bucket implementation.\n    - Archived previous VEX series data task and added new Huobi task with detailed proposal.\n    - Enhanced ledger to track task progress and decisions related to Huobi API rate limiting.\n    - Created context and plan documents outlining the implementation strategy for token buckets.\n    - Refactored public and private API methods to integrate rate limiting using token buckets.\n    - Added helper functions for managing rate limits based on business and interface types.\n\ndiff --git a/.legion/tasks/huobi-publicprivate-api-tokenbucket/plan.md b/.legion/tasks/huobi-publicprivate-api-tokenbucket/plan.md\nnew file mode 100644\nindex 000000000..4a319ffcf\n--- /dev/null\n+++ b/.legion/tasks/huobi-publicprivate-api-tokenbucket/plan.md\n@@ -0,0 +1,90 @@\n+# Huobi public/private API tokenBucket：按业务与接口类型主动限流\n+\n+## 目标\n+\n+在 apps/vendor-huobi 的 public-api/private-api 发起请求前，按业务线（现货 / U 本位合约）与接口类型（行情/非行情，交易/查询）选择对应 tokenBucket 并 acquireSync(1) 做主动限流。\n+\n+## 要点\n+\n+- public-api/private-api 里创建 bucket（首次 create），请求时只 `acquireSync(1)`，不捕获 token 不足异常\n+- 不做“运行时识别/分类判断”：在每个 API 文件内提供固定的 request helper，并在调用点显式选择\n+  - public：`spotMarketRequest / spotNonMarketRequest / linearSwapMarketRequest / linearSwapNonMarketRequest`\n+  - private：`spotPrivateQueryRequest / spotPrivateTradeRequest / linearSwapPrivateQueryRequest / linearSwapPrivateTradeRequest`\n+- public（IP 维度）分两类，调用点直接选择对应 helper\n+  - 行情类（market data）：`800/1s`（spot 与 linear-swap 共享总额度，并额外扣减各自业务 bucket）\n+  - 非行情类（non-market public）：`120/3s`\n+- private（UID 维度，以 `credential.access_key` 作为隔离 key）分两类，调用点直接选择对应 helper\n+  - 交易接口（trade）：`36/3s`\n+  - 查询接口（query）：`36/3s`（包含 `swap_cross_openorders` / `swap_cross_position_info` 这类 POST 但语义为查询的接口）\n+- 兼容“共享总额度”与“业务线拆分”两种口径：对行情类与私有 trade/query 同时扣减 `global bucket` + `business bucket`\n+- 用 `scopeError` 仅包裹 acquireSync 并记录 metadata（api_root/path/method/bucketId/interfaceType/business），异常直接 throw\n+\n+> [REVIEW] 你理解的不对，行清类\n+\n+## 范围\n+\n+- apps/vendor-huobi/src/api/public-api.ts\n+- apps/vendor-huobi/src/api/private-api.ts\n+- apps/vendor-huobi/src/api/public-api.rateLimit.test.ts\n+- apps/vendor-huobi/src/api/private-api.rateLimit.test.ts\n+- .legion/tasks/huobi-publicprivate-api-tokenbucket/plan.md\n+- .legion/tasks/huobi-publicprivate-api-tokenbucket/context.md\n+- .legion/tasks/huobi-publicprivate-api-tokenbucket/tasks.md\n+\n+## 阶段概览\n+\n+1. **调研** - 1 个任务\n+2. **设计（先写文档）** - 1 个任务\n+3. **实现** - 1 个任务\n+4. **验证与交接** - 1 个任务\n+\n+---\n+\n+## 设计细节\n+\n+### 1) bucket 列表（首次 create）\n+\n+public（IP 维度）：\n+\n+- `HUOBI_PUBLIC_MARKET_IP_1S_ALL`：800/1s（行情类，spot 与 linear-swap 共享）\n+- `HUOBI_PUBLIC_MARKET_IP_1S_LINEAR_SWAP`：800/1s（U 本位合约）\n+- `HUOBI_PUBLIC_MARKET_IP_1S_SPOT`：800/1s（现货行情，暂与合约同口径）\n+- `HUOBI_PUBLIC_NON_MARKET_IP_3S_ALL`：120/3s（非行情公开接口）\n+\n+private（UID 维度，以 `access_key` 隔离；同时扣减 global + business）：\n+\n+- `HUOBI_PRIVATE_TRADE_UID_3S_ALL:<access_key>`：36/3s\n+- `HUOBI_PRIVATE_QUERY_UID_3S_ALL:<access_key>`：36/3s\n+- `HUOBI_PRIVATE_TRADE_UID_3S_<BUSINESS>:<access_key>`：36/3s（BUSINESS=linear-swap/spot）\n+- `HUOBI_PRIVATE_QUERY_UID_3S_<BUSINESS>:<access_key>`：36/3s\n+\n+### 2) 接口类型识别规则\n+\n+不在 request 内部做自动识别。每个 exported API 调用点在编写时直接选择对应的 helper：\n+\n+- public：该 endpoint 是否属于行情类（market data）由调用点决定（与文档注释对应）\n+- private：该 endpoint 是否属于 trade/query 由调用点决定（与文档“读取/交易”对应）\n+\n+### 3) 示例（可直接照抄）\n+\n+```ts\n+import { scopeError } from '@yuants/utils';\n+\n+const acquire = (bucketId: string, meta: Record<string, unknown>) =>\n+  scopeError('HUOBI_API_RATE_LIMIT', { ...meta, bucketId }, () => tokenBucket(bucketId).acquireSync(1));\n+\n+const spotMarketRequest = async (method: string, path: string, params?: unknown) => {\n+  const meta = {\n+    method,\n+    api_root: 'api.huobi.pro',\n+    path,\n+    business: 'spot' as const,\n+    interfaceType: 'market' as const,\n+  };\n+  acquire('HUOBI_PUBLIC_MARKET_IP_1S_ALL', meta);\n+  acquire('HUOBI_PUBLIC_MARKET_IP_1S_SPOT', meta);\n+  // ...then fetch\n+};\n+```\n+\n+_创建于: 2025-12-26 | 最后更新: 2025-12-26_\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "acquire",
+              "code": "const acquire = (bucketId: string, meta: Record<string, unknown>) =>\n  scopeError('HUOBI_API_RATE_LIMIT', { ...meta, bucketId }, () => tokenBucket(bucketId).acquireSync(1));\n",
+              "lineStart": 73,
+              "lineEnd": 75
+            },
+            {
+              "type": "function",
+              "name": "spotMarketRequest",
+              "code": "const spotMarketRequest = async (method: string, path: string, params?: unknown) => {",
+              "lineStart": 76,
+              "lineEnd": 76
+            },
+            {
+              "type": "function",
+              "name": "meta",
+              "code": "  const meta = {\n    method,\n    api_root: 'api.huobi.pro',\n    path,\n    business: 'spot' as const,\n    interfaceType: 'market' as const,\n  };\n  acquire('HUOBI_PUBLIC_MARKET_IP_1S_ALL', meta);\n  acquire('HUOBI_PUBLIC_MARKET_IP_1S_SPOT', meta);\n  // ...then fetch\n};\n```\n\n_创建于: 2025-12-26 | 最后更新: 2025-12-26_",
+              "lineStart": 77,
+              "lineEnd": 91
+            }
+          ]
+        },
+        {
+          "additions": 41,
+          "deletions": 0,
+          "path": ".legion/tasks/huobi-publicprivate-api-tokenbucket/tasks.md",
+          "changeType": "added",
+          "patch": "commit cb5126ccdefa165f4da1a7087222320bbc90e6fd\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Fri Dec 26 12:09:34 2025 +0800\n\n    feat: implement token bucket for Huobi public/private API rate limiting (#2415)\n    \n    - Updated config to switch current task to Huobi token bucket implementation.\n    - Archived previous VEX series data task and added new Huobi task with detailed proposal.\n    - Enhanced ledger to track task progress and decisions related to Huobi API rate limiting.\n    - Created context and plan documents outlining the implementation strategy for token buckets.\n    - Refactored public and private API methods to integrate rate limiting using token buckets.\n    - Added helper functions for managing rate limits based on business and interface types.\n\ndiff --git a/.legion/tasks/huobi-publicprivate-api-tokenbucket/tasks.md b/.legion/tasks/huobi-publicprivate-api-tokenbucket/tasks.md\nnew file mode 100644\nindex 000000000..b5b088423\n--- /dev/null\n+++ b/.legion/tasks/huobi-publicprivate-api-tokenbucket/tasks.md\n@@ -0,0 +1,41 @@\n+# Huobi public/private API tokenBucket：按业务与接口类型主动限流 - 任务清单\n+\n+## 快速恢复\n+\n+**当前阶段**: 阶段 3 - 实现\n+**当前任务**: (none)\n+**进度**: 4/4 任务完成\n+\n+---\n+\n+## 阶段 1: 调研 ✅ COMPLETE\n+\n+- [x] 梳理 vendor-huobi 现有 tokenBucket 定义与所有请求入口；列出业务线识别规则（交割/币本位永续/U 本位/现货）与接口类型识别规则（行情/非行情、交易/查询） | 验收: context.md 记录 bucket 列表（bucketId/参数/用途）、识别规则、以及不确定点与默认策略\n+\n+---\n+\n+## 阶段 2: 设计（先写文档） ✅ COMPLETE\n+\n+- [x] 在 plan.md 写清 bucket 选择矩阵（业务线 × 接口类型 →bucket），并给出一个可复制的示例（在 publicRequest/privateRequest 中 acquireSync） | 验收: plan.md 有示例 + 明确的默认策略（例如无法识别时的保守选择）\n+\n+---\n+\n+## 阶段 3: 实现 ✅ COMPLETE\n+\n+- [x] 在 publicRequest/privateRequest 中插入 acquireSync(1)；必要时补齐/重命名 bucket 定义；确保每次请求都会走限流 | 验收: 所有 public/private 请求在 fetch 前都会 acquireSync；业务线/接口类型正确路由；不捕获 token 不足异常\n+\n+---\n+\n+## 阶段 4: 验证与交接 ✅ COMPLETE\n+\n+- [x] 新增最小单测并运行 vendor-huobi 的 tsc/heft test；更新 context/SESSION_NOTES 写入可复现命令与后续 TODO | 验收: 测试通过；文档包含可复现命令；context.md 有快速交接\n+\n+---\n+\n+## 发现的新任务\n+\n+(暂无)\n+\n+---\n+\n+_最后更新: 2025-12-26 00:47_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 69,
+          "deletions": 28,
+          "path": "apps/vendor-huobi/src/api/private-api.ts",
+          "changeType": "modified",
+          "patch": "commit cb5126ccdefa165f4da1a7087222320bbc90e6fd\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Fri Dec 26 12:09:34 2025 +0800\n\n    feat: implement token bucket for Huobi public/private API rate limiting (#2415)\n    \n    - Updated config to switch current task to Huobi token bucket implementation.\n    - Archived previous VEX series data task and added new Huobi task with detailed proposal.\n    - Enhanced ledger to track task progress and decisions related to Huobi API rate limiting.\n    - Created context and plan documents outlining the implementation strategy for token buckets.\n    - Refactored public and private API methods to integrate rate limiting using token buckets.\n    - Added helper functions for managing rate limits based on business and interface types.\n\ndiff --git a/apps/vendor-huobi/src/api/private-api.ts b/apps/vendor-huobi/src/api/private-api.ts\nindex 509a56b35..de66773ec 100644\n--- a/apps/vendor-huobi/src/api/private-api.ts\n+++ b/apps/vendor-huobi/src/api/private-api.ts\n@@ -1 +1,4 @@\n-import { encodeBase64, formatTime, HmacSHA256 } from '@yuants/utils';\n+import { encodeBase64, formatTime, HmacSHA256, scopeError, tokenBucket } from '@yuants/utils';\n+\n+const SPOT_API_ROOT = 'api.huobi.pro';\n+const LINEAR_SWAP_API_ROOT = 'api.hbdm.com';\n@@ -15 +18,19 @@ export const getDefaultCredential = (): ICredential => {\n-export const privateRequest = async (\n+// https://www.htx.com/zh-cn/opend/newApiPages/?id=474\n+type HuobiBusiness = 'spot' | 'linear-swap';\n+type HuobiPrivateInterfaceType = 'trade' | 'query';\n+\n+const createdBuckets = new Set<string>();\n+const getOrCreatePrivateBucket = (bucketId: string) => {\n+  if (!createdBuckets.has(bucketId)) {\n+    createdBuckets.add(bucketId);\n+    tokenBucket(bucketId, { capacity: 36, refillAmount: 36, refillInterval: 3000 });\n+  }\n+  return tokenBucket(bucketId);\n+};\n+\n+const acquirePrivate = (bucketId: string, meta: Record<string, unknown>) => {\n+  const bucket = getOrCreatePrivateBucket(bucketId);\n+  scopeError('HUOBI_API_RATE_LIMIT', { ...meta, bucketId }, () => bucket.acquireSync(1));\n+};\n+\n+const privateRequestWithRateLimit = async (\n@@ -16,0 +38,2 @@ export const privateRequest = async (\n+  interfaceType: HuobiPrivateInterfaceType,\n+  business: HuobiBusiness,\n@@ -21,0 +45,9 @@ export const privateRequest = async (\n+  const meta = { method, api_root, path, business, interfaceType, access_key: credential.access_key };\n+\n+  const interfaceTypeUpper = interfaceType.toUpperCase();\n+  const businessUpper = business.toUpperCase();\n+  const globalBucketId = `HUOBI_PRIVATE_${interfaceTypeUpper}_UID_3S_ALL:${credential.access_key}`;\n+  const businessBucketId = `HUOBI_PRIVATE_${interfaceTypeUpper}_UID_3S_${businessUpper}:${credential.access_key}`;\n+  acquirePrivate(globalBucketId, meta);\n+  acquirePrivate(businessBucketId, meta);\n+\n@@ -65,0 +98,12 @@ export const privateRequest = async (\n+const spotPrivateQueryRequest = (credential: ICredential, method: string, path: string, params?: any) =>\n+  privateRequestWithRateLimit(credential, 'query', 'spot', method, path, SPOT_API_ROOT, params);\n+\n+const spotPrivateTradeRequest = (credential: ICredential, method: string, path: string, params?: any) =>\n+  privateRequestWithRateLimit(credential, 'trade', 'spot', method, path, SPOT_API_ROOT, params);\n+\n+const linearSwapPrivateQueryRequest = (credential: ICredential, method: string, path: string, params?: any) =>\n+  privateRequestWithRateLimit(credential, 'query', 'linear-swap', method, path, LINEAR_SWAP_API_ROOT, params);\n+\n+const linearSwapPrivateTradeRequest = (credential: ICredential, method: string, path: string, params?: any) =>\n+  privateRequestWithRateLimit(credential, 'trade', 'linear-swap', method, path, LINEAR_SWAP_API_ROOT, params);\n+\n@@ -82 +126 @@ export const getAccount = (\n-  return privateRequest(credential, 'GET', '/v1/account/accounts', 'api.huobi.pro');\n+  return spotPrivateQueryRequest(credential, 'GET', '/v1/account/accounts');\n@@ -91 +135 @@ export const getUid = (credential: ICredential): Promise<{ data: number; code: n\n-  return privateRequest(credential, 'GET', '/v2/user/uid', 'api.huobi.pro');\n+  return spotPrivateQueryRequest(credential, 'GET', '/v2/user/uid');\n@@ -114 +158 @@ export const getUnifiedAccountInfo = (\n-  return privateRequest(credential, 'GET', '/linear-swap-api/v3/unified_account_info', 'api.hbdm.com');\n+  return linearSwapPrivateQueryRequest(credential, 'GET', '/linear-swap-api/v3/unified_account_info');\n@@ -158 +202 @@ export const getSwapCrossPositionInfo = (\n-  return privateRequest(\n+  return linearSwapPrivateQueryRequest(\n@@ -162 +205,0 @@ export const getSwapCrossPositionInfo = (\n-    'api.hbdm.com',\n@@ -198 +241 @@ export const getSwapOpenOrders = (\n-  return privateRequest(\n+  return linearSwapPrivateQueryRequest(\n@@ -202 +244,0 @@ export const getSwapOpenOrders = (\n-    'api.hbdm.com',\n@@ -225 +267 @@ export const getSpotAccountBalance = (\n-  return privateRequest(credential, 'GET', `/v1/account/accounts/${account_uid}/balance`, 'api.huobi.pro');\n+  return spotPrivateQueryRequest(credential, 'GET', `/v1/account/accounts/${account_uid}/balance`);\n@@ -243 +285 @@ export const getCrossMarginLoanInfo = (\n-  return privateRequest(credential, 'GET', '/v1/cross-margin/loan-info', 'api.huobi.pro');\n+  return spotPrivateQueryRequest(credential, 'GET', '/v1/cross-margin/loan-info');\n@@ -266 +308 @@ export const postSpotOrder = (\n-  return privateRequest(credential, 'POST', `/v1/order/auto/place`, 'api.huobi.pro', params);\n+  return spotPrivateTradeRequest(credential, 'POST', `/v1/order/auto/place`, params);\n@@ -288 +330 @@ export const postSwapOrder = (\n-  return privateRequest(credential, 'POST', '/linear-swap-api/v1/swap_cross_order', 'api.hbdm.com', params);\n+  return linearSwapPrivateTradeRequest(credential, 'POST', '/linear-swap-api/v1/swap_cross_order', params);\n@@ -308 +350 @@ export const getSpotAccountDepositAddresses = (\n-  return privateRequest(credential, 'GET', `/v2/account/deposit/address`, 'api.huobi.pro', params);\n+  return spotPrivateQueryRequest(credential, 'GET', `/v2/account/deposit/address`, params);\n@@ -326 +368 @@ export const getAccountLedger = (\n-  return privateRequest(credential, 'GET', `/v2/account/ledger`, 'api.huobi.pro', params);\n+  return spotPrivateQueryRequest(credential, 'GET', `/v2/account/ledger`, params);\n@@ -341 +383 @@ export const postSuperMarginAccountTransferOut = (\n-  return privateRequest(credential, 'POST', `/v1/cross-margin/transfer-out`, 'api.huobi.pro', params);\n+  return spotPrivateTradeRequest(credential, 'POST', `/v1/cross-margin/transfer-out`, params);\n@@ -356 +398 @@ export const postSuperMarginAccountTransferIn = (\n-  return privateRequest(credential, 'POST', `/v1/cross-margin/transfer-in`, 'api.huobi.pro', params);\n+  return spotPrivateTradeRequest(credential, 'POST', `/v1/cross-margin/transfer-in`, params);\n@@ -374 +416 @@ export const postSpotAccountTransfer = (\n-  return privateRequest(credential, 'POST', `/v2/account/transfer`, 'api.huobi.pro', params);\n+  return spotPrivateTradeRequest(credential, 'POST', `/v2/account/transfer`, params);\n@@ -389 +431 @@ export const postBorrow = (\n-  return privateRequest(credential, 'POST', `/v1/cross-margin/orders`, 'api.huobi.pro', params);\n+  return spotPrivateTradeRequest(credential, 'POST', `/v1/cross-margin/orders`, params);\n@@ -410 +452 @@ export const postWithdraw = (\n-  return privateRequest(credential, 'POST', `/v1/dw/withdraw/api/create`, 'api.huobi.pro', params);\n+  return spotPrivateTradeRequest(credential, 'POST', `/v1/dw/withdraw/api/create`, params);\n@@ -446 +488 @@ export const getDepositWithdrawHistory = (\n-  return privateRequest(credential, 'GET', `/v1/query/deposit-withdraw`, 'api.huobi.pro', params);\n+  return spotPrivateQueryRequest(credential, 'GET', `/v1/query/deposit-withdraw`, params);\n@@ -471 +513 @@ export const postSubUserTransfer = (\n-  return privateRequest(credential, 'POST', '/v1/subuser/transfer', 'api.huobi.pro', params);\n+  return spotPrivateTradeRequest(credential, 'POST', '/v1/subuser/transfer', params);\n@@ -496 +538 @@ export const getSubUserList = (\n-  return privateRequest(credential, 'GET', `/v2/sub-user/user-list`, 'api.huobi.pro', params);\n+  return spotPrivateQueryRequest(credential, 'GET', `/v2/sub-user/user-list`, params);\n@@ -523 +565 @@ export const getSwapUnifiedAccountType = (\n-  return privateRequest(credential, 'GET', '/linear-swap-api/v3/swap_unified_account_type', 'api.hbdm.com');\n+  return linearSwapPrivateQueryRequest(credential, 'GET', '/linear-swap-api/v3/swap_unified_account_type');\n@@ -550 +592 @@ export const postSwapSwitchAccountType = (\n-  return privateRequest(\n+  return linearSwapPrivateTradeRequest(\n@@ -554 +595,0 @@ export const postSwapSwitchAccountType = (\n-    'api.hbdm.com',\n@@ -604 +645 @@ export const getV2ReferenceCurrencies = (\n-  return privateRequest(credential, 'GET', '/v2/reference/currencies', 'api.huobi.pro', params);\n+  return spotPrivateQueryRequest(credential, 'GET', '/v2/reference/currencies', params);\n@@ -643 +684 @@ export const getAccountHistory = (\n-  return privateRequest(credential, 'GET', '/v1/account/history', 'api.huobi.pro', params);\n+  return spotPrivateQueryRequest(credential, 'GET', '/v1/account/history', params);\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "SPOT_API_ROOT",
+              "code": "const SPOT_API_ROOT = 'api.huobi.pro';",
+              "lineStart": 3,
+              "lineEnd": 3
+            },
+            {
+              "type": "function",
+              "name": "LINEAR_SWAP_API_ROOT",
+              "code": "const LINEAR_SWAP_API_ROOT = 'api.hbdm.com';\n// https://www.htx.com/zh-cn/opend/newApiPages/?id=474\ntype HuobiBusiness = 'spot' | 'linear-swap';\ntype HuobiPrivateInterfaceType = 'trade' | 'query';\n",
+              "lineStart": 4,
+              "lineEnd": 21
+            },
+            {
+              "type": "function",
+              "name": "createdBuckets",
+              "code": "const createdBuckets = new Set<string>();",
+              "lineStart": 22,
+              "lineEnd": 22
+            },
+            {
+              "type": "function",
+              "name": "getOrCreatePrivateBucket",
+              "code": "const getOrCreatePrivateBucket = (bucketId: string) => {\n  if (!createdBuckets.has(bucketId)) {\n    createdBuckets.add(bucketId);\n    tokenBucket(bucketId, { capacity: 36, refillAmount: 36, refillInterval: 3000 });\n  }\n  return tokenBucket(bucketId);\n};\n",
+              "lineStart": 23,
+              "lineEnd": 30
+            },
+            {
+              "type": "function",
+              "name": "acquirePrivate",
+              "code": "const acquirePrivate = (bucketId: string, meta: Record<string, unknown>) => {",
+              "lineStart": 31,
+              "lineEnd": 31
+            },
+            {
+              "type": "function",
+              "name": "bucket",
+              "code": "  const bucket = getOrCreatePrivateBucket(bucketId);\n  scopeError('HUOBI_API_RATE_LIMIT', { ...meta, bucketId }, () => bucket.acquireSync(1));\n};\n",
+              "lineStart": 32,
+              "lineEnd": 35
+            },
+            {
+              "type": "function",
+              "name": "privateRequestWithRateLimit",
+              "code": "const privateRequestWithRateLimit = async (\n  interfaceType: HuobiPrivateInterfaceType,\n  business: HuobiBusiness,",
+              "lineStart": 36,
+              "lineEnd": 44
+            },
+            {
+              "type": "function",
+              "name": "meta",
+              "code": "const meta = { method, api_root, path, business, interfaceType, access_key: credential.access_key };\n",
+              "lineStart": 45,
+              "lineEnd": 46
+            },
+            {
+              "type": "function",
+              "name": "interfaceTypeUpper",
+              "code": "const interfaceTypeUpper = interfaceType.toUpperCase();",
+              "lineStart": 47,
+              "lineEnd": 47
+            },
+            {
+              "type": "function",
+              "name": "businessUpper",
+              "code": "const businessUpper = business.toUpperCase();",
+              "lineStart": 48,
+              "lineEnd": 48
+            },
+            {
+              "type": "function",
+              "name": "globalBucketId",
+              "code": "const globalBucketId = `HUOBI_PRIVATE_${interfaceTypeUpper}_UID_3S_ALL:${credential.access_key}`;",
+              "lineStart": 49,
+              "lineEnd": 49
+            },
+            {
+              "type": "function",
+              "name": "businessBucketId",
+              "code": "const businessBucketId = `HUOBI_PRIVATE_${interfaceTypeUpper}_UID_3S_${businessUpper}:${credential.access_key}`;\nacquirePrivate(globalBucketId, meta);\nacquirePrivate(businessBucketId, meta);\n",
+              "lineStart": 50,
+              "lineEnd": 97
+            },
+            {
+              "type": "function",
+              "name": "spotPrivateQueryRequest",
+              "code": "const spotPrivateQueryRequest = (credential: ICredential, method: string, path: string, params?: any) =>\n  privateRequestWithRateLimit(credential, 'query', 'spot', method, path, SPOT_API_ROOT, params);\n",
+              "lineStart": 98,
+              "lineEnd": 100
+            },
+            {
+              "type": "function",
+              "name": "spotPrivateTradeRequest",
+              "code": "const spotPrivateTradeRequest = (credential: ICredential, method: string, path: string, params?: any) =>\n  privateRequestWithRateLimit(credential, 'trade', 'spot', method, path, SPOT_API_ROOT, params);\n",
+              "lineStart": 101,
+              "lineEnd": 103
+            },
+            {
+              "type": "function",
+              "name": "linearSwapPrivateQueryRequest",
+              "code": "const linearSwapPrivateQueryRequest = (credential: ICredential, method: string, path: string, params?: any) =>\n  privateRequestWithRateLimit(credential, 'query', 'linear-swap', method, path, LINEAR_SWAP_API_ROOT, params);\n",
+              "lineStart": 104,
+              "lineEnd": 106
+            },
+            {
+              "type": "function",
+              "name": "linearSwapPrivateTradeRequest",
+              "code": "const linearSwapPrivateTradeRequest = (credential: ICredential, method: string, path: string, params?: any) =>\n  privateRequestWithRateLimit(credential, 'trade', 'linear-swap', method, path, LINEAR_SWAP_API_ROOT, params);\n\n  return spotPrivateQueryRequest(credential, 'GET', '/v1/account/accounts');\n  return spotPrivateQueryRequest(credential, 'GET', '/v2/user/uid');\n  return linearSwapPrivateQueryRequest(credential, 'GET', '/linear-swap-api/v3/unified_account_info');\n  return linearSwapPrivateQueryRequest(\n  return linearSwapPrivateQueryRequest(\n  return spotPrivateQueryRequest(credential, 'GET', `/v1/account/accounts/${account_uid}/balance`);\n  return spotPrivateQueryRequest(credential, 'GET', '/v1/cross-margin/loan-info');\n  return spotPrivateTradeRequest(credential, 'POST', `/v1/order/auto/place`, params);\n  return linearSwapPrivateTradeRequest(credential, 'POST', '/linear-swap-api/v1/swap_cross_order', params);\n  return spotPrivateQueryRequest(credential, 'GET', `/v2/account/deposit/address`, params);\n  return spotPrivateQueryRequest(credential, 'GET', `/v2/account/ledger`, params);\n  return spotPrivateTradeRequest(credential, 'POST', `/v1/cross-margin/transfer-out`, params);",
+              "lineStart": 107,
+              "lineEnd": 685
+            }
+          ]
+        },
+        {
+          "additions": 98,
+          "deletions": 16,
+          "path": "apps/vendor-huobi/src/api/public-api.ts",
+          "changeType": "modified",
+          "patch": "commit cb5126ccdefa165f4da1a7087222320bbc90e6fd\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Fri Dec 26 12:09:34 2025 +0800\n\n    feat: implement token bucket for Huobi public/private API rate limiting (#2415)\n    \n    - Updated config to switch current task to Huobi token bucket implementation.\n    - Archived previous VEX series data task and added new Huobi task with detailed proposal.\n    - Enhanced ledger to track task progress and decisions related to Huobi API rate limiting.\n    - Created context and plan documents outlining the implementation strategy for token buckets.\n    - Refactored public and private API methods to integrate rate limiting using token buckets.\n    - Added helper functions for managing rate limits based on business and interface types.\n\ndiff --git a/apps/vendor-huobi/src/api/public-api.ts b/apps/vendor-huobi/src/api/public-api.ts\nindex 730d77c55..7141d4c63 100644\n--- a/apps/vendor-huobi/src/api/public-api.ts\n+++ b/apps/vendor-huobi/src/api/public-api.ts\n@@ -1 +1 @@\n-import { formatTime } from '@yuants/utils';\n+import { formatTime, scopeError, tokenBucket } from '@yuants/utils';\n@@ -6,0 +7,32 @@ const SPOT_API_ROOT = 'api.huobi.pro';\n+type HuobiBusiness = 'spot' | 'linear-swap';\n+type HuobiPublicInterfaceType = 'market' | 'non-market';\n+\n+const acquire = (bucketId: string, meta: Record<string, unknown>) => {\n+  const bucket = tokenBucket(bucketId);\n+  scopeError('HUOBI_API_RATE_LIMIT', { ...meta, bucketId }, () => bucket.acquireSync(1));\n+};\n+\n+// https://www.htx.com/zh-cn/opend/newApiPages/?id=474\n+// 行情类：同一个 IP，总共 1s 最多 800 个请求（合约业务共享总额度）\n+const marketDataIPAllBucketId = 'HUOBI_PUBLIC_MARKET_IP_1S_ALL';\n+tokenBucket(marketDataIPAllBucketId, {\n+  capacity: 800,\n+  refillInterval: 1000,\n+  refillAmount: 800,\n+});\n+\n+// 行情类：按业务线拆分（用于交割/币本位永续/U本位分开限频）\n+const marketDataSpotBucketId = 'HUOBI_PUBLIC_MARKET_IP_1S_SPOT';\n+tokenBucket(marketDataSpotBucketId, { capacity: 800, refillInterval: 1000, refillAmount: 800 });\n+\n+const marketDataLinearSwapBucketId = 'HUOBI_PUBLIC_MARKET_IP_1S_LINEAR_SWAP';\n+tokenBucket(marketDataLinearSwapBucketId, { capacity: 800, refillInterval: 1000, refillAmount: 800 });\n+\n+// 非行情类公开接口：同一个 IP，3s 最多 120 次请求\n+const nonMarketDataIPBucketId = 'HUOBI_PUBLIC_NON_MARKET_IP_3S_ALL';\n+tokenBucket(nonMarketDataIPBucketId, {\n+  capacity: 120,\n+  refillInterval: 3000,\n+  refillAmount: 120,\n+});\n+\n@@ -8 +40 @@ const SPOT_API_ROOT = 'api.huobi.pro';\n- * 公共 API 请求方法\n+ * 公共 API 请求方法（不负责限流；限流由调用点选择对应 helper）\n@@ -39,0 +72,50 @@ async function publicRequest(method: string, path: string, api_root: string, par\n+const spotMarketRequest = async (method: string, path: string, params?: any) => {\n+  const meta = {\n+    method,\n+    api_root: SPOT_API_ROOT,\n+    path,\n+    business: 'spot' as HuobiBusiness,\n+    interfaceType: 'market' as HuobiPublicInterfaceType,\n+  };\n+  acquire(marketDataIPAllBucketId, meta);\n+  acquire(marketDataSpotBucketId, meta);\n+  return publicRequest(method, path, SPOT_API_ROOT, params);\n+};\n+\n+const spotNonMarketRequest = async (method: string, path: string, params?: any) => {\n+  const meta = {\n+    method,\n+    api_root: SPOT_API_ROOT,\n+    path,\n+    business: 'spot' as HuobiBusiness,\n+    interfaceType: 'non-market' as HuobiPublicInterfaceType,\n+  };\n+  acquire(nonMarketDataIPBucketId, meta);\n+  return publicRequest(method, path, SPOT_API_ROOT, params);\n+};\n+\n+const linearSwapMarketRequest = async (method: string, path: string, params?: any) => {\n+  const meta = {\n+    method,\n+    api_root: SWAP_API_ROOT,\n+    path,\n+    business: 'linear-swap' as HuobiBusiness,\n+    interfaceType: 'market' as HuobiPublicInterfaceType,\n+  };\n+  acquire(marketDataIPAllBucketId, meta);\n+  acquire(marketDataLinearSwapBucketId, meta);\n+  return publicRequest(method, path, SWAP_API_ROOT, params);\n+};\n+\n+const linearSwapNonMarketRequest = async (method: string, path: string, params?: any) => {\n+  const meta = {\n+    method,\n+    api_root: SWAP_API_ROOT,\n+    path,\n+    business: 'linear-swap' as HuobiBusiness,\n+    interfaceType: 'non-market' as HuobiPublicInterfaceType,\n+  };\n+  acquire(nonMarketDataIPBucketId, meta);\n+  return publicRequest(method, path, SWAP_API_ROOT, params);\n+};\n+\n@@ -72 +154 @@ export function getPerpetualContractSymbols(params?: {\n-  return publicRequest('GET', '/linear-swap-api/v1/swap_contract_info', SWAP_API_ROOT, params);\n+  return linearSwapNonMarketRequest('GET', '/linear-swap-api/v1/swap_contract_info', params);\n@@ -121 +203 @@ export function getSpotSymbols(): Promise<{\n-  return publicRequest('GET', '/v2/settings/common/symbols', SPOT_API_ROOT);\n+  return spotNonMarketRequest('GET', '/v2/settings/common/symbols');\n@@ -135 +217 @@ export function getSpotTick(params: { symbol: string }): Promise<{\n-  return publicRequest('GET', `/market/detail/merged`, SPOT_API_ROOT, params);\n+  return spotMarketRequest('GET', `/market/detail/merged`, params);\n@@ -166 +248 @@ export function getSpotHistoryKline(params: {\n-  return publicRequest('GET', `/market/history/kline`, SPOT_API_ROOT, params);\n+  return spotMarketRequest('GET', `/market/history/kline`, params);\n@@ -174 +256 @@ export function getSpotHistoryKline(params: {\n- * 限频: 其他非行情类的公开接口，比如获取指数信息，限价信息，交割结算、平台持仓信息等，所有用户都是每个IP3秒最多240次请求（所有该IP的非行情类的公开接口请求共享3秒240次的额度）\n+ * 限频: 其他非行情类的公开接口，比如获取指数信息，限价信息，交割结算、平台持仓信息等，所有用户都是每个IP3秒最多120次请求（所有该IP的非行情类的公开接口请求共享3秒120次的额度）\n@@ -194 +276 @@ export function getSwapBatchFundingRate(params: { contract_code?: string }): Pro\n-  return publicRequest('GET', `/linear-swap-api/v1/swap_batch_funding_rate`, SWAP_API_ROOT, params);\n+  return linearSwapNonMarketRequest('GET', `/linear-swap-api/v1/swap_batch_funding_rate`, params);\n@@ -235 +317 @@ export function getSwapMarketTrade(params: { contract_code?: string; business_ty\n-  return publicRequest('GET', `/linear-swap-ex/market/trade`, SWAP_API_ROOT, params);\n+  return linearSwapMarketRequest('GET', `/linear-swap-ex/market/trade`, params);\n@@ -265 +347 @@ export function getSwapOpenInterest(params: {\n-  return publicRequest('GET', '/linear-swap-api/v1/swap_open_interest', SWAP_API_ROOT, params);\n+  return linearSwapMarketRequest('GET', '/linear-swap-api/v1/swap_open_interest', params);\n@@ -298 +380 @@ export function getSwapMarketBbo(params: { contract_code?: string }): Promise<{\n-  return publicRequest('GET', `/linear-swap-ex/market/bbo`, SWAP_API_ROOT, params);\n+  return linearSwapMarketRequest('GET', `/linear-swap-ex/market/bbo`, params);\n@@ -330 +412 @@ export function getSwapHistoricalFundingRate(params: {\n-  return publicRequest('GET', `/linear-swap-api/v1/swap_historical_funding_rate`, SWAP_API_ROOT, params);\n+  return linearSwapNonMarketRequest('GET', `/linear-swap-api/v1/swap_historical_funding_rate`, params);\n@@ -359 +441 @@ export function getSwapHistoryKline(params: {\n-  return publicRequest('GET', `/linear-swap-ex/market/history/kline`, SWAP_API_ROOT, params);\n+  return linearSwapMarketRequest('GET', `/linear-swap-ex/market/history/kline`, params);\n@@ -376 +458 @@ export function getSwapCrossLadderMargin(params?: {\n-  return publicRequest('GET', '/linear-swap-api/v1/swap_cross_ladder_margin', SWAP_API_ROOT, params);\n+  return linearSwapNonMarketRequest('GET', '/linear-swap-api/v1/swap_cross_ladder_margin', params);\n@@ -418 +500 @@ export function getV2ReferenceCurrencies(params: { currency?: string; authorized\n-  return publicRequest('GET', '/v2/reference/currencies', SPOT_API_ROOT, params);\n+  return spotNonMarketRequest('GET', '/v2/reference/currencies', params);\n@@ -444 +526 @@ export const getSpotMarketTickers = (): Promise<{\n-}> => publicRequest('GET', '/market/tickers', SPOT_API_ROOT);\n+}> => spotMarketRequest('GET', '/market/tickers');\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "acquire",
+              "code": "const acquire = (bucketId: string, meta: Record<string, unknown>) => {",
+              "lineStart": 10,
+              "lineEnd": 10
+            },
+            {
+              "type": "function",
+              "name": "bucket",
+              "code": "  const bucket = tokenBucket(bucketId);\n  scopeError('HUOBI_API_RATE_LIMIT', { ...meta, bucketId }, () => bucket.acquireSync(1));\n};\n\n// https://www.htx.com/zh-cn/opend/newApiPages/?id=474\n// 行情类：同一个 IP，总共 1s 最多 800 个请求（合约业务共享总额度）",
+              "lineStart": 11,
+              "lineEnd": 16
+            },
+            {
+              "type": "function",
+              "name": "marketDataIPAllBucketId",
+              "code": "const marketDataIPAllBucketId = 'HUOBI_PUBLIC_MARKET_IP_1S_ALL';\ntokenBucket(marketDataIPAllBucketId, {\n  capacity: 800,\n  refillInterval: 1000,\n  refillAmount: 800,\n});\n\n// 行情类：按业务线拆分（用于交割/币本位永续/U本位分开限频）",
+              "lineStart": 17,
+              "lineEnd": 24
+            },
+            {
+              "type": "function",
+              "name": "marketDataSpotBucketId",
+              "code": "const marketDataSpotBucketId = 'HUOBI_PUBLIC_MARKET_IP_1S_SPOT';\ntokenBucket(marketDataSpotBucketId, { capacity: 800, refillInterval: 1000, refillAmount: 800 });\n",
+              "lineStart": 25,
+              "lineEnd": 27
+            },
+            {
+              "type": "function",
+              "name": "marketDataLinearSwapBucketId",
+              "code": "const marketDataLinearSwapBucketId = 'HUOBI_PUBLIC_MARKET_IP_1S_LINEAR_SWAP';\ntokenBucket(marketDataLinearSwapBucketId, { capacity: 800, refillInterval: 1000, refillAmount: 800 });\n\n// 非行情类公开接口：同一个 IP，3s 最多 120 次请求",
+              "lineStart": 28,
+              "lineEnd": 31
+            },
+            {
+              "type": "function",
+              "name": "nonMarketDataIPBucketId",
+              "code": "const nonMarketDataIPBucketId = 'HUOBI_PUBLIC_NON_MARKET_IP_3S_ALL';\ntokenBucket(nonMarketDataIPBucketId, {\n  capacity: 120,\n  refillInterval: 3000,\n  refillAmount: 120,\n});\n\n * 公共 API 请求方法（不负责限流；限流由调用点选择对应 helper）",
+              "lineStart": 32,
+              "lineEnd": 71
+            },
+            {
+              "type": "function",
+              "name": "spotMarketRequest",
+              "code": "const spotMarketRequest = async (method: string, path: string, params?: any) => {",
+              "lineStart": 72,
+              "lineEnd": 72
+            },
+            {
+              "type": "function",
+              "name": "meta",
+              "code": "  const meta = {\n    method,\n    api_root: SPOT_API_ROOT,\n    path,\n    business: 'spot' as HuobiBusiness,\n    interfaceType: 'market' as HuobiPublicInterfaceType,\n  };\n  acquire(marketDataIPAllBucketId, meta);\n  acquire(marketDataSpotBucketId, meta);\n  return publicRequest(method, path, SPOT_API_ROOT, params);\n};\n",
+              "lineStart": 73,
+              "lineEnd": 84
+            },
+            {
+              "type": "function",
+              "name": "spotNonMarketRequest",
+              "code": "const spotNonMarketRequest = async (method: string, path: string, params?: any) => {",
+              "lineStart": 85,
+              "lineEnd": 85
+            },
+            {
+              "type": "function",
+              "name": "meta",
+              "code": "  const meta = {\n    method,\n    api_root: SPOT_API_ROOT,\n    path,\n    business: 'spot' as HuobiBusiness,\n    interfaceType: 'non-market' as HuobiPublicInterfaceType,\n  };\n  acquire(nonMarketDataIPBucketId, meta);\n  return publicRequest(method, path, SPOT_API_ROOT, params);\n};\n",
+              "lineStart": 86,
+              "lineEnd": 96
+            },
+            {
+              "type": "function",
+              "name": "linearSwapMarketRequest",
+              "code": "const linearSwapMarketRequest = async (method: string, path: string, params?: any) => {",
+              "lineStart": 97,
+              "lineEnd": 97
+            },
+            {
+              "type": "function",
+              "name": "meta",
+              "code": "  const meta = {\n    method,\n    api_root: SWAP_API_ROOT,\n    path,\n    business: 'linear-swap' as HuobiBusiness,\n    interfaceType: 'market' as HuobiPublicInterfaceType,\n  };\n  acquire(marketDataIPAllBucketId, meta);\n  acquire(marketDataLinearSwapBucketId, meta);\n  return publicRequest(method, path, SWAP_API_ROOT, params);\n};\n",
+              "lineStart": 98,
+              "lineEnd": 109
+            },
+            {
+              "type": "function",
+              "name": "linearSwapNonMarketRequest",
+              "code": "const linearSwapNonMarketRequest = async (method: string, path: string, params?: any) => {",
+              "lineStart": 110,
+              "lineEnd": 110
+            },
+            {
+              "type": "function",
+              "name": "meta",
+              "code": "  const meta = {\n    method,\n    api_root: SWAP_API_ROOT,\n    path,\n    business: 'linear-swap' as HuobiBusiness,\n    interfaceType: 'non-market' as HuobiPublicInterfaceType,\n  };\n  acquire(nonMarketDataIPBucketId, meta);\n  return publicRequest(method, path, SWAP_API_ROOT, params);\n};\n\n  return linearSwapNonMarketRequest('GET', '/linear-swap-api/v1/swap_contract_info', params);\n  return spotNonMarketRequest('GET', '/v2/settings/common/symbols');\n  return spotMarketRequest('GET', `/market/detail/merged`, params);\n  return spotMarketRequest('GET', `/market/history/kline`, params);",
+              "lineStart": 111,
+              "lineEnd": 527
+            }
+          ]
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-huobi/2025-12-26-04-06.json",
+          "changeType": "added",
+          "patch": "commit cb5126ccdefa165f4da1a7087222320bbc90e6fd\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Fri Dec 26 12:09:34 2025 +0800\n\n    feat: implement token bucket for Huobi public/private API rate limiting (#2415)\n    \n    - Updated config to switch current task to Huobi token bucket implementation.\n    - Archived previous VEX series data task and added new Huobi task with detailed proposal.\n    - Enhanced ledger to track task progress and decisions related to Huobi API rate limiting.\n    - Created context and plan documents outlining the implementation strategy for token buckets.\n    - Refactored public and private API methods to integrate rate limiting using token buckets.\n    - Added helper functions for managing rate limits based on business and interface types.\n\ndiff --git a/common/changes/@yuants/vendor-huobi/2025-12-26-04-06.json b/common/changes/@yuants/vendor-huobi/2025-12-26-04-06.json\nnew file mode 100644\nindex 000000000..d045511e0\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-huobi/2025-12-26-04-06.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-huobi\",\n+      \"comment\": \"add api token bucket\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-huobi\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "01bd109b81db854cbeff3e5fed566de498cc6b36",
+      "short": "01bd109b8",
+      "author": "Siyuan Wang",
+      "email": "c.one@thrimbda.com",
+      "authoredAt": "2025-12-26 13:26:19 +0800",
+      "subject": "feat: 增强报告验证功能，支持严格模式和检查清单 (#2416)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 62,
+          "deletions": 1,
+          "path": ".claude/skills/git-changes-reporter/SKILL.md",
+          "changeType": "modified",
+          "patch": "commit 01bd109b81db854cbeff3e5fed566de498cc6b36\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Fri Dec 26 13:26:19 2025 +0800\n\n    feat: 增强报告验证功能，支持严格模式和检查清单 (#2416)\n\ndiff --git a/.claude/skills/git-changes-reporter/SKILL.md b/.claude/skills/git-changes-reporter/SKILL.md\nindex c68e41008..bf3853f9f 100644\n--- a/.claude/skills/git-changes-reporter/SKILL.md\n+++ b/.claude/skills/git-changes-reporter/SKILL.md\n@@ -115 +115,5 @@ Read JSON offset=X limit=200  # 特定 commit 的详细信息\n-**目的**：确保报告符合质量要求\n+**目的**：确保报告符合质量要求，防止胡编乱造\n+\n+#### 第一次验证：基础检查\n+\n+验证报告格式和结构完整性：\n@@ -120,0 +125,57 @@ Read JSON offset=X limit=200  # 特定 commit 的详细信息\n+**检查内容**：\n+\n+- 必需章节（概览、核心变更、贡献者、风险评估）\n+- 代码片段格式\n+- 文件引用格式\n+- Commit hash 格式\n+- 设计意图完整性\n+\n+#### 第二次验证：严格模式（默认启用）\n+\n+验证报告内容真实性，防止胡编乱造：\n+\n+```bash\n+# 严格模式已默认启用（提供 --json 即可）\n+.claude/skills/git-changes-reporter/scripts/validate-report.js <markdown_file> \\\n+  --json <json_file>\n+```\n+\n+**严格模式自动检查**：\n+\n+- ✅ **Commit 覆盖率**：确保 100% 覆盖 JSON 中所有 commits，无遗漏\n+- ✅ **文件引用真实性**：验证所有文件路径存在于仓库（通过 `git ls-files`）\n+- ✅ **Commit hash 真实性**：验证所有 commit hash 存在于仓库（通过 `git cat-file`）\n+\n+**如需仅做格式检查**（不推荐）：\n+\n+```bash\n+# 使用 --basic 禁用严格验证\n+.claude/skills/git-changes-reporter/scripts/validate-report.js <markdown_file> \\\n+  --json <json_file> \\\n+  --basic\n+```\n+\n+#### 第三次验证：人工复查清单（可选）\n+\n+生成二次确认清单供 Agent 逐项复查：\n+\n+```bash\n+.claude/skills/git-changes-reporter/scripts/validate-report.js <markdown_file> \\\n+  --json <json_file> \\\n+  --checklist\n+```\n+\n+**清单内容**：\n+\n+- 列出所有应覆盖的 commits\n+- 统计代码片段数量\n+- 显示文件引用列表\n+\n+**工作流建议**：\n+\n+1. **首次生成报告**：先运行基础验证，修复格式问题\n+2. **内容完善后**：运行严格模式（**默认启用**，只需提供 `--json`），确保内容真实性\n+3. **提交前**：使用 `--checklist` 进行人工复查\n+\n+**重要**：严格验证已默认启用，Agent 无法跳过真实性检查，有效防止胡编乱造。\n+\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 283,
+          "deletions": 5,
+          "path": ".claude/skills/git-changes-reporter/scripts/validate-report.js",
+          "changeType": "modified",
+          "patch": "commit 01bd109b81db854cbeff3e5fed566de498cc6b36\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Fri Dec 26 13:26:19 2025 +0800\n\n    feat: 增强报告验证功能，支持严格模式和检查清单 (#2416)\n\ndiff --git a/.claude/skills/git-changes-reporter/scripts/validate-report.js b/.claude/skills/git-changes-reporter/scripts/validate-report.js\nindex 578cc34c4..a0a9345b8 100755\n--- a/.claude/skills/git-changes-reporter/scripts/validate-report.js\n+++ b/.claude/skills/git-changes-reporter/scripts/validate-report.js\n@@ -8 +8 @@ const usage = () => {\n-      'Usage: validate-report.js <markdown_file>',\n+      'Usage: validate-report.js <markdown_file> [options]',\n@@ -18,0 +19,10 @@ const usage = () => {\n+      'Options:',\n+      '  --json <path>      Path to JSON data file (auto-enables strict validation)',\n+      '  --basic            Disable strict validation (only basic format checks)',\n+      '  --checklist        Show agent verification checklist after validation',\n+      '',\n+      'Strict validation (auto-enabled with --json):',\n+      '  ✅ Verify commit coverage (100% of JSON commits)',\n+      '  ✅ Verify file references exist in repository',\n+      '  ✅ Verify commit hashes exist in repository',\n+      '',\n@@ -23,0 +34 @@ const usage = () => {\n+      '  # Basic validation (format checks only)',\n@@ -24,0 +36,9 @@ const usage = () => {\n+      '',\n+      '  # Strict validation (auto-enabled with --json)',\n+      '  validate-report.js report.md --json changes.json',\n+      '',\n+      '  # With agent checklist',\n+      '  validate-report.js report.md --json changes.json --checklist',\n+      '',\n+      '  # Force basic mode even with JSON',\n+      '  validate-report.js report.md --json changes.json --basic',\n@@ -228 +248 @@ const checkCommitHashFormat = (content, result) => {\n-      `发现可疑的数字引用 ${lineNumbers.slice(0, 5).join(', ')} - 可能错误使用了 JSON 行号作为 commit ID`,\n+      `❌ 发现可疑的数字引用 ${lineNumbers.slice(0, 5).join(', ')} - 可能错误使用了 JSON 行号作为 commit ID`,\n@@ -230,0 +251,11 @@ const checkCommitHashFormat = (content, result) => {\n+    result.fail('');\n+    result.fail('💡 如何修复：');\n+    result.fail('  1. 在 JSON 文件中搜索对应行号的内容');\n+    result.fail('  2. 找到该 commit 的 \"short\" 字段（如 \"b285cde59\"）');\n+    result.fail('  3. 将报告中的行号替换为正确的 commit hash');\n+    result.fail('');\n+    result.fail('📝 验证命令示例：');\n+    result.fail('  # 在 JSON 中查找某个 commit');\n+    result.fail('  jq \\'.commits[] | select(.short == \"b285cde59\")\\' changes.json');\n+    result.fail('  # 列出所有 commit hash');\n+    result.fail(\"  jq '.commits[] | .short' changes.json\");\n@@ -459,0 +491,179 @@ const checkCommitSummaries = (content, result) => {\n+/**\n+ * Verify all commits in JSON are covered in the report (strict mode)\n+ * @param {string} content - Report markdown content\n+ * @param {object} jsonData - Parsed JSON data\n+ * @param {CheckResult} result\n+ */\n+const checkCommitCoverage = (content, jsonData, result) => {\n+  const allCommits = new Set(jsonData.commits.map((c) => c.short));\n+  const mentionedCommits = new Set();\n+\n+  // Extract all commit references from report (backtick format: `abc123de`)\n+  const commitRefs = content.matchAll(/`([0-9a-f]{7,})`/g);\n+  for (const match of commitRefs) {\n+    mentionedCommits.add(match[1]);\n+  }\n+\n+  const missing = [...allCommits].filter((c) => !mentionedCommits.has(c));\n+  const extra = [...mentionedCommits].filter((c) => !allCommits.has(c));\n+\n+  if (missing.length === 0 && extra.length === 0) {\n+    result.pass(`✅ 提交覆盖率 100% (${allCommits.size}/${allCommits.size})`);\n+  } else {\n+    if (missing.length > 0) {\n+      result.fail(\n+        `❌ 遗漏 ${missing.length} 个提交: ${missing.slice(0, 3).join(', ')}${\n+          missing.length > 3 ? '...' : ''\n+        }`,\n+      );\n+      result.fail(`   💡 提示: 在 JSON 中搜索这些 commit，确保它们出现在报告的\"核心变更\"或\"提交明细\"中`);\n+    }\n+    if (extra.length > 0) {\n+      result.warn(\n+        `⚠️  引用了 ${extra.length} 个不在 JSON 中的提交: ${extra.slice(0, 3).join(', ')}${\n+          extra.length > 3 ? '...' : ''\n+        }`,\n+      );\n+      result.warn(`   💡 提示: 这些可能是错误的 commit hash，请检查 JSON 文件`);\n+    }\n+  }\n+};\n+\n+/**\n+ * Verify file references point to actual files in the repository (strict mode)\n+ * @param {string} content - Report markdown content\n+ * @param {CheckResult} result\n+ */\n+const checkFileExistence = async (content, result) => {\n+  const { execFile } = require('node:child_process');\n+  const { promisify } = require('node:util');\n+  const exec = promisify(execFile);\n+\n+  // Extract all file paths from markdown links: [name](path/to/file.ts#L1-L10)\n+  const fileRefs = content.matchAll(/\\[[^\\]]+\\]\\(([^)#]+)#L\\d+-L\\d+\\)/g);\n+  const uniquePaths = new Set();\n+\n+  for (const match of fileRefs) {\n+    uniquePaths.add(match[1]);\n+  }\n+\n+  if (uniquePaths.size === 0) {\n+    return;\n+  }\n+\n+  try {\n+    // Use git ls-files to check if paths exist in repo\n+    const { stdout } = await exec('git', ['ls-files']);\n+    const repoFiles = new Set(stdout.split('\\n').filter(Boolean));\n+\n+    const missingFiles = [...uniquePaths].filter((path) => !repoFiles.has(path));\n+\n+    if (missingFiles.length === 0) {\n+      result.pass(`✅ 所有 ${uniquePaths.size} 个文件引用均存在于仓库中`);\n+    } else {\n+      result.fail(`❌ ${missingFiles.length} 个文件引用不存在于仓库中:`);\n+      missingFiles.slice(0, 5).forEach((file) => {\n+        result.fail(`   - ${file}`);\n+      });\n+      if (missingFiles.length > 5) {\n+        result.fail(`   ...以及其他 ${missingFiles.length - 5} 个文件`);\n+      }\n+      result.fail(`   💡 提示: 使用 'git ls-files | grep <filename>' 查找正确的路径`);\n+    }\n+  } catch (error) {\n+    result.warn('⚠️  无法验证文件存在性（不在 git 仓库中或 git 不可用）');\n+  }\n+};\n+\n+/**\n+ * Verify commit hashes exist in the git repository (strict mode)\n+ * @param {string} content - Report markdown content\n+ * @param {CheckResult} result\n+ */\n+const checkCommitExistence = async (content, result) => {\n+  const { execFile } = require('node:child_process');\n+  const { promisify } = require('node:util');\n+  const exec = promisify(execFile);\n+\n+  // Extract all commit hashes from report\n+  const commitRefs = content.matchAll(/`([0-9a-f]{7,})`/g);\n+  const uniqueCommits = new Set();\n+\n+  for (const match of commitRefs) {\n+    uniqueCommits.add(match[1]);\n+  }\n+\n+  if (uniqueCommits.size === 0) {\n+    return;\n+  }\n+\n+  const invalidCommits = [];\n+\n+  for (const commit of uniqueCommits) {\n+    try {\n+      await exec('git', ['cat-file', '-t', commit]);\n+      // Commit exists\n+    } catch {\n+      invalidCommits.push(commit);\n+    }\n+  }\n+\n+  if (invalidCommits.length === 0) {\n+    result.pass(`✅ 所有 ${uniqueCommits.size} 个 commit 引用均存在于仓库中`);\n+  } else {\n+    result.fail(`❌ ${invalidCommits.length} 个 commit 不存在于仓库中: ${invalidCommits.join(', ')}`);\n+    result.fail(`   💡 提示: 使用 'git log --oneline' 查找正确的 commit hash`);\n+  }\n+};\n+\n+/**\n+ * Generate verification checklist for agent to review\n+ * @param {string} content - Report markdown content\n+ * @param {object} jsonData - JSON data\n+ */\n+const generateChecklist = (content, jsonData) => {\n+  console.info('\\n' + '='.repeat(60));\n+  console.info('📋 Agent 二次确认清单');\n+  console.info('='.repeat(60));\n+\n+  // 1. Commit coverage\n+  const allCommits = jsonData.commits.map((c) => c.short);\n+  console.info('\\n1️⃣  提交覆盖检查：');\n+  console.info(`   JSON 中共有 ${allCommits.length} 个提交`);\n+  console.info(`   请确认报告中包含所有这些提交：`);\n+  allCommits.slice(0, 5).forEach((commit, i) => {\n+    const subject = jsonData.commits[i].subject;\n+    console.info(\n+      `      ${i + 1}. \\`${commit}\\` - ${subject.substring(0, 60)}${subject.length > 60 ? '...' : ''}`,\n+    );\n+  });\n+  if (allCommits.length > 5) {\n+    console.info(`      ...以及其他 ${allCommits.length - 5} 个提交`);\n+  }\n+\n+  // 2. Code snippets\n+  const codeBlocks = content.match(/```[\\s\\S]*?```/g) || [];\n+  console.info(`\\n2️⃣  代码片段检查（共 ${codeBlocks.length} 个）：`);\n+  console.info('   请确认每个代码片段：');\n+  console.info('   - 来源于实际文件（可通过 git show <commit>:<path> 验证）');\n+  console.info('   - 行号引用正确');\n+  console.info('   - 代码内容准确（未胡编乱造）');\n+\n+  // 3. File references\n+  const fileRefs = content.matchAll(/\\[([^\\]]+:L\\d+-L\\d+)\\]\\(([^)]+)\\)/g);\n+  const refs = [...fileRefs];\n+  console.info(`\\n3️⃣  文件引用检查（共 ${refs.length} 个）：`);\n+  if (refs.length > 0) {\n+    console.info('   前 5 个引用：');\n+    refs.slice(0, 5).forEach((match) => {\n+      console.info(`   - ${match[1]} → ${match[2]}`);\n+    });\n+    if (refs.length > 5) {\n+      console.info(`   ...以及其他 ${refs.length - 5} 个引用`);\n+    }\n+  }\n+\n+  console.info('\\n✅ 请在提交报告前完成以上确认');\n+  console.info('='.repeat(60));\n+};\n+\n@@ -464 +674,18 @@ const main = async () => {\n-  const markdownFile = process.argv[2];\n+  // Parse command line arguments\n+  const args = process.argv.slice(2);\n+  let markdownFile = null;\n+  let jsonFile = null;\n+  let basicMode = false;\n+  let showChecklist = false;\n+\n+  for (let i = 0; i < args.length; i++) {\n+    if (args[i] === '--json' && i + 1 < args.length) {\n+      jsonFile = args[++i];\n+    } else if (args[i] === '--basic') {\n+      basicMode = true;\n+    } else if (args[i] === '--checklist') {\n+      showChecklist = true;\n+    } else if (!markdownFile && !args[i].startsWith('--')) {\n+      markdownFile = args[i];\n+    }\n+  }\n@@ -465,0 +693 @@ const main = async () => {\n+  // Validate required arguments\n@@ -470,0 +699,9 @@ const main = async () => {\n+  if (showChecklist && !jsonFile) {\n+    console.error('❌ Error: --checklist requires --json parameter');\n+    process.exit(1);\n+  }\n+\n+  // Strict mode is enabled by default when JSON is provided (unless --basic is specified)\n+  const strictMode = jsonFile && !basicMode;\n+\n+  // Display validation mode\n@@ -471,0 +709,7 @@ const main = async () => {\n+  if (strictMode) {\n+    console.info(`Mode: 🔍 Strict (with ${jsonFile})`);\n+  } else if (jsonFile && basicMode) {\n+    console.info(`Mode: 📝 Basic (--basic mode, JSON available but strict checks disabled)`);\n+  } else {\n+    console.info('Mode: 📝 Basic (format checks only)');\n+  }\n@@ -474 +718 @@ const main = async () => {\n-  // Read file\n+  // Read markdown file\n@@ -482,0 +727,12 @@ const main = async () => {\n+  // Read JSON file if provided\n+  let jsonData = null;\n+  if (jsonFile) {\n+    try {\n+      const jsonContent = await readFile(jsonFile, 'utf8');\n+      jsonData = JSON.parse(jsonContent);\n+    } catch (error) {\n+      console.error(`❌ Error reading JSON file: ${error.message}`);\n+      process.exit(1);\n+    }\n+  }\n+\n@@ -485 +741 @@ const main = async () => {\n-  // Run all checks\n+  // Run basic checks\n@@ -496,0 +753,8 @@ const main = async () => {\n+  // Run strict validation checks (async)\n+  if (strictMode && jsonData) {\n+    console.info('\\n🔍 Running strict validation...');\n+    checkCommitCoverage(content, jsonData, result);\n+    await checkFileExistence(content, result);\n+    await checkCommitExistence(content, result);\n+  }\n+\n@@ -499,0 +764,5 @@ const main = async () => {\n+  // Generate checklist if requested\n+  if (showChecklist && jsonData && !result.hasFailures()) {\n+    generateChecklist(content, jsonData);\n+  }\n+\n@@ -504,0 +774,6 @@ const main = async () => {\n+    if (strictMode) {\n+      console.info('\\n🔍 Strict mode tips:');\n+      console.info('   - 使用 jq 查询 JSON: jq \\'.commits[] | select(.short == \"abc123\")\\' changes.json');\n+      console.info('   - 验证文件存在: git ls-files | grep <filename>');\n+      console.info('   - 验证 commit: git cat-file -t <hash>');\n+    }\n@@ -510,0 +786,3 @@ const main = async () => {\n+    if (strictMode) {\n+      console.info('   ✅ 严格验证通过：commit 覆盖率 100%、所有引用真实有效');\n+    }\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "checkCommitCoverage",
+              "code": "const checkCommitCoverage = (content, jsonData, result) => {",
+              "lineStart": 497,
+              "lineEnd": 497
+            },
+            {
+              "type": "function",
+              "name": "allCommits",
+              "code": "const allCommits = new Set(jsonData.commits.map((c) => c.short));",
+              "lineStart": 498,
+              "lineEnd": 498
+            },
+            {
+              "type": "function",
+              "name": "mentionedCommits",
+              "code": "const mentionedCommits = new Set();\n\n// Extract all commit references from report (backtick format: `abc123de`)",
+              "lineStart": 499,
+              "lineEnd": 501
+            },
+            {
+              "type": "function",
+              "name": "commitRefs",
+              "code": "const commitRefs = content.matchAll(/`([0-9a-f]{7,})`/g);",
+              "lineStart": 502,
+              "lineEnd": 502
+            },
+            {
+              "type": "function",
+              "name": "match",
+              "code": "for (const match of commitRefs) {\n  mentionedCommits.add(match[1]);\n}\n",
+              "lineStart": 503,
+              "lineEnd": 506
+            },
+            {
+              "type": "function",
+              "name": "missing",
+              "code": "const missing = [...allCommits].filter((c) => !mentionedCommits.has(c));",
+              "lineStart": 507,
+              "lineEnd": 507
+            },
+            {
+              "type": "function",
+              "name": "extra",
+              "code": "const extra = [...mentionedCommits].filter((c) => !allCommits.has(c));\n\nif (missing.length === 0 && extra.length === 0) {\n  result.pass(`✅ 提交覆盖率 100% (${allCommits.size}/${allCommits.size})`);\n} else {\n  if (missing.length > 0) {\n    result.fail(\n      `❌ 遗漏 ${missing.length} 个提交: ${missing.slice(0, 3).join(', ')}${\n        missing.length > 3 ? '...' : ''\n      }`,\n    );\n    result.fail(`   💡 提示: 在 JSON 中搜索这些 commit，确保它们出现在报告的\"核心变更\"或\"提交明细\"中`);\n  }\n  if (extra.length > 0) {\n    result.warn(",
+              "lineStart": 508,
+              "lineEnd": 536
+            },
+            {
+              "type": "function",
+              "name": "checkFileExistence",
+              "code": "const checkFileExistence = async (content, result) => {\n  const { execFile } = require('node:child_process');\n  const { promisify } = require('node:util');",
+              "lineStart": 537,
+              "lineEnd": 539
+            },
+            {
+              "type": "function",
+              "name": "exec",
+              "code": "const exec = promisify(execFile);\n\n// Extract all file paths from markdown links: [name](path/to/file.ts#L1-L10)",
+              "lineStart": 540,
+              "lineEnd": 542
+            },
+            {
+              "type": "function",
+              "name": "fileRefs",
+              "code": "const fileRefs = content.matchAll(/\\[[^\\]]+\\]\\(([^)#]+)#L\\d+-L\\d+\\)/g);",
+              "lineStart": 543,
+              "lineEnd": 543
+            },
+            {
+              "type": "function",
+              "name": "uniquePaths",
+              "code": "const uniquePaths = new Set();\n",
+              "lineStart": 544,
+              "lineEnd": 545
+            },
+            {
+              "type": "function",
+              "name": "match",
+              "code": "for (const match of fileRefs) {\n  uniquePaths.add(match[1]);\n}\n\nif (uniquePaths.size === 0) {\n  return;\n}\n\ntry {\n  // Use git ls-files to check if paths exist in repo\n  const { stdout } = await exec('git', ['ls-files']);",
+              "lineStart": 546,
+              "lineEnd": 556
+            },
+            {
+              "type": "function",
+              "name": "repoFiles",
+              "code": "const repoFiles = new Set(stdout.split('\\n').filter(Boolean));\n",
+              "lineStart": 557,
+              "lineEnd": 558
+            },
+            {
+              "type": "function",
+              "name": "missingFiles",
+              "code": "  const missingFiles = [...uniquePaths].filter((path) => !repoFiles.has(path));\n\n  if (missingFiles.length === 0) {\n    result.pass(`✅ 所有 ${uniquePaths.size} 个文件引用均存在于仓库中`);\n  } else {\n    result.fail(`❌ ${missingFiles.length} 个文件引用不存在于仓库中:`);\n    missingFiles.slice(0, 5).forEach((file) => {\n      result.fail(`   - ${file}`);\n    });\n    if (missingFiles.length > 5) {\n      result.fail(`   ...以及其他 ${missingFiles.length - 5} 个文件`);\n    }\n    result.fail(`   💡 提示: 使用 'git ls-files | grep <filename>' 查找正确的路径`);\n  }\n} catch (error) {",
+              "lineStart": 559,
+              "lineEnd": 582
+            },
+            {
+              "type": "function",
+              "name": "checkCommitExistence",
+              "code": "const checkCommitExistence = async (content, result) => {\n  const { execFile } = require('node:child_process');\n  const { promisify } = require('node:util');",
+              "lineStart": 583,
+              "lineEnd": 585
+            },
+            {
+              "type": "function",
+              "name": "exec",
+              "code": "const exec = promisify(execFile);\n\n// Extract all commit hashes from report",
+              "lineStart": 586,
+              "lineEnd": 588
+            },
+            {
+              "type": "function",
+              "name": "commitRefs",
+              "code": "const commitRefs = content.matchAll(/`([0-9a-f]{7,})`/g);",
+              "lineStart": 589,
+              "lineEnd": 589
+            },
+            {
+              "type": "function",
+              "name": "uniqueCommits",
+              "code": "const uniqueCommits = new Set();\n",
+              "lineStart": 590,
+              "lineEnd": 591
+            },
+            {
+              "type": "function",
+              "name": "match",
+              "code": "for (const match of commitRefs) {\n  uniqueCommits.add(match[1]);\n}\n\nif (uniqueCommits.size === 0) {\n  return;\n}\n",
+              "lineStart": 592,
+              "lineEnd": 599
+            },
+            {
+              "type": "function",
+              "name": "invalidCommits",
+              "code": "const invalidCommits = [];\n",
+              "lineStart": 600,
+              "lineEnd": 601
+            },
+            {
+              "type": "function",
+              "name": "commit",
+              "code": "for (const commit of uniqueCommits) {\n  try {\n    await exec('git', ['cat-file', '-t', commit]);\n    // Commit exists\n  } catch {\n    invalidCommits.push(commit);\n  }\n}\n\nif (invalidCommits.length === 0) {\n  result.pass(`✅ 所有 ${uniqueCommits.size} 个 commit 引用均存在于仓库中`);\n} else {\n  result.fail(`❌ ${invalidCommits.length} 个 commit 不存在于仓库中: ${invalidCommits.join(', ')}`);\n  result.fail(`   💡 提示: 使用 'git log --oneline' 查找正确的 commit hash`);\n}",
+              "lineStart": 602,
+              "lineEnd": 623
+            },
+            {
+              "type": "function",
+              "name": "generateChecklist",
+              "code": "const generateChecklist = (content, jsonData) => {\n  console.info('\\n' + '='.repeat(60));\n  console.info('📋 Agent 二次确认清单');\n  console.info('='.repeat(60));\n\n  // 1. Commit coverage",
+              "lineStart": 624,
+              "lineEnd": 629
+            },
+            {
+              "type": "function",
+              "name": "allCommits",
+              "code": "const allCommits = jsonData.commits.map((c) => c.short);\nconsole.info('\\n1️⃣  提交覆盖检查：');\nconsole.info(`   JSON 中共有 ${allCommits.length} 个提交`);\nconsole.info(`   请确认报告中包含所有这些提交：`);\nallCommits.slice(0, 5).forEach((commit, i) => {",
+              "lineStart": 630,
+              "lineEnd": 634
+            },
+            {
+              "type": "function",
+              "name": "subject",
+              "code": "  const subject = jsonData.commits[i].subject;\n  console.info(\n    `      ${i + 1}. \\`${commit}\\` - ${subject.substring(0, 60)}${subject.length > 60 ? '...' : ''}`,\n  );\n});\nif (allCommits.length > 5) {\n  console.info(`      ...以及其他 ${allCommits.length - 5} 个提交`);\n}\n\n// 2. Code snippets",
+              "lineStart": 635,
+              "lineEnd": 644
+            },
+            {
+              "type": "function",
+              "name": "codeBlocks",
+              "code": "const codeBlocks = content.match(/```[\\s\\S]*?```/g) || [];\nconsole.info(`\\n2️⃣  代码片段检查（共 ${codeBlocks.length} 个）：`);\nconsole.info('   请确认每个代码片段：');\nconsole.info('   - 来源于实际文件（可通过 git show <commit>:<path> 验证）');\nconsole.info('   - 行号引用正确');\nconsole.info('   - 代码内容准确（未胡编乱造）');\n\n// 3. File references",
+              "lineStart": 645,
+              "lineEnd": 652
+            },
+            {
+              "type": "function",
+              "name": "fileRefs",
+              "code": "const fileRefs = content.matchAll(/\\[([^\\]]+:L\\d+-L\\d+)\\]\\(([^)]+)\\)/g);",
+              "lineStart": 653,
+              "lineEnd": 653
+            },
+            {
+              "type": "function",
+              "name": "refs",
+              "code": "  const refs = [...fileRefs];\n  console.info(`\\n3️⃣  文件引用检查（共 ${refs.length} 个）：`);\n  if (refs.length > 0) {\n    console.info('   前 5 个引用：');\n    refs.slice(0, 5).forEach((match) => {\n      console.info(`   - ${match[1]} → ${match[2]}`);\n    });\n    if (refs.length > 5) {\n      console.info(`   ...以及其他 ${refs.length - 5} 个引用`);\n    }\n  }\n\n  console.info('\\n✅ 请在提交报告前完成以上确认');\n  console.info('='.repeat(60));\n};",
+              "lineStart": 654,
+              "lineEnd": 674
+            },
+            {
+              "type": "function",
+              "name": "args",
+              "code": "const args = process.argv.slice(2);",
+              "lineStart": 675,
+              "lineEnd": 675
+            },
+            {
+              "type": "function",
+              "name": "markdownFile",
+              "code": "let markdownFile = null;",
+              "lineStart": 676,
+              "lineEnd": 676
+            },
+            {
+              "type": "function",
+              "name": "jsonFile",
+              "code": "let jsonFile = null;",
+              "lineStart": 677,
+              "lineEnd": 677
+            },
+            {
+              "type": "function",
+              "name": "basicMode",
+              "code": "let basicMode = false;",
+              "lineStart": 678,
+              "lineEnd": 678
+            },
+            {
+              "type": "function",
+              "name": "showChecklist",
+              "code": "let showChecklist = false;\n",
+              "lineStart": 679,
+              "lineEnd": 680
+            },
+            {
+              "type": "function",
+              "name": "i",
+              "code": "for (let i = 0; i < args.length; i++) {\n  if (args[i] === '--json' && i + 1 < args.length) {\n    jsonFile = args[++i];\n  } else if (args[i] === '--basic') {\n    basicMode = true;\n  } else if (args[i] === '--checklist') {\n    showChecklist = true;\n  } else if (!markdownFile && !args[i].startsWith('--')) {\n    markdownFile = args[i];\n  }\n}\n// Validate required arguments\nif (showChecklist && !jsonFile) {\n  console.error('❌ Error: --checklist requires --json parameter');\n  process.exit(1);",
+              "lineStart": 681,
+              "lineEnd": 704
+            },
+            {
+              "type": "function",
+              "name": "strictMode",
+              "code": "const strictMode = jsonFile && !basicMode;\n\n// Display validation mode\nif (strictMode) {\n  console.info(`Mode: 🔍 Strict (with ${jsonFile})`);\n} else if (jsonFile && basicMode) {\n  console.info(`Mode: 📝 Basic (--basic mode, JSON available but strict checks disabled)`);\n} else {\n  console.info('Mode: 📝 Basic (format checks only)');\n}\n// Read markdown file\n// Read JSON file if provided",
+              "lineStart": 705,
+              "lineEnd": 727
+            },
+            {
+              "type": "function",
+              "name": "jsonData",
+              "code": "let jsonData = null;\nif (jsonFile) {\n  try {",
+              "lineStart": 728,
+              "lineEnd": 730
+            },
+            {
+              "type": "function",
+              "name": "jsonContent",
+              "code": "    const jsonContent = await readFile(jsonFile, 'utf8');\n    jsonData = JSON.parse(jsonContent);\n  } catch (error) {\n    console.error(`❌ Error reading JSON file: ${error.message}`);\n    process.exit(1);\n  }\n}\n\n// Run basic checks\n// Run strict validation checks (async)\nif (strictMode && jsonData) {\n  console.info('\\n🔍 Running strict validation...');\n  checkCommitCoverage(content, jsonData, result);\n  await checkFileExistence(content, result);\n  await checkCommitExistence(content, result);",
+              "lineStart": 731,
+              "lineEnd": 789
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "hash": "a3371032e14f7d0721b1defcf1c166a61a5f84cd",
+      "short": "a3371032e",
+      "author": "Siyuan Wang",
+      "email": "c.one@thrimbda.com",
+      "authoredAt": "2025-12-26 14:11:28 +0800",
+      "subject": "feat: 更新 Claude Code 允许的工具，添加 Bash(node:*) 支持 (#2418)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": ".github/workflows/daily-git-report.yml",
+          "changeType": "modified",
+          "patch": "commit a3371032e14f7d0721b1defcf1c166a61a5f84cd\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Fri Dec 26 14:11:28 2025 +0800\n\n    feat: 更新 Claude Code 允许的工具，添加 Bash(node:*) 支持 (#2418)\n\ndiff --git a/.github/workflows/daily-git-report.yml b/.github/workflows/daily-git-report.yml\nindex a514e6706..e625cd881 100644\n--- a/.github/workflows/daily-git-report.yml\n+++ b/.github/workflows/daily-git-report.yml\n@@ -77 +77 @@ jobs:\n-          allowed_tools: 'Bash(git:*),Bash(touch:*),View,GlobTool,GrepTool,BatchTool,Edit,Read,Write'\n+          allowed_tools: 'Bash(git:*),Bash(touch:*),Bash(node:*),View,GlobTool,GrepTool,BatchTool,Edit,Read,Write'\n",
+          "codeSnippets": []
+        }
+      ]
+    }
+  ],
+  "analysis": {
+    "domains": [
+      {
+        "name": "API请求优化与限速",
+        "commits": [
+          "cb5126ccd",
+          "01bd109b8",
+          "a3371032e"
+        ],
+        "files": [
+          ".legion/config.json",
+          ".legion/ledger.csv",
+          ".legion/tasks/huobi-publicprivate-api-tokenbucket/context.md",
+          ".legion/tasks/huobi-publicprivate-api-tokenbucket/plan.md",
+          ".legion/tasks/huobi-publicprivate-api-tokenbucket/tasks.md",
+          "apps/vendor-huobi/src/api/private-api.ts",
+          "apps/vendor-huobi/src/api/public-api.ts",
+          "common/changes/@yuants/vendor-huobi/2025-12-26-04-06.json",
+          ".claude/skills/git-changes-reporter/SKILL.md",
+          ".claude/skills/git-changes-reporter/scripts/validate-report.js"
+        ]
+      },
+      {
+        "name": "安全与鉴权",
+        "commits": [
+          "cb5126ccd",
+          "01bd109b8",
+          "a3371032e"
+        ],
+        "files": [
+          ".legion/config.json",
+          ".legion/ledger.csv",
+          ".legion/tasks/huobi-publicprivate-api-tokenbucket/context.md",
+          ".legion/tasks/huobi-publicprivate-api-tokenbucket/plan.md",
+          ".legion/tasks/huobi-publicprivate-api-tokenbucket/tasks.md",
+          "apps/vendor-huobi/src/api/private-api.ts",
+          "apps/vendor-huobi/src/api/public-api.ts",
+          "common/changes/@yuants/vendor-huobi/2025-12-26-04-06.json",
+          ".claude/skills/git-changes-reporter/SKILL.md",
+          ".claude/skills/git-changes-reporter/scripts/validate-report.js"
+        ]
+      },
+      {
+        "name": "订单与交易",
+        "commits": [
+          "cb5126ccd",
+          "01bd109b8",
+          "a3371032e"
+        ],
+        "files": [
+          ".legion/config.json",
+          ".legion/ledger.csv",
+          ".legion/tasks/huobi-publicprivate-api-tokenbucket/context.md",
+          ".legion/tasks/huobi-publicprivate-api-tokenbucket/plan.md",
+          ".legion/tasks/huobi-publicprivate-api-tokenbucket/tasks.md",
+          "apps/vendor-huobi/src/api/private-api.ts",
+          "apps/vendor-huobi/src/api/public-api.ts",
+          "common/changes/@yuants/vendor-huobi/2025-12-26-04-06.json",
+          ".claude/skills/git-changes-reporter/SKILL.md",
+          ".claude/skills/git-changes-reporter/scripts/validate-report.js"
+        ]
+      },
+      {
+        "name": "账户管理",
+        "commits": [
+          "cb5126ccd",
+          "01bd109b8",
+          "a3371032e"
+        ],
+        "files": [
+          ".legion/config.json",
+          ".legion/ledger.csv",
+          ".legion/tasks/huobi-publicprivate-api-tokenbucket/context.md",
+          ".legion/tasks/huobi-publicprivate-api-tokenbucket/plan.md",
+          ".legion/tasks/huobi-publicprivate-api-tokenbucket/tasks.md",
+          "apps/vendor-huobi/src/api/private-api.ts",
+          "apps/vendor-huobi/src/api/public-api.ts",
+          "common/changes/@yuants/vendor-huobi/2025-12-26-04-06.json",
+          ".claude/skills/git-changes-reporter/SKILL.md",
+          ".claude/skills/git-changes-reporter/scripts/validate-report.js"
+        ]
+      },
+      {
+        "name": "市场数据",
+        "commits": [
+          "cb5126ccd",
+          "01bd109b8",
+          "a3371032e"
+        ],
+        "files": [
+          ".legion/config.json",
+          ".legion/ledger.csv",
+          ".legion/tasks/huobi-publicprivate-api-tokenbucket/context.md",
+          ".legion/tasks/huobi-publicprivate-api-tokenbucket/plan.md",
+          ".legion/tasks/huobi-publicprivate-api-tokenbucket/tasks.md",
+          "apps/vendor-huobi/src/api/private-api.ts",
+          "apps/vendor-huobi/src/api/public-api.ts",
+          "common/changes/@yuants/vendor-huobi/2025-12-26-04-06.json",
+          ".claude/skills/git-changes-reporter/SKILL.md",
+          ".claude/skills/git-changes-reporter/scripts/validate-report.js"
+        ]
+      },
+      {
+        "name": "接口重构",
+        "commits": [
+          "cb5126ccd"
+        ],
+        "files": [
+          ".legion/config.json",
+          ".legion/ledger.csv",
+          ".legion/tasks/huobi-publicprivate-api-tokenbucket/context.md",
+          ".legion/tasks/huobi-publicprivate-api-tokenbucket/plan.md",
+          ".legion/tasks/huobi-publicprivate-api-tokenbucket/tasks.md",
+          "apps/vendor-huobi/src/api/private-api.ts",
+          "apps/vendor-huobi/src/api/public-api.ts",
+          "common/changes/@yuants/vendor-huobi/2025-12-26-04-06.json"
+        ]
+      },
+      {
+        "name": "配置与环境",
+        "commits": [
+          "cb5126ccd",
+          "01bd109b8",
+          "a3371032e"
+        ],
+        "files": [
+          ".legion/config.json",
+          ".legion/ledger.csv",
+          ".legion/tasks/huobi-publicprivate-api-tokenbucket/context.md",
+          ".legion/tasks/huobi-publicprivate-api-tokenbucket/plan.md",
+          ".legion/tasks/huobi-publicprivate-api-tokenbucket/tasks.md",
+          "apps/vendor-huobi/src/api/private-api.ts",
+          "apps/vendor-huobi/src/api/public-api.ts",
+          "common/changes/@yuants/vendor-huobi/2025-12-26-04-06.json",
+          ".claude/skills/git-changes-reporter/SKILL.md",
+          ".claude/skills/git-changes-reporter/scripts/validate-report.js"
+        ]
+      },
+      {
+        "name": "文档",
+        "commits": [
+          "cb5126ccd",
+          "01bd109b8"
+        ],
+        "files": [
+          ".legion/config.json",
+          ".legion/ledger.csv",
+          ".legion/tasks/huobi-publicprivate-api-tokenbucket/context.md",
+          ".legion/tasks/huobi-publicprivate-api-tokenbucket/plan.md",
+          ".legion/tasks/huobi-publicprivate-api-tokenbucket/tasks.md",
+          "apps/vendor-huobi/src/api/private-api.ts",
+          "apps/vendor-huobi/src/api/public-api.ts",
+          "common/changes/@yuants/vendor-huobi/2025-12-26-04-06.json",
+          ".claude/skills/git-changes-reporter/SKILL.md",
+          ".claude/skills/git-changes-reporter/scripts/validate-report.js"
+        ]
+      }
+    ],
+    "riskIndicators": [
+      {
+        "type": "no_tests",
+        "severity": "medium",
+        "details": "包含功能或修复提交但未见测试文件更新",
+        "commits": []
+      },
+      {
+        "type": "api_change",
+        "severity": "high",
+        "details": "1 个提交修改了API或接口定义",
+        "commits": [
+          "cb5126ccd"
+        ]
+      }
+    ]
+  },
+  "metadata": {
+    "tool": "git-changes-reporter",
+    "version": "3.0.0",
+    "repository": "/home/runner/work/Yuan/Yuan"
+  }
+}
