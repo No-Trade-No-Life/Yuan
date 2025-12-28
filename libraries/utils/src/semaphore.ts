@@ -5,7 +5,7 @@ import { newError } from './error';
  * @internal
  */
 interface WaitingRequest {
-  resolve: () => void;
+  resolve: (disposable: Disposable) => void;
   reject: (reason?: any) => void;
   perms: number;
   signal?: AbortSignal;
@@ -40,19 +40,25 @@ export interface ISemaphore {
    *
    * 按照先到先得的顺序 (FIFO) 获取许可，如果当前可用许可不足，则等待直到有足够许可可用。
    *
+   * 支持 [显式资源管理] 释放获取的许可。(using 语法糖)
+   *
    * @param perms - 许可数量，默认值为 1
    * @param signal - 可选的 AbortSignal，用于取消等待
+   * @returns 一个 Promise，解析为一个 Disposable 对象，用于释放获取的许可
    */
-  acquire(perms?: number, signal?: AbortSignal): Promise<void>;
+  acquire(perms?: number, signal?: AbortSignal): Promise<Disposable>;
 
   /**
    * 同步获取许可
    *
    * 如果当前可用许可不足，则立即抛出错误
    *
+   * 支持 [显式资源管理] 释放获取的许可。(using 语法糖)
+   *
    * @param perms - 许可数量，默认值为 1
+   * @returns 一个 Disposable 对象，用于释放获取的许可
    */
-  acquireSync(perms?: number): void;
+  acquireSync(perms?: number): Disposable;
   /**
    * 释放许可
    *
@@ -85,7 +91,7 @@ export const semaphore = (semaphoreId: string): ISemaphore => {
     mapSemaphoreIdToState.set(semaphoreId, state);
   }
 
-  const acquire = async (perms: number = 1, signal?: AbortSignal): Promise<void> => {
+  const acquire = async (perms: number = 1, signal?: AbortSignal): Promise<Disposable> => {
     if (perms <= 0) throw newError('SEMAPHORE_INVALID_ACQUIRE_PERMS', { semaphoreId, perms });
 
     // 如果信号已经触发，立即拒绝
@@ -96,11 +102,16 @@ export const semaphore = (semaphoreId: string): ISemaphore => {
     // 如果有足够许可，立即获取
     if (state!.available >= perms) {
       state!.available -= perms;
-      return;
+
+      return {
+        [Symbol.dispose]() {
+          release(perms);
+        },
+      };
     }
 
     // 否则加入等待队列
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<Disposable>((resolve, reject) => {
       const waitingRequest: WaitingRequest = { resolve, reject, perms, signal };
       state!.queue.push(waitingRequest);
 
@@ -131,12 +142,16 @@ export const semaphore = (semaphoreId: string): ISemaphore => {
     });
   };
 
-  const acquireSync = (perms: number = 1): void => {
+  const acquireSync = (perms: number = 1): Disposable => {
     if (perms <= 0) throw newError('SEMAPHORE_INVALID_ACQUIRE_PERMS', { semaphoreId, perms });
     // 如果有足够许可，立即获取
     if (state!.available >= perms) {
       state!.available -= perms;
-      return;
+      return {
+        [Symbol.dispose]() {
+          release(perms);
+        },
+      };
     }
 
     // 否则抛出错误
@@ -158,7 +173,11 @@ export const semaphore = (semaphoreId: string): ISemaphore => {
         if (next.cleanup) {
           next.cleanup();
         }
-        next.resolve();
+        next.resolve({
+          [Symbol.dispose]() {
+            release(next.perms);
+          },
+        });
       } else {
         // 许可不足，停止处理
         break;
