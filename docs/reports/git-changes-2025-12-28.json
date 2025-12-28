@@ -1,0 +1,146 @@
+{
+  "range": {
+    "old": "01bd109b81db854cbeff3e5fed566de498cc6b36",
+    "new": "a3371032e14f7d0721b1defcf1c166a61a5f84cd",
+    "label": "01bd109b8..a3371032e",
+    "startDate": "2025-12-26",
+    "endDate": "2025-12-26",
+    "commitCount": 1,
+    "generatedAt": "2025-12-28T00:06:35.619Z"
+  },
+  "contributors": [
+    {
+      "name": "Siyuan Wang",
+      "email": "c.one@thrimbda.com",
+      "commits": 1
+    }
+  ],
+  "directoryAnalysis": {
+    "topLevel": [
+      {
+        "dir": ".github",
+        "fileCount": 1
+      }
+    ],
+    "projects": [
+      {
+        "project": ".github",
+        "fileCount": 1,
+        "marker": null
+      }
+    ],
+    "markersUsed": [
+      "package.json",
+      "Cargo.toml",
+      "go.mod",
+      "requirements.txt",
+      "pyproject.toml",
+      "setup.py",
+      "pom.xml",
+      "build.gradle",
+      "build.gradle.kts",
+      "CMakeLists.txt",
+      "Makefile",
+      "pubspec.yaml",
+      "mix.exs",
+      "Gemfile",
+      "composer.json"
+    ]
+  },
+  "commits": [
+    {
+      "hash": "a3371032e14f7d0721b1defcf1c166a61a5f84cd",
+      "short": "a3371032e",
+      "author": "Siyuan Wang",
+      "email": "c.one@thrimbda.com",
+      "authoredAt": "2025-12-26 14:11:28 +0800",
+      "subject": "feat: 更新 Claude Code 允许的工具，添加 Bash(node:*) 支持 (#2418)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": ".github/workflows/daily-git-report.yml",
+          "changeType": "modified",
+          "patch": "commit a3371032e14f7d0721b1defcf1c166a61a5f84cd\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Fri Dec 26 14:11:28 2025 +0800\n\n    feat: 更新 Claude Code 允许的工具，添加 Bash(node:*) 支持 (#2418)\n\ndiff --git a/.github/workflows/daily-git-report.yml b/.github/workflows/daily-git-report.yml\nindex a514e6706..e625cd881 100644\n--- a/.github/workflows/daily-git-report.yml\n+++ b/.github/workflows/daily-git-report.yml\n@@ -77 +77 @@ jobs:\n-          allowed_tools: 'Bash(git:*),Bash(touch:*),View,GlobTool,GrepTool,BatchTool,Edit,Read,Write'\n+          allowed_tools: 'Bash(git:*),Bash(touch:*),Bash(node:*),View,GlobTool,GrepTool,BatchTool,Edit,Read,Write'\n",
+          "codeSnippets": []
+        }
+      ]
+    }
+  ],
+  "analysis": {
+    "domains": [
+      {
+        "name": "API请求优化与限速",
+        "commits": [
+          "a3371032e"
+        ],
+        "files": [
+          ".github/workflows/daily-git-report.yml"
+        ]
+      },
+      {
+        "name": "安全与鉴权",
+        "commits": [
+          "a3371032e"
+        ],
+        "files": [
+          ".github/workflows/daily-git-report.yml"
+        ]
+      },
+      {
+        "name": "订单与交易",
+        "commits": [
+          "a3371032e"
+        ],
+        "files": [
+          ".github/workflows/daily-git-report.yml"
+        ]
+      },
+      {
+        "name": "账户管理",
+        "commits": [
+          "a3371032e"
+        ],
+        "files": [
+          ".github/workflows/daily-git-report.yml"
+        ]
+      },
+      {
+        "name": "市场数据",
+        "commits": [
+          "a3371032e"
+        ],
+        "files": [
+          ".github/workflows/daily-git-report.yml"
+        ]
+      },
+      {
+        "name": "配置与环境",
+        "commits": [
+          "a3371032e"
+        ],
+        "files": [
+          ".github/workflows/daily-git-report.yml"
+        ]
+      }
+    ],
+    "riskIndicators": [
+      {
+        "type": "no_tests",
+        "severity": "medium",
+        "details": "包含功能或修复提交但未见测试文件更新",
+        "commits": []
+      }
+    ]
+  },
+  "metadata": {
+    "tool": "git-changes-reporter",
+    "version": "3.0.0",
+    "repository": "/home/runner/work/Yuan/Yuan"
+  }
+}
