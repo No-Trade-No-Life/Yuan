@@ -1,6 +1,6 @@
 {
   "name": "@yuants/transfer",
-  "version": "0.2.43",
+  "version": "0.2.44",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [

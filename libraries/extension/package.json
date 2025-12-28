@@ -1,6 +1,6 @@
 {
   "name": "@yuants/extension",
-  "version": "0.2.35",
+  "version": "0.2.36",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [
