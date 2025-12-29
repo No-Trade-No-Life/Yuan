@@ -18,6 +18,7 @@
   "dependencies": {
     "@yuants/data-product": "workspace:*",
     "@yuants/data-account": "workspace:*",
+    "@yuants/data-ohlc": "workspace:*",
     "@yuants/data-order": "workspace:*",
     "@yuants/kernel": "workspace:*",
     "@yuants/protocol": "workspace:*",

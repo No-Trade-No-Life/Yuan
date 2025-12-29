@@ -6,8 +6,6 @@ import {
   Kernel,
   OrderMatchingUnit,
   PeriodDataUnit,
-  ProductDataUnit,
-  ProductLoadingUnit,
   QuoteDataUnit,
   SeriesDataUnit,
   TickDataUnit,
@@ -24,7 +22,6 @@ import {
   useMetric,
   useOHLC,
   useParamSchema,
-  useProduct,
   useRecordTable,
   useRef,
   useSeries,
@@ -41,8 +38,6 @@ export class AgentUnit extends BasicUnit {
   quoteDataUnit: QuoteDataUnit;
   tickDataUnit: TickDataUnit;
   orderMatchingUnit: OrderMatchingUnit;
-  productDataUnit: ProductDataUnit;
-  productLoadingUnit?: ProductLoadingUnit;
   dataLoadingTaskUnit: DataLoadingTaskUnit;
   periodDataUnit: PeriodDataUnit;
   accountInfoUnit: AccountInfoUnit;
@@ -70,17 +65,11 @@ export class AgentUnit extends BasicUnit {
     this.orderMatchingUnit = kernel.units.find(
       (unit): unit is OrderMatchingUnit => unit instanceof OrderMatchingUnit,
     )!;
-    this.productDataUnit = kernel.units.find(
-      (unit): unit is ProductDataUnit => unit instanceof ProductDataUnit,
-    )!;
 
     this.seriesDataUnit = kernel.units.find(
       (unit): unit is SeriesDataUnit => unit instanceof SeriesDataUnit,
     )!;
 
-    this.productLoadingUnit = kernel.units.find(
-      (unit): unit is ProductLoadingUnit => unit instanceof ProductLoadingUnit,
-    );
     this.periodDataUnit = kernel.units.find(
       (unit): unit is PeriodDataUnit => unit instanceof PeriodDataUnit,
     )!;
@@ -154,7 +143,6 @@ function makeScriptRunner(script: string): () => any {
     useAccountInfo,
     useLog,
     useParamSchema,
-    useProduct,
     useOHLC,
     useTick,
     useRecordTable,

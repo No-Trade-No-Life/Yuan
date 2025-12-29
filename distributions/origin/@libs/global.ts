@@ -5,7 +5,6 @@ export const global = {
   useMemoAsync,
   useAccountInfo,
   useLog,
-  useProduct,
   useOHLC,
   useTick,
   decodePath,

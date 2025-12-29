@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/agent",
+      "comment": "refactor product and ohlc loading",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/agent"
+}

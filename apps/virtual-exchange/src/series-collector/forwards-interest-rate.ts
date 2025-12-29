@@ -5,6 +5,7 @@
 
 import {
   IIngestInterestRateRequest,
+  IInterestRateServiceMetadata,
   ISeriesIngestResult,
   parseInterestRateServiceMetadataFromSchema,
 } from '@yuants/exchange';
@@ -20,17 +21,16 @@ const listBackwardSeriesIds = async () => {
 
   console.time('[SeriesCollector][InterestRate][Forwards] calc');
 
-  const series_ids = new Set<string>();
+  const series_ids = new Map<string, IInterestRateServiceMetadata>();
   for (const terminalInfo of terminal.terminalInfos) {
     for (const serviceInfo of Object.values(terminalInfo.serviceInfo || {})) {
       if (serviceInfo.method !== 'IngestInterestRate') continue;
       try {
         const meta = parseInterestRateServiceMetadataFromSchema(serviceInfo.schema);
-        if (meta.direction !== 'forward') continue;
 
         for (const { product_id } of product_ids) {
           if (!product_id.startsWith(meta.product_id_prefix)) continue;
-          series_ids.add(product_id);
+          series_ids.set(product_id, meta);
         }
       } finally {
       }
@@ -43,16 +43,13 @@ const listBackwardSeriesIds = async () => {
 };
 
 defer(async () => {
-  const time = Date.now();
   const series_ids = await listBackwardSeriesIds();
   console.log(
-    `[SeriesCollector][InterestRate][Forwards] Found ${
-      series_ids.size
-    } series to collect forwards data for. (${formatTime(Date.now() - time)})`,
+    `[SeriesCollector][InterestRate][Forwards] Found ${series_ids.size} series to collect forwards data for. `,
   );
 
   await Promise.all(
-    [...series_ids].map(async (product_id) => {
+    [...series_ids].map(async ([product_id, meta]) => {
       try {
         const [datasource_id] = decodePath(product_id);
         // 控制速率：每个数据源每秒钟只能请求一次
@@ -61,30 +58,39 @@ defer(async () => {
           capacity: 1,
         }).acquire();
         {
-          const [record] = await requestSQL<
-            {
-              end_time: string;
-            }[]
-          >(
-            terminal,
-            `select end_time from series_data_range where series_id = ${escapeSQL(
-              product_id,
-            )} and table_name = 'interest_rate' order by end_time desc limit 1`,
-          );
-          const time = record ? new Date(record.end_time).getTime() : 0;
+          let req: IIngestInterestRateRequest;
+          if (meta.direction === 'forward') {
+            const [record] = await requestSQL<
+              {
+                end_time: string;
+              }[]
+            >(
+              terminal,
+              `select end_time from series_data_range where series_id = ${escapeSQL(
+                product_id,
+              )} and table_name = 'interest_rate' order by end_time desc limit 1`,
+            );
+            const time = record ? new Date(record.end_time).getTime() : 0;
 
-          const req: IIngestInterestRateRequest = {
-            product_id: product_id,
-            direction: 'forward',
-            time,
-          };
+            req = {
+              product_id: product_id,
+              direction: 'forward',
+              time,
+            };
+          } else {
+            // backward
+            req = {
+              product_id,
+              direction: 'backward',
+              time: Date.now(),
+            };
+          }
 
           console.info(
             formatTime(Date.now()),
-            'DispatchIngestInterestRateRequestForwards',
-            `product_id=${product_id}, time=${formatTime(time)}`,
+            'DispatchIngestInterestRateRequestForwardTask',
+            `product_id=${req.product_id}, direction=${req.direction}, time=${formatTime(req.time)}`,
           );
-
           const res = await terminal.client.requestForResponseData<
             IIngestInterestRateRequest,
             ISeriesIngestResult
@@ -97,7 +103,7 @@ defer(async () => {
 
           console.info(
             formatTime(Date.now()),
-            'DispatchIngestInterestRateResultForwards',
+            'DispatchIngestInterestRateRequestForwardTaskResult',
             `series_id=${product_id}, ingested_count=${res.wrote_count}, start_time=${formatTime(
               res.range?.start_time ?? NaN,
             )}, end_time=${formatTime(res.range?.end_time ?? NaN)}`,
