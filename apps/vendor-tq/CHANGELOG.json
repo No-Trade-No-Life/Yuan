@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-tq",
   "entries": [
     {
+      "version": "0.4.50",
+      "tag": "@yuants/vendor-tq_v0.4.50",
+      "date": "Mon, 29 Dec 2025 08:52:40 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-ohlc\" to `0.6.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.49",
       "tag": "@yuants/vendor-tq_v0.4.49",
       "date": "Sun, 28 Dec 2025 14:50:18 GMT",
