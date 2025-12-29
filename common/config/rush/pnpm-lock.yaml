@@ -1773,6 +1773,7 @@ importers:
       '@yuants/protocol': workspace:*
       '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
+      '@yuants/utils': workspace:*
       date-fns: ~2.30.0
       date-fns-tz: ~2.0.0
       rxjs: ~7.5.6
@@ -1781,6 +1782,7 @@ importers:
     dependencies:
       '@yuants/protocol': link:../protocol
       '@yuants/sql': link:../sql
+      '@yuants/utils': link:../utils
       date-fns: 2.30.0
       date-fns-tz: 2.0.0_date-fns@2.30.0
       rxjs: 7.5.7

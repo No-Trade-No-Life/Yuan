@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-postgres-storage",
+      "comment": "support v2 API: return in cursor style",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/app-postgres-storage"
+}
