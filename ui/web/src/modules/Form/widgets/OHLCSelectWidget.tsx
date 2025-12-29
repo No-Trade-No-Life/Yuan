@@ -2,7 +2,6 @@ import { IconSearch } from '@douyinfe/semi-icons';
 import { AutoComplete } from '@douyinfe/semi-ui';
 import { FormContextType, RJSFSchema, StrictRJSFSchema, WidgetProps } from '@rjsf/utils';
 import { requestSQL } from '@yuants/sql';
-import { decodePath } from '@yuants/utils';
 import { Fzf } from 'fzf';
 import { useObservableState } from 'observable-hooks';
 import { useMemo } from 'react';
@@ -26,7 +25,12 @@ const HighlightChars = (props: { str: string; indices: Set<number> }) => {
 const seriesIdList$ = terminal$.pipe(
   filter((x): x is Exclude<typeof x, null> => !!x),
   switchMap((terminal) =>
-    defer(() => requestSQL<{ series_id: string }[]>(terminal, `select distinct(series_id) from ohlc`)).pipe(
+    defer(() =>
+      requestSQL<{ series_id: string }[]>(
+        terminal,
+        `select distinct series_id from series_data_range where table_name = 'ohlc_v2'`,
+      ),
+    ).pipe(
       retry({ delay: 10_000 }),
       map((x) => x.map((v) => v.series_id)),
     ),
@@ -42,9 +46,8 @@ export function OHLCSelectWidget<
 
   const options = useMemo(() => {
     return OHLCIdList.map((v) => {
-      const [datasource_id, product_id, duration] = decodePath(v);
       return {
-        label: `${datasource_id} / ${product_id} / ${duration}`,
+        label: v,
         value: v,
       };
     });

@@ -9,7 +9,6 @@ import {
   BasicUnit,
   HistoryOrderUnit,
   PeriodDataUnit,
-  ProductDataUnit,
   QuoteDataUnit,
   TerminateUnit,
 } from '../units';
@@ -28,12 +27,7 @@ export const OrderMergeReplayScene = (
   // 开始合并账户回放
 
   const quoteDataUnit = new QuoteDataUnit(kernel);
-  const productDataUnit = new ProductDataUnit(kernel);
-  {
-    for (const product of products) {
-      productDataUnit.updateProduct(product);
-    }
-  }
+
   const periodDataUnit = new PeriodDataUnit(kernel, quoteDataUnit);
   {
     const mapEventIdToPeriod = new Map<number, IOHLC>();
@@ -49,7 +43,7 @@ export const OrderMergeReplayScene = (
       }
     };
   }
-  const historyOrderUnit = new HistoryOrderUnit(kernel, quoteDataUnit, productDataUnit);
+  const historyOrderUnit = new HistoryOrderUnit(kernel, quoteDataUnit);
   {
     const mapEventIdToOrder = new Map<number, IOrder>();
     for (const order of orders) {
@@ -67,12 +61,11 @@ export const OrderMergeReplayScene = (
 
   const accountInfoUnit = new AccountSimulatorUnit(
     kernel,
-    productDataUnit,
     quoteDataUnit,
     historyOrderUnit,
     init_account_info,
   );
   const accountPerformanceUnit = new AccountPerformanceUnit(kernel, accountInfoUnit);
   new TerminateUnit(kernel);
-  return { kernel, accountInfoUnit, accountPerformanceUnit, productDataUnit, quoteDataUnit, periodDataUnit };
+  return { kernel, accountInfoUnit, accountPerformanceUnit, quoteDataUnit, periodDataUnit };
 };

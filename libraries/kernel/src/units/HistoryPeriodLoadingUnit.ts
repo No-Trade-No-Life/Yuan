@@ -1,4 +1,4 @@
-import { IOHLC } from '@yuants/data-ohlc';
+import { decodeOHLCSeriesId, IOHLC } from '@yuants/data-ohlc';
 import { Terminal } from '@yuants/protocol';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import { convertDurationToOffset, decodePath, formatTime } from '@yuants/utils';
@@ -6,7 +6,6 @@ import { Kernel } from '../kernel';
 import { BasicFileSystemUnit } from './BasicFileSystemUnit';
 import { BasicUnit } from './BasicUnit';
 import { PeriodDataUnit } from './PeriodDataUnit';
-import { ProductDataUnit } from './ProductDataUnit';
 
 const mapGroupBy = <T, K>(array: T[], keyFn: (item: T) => K): Map<K, T[]> => {
   return array.reduce((map, item) => {
@@ -24,12 +23,7 @@ const mapGroupBy = <T, K>(array: T[], keyFn: (item: T) => K): Map<K, T[]> => {
  * @public
  */
 export class HistoryPeriodLoadingUnit extends BasicUnit {
-  constructor(
-    public kernel: Kernel,
-    public terminal: Terminal,
-    public productDataUnit: ProductDataUnit,
-    public periodDataUnit: PeriodDataUnit,
-  ) {
+  constructor(public kernel: Kernel, public terminal: Terminal, public periodDataUnit: PeriodDataUnit) {
     super(kernel);
   }
   private mapEventIdToPeriod = new Map<number, IOHLC>();
@@ -46,7 +40,8 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
     this.fsUnit = this.kernel.findUnit(BasicFileSystemUnit);
 
     const queryData = async (series_id: string, start_time: string, end_time: string): Promise<IOHLC[]> => {
-      const [, , duration] = decodePath(series_id);
+      const { product_id, duration } = decodeOHLCSeriesId(series_id);
+      const [datasource_id] = decodePath(series_id);
       const t_start = new Date(start_time).getTime();
       const t_end = new Date(end_time).getTime();
       const ms = convertDurationToOffset(duration);
@@ -64,7 +59,7 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
 
         for (let i = start_index; i <= end_index; i++) {
           const t = i * chunk_step;
-          const filename = `/.Y/cache/ohlc/${encodeURIComponent(series_id)}/${encodeURIComponent(
+          const filename = `/.Y/cache/ohlc_v2/${encodeURIComponent(series_id)}/${encodeURIComponent(
             formatTime(t).slice(0, 10),
           )}.json`;
           this.kernel.log?.(`${formatTime(Date.now())} 正在从本地文件系统加载 ${filename}`);
@@ -110,7 +105,7 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
             t2,
           )}]`,
         );
-        const _sql = `select * from ohlc where series_id=${escapeSQL(
+        const _sql = `select * from ohlc_v2 where series_id=${escapeSQL(
           series_id,
         )} and created_at >= ${escapeSQL(formatTime(t1))} and created_at < ${escapeSQL(formatTime(t2))}
             order by created_at`;
@@ -123,9 +118,17 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
             )}] offset=${offset} step=${step}`,
           );
           const sql = `with t as (${_sql}) select * from t limit ${step} offset ${offset}`;
-          const _data = await requestSQL<IOHLC[]>(this.terminal, sql);
+          const _data = await requestSQL<Omit<IOHLC, 'datasource_id' | 'product_id' | 'duration'>[]>(
+            this.terminal,
+            sql,
+          );
           _data.forEach((x) => {
-            data.push(x);
+            data.push({
+              ...x,
+              datasource_id,
+              product_id,
+              duration,
+            });
           });
           if (_data.length < step) break;
         }
@@ -146,7 +149,7 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
           });
 
           for (const [start_time, chunk] of theMap) {
-            const filename = `/.Y/cache/ohlc/${encodeURIComponent(series_id)}/${encodeURIComponent(
+            const filename = `/.Y/cache/ohlc_v2/${encodeURIComponent(series_id)}/${encodeURIComponent(
               formatTime(start_time).slice(0, 10),
             )}.json`;
 

@@ -9,7 +9,6 @@ import { BasicUnit } from './BasicUnit';
 import { HistoryOrderUnit } from './HistoryOrderUnit';
 import { OrderMatchingUnit } from './OrderMatchingUnit';
 import { PeriodDataUnit } from './PeriodDataUnit';
-import { ProductDataUnit } from './ProductDataUnit';
 
 /**
  * @public
@@ -44,7 +43,6 @@ export class PortfolioSimulatorUnit extends BasicUnit {
     public kernel: Kernel,
     public coefficient_fn_str: string,
     public periodDataUnit: PeriodDataUnit,
-    public productDataUnit: ProductDataUnit,
     public mapAccountInfoToUnits: Record<
       string,
       {
@@ -192,10 +190,7 @@ export class PortfolioSimulatorUnit extends BasicUnit {
             : positionDiff.error_volume > 0
             ? 'OPEN_SHORT'
             : 'CLOSE_SHORT',
-        volume: roundToStep(
-          Math.abs(positionDiff.error_volume),
-          this.productDataUnit.getProduct(account_id, product_id)?.volume_step ?? 1,
-        ),
+        volume: roundToStep(Math.abs(positionDiff.error_volume), 1),
       };
       if (order.volume > 0) {
         ordersToSend.push(order);

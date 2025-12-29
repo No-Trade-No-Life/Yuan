@@ -1,5 +1,5 @@
-import { encodePath } from '@yuants/utils';
 import { useAgent, useEffect, useSeries } from '.';
+import { encodeOHLCSeriesId } from '@yuants/data-ohlc';
 
 /**
  * 使用 OHLC(V) 数据
@@ -9,14 +9,13 @@ import { useAgent, useEffect, useSeries } from '.';
  * @returns
  * @public
  */
-export const useOHLC = (datasource_id: string, product_id: string, duration: string) => {
+export const useOHLC = (product_id: string, duration: string) => {
   const agent = useAgent();
-  const series_id = encodePath(datasource_id, product_id, duration);
+  const series_id = encodeOHLCSeriesId(product_id, duration);
 
   const time = useSeries(`T(${series_id})`, undefined, {
     type: 'period',
     subType: 'timestamp_in_us',
-    datasource_id,
     product_id,
     duration,
   });
@@ -27,10 +26,6 @@ export const useOHLC = (datasource_id: string, product_id: string, duration: str
   const volume = useSeries(`VOL(${series_id})`, time);
 
   useEffect(() => {
-    agent.productLoadingUnit?.productTasks.push({
-      datasource_id,
-      product_id,
-    });
     agent.dataLoadingTaskUnit?.periodTasks.push({
       series_id,
       start_time: agent.options.start_time,

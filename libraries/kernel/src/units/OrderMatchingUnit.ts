@@ -8,7 +8,6 @@ import { AccountInfoUnit } from './AccountInfoUnit';
 import { BasicUnit } from './BasicUnit';
 import { HistoryOrderUnit } from './HistoryOrderUnit';
 import { PeriodDataUnit } from './PeriodDataUnit';
-import { ProductDataUnit } from './ProductDataUnit';
 import { QuoteDataUnit } from './QuoteDataUnit';
 import { TickDataUnit } from './TickDataUnit';
 
@@ -30,7 +29,6 @@ export interface IMatchingRange {
 export class OrderMatchingUnit extends BasicUnit {
   constructor(
     public kernel: Kernel,
-    public productDataUnit: ProductDataUnit,
     public periodDataUnit: PeriodDataUnit,
     public tickDataUnit: TickDataUnit,
     public accountInfoUnit: AccountInfoUnit,
@@ -213,16 +211,14 @@ export class OrderMatchingUnit extends BasicUnit {
         continue;
       }
       isSomeOrderTraded = true;
-      const theProduct = this.productDataUnit.getProduct(order.account_id, order.product_id);
-      const volume_step = theProduct?.volume_step ?? 1;
-      const volume = roundToStep(order.volume, volume_step);
+      const volume = roundToStep(order.volume, 1);
       const theOrder: IOrder = {
         ...order,
         filled_at: this.kernel.currentTimestamp,
         traded_price: tradedPrice,
         volume,
         traded_volume: volume,
-        traded_value: tradedPrice * volume * (theProduct?.value_scale ?? 1),
+        traded_value: tradedPrice * volume,
       };
       // 成交
       this.kernel.log?.(

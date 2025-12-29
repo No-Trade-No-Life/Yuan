@@ -1,5 +1,5 @@
 import { RealtimeTickLoadingUnit } from '@yuants/kernel';
-import { useAgent, useEffect, useProduct } from '.';
+import { useAgent, useEffect } from '.';
 import { IQuote } from '../../../data-quote/lib';
 
 /**
@@ -12,8 +12,6 @@ export const useTick = (
   product_id: string,
 ): IQuote | undefined => {
   const agent = useAgent();
-
-  useProduct(datasource_id, product_id);
 
   useEffect(() => {
     agent.kernel.findUnit(RealtimeTickLoadingUnit)?.addTickTask(datasource_id, product_id, account_id);
