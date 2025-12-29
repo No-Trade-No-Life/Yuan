@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-virtual-exchange
 
-This log was last generated on Mon, 29 Dec 2025 08:52:40 GMT and should not be manually modified.
+This log was last generated on Mon, 29 Dec 2025 09:49:47 GMT and should not be manually modified.
+
+## 0.15.0
+Mon, 29 Dec 2025 09:49:47 GMT
+
+### Minor changes
+
+- add forward interest_rate
 
 ## 0.14.0
 Mon, 29 Dec 2025 08:52:40 GMT
