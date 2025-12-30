@@ -13,6 +13,9 @@ import { decodePath, formatTime, tokenBucket } from '@yuants/utils';
 import { findInterestRateStartTimeBackward } from './sql-helpers';
 
 const terminal = Terminal.fromNodeEnv();
+const ingestCounter = terminal.metrics
+  .counter('series_collector_ingest_count', '')
+  .labels({ terminal_id: terminal.terminal_id, type: 'interest_rate', task: 'backward' });
 
 export const handleIngestInterestRateBackward = async (
   product_id: string,
@@ -52,10 +55,7 @@ export const handleIngestInterestRateBackward = async (
     req,
   );
 
-  terminal.metrics
-    .counter('series_collector_ingest_count', '')
-    .labels({ terminal_id: terminal.terminal_id, type: 'interest_rate', task: 'backward' })
-    .inc(res.wrote_count || 0);
+  ingestCounter.inc(res.wrote_count || 0);
 
   console.info(
     formatTime(Date.now()),
