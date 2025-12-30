@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-virtual-exchange",
+      "comment": "support patch scheduler for interest_rate",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/app-virtual-exchange"
+}
