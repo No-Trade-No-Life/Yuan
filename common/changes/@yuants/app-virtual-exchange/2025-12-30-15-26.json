@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-virtual-exchange",
+      "comment": "change direction of patch gap direction",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-virtual-exchange"
+}
