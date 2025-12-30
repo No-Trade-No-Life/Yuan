@@ -1,6 +1,17 @@
 # Change Log - @yuants/app-virtual-exchange
 
-This log was last generated on Tue, 30 Dec 2025 06:07:30 GMT and should not be manually modified.
+This log was last generated on Tue, 30 Dec 2025 16:55:11 GMT and should not be manually modified.
+
+## 0.17.0
+Tue, 30 Dec 2025 16:55:11 GMT
+
+### Minor changes
+
+- support patch scheduler for interest_rate
+
+### Patches
+
+- change direction of patch gap direction
 
 ## 0.16.0
 Tue, 30 Dec 2025 06:07:30 GMT
