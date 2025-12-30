@@ -2,6 +2,23 @@
   "name": "@yuants/app-virtual-exchange",
   "entries": [
     {
+      "version": "0.18.1",
+      "tag": "@yuants/app-virtual-exchange_v0.18.1",
+      "date": "Tue, 30 Dec 2025 19:10:02 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove default import series-collector from vex"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.18.0",
       "tag": "@yuants/app-virtual-exchange_v0.18.0",
       "date": "Tue, 30 Dec 2025 17:46:25 GMT",
