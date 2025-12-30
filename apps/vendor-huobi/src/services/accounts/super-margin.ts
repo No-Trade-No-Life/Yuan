@@ -18,7 +18,7 @@ export const getSuperMarginAccountInfo: IActionHandlerOfGetAccountInfo<ICredenti
   // get prices and create positions
   for (const currencyData of balanceList) {
     if (currencyData.balance === '0') continue;
-    const product_id = encodePath('HTX', 'SPOT', currencyData.currency + 'usdt');
+    const product_id = encodePath('HTX', 'SUPER-MARGIN', currencyData.currency + 'usdt');
     const quote = await quoteCache.query(currencyData.currency);
     const closable_price = currencyData.currency === 'usdt' ? 1 : +(quote?.ask_price ?? 0);
 
@@ -29,6 +29,7 @@ export const getSuperMarginAccountInfo: IActionHandlerOfGetAccountInfo<ICredenti
         volume: +currencyData.balance,
         free_volume: +currencyData.balance,
         closable_price: closable_price,
+        size: currencyData.balance,
       }),
     );
   }

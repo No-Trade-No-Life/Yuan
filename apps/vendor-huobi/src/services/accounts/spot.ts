@@ -24,6 +24,7 @@ export const getSpotAccountInfo: IActionHandlerOfGetAccountInfo<ICredential> = a
         volume: +(v.balance ?? 0),
         free_volume: +(v.balance ?? 0),
         closable_price: closable_price,
+        size: v.balance,
       }),
     );
   }
