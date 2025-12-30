@@ -23,7 +23,7 @@ export const handleIngestOHLCForward = async (
   const { product_id, duration } = decodeOHLCSeriesId(series_id);
   const [datasource_id] = decodePath(product_id);
   // 控制速率：每个数据源每秒钟只能请求一次
-  await tokenBucket(`ohlc:forward:${datasource_id}`).acquire();
+  await tokenBucket(`ohlc:forward:${datasource_id}`).acquire(1, signal);
   let req: IIngestOHLCRequest;
   if (direction === 'forward') {
     const [record] = await requestSQL<

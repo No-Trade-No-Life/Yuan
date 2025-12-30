@@ -1,5 +1,3 @@
-// 发现所有支持利率的品种系列ID
-
 import { encodeOHLCSeriesId } from '@yuants/data-ohlc';
 import {
   IInterestRateServiceMetadata,
