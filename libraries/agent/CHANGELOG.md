@@ -1,6 +1,13 @@
 # Change Log - @yuants/agent
 
-This log was last generated on Mon, 29 Dec 2025 08:52:40 GMT and should not be manually modified.
+This log was last generated on Tue, 30 Dec 2025 06:07:30 GMT and should not be manually modified.
+
+## 0.14.0
+Tue, 30 Dec 2025 06:07:30 GMT
+
+### Minor changes
+
+- refactor product and ohlc loading
 
 ## 0.13.157
 Mon, 29 Dec 2025 08:52:40 GMT
