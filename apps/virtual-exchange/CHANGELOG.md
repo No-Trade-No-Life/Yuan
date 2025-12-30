@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-virtual-exchange
 
-This log was last generated on Tue, 30 Dec 2025 16:55:11 GMT and should not be manually modified.
+This log was last generated on Tue, 30 Dec 2025 17:46:25 GMT and should not be manually modified.
+
+## 0.18.0
+Tue, 30 Dec 2025 17:46:25 GMT
+
+### Minor changes
+
+- enhance series collector
 
 ## 0.17.0
 Tue, 30 Dec 2025 16:55:11 GMT
