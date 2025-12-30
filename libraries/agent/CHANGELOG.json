@@ -2,6 +2,28 @@
   "name": "@yuants/agent",
   "entries": [
     {
+      "version": "0.14.0",
+      "tag": "@yuants/agent_v0.14.0",
+      "date": "Tue, 30 Dec 2025 06:07:30 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "refactor product and ohlc loading"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.16.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.13.157",
       "tag": "@yuants/agent_v0.13.157",
       "date": "Mon, 29 Dec 2025 08:52:40 GMT",

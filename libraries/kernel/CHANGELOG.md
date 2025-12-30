@@ -1,6 +1,13 @@
 # Change Log - @yuants/kernel
 
-This log was last generated on Mon, 29 Dec 2025 08:52:40 GMT and should not be manually modified.
+This log was last generated on Tue, 30 Dec 2025 06:07:30 GMT and should not be manually modified.
+
+## 0.16.0
+Tue, 30 Dec 2025 06:07:30 GMT
+
+### Minor changes
+
+- remove product info unit
 
 ## 0.15.73
 Mon, 29 Dec 2025 08:52:40 GMT
