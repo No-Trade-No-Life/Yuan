@@ -2,6 +2,28 @@
   "name": "@yuants/app-virtual-exchange",
   "entries": [
     {
+      "version": "0.17.0",
+      "tag": "@yuants/app-virtual-exchange_v0.17.0",
+      "date": "Tue, 30 Dec 2025 16:55:11 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "support patch scheduler for interest_rate"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "change direction of patch gap direction"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.16.0",
       "tag": "@yuants/app-virtual-exchange_v0.16.0",
       "date": "Tue, 30 Dec 2025 06:07:30 GMT",

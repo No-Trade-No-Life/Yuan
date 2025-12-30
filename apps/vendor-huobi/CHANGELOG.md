@@ -1,6 +1,14 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Mon, 29 Dec 2025 08:52:40 GMT and should not be manually modified.
+This log was last generated on Tue, 30 Dec 2025 16:55:11 GMT and should not be manually modified.
+
+## 0.18.6
+Tue, 30 Dec 2025 16:55:11 GMT
+
+### Patches
+
+- add union account mode position get
+- add order
 
 ## 0.18.5
 Mon, 29 Dec 2025 08:52:40 GMT
