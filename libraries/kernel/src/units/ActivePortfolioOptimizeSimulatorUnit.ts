@@ -11,7 +11,6 @@ import { HistoryOrderUnit } from './HistoryOrderUnit';
 import { OrderMatchingUnit } from './OrderMatchingUnit';
 import { PeriodDataUnit } from './PeriodDataUnit';
 import { IPortfolioStatistics } from './PortfolioSimulatorUnit';
-import { ProductDataUnit } from './ProductDataUnit';
 //@ts-ignore
 import qp from 'quadprog';
 
@@ -105,7 +104,6 @@ export class ActivePortfolioOptimizeSimulatorUnit extends BasicUnit {
   constructor(
     public kernel: Kernel,
     public periodDataUnit: PeriodDataUnit,
-    public productDataUnit: ProductDataUnit,
     public lambda: number,
     public mapAccountIdToUnits: Record<
       string,
@@ -250,10 +248,7 @@ export class ActivePortfolioOptimizeSimulatorUnit extends BasicUnit {
             : positionDiff.error_volume > 0
             ? 'OPEN_SHORT'
             : 'CLOSE_SHORT',
-        volume: roundToStep(
-          Math.abs(positionDiff.error_volume),
-          this.productDataUnit.getProduct(account_id, product_id)?.volume_step ?? 1,
-        ),
+        volume: roundToStep(Math.abs(positionDiff.error_volume), 1),
       };
       if (order.volume > 0) {
         ordersToSend.push(order);

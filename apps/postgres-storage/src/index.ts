@@ -84,3 +84,56 @@ terminal.server.provideService(
     }
   },
 );
+
+// SQL v2: 支持流式返回结果，需要在 requestSQL 中使用 for await 进行迭代
+terminal.server.provideService(
+  'SQL/v2',
+  {
+    required: ['query'],
+    properties: {
+      query: {
+        type: 'string',
+        description: 'SQL query to execute',
+      },
+    },
+  },
+  async function* (msg, { isAborted$ }) {
+    console.info(formatTime(Date.now()), 'SQL REQUEST', msg.trace_id);
+    const startTime = Date.now();
+    // 从msg中获取source_terminal_id
+    const source_terminal_id = msg.source_terminal_id || 'unknown';
+    // @ts-ignore
+    const query = sql.unsafe(msg.req.query);
+
+    from(isAborted$)
+      .pipe(
+        //
+        first((x) => x),
+        tap(() => {
+          console.info(formatTime(Date.now()), 'SQL ABORTED', msg.trace_id);
+          // ISSUE: cancel will break the sql query, which will cause the query to fail and be caught in the catch block
+          query.cancel();
+        }),
+      )
+      .subscribe();
+
+    try {
+      const cursor = query.cursor(1000);
+      for await (const rows of cursor) {
+        yield { frame: { data: rows } };
+      }
+      // 记录成功请求，添加source_terminal_id标签
+      totalSuccess.inc();
+      return { res: { code: 0, message: 'OK' } };
+    } catch (e) {
+      const duration = Date.now() - startTime;
+      console.error(formatTime(Date.now()), 'SQL ERROR', msg.trace_id, e);
+
+      // 记录失败请求，添加source_terminal_id标签
+      totalError.inc();
+      durationWhenError.observe(duration);
+
+      throw e;
+    }
+  },
+);

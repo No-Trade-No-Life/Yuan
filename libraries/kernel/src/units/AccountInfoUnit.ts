@@ -5,7 +5,6 @@ import { Kernel } from '../kernel';
 import { getMargin, getProfit } from '../utils';
 import { BasicUnit } from './BasicUnit';
 import { HistoryOrderUnit } from './HistoryOrderUnit';
-import { ProductDataUnit } from './ProductDataUnit';
 import { QuoteDataUnit } from './QuoteDataUnit';
 
 /**
@@ -14,7 +13,6 @@ import { QuoteDataUnit } from './QuoteDataUnit';
 export class AccountInfoUnit extends BasicUnit {
   constructor(
     public kernel: Kernel,
-    public productDataUnit: ProductDataUnit,
     public quoteDataUnit: QuoteDataUnit,
     public historyOrderUnit: HistoryOrderUnit,
   ) {
@@ -121,8 +119,6 @@ export class AccountInfoUnit extends BasicUnit {
           (this.mapAccountIdToBalance[accountId] || 0) + order.profit_correction;
       }
 
-      const theProduct = this.productDataUnit.getProduct(order.account_id, order.product_id)!;
-
       // 假设所有的 order 都有 position_id
       const variant =
         order.order_direction === 'OPEN_LONG' || order.order_direction === 'CLOSE_LONG' ? 'LONG' : 'SHORT';
@@ -134,12 +130,10 @@ export class AccountInfoUnit extends BasicUnit {
           thePosition.free_volume = thePosition.volume = order.volume;
         } else {
           // 开仓的时候，如果有头寸，就要更新头寸
-          const nextVolume = roundToStep(thePosition.volume + order.volume, theProduct.volume_step ?? 1);
-          const nextPositionPrice = theProduct.value_scale_unit
-            ? nextVolume /
-              (thePosition.volume / thePosition.position_price + order.volume / order.traded_price!)
-            : (thePosition.position_price * thePosition.volume + order.traded_price! * order.volume) /
-              nextVolume;
+          const nextVolume = roundToStep(thePosition.volume + order.volume, 1);
+          const nextPositionPrice =
+            (thePosition.position_price * thePosition.volume + order.traded_price! * order.volume) /
+            nextVolume;
           thePosition.volume = nextVolume;
           thePosition.free_volume = nextVolume;
           thePosition.position_price = nextPositionPrice;
@@ -150,18 +144,15 @@ export class AccountInfoUnit extends BasicUnit {
           // 平仓的时候，如果没有头寸，就不用管了
         } else {
           // 平仓的时候，如果有头寸，就要更新头寸
-          const tradedVolume = roundToStep(
-            Math.min(order.volume, thePosition.volume),
-            theProduct.volume_step ?? 1,
-          );
-          const nextVolume = roundToStep(thePosition.volume - tradedVolume, theProduct.volume_step ?? 1);
+          const tradedVolume = roundToStep(Math.min(order.volume, thePosition.volume), 1);
+          const nextVolume = roundToStep(thePosition.volume - tradedVolume, 1);
           thePosition.volume = nextVolume;
           thePosition.free_volume = nextVolume;
           // 更新余额
           this.mapAccountIdToBalance[accountId] =
             (this.mapAccountIdToBalance[accountId] || 0) +
             getProfit(
-              theProduct,
+              null,
               thePosition.position_price,
               order.traded_price!,
               tradedVolume,
@@ -186,12 +177,11 @@ export class AccountInfoUnit extends BasicUnit {
         if (!(position.volume > 0)) continue; // 过滤掉空的头寸
         const product_id = position.product_id;
         const quote = this.quoteDataUnit.getQuote(accountId, product_id);
-        const product = this.productDataUnit.getProduct(accountId, product_id);
-        if (product && quote) {
+        if (quote) {
           const closable_price = position.direction === 'LONG' ? quote.bid : quote.ask;
           const floating_profit =
             getProfit(
-              product,
+              null,
               position.position_price,
               closable_price,
               position.volume,
@@ -207,20 +197,18 @@ export class AccountInfoUnit extends BasicUnit {
           this.mapAccountIdToPositionIdToFloatingProfit[accountId][position.position_id] = floating_profit;
         }
         // 维护账户保证金
-        if (product) {
-          const used =
-            getMargin(
-              product,
-              position.position_price,
-              position.volume,
-              position.direction!,
-              theAccountInfo.money.currency,
-              (product_id) => this.quoteDataUnit.getQuote(accountId, product_id),
-            ) / (theAccountInfo.money.leverage ?? 1) || 0;
-          theAccountInfo.money.used +=
-            used - (this.mapAccountIdToPositionIdToUsed[accountId][position.position_id] || 0);
-          this.mapAccountIdToPositionIdToUsed[accountId][position.position_id] = used;
-        }
+        const used =
+          getMargin(
+            null,
+            position.position_price,
+            position.volume,
+            position.direction!,
+            theAccountInfo.money.currency,
+            (product_id) => this.quoteDataUnit.getQuote(accountId, product_id),
+          ) / (theAccountInfo.money.leverage ?? 1) || 0;
+        theAccountInfo.money.used +=
+          used - (this.mapAccountIdToPositionIdToUsed[accountId][position.position_id] || 0);
+        this.mapAccountIdToPositionIdToUsed[accountId][position.position_id] = used;
       }
     }
 

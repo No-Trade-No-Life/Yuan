@@ -32,6 +32,28 @@ export interface IOHLC {
 }
 
 // @public
+export const listOHLCSeriesIds: (terminal: Terminal, ctx: {
+    series_id_pattern?: string;
+    limit?: number;
+}) => Promise<string[]>;
+
+// @public
+export const loadOHLCBackward: (terminal: Terminal, ctx: {
+    product_id: string;
+    duration: string;
+    end_time: number;
+    limit?: number;
+}) => Promise<IOHLC[]>;
+
+// @public
+export const loadOHLCForward: (terminal: Terminal, ctx: {
+    product_id: string;
+    duration: string;
+    start_time: number;
+    limit?: number;
+}) => Promise<IOHLC[]>;
+
+// @public
 export function provideOHLCDurationService(terminal: Terminal, datasource_id: string, queryDurations: () => Promise<string[]> | string[]): void;
 
 // (No @packageDocumentation comment for this package)

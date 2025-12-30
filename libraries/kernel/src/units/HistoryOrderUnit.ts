@@ -2,7 +2,6 @@ import { IOrder } from '@yuants/data-order';
 import { Subject } from 'rxjs';
 import { Kernel } from '../kernel';
 import { BasicUnit } from './BasicUnit';
-import { ProductDataUnit } from './ProductDataUnit';
 import { QuoteDataUnit } from './QuoteDataUnit';
 
 /**
@@ -10,11 +9,7 @@ import { QuoteDataUnit } from './QuoteDataUnit';
  * @public
  */
 export class HistoryOrderUnit extends BasicUnit {
-  constructor(
-    public kernel: Kernel,
-    public quoteDataUnit: QuoteDataUnit,
-    public productDataUnit: ProductDataUnit,
-  ) {
+  constructor(public kernel: Kernel, public quoteDataUnit: QuoteDataUnit) {
     super(kernel);
   }
 

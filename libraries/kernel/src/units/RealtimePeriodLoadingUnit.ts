@@ -7,7 +7,6 @@ import { defer, repeat, retry, takeUntil, timeout } from 'rxjs';
 import { Kernel } from '../kernel';
 import { BasicUnit } from './BasicUnit';
 import { PeriodDataUnit } from './PeriodDataUnit';
-import { ProductDataUnit } from './ProductDataUnit';
 
 const mapDurationToCronPattern: Record<string, string> = {
   PT1M: '* * * * *',
@@ -24,12 +23,7 @@ const mapDurationToCronPattern: Record<string, string> = {
  * @public
  */
 export class RealtimePeriodLoadingUnit extends BasicUnit {
-  constructor(
-    public kernel: Kernel,
-    public terminal: Terminal,
-    public productDataUnit: ProductDataUnit,
-    public periodDataUnit: PeriodDataUnit,
-  ) {
+  constructor(public kernel: Kernel, public terminal: Terminal, public periodDataUnit: PeriodDataUnit) {
     super(kernel);
     this.kernel = kernel;
   }

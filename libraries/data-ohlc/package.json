@@ -1,6 +1,6 @@
 {
   "name": "@yuants/data-ohlc",
-  "version": "0.5.3",
+  "version": "0.6.0",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [
@@ -30,6 +30,7 @@
   "dependencies": {
     "@yuants/protocol": "workspace:*",
     "@yuants/sql": "workspace:*",
+    "@yuants/utils": "workspace:*",
     "date-fns": "~2.30.0",
     "date-fns-tz": "~2.0.0",
     "rxjs": "~7.5.6",

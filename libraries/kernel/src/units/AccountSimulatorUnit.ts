@@ -5,7 +5,6 @@ import { Kernel } from '../kernel';
 import { getMargin, getProfit } from '../utils';
 import { BasicUnit } from './BasicUnit';
 import { HistoryOrderUnit } from './HistoryOrderUnit';
-import { ProductDataUnit } from './ProductDataUnit';
 import { QuoteDataUnit } from './QuoteDataUnit';
 
 /**
@@ -16,7 +15,6 @@ import { QuoteDataUnit } from './QuoteDataUnit';
 export class AccountSimulatorUnit extends BasicUnit {
   constructor(
     public kernel: Kernel,
-    public productDataUnit: ProductDataUnit,
     public quoteDataUnit: QuoteDataUnit,
     public historyOrderUnit: HistoryOrderUnit,
     public accountInfo: IAccountInfo,
@@ -57,8 +55,6 @@ export class AccountSimulatorUnit extends BasicUnit {
         balance += order.profit_correction;
       }
 
-      const theProduct = this.productDataUnit.getProduct(order.account_id, order.product_id)!;
-
       // 假设所有的 order 都有 position_id
       const variant = order.order_direction === 'OPEN_LONG' ? 'LONG' : 'SHORT';
       const thePosition = this.getPosition(order.position_id!, order.product_id, variant);
@@ -69,12 +65,10 @@ export class AccountSimulatorUnit extends BasicUnit {
           thePosition.free_volume = thePosition.volume = order.volume;
         } else {
           // 开仓的时候，如果有头寸，就要更新头寸
-          const nextVolume = roundToStep(thePosition.volume + order.volume, theProduct?.volume_step ?? 1);
-          const nextPositionPrice = theProduct.value_scale_unit
-            ? nextVolume /
-              (thePosition.volume / thePosition.position_price + order.volume / order.traded_price!)
-            : (thePosition.position_price * thePosition.volume + order.traded_price! * order.volume) /
-              nextVolume;
+          const nextVolume = roundToStep(thePosition.volume + order.volume, 1);
+          const nextPositionPrice =
+            (thePosition.position_price * thePosition.volume + order.traded_price! * order.volume) /
+            nextVolume;
           const position: IPosition = {
             ...thePosition,
             volume: nextVolume,
@@ -89,11 +83,8 @@ export class AccountSimulatorUnit extends BasicUnit {
           // 平仓的时候，如果没有头寸，就不用管了
         } else {
           // 平仓的时候，如果有头寸，就要更新头寸
-          const tradedVolume = roundToStep(
-            Math.min(order.volume, thePosition.volume),
-            theProduct?.volume_step ?? 1,
-          );
-          const nextVolume = roundToStep(thePosition.volume - tradedVolume, theProduct?.volume_step ?? 1);
+          const tradedVolume = roundToStep(Math.min(order.volume, thePosition.volume), 1);
+          const nextVolume = roundToStep(thePosition.volume - tradedVolume, 1);
           // 如果头寸已经平仓完了，就删除头寸
           if (nextVolume === 0) {
             delete this.mapPositionIdToPosition[order.position_id!];
@@ -102,7 +93,7 @@ export class AccountSimulatorUnit extends BasicUnit {
           thePosition.free_volume = nextVolume;
           // 更新余额
           balance += getProfit(
-            theProduct,
+            null,
             thePosition.position_price,
             order.traded_price!,
             tradedVolume,
@@ -121,11 +112,10 @@ export class AccountSimulatorUnit extends BasicUnit {
       .map((position): IPosition => {
         const product_id = position.product_id;
         const quote = this.quoteDataUnit.getQuote(this.accountInfo.account_id, product_id);
-        const product = this.productDataUnit.getProduct(this.accountInfo.account_id, product_id);
-        if (product && quote) {
+        if (quote) {
           const closable_price = position.direction === 'LONG' ? quote.bid : quote.ask;
           const floating_profit = getProfit(
-            product,
+            null,
             position.position_price,
             closable_price,
             position.volume,
@@ -145,14 +135,10 @@ export class AccountSimulatorUnit extends BasicUnit {
       });
     // 维护账户保证金
     const used = positions.reduce((acc, cur) => {
-      const product = this.productDataUnit.getProduct(this.accountInfo.account_id, cur.product_id);
-      if (!product) {
-        return acc;
-      }
       return (
         acc +
         getMargin(
-          product,
+          null,
           cur.position_price,
           cur.volume,
           cur.direction!,

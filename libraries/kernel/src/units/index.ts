@@ -14,8 +14,6 @@ export * from './PeriodDataCheckingUnit';
 export * from './PeriodDataUnit';
 export * from './PeriodTaskUnit';
 export * from './PortfolioSimulatorUnit';
-export * from './ProductDataUnit';
-export * from './ProductLoadingUnit';
 export * from './QuoteDataUnit';
 export * from './RealtimePeriodLoadingUnit';
 export * from './RealtimeTickLoadingUnit';

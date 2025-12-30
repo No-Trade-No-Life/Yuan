@@ -8,7 +8,6 @@ import {
   Kernel,
   OrderMatchingUnit,
   PeriodDataUnit,
-  ProductDataUnit,
   QuoteDataUnit,
   SeriesDataUnit,
   TerminateUnit,
@@ -31,7 +30,6 @@ export const LocalAgentScene = async (agentConf: IAgentConf) => {
   if (agentConf.disable_log) {
     kernel.log = undefined;
   }
-  const productDataUnit = new ProductDataUnit(kernel);
   const quoteDataUnit = new QuoteDataUnit(kernel);
   new AccountDatasourceRelationUnit(kernel);
   const tickDataUnit = new TickDataUnit(kernel);
@@ -45,11 +43,10 @@ export const LocalAgentScene = async (agentConf: IAgentConf) => {
   //   }
   // };
   // const periodLoadingUnit = new StaticFileServerPeriodLoadingUnit(kernel, productDataUnit, periodDataUnit);
-  const historyOrderUnit = new HistoryOrderUnit(kernel, quoteDataUnit, productDataUnit);
-  const accountInfoUnit = new AccountInfoUnit(kernel, productDataUnit, quoteDataUnit, historyOrderUnit);
+  const historyOrderUnit = new HistoryOrderUnit(kernel, quoteDataUnit);
+  const accountInfoUnit = new AccountInfoUnit(kernel, quoteDataUnit, historyOrderUnit);
   const orderMatchingUnit = new OrderMatchingUnit(
     kernel,
-    productDataUnit,
     periodDataUnit,
     tickDataUnit,
     accountInfoUnit,
@@ -74,8 +71,6 @@ export const LocalAgentScene = async (agentConf: IAgentConf) => {
     agentUnit,
     periodDataUnit,
     quoteDataUnit,
-    productDataUnit,
-
     accountInfoUnit,
     accountPerformanceUnit,
     historyOrderUnit,

@@ -30,7 +30,7 @@ export class AccountDatasourceRelationUnit extends BasicUnit {
 
 // @public (undocumented)
 export class AccountInfoUnit extends BasicUnit {
-    constructor(kernel: Kernel, productDataUnit: ProductDataUnit, quoteDataUnit: QuoteDataUnit, historyOrderUnit: HistoryOrderUnit);
+    constructor(kernel: Kernel, quoteDataUnit: QuoteDataUnit, historyOrderUnit: HistoryOrderUnit);
     // (undocumented)
     dump(): {
         mapAccountIdToAccountInfo: {
@@ -54,8 +54,6 @@ export class AccountInfoUnit extends BasicUnit {
     onInit(): void | Promise<void>;
     // (undocumented)
     orderIdx: number;
-    // (undocumented)
-    productDataUnit: ProductDataUnit;
     // (undocumented)
     quoteDataUnit: QuoteDataUnit;
     // (undocumented)
@@ -128,7 +126,7 @@ export const AccountReplayScene: (terminal: Terminal, account_id: string, curren
 
 // @public @deprecated
 export class AccountSimulatorUnit extends BasicUnit {
-    constructor(kernel: Kernel, productDataUnit: ProductDataUnit, quoteDataUnit: QuoteDataUnit, historyOrderUnit: HistoryOrderUnit, accountInfo: IAccountInfo);
+    constructor(kernel: Kernel, quoteDataUnit: QuoteDataUnit, historyOrderUnit: HistoryOrderUnit, accountInfo: IAccountInfo);
     // (undocumented)
     accountInfo: IAccountInfo;
     // (undocumented)
@@ -141,8 +139,6 @@ export class AccountSimulatorUnit extends BasicUnit {
     onEvent(): void;
     // (undocumented)
     onInit(): void | Promise<void>;
-    // (undocumented)
-    productDataUnit: ProductDataUnit;
     // (undocumented)
     quoteDataUnit: QuoteDataUnit;
 }
@@ -223,20 +219,20 @@ export class DataLoadingTaskUnit extends BasicUnit {
 export const diffPosition: (source: IPosition[], target: IPosition[]) => IPositionDiff[];
 
 // @public
-export const getMargin: (product: IProduct, openPrice: number, volume: number, direction: string, currency: string, quote: (product_id: string) => {
+export const getMargin: (product: IProduct | null, openPrice: number, volume: number, direction: string, currency: string, quote: (product_id: string) => {
     ask: number;
     bid: number;
 } | undefined) => number;
 
 // @public
-export const getProfit: (product: IProduct, openPrice: number, closePrice: number, volume: number, direction: string, currency: string, quotes: (product_id: string) => {
+export const getProfit: (product: IProduct | null, openPrice: number, closePrice: number, volume: number, direction: string, currency: string, quotes: (product_id: string) => {
     ask: number;
     bid: number;
 } | undefined) => number;
 
 // @public
 export class HistoryOrderUnit extends BasicUnit {
-    constructor(kernel: Kernel, quoteDataUnit: QuoteDataUnit, productDataUnit: ProductDataUnit);
+    constructor(kernel: Kernel, quoteDataUnit: QuoteDataUnit);
     // (undocumented)
     dump(): {
         historyOrders: IOrder[];
@@ -246,8 +242,6 @@ export class HistoryOrderUnit extends BasicUnit {
     kernel: Kernel;
     orderUpdated$: Observable<IOrder>;
     // (undocumented)
-    productDataUnit: ProductDataUnit;
-    // (undocumented)
     quoteDataUnit: QuoteDataUnit;
     // (undocumented)
     restore(state: any): void;
@@ -256,7 +250,7 @@ export class HistoryOrderUnit extends BasicUnit {
 
 // @public
 export class HistoryPeriodLoadingUnit extends BasicUnit {
-    constructor(kernel: Kernel, terminal: Terminal, productDataUnit: ProductDataUnit, periodDataUnit: PeriodDataUnit);
+    constructor(kernel: Kernel, terminal: Terminal, periodDataUnit: PeriodDataUnit);
     // (undocumented)
     dump(): {
         periodTasks: {
@@ -282,8 +276,6 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
         start_time: number;
         end_time: number;
     }[];
-    // (undocumented)
-    productDataUnit: ProductDataUnit;
     // (undocumented)
     restore(state: any): void;
     // (undocumented)
@@ -498,7 +490,7 @@ export class OrderLoadingUnit extends BasicUnit {
 
 // @public
 export class OrderMatchingUnit extends BasicUnit {
-    constructor(kernel: Kernel, productDataUnit: ProductDataUnit, periodDataUnit: PeriodDataUnit, tickDataUnit: TickDataUnit, accountInfoUnit: AccountInfoUnit, historyOrderUnit: HistoryOrderUnit, quoteDataUnit: QuoteDataUnit);
+    constructor(kernel: Kernel, periodDataUnit: PeriodDataUnit, tickDataUnit: TickDataUnit, accountInfoUnit: AccountInfoUnit, historyOrderUnit: HistoryOrderUnit, quoteDataUnit: QuoteDataUnit);
     // (undocumented)
     accountInfoUnit: AccountInfoUnit;
     // (undocumented)
@@ -529,8 +521,6 @@ export class OrderMatchingUnit extends BasicUnit {
     // (undocumented)
     periodDataUnit: PeriodDataUnit;
     // (undocumented)
-    productDataUnit: ProductDataUnit;
-    // (undocumented)
     quoteDataUnit: QuoteDataUnit;
     // (undocumented)
     restore(state: any): void;
@@ -545,7 +535,6 @@ export const OrderMergeReplayScene: (kernel: Kernel, init_account_info: IAccount
     kernel: Kernel;
     accountInfoUnit: AccountSimulatorUnit;
     accountPerformanceUnit: AccountPerformanceUnit;
-    productDataUnit: ProductDataUnit;
     quoteDataUnit: QuoteDataUnit;
     periodDataUnit: PeriodDataUnit;
 };
@@ -596,7 +585,7 @@ export class PeriodMetricsUnit extends BasicUnit {
 
 // @public
 export class PortfolioSimulatorUnit extends BasicUnit {
-    constructor(kernel: Kernel, coefficient_fn_str: string, periodDataUnit: PeriodDataUnit, productDataUnit: ProductDataUnit, mapAccountInfoToUnits: Record<string, {
+    constructor(kernel: Kernel, coefficient_fn_str: string, periodDataUnit: PeriodDataUnit, mapAccountInfoToUnits: Record<string, {
         accountInfoUnit: AccountSimulatorUnit;
         accountPerformanceUnit: AccountPerformanceUnit;
         originAccountInfoUnit: AccountSimulatorUnit;
@@ -620,8 +609,6 @@ export class PortfolioSimulatorUnit extends BasicUnit {
     // (undocumented)
     periodDataUnit: PeriodDataUnit;
     // (undocumented)
-    productDataUnit: ProductDataUnit;
-    // (undocumented)
     statistics: IPortfolioStatistics[];
     // (undocumented)
     targetAccountInfoUnit: AccountSimulatorUnit;
@@ -629,53 +616,6 @@ export class PortfolioSimulatorUnit extends BasicUnit {
     targetAccountPerformanceUnit: AccountPerformanceUnit;
     // (undocumented)
     targetOrderMatchingUnit: OrderMatchingUnit;
-}
-
-// @public
-export class ProductDataUnit extends BasicUnit {
-    // (undocumented)
-    dump(): {
-        mapProductIdToProduct: Record<string, Record<string, IProduct>>;
-    };
-    // (undocumented)
-    getProduct(datasource_id: string, product_id: string): IProduct | undefined;
-    // (undocumented)
-    listProducts(): IProduct[];
-    // (undocumented)
-    onInit(): void | Promise<void>;
-    // (undocumented)
-    restore(state: any): void;
-    // (undocumented)
-    updateProduct(product: IProduct): void;
-}
-
-// @public
-export class ProductLoadingUnit extends BasicUnit {
-    constructor(kernel: Kernel, terminal: Terminal, productDataUnit: ProductDataUnit, options?: {} | undefined);
-    // (undocumented)
-    dump(): {
-        productTasks: {
-            datasource_id: string;
-            product_id: string;
-        }[];
-    };
-    // (undocumented)
-    kernel: Kernel;
-    // (undocumented)
-    onInit(): Promise<void>;
-    // (undocumented)
-    options?: {} | undefined;
-    // (undocumented)
-    productDataUnit: ProductDataUnit;
-    // (undocumented)
-    productTasks: {
-        datasource_id: string;
-        product_id: string;
-    }[];
-    // (undocumented)
-    restore(state: any): void;
-    // (undocumented)
-    terminal: Terminal;
 }
 
 // @public
@@ -713,7 +653,7 @@ export class QuoteMetricsUnit extends BasicUnit {
 
 // @public
 export class RealtimePeriodLoadingUnit extends BasicUnit {
-    constructor(kernel: Kernel, terminal: Terminal, productDataUnit: ProductDataUnit, periodDataUnit: PeriodDataUnit);
+    constructor(kernel: Kernel, terminal: Terminal, periodDataUnit: PeriodDataUnit);
     // (undocumented)
     kernel: Kernel;
     // (undocumented)
@@ -722,8 +662,6 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
     onInit(): Promise<void>;
     // (undocumented)
     periodDataUnit: PeriodDataUnit;
-    // (undocumented)
-    productDataUnit: ProductDataUnit;
     // (undocumented)
     seriesIdList: string[];
     // (undocumented)

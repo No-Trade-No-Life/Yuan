@@ -5,5 +5,4 @@ export * from './useExchange';
 export * from './useMetric';
 export * from './useOHLC';
 export * from './useParamSchema';
-export * from './useProduct';
 export * from './useTick';

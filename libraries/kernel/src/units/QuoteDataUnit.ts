@@ -1,6 +1,5 @@
 import { AccountDatasourceRelationUnit } from './AccountDatasouceRelationUnit';
 import { BasicUnit } from './BasicUnit';
-import { ProductDataUnit } from './ProductDataUnit';
 
 interface IQuote {
   datasource_id: string;
@@ -15,7 +14,6 @@ interface IQuote {
  */
 export class QuoteDataUnit extends BasicUnit {
   private adrUnit: AccountDatasourceRelationUnit | undefined;
-  private productDataUnit: ProductDataUnit | undefined;
   private mapProductIdToQuote: Record<string, Record<string, IQuote>> = {};
   private mapDatasourceIdMapProductIdToAccountIds: Record<string, Record<string, Set<string>>> = {};
   private currentEventId: number = -1;
@@ -26,7 +24,6 @@ export class QuoteDataUnit extends BasicUnit {
 
   onInit(): void | Promise<void> {
     this.adrUnit = this.kernel.findUnit(AccountDatasourceRelationUnit);
-    this.productDataUnit = this.kernel.findUnit(ProductDataUnit);
     if (this.adrUnit) {
       for (const relation of this.adrUnit.list()) {
         ((this.mapDatasourceIdMapProductIdToAccountIds[relation.datasource_id] ??= {})[
@@ -65,23 +62,6 @@ export class QuoteDataUnit extends BasicUnit {
       ask,
       bid,
     });
-    if (this.productDataUnit) {
-      const theProduct = this.productDataUnit.getProduct(datasource_id, product_id);
-      if (theProduct?.base_currency && theProduct.quote_currency) {
-        this._updateQuote({
-          datasource_id,
-          product_id: `${theProduct.base_currency}${theProduct.quote_currency}`,
-          ask,
-          bid,
-        });
-        this._updateQuote({
-          datasource_id,
-          product_id: `${theProduct.quote_currency}${theProduct.base_currency}`,
-          ask: 1 / bid,
-          bid: 1 / ask,
-        });
-      }
-    }
   }
 
   listQuotes(): IQuote[] {

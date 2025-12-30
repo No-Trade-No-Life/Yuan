@@ -14,7 +14,7 @@ import { IProduct } from '@yuants/data-product';
  * @returns - 盈亏
  */
 export const getProfit = (
-  product: IProduct,
+  product: IProduct | null,
   openPrice: number,
   closePrice: number,
   volume: number,
@@ -25,9 +25,9 @@ export const getProfit = (
   (direction === 'LONG' ? 1 : -1) *
   volume *
   (closePrice - openPrice) *
-  (product.value_scale ?? 1) *
-  (product.value_scale_unit ? 1 / openPrice : 1) *
-  (product.quote_currency !== currency
+  (product?.value_scale ?? 1) *
+  (product?.value_scale_unit ? 1 / openPrice : 1) *
+  (product && product.quote_currency !== currency
     ? (direction === 'LONG'
         ? quotes(`${product.quote_currency}${currency}`)?.bid
         : quotes(`${product.quote_currency}${currency}`)?.ask) ?? 1
@@ -45,7 +45,7 @@ export const getProfit = (
  * @returns - 保证金
  */
 export const getMargin = (
-  product: IProduct,
+  product: IProduct | null,
   openPrice: number,
   volume: number,
   direction: string,
@@ -53,10 +53,10 @@ export const getMargin = (
   quote: (product_id: string) => { ask: number; bid: number } | undefined,
 ) =>
   volume *
-  (product.value_scale ?? 1) *
-  (product.value_scale_unit ? 1 : openPrice) *
-  (product.margin_rate ?? 1) *
-  (product.quote_currency !== currency
+  (product?.value_scale ?? 1) *
+  (product?.value_scale_unit ? 1 : openPrice) *
+  (product?.margin_rate ?? 1) *
+  (product && product.quote_currency !== currency
     ? (direction === 'LONG'
         ? quote(`${product.quote_currency}${currency}`)?.bid
         : quote(`${product.quote_currency}${currency}`)?.ask) ?? 1

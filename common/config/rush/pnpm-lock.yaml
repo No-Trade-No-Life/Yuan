@@ -1624,6 +1624,7 @@ importers:
       '@types/json-schema': 7.0.11
       '@types/node': '22'
       '@yuants/data-account': workspace:*
+      '@yuants/data-ohlc': workspace:*
       '@yuants/data-order': workspace:*
       '@yuants/data-product': workspace:*
       '@yuants/kernel': workspace:*
@@ -1636,6 +1637,7 @@ importers:
       typescript: ~4.7.4
     dependencies:
       '@yuants/data-account': link:../data-account
+      '@yuants/data-ohlc': link:../data-ohlc
       '@yuants/data-order': link:../data-order
       '@yuants/data-product': link:../data-product
       '@yuants/kernel': link:../kernel
@@ -1773,6 +1775,7 @@ importers:
       '@yuants/protocol': workspace:*
       '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
+      '@yuants/utils': workspace:*
       date-fns: ~2.30.0
       date-fns-tz: ~2.0.0
       rxjs: ~7.5.6
@@ -1781,6 +1784,7 @@ importers:
     dependencies:
       '@yuants/protocol': link:../protocol
       '@yuants/sql': link:../sql
+      '@yuants/utils': link:../utils
       date-fns: 2.30.0
       date-fns-tz: 2.0.0_date-fns@2.30.0
       rxjs: 7.5.7

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/kernel",
+      "comment": "remove product info unit",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/kernel"
+}

@@ -2,6 +2,48 @@
   "name": "@yuants/app-virtual-exchange",
   "entries": [
     {
+      "version": "0.15.0",
+      "tag": "@yuants/app-virtual-exchange_v0.15.0",
+      "date": "Mon, 29 Dec 2025 09:49:47 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add forward interest_rate"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.14.0",
+      "tag": "@yuants/app-virtual-exchange_v0.14.0",
+      "date": "Mon, 29 Dec 2025 08:52:40 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "support forward ohlc"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-ohlc\" to `0.6.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.6`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.13.0",
       "tag": "@yuants/app-virtual-exchange_v0.13.0",
       "date": "Sun, 28 Dec 2025 14:50:18 GMT",

@@ -11,11 +11,8 @@ import {
   Kernel,
   KernelFramesMetricsUnit,
   OrderMatchingUnit,
-  PeriodDataCheckingUnit,
   PeriodDataUnit,
   PeriodMetricsUnit,
-  ProductDataUnit,
-  ProductLoadingUnit,
   QuoteDataUnit,
   QuoteMetricsUnit,
   RealtimePeriodLoadingUnit,
@@ -115,8 +112,6 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
   if (agentConf.disable_log) {
     kernel.log = undefined;
   }
-  const productDataUnit = new ProductDataUnit(kernel);
-  const productLoadingUnit = new ProductLoadingUnit(kernel, terminal, productDataUnit);
   const quoteDataUnit = new QuoteDataUnit(kernel);
   new AccountDatasourceRelationUnit(kernel);
   const tickDataUnit = new TickDataUnit(kernel);
@@ -128,19 +123,14 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
       periodLoadingUnit.periodTasks.push({ ...periodTask });
     }
   };
-  const periodLoadingUnit = new HistoryPeriodLoadingUnit(kernel, terminal, productDataUnit, periodDataUnit);
+  const periodLoadingUnit = new HistoryPeriodLoadingUnit(kernel, terminal, periodDataUnit);
   if (agentConf.is_real) {
     new BasicUnit(kernel).onInit = () => {
       for (const periodTask of periodLoadingUnit.periodTasks) {
         realtimePeriodLoadingUnit.seriesIdList.push(periodTask.series_id);
       }
     };
-    const realtimePeriodLoadingUnit = new RealtimePeriodLoadingUnit(
-      kernel,
-      terminal,
-      productDataUnit,
-      periodDataUnit,
-    );
+    const realtimePeriodLoadingUnit = new RealtimePeriodLoadingUnit(kernel, terminal, periodDataUnit);
     const realtimeTickLoadingUnit = new RealtimeTickLoadingUnit(
       kernel,
       terminal,
@@ -149,11 +139,10 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
     );
   }
 
-  const historyOrderUnit = new HistoryOrderUnit(kernel, quoteDataUnit, productDataUnit);
-  const accountInfoUnit = new AccountInfoUnit(kernel, productDataUnit, quoteDataUnit, historyOrderUnit);
+  const historyOrderUnit = new HistoryOrderUnit(kernel, quoteDataUnit);
+  const accountInfoUnit = new AccountInfoUnit(kernel, quoteDataUnit, historyOrderUnit);
   const orderMatchingUnit = new OrderMatchingUnit(
     kernel,
-    productDataUnit,
     periodDataUnit,
     tickDataUnit,
     accountInfoUnit,
@@ -208,8 +197,6 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
     agentUnit,
     periodDataUnit,
     quoteDataUnit,
-    productDataUnit,
-
     accountInfoUnit,
     accountPerformanceUnit,
     historyOrderUnit,

@@ -515,10 +515,6 @@ declare class Series extends Array<number> {
 /** Use a series */
 declare const useSeries: (name: string, parent: Series | undefined, tags?: Record<string, any>) => Series;
 
-// Business class Hook
-/** Use product information */
-declare const useProduct: (datasource_id: string, product_id: string) => IProduct;
-
 /**
  * Use OHLC Period Data
  * @param datasource_id - Data source ID

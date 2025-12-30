@@ -11,13 +11,10 @@ import { DataLoadingTaskUnit } from '@yuants/kernel';
 import { HistoryOrderUnit } from '@yuants/kernel';
 import { IAccountInfo } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
-import { IProduct } from '@yuants/data-product';
 import { JSONSchema7 } from 'json-schema';
 import { Kernel } from '@yuants/kernel';
 import { OrderMatchingUnit } from '@yuants/kernel';
 import { PeriodDataUnit } from '@yuants/kernel';
-import { ProductDataUnit } from '@yuants/kernel';
-import { ProductLoadingUnit } from '@yuants/kernel';
 import { QuoteDataUnit } from '@yuants/kernel';
 import { Series } from '@yuants/kernel';
 import { SeriesDataUnit } from '@yuants/kernel';
@@ -33,7 +30,6 @@ export const AgentScene: (terminal: Terminal, agentConf: IAgentConf) => Promise<
     agentUnit: AgentUnit;
     periodDataUnit: PeriodDataUnit;
     quoteDataUnit: QuoteDataUnit;
-    productDataUnit: ProductDataUnit;
     accountInfoUnit: AccountInfoUnit;
     accountPerformanceUnit: AccountPerformanceHubUnit;
     historyOrderUnit: HistoryOrderUnit;
@@ -79,10 +75,6 @@ export class AgentUnit extends BasicUnit {
     paramsSchema: JSONSchema7;
     // (undocumented)
     periodDataUnit: PeriodDataUnit;
-    // (undocumented)
-    productDataUnit: ProductDataUnit;
-    // (undocumented)
-    productLoadingUnit?: ProductLoadingUnit;
     // (undocumented)
     quoteDataUnit: QuoteDataUnit;
     // (undocumented)
@@ -152,7 +144,7 @@ export const useMemoAsync: <T>(fn: () => Promise<T>, deps?: any[]) => Promise<T>
 export const useMetric: (name: string, value: number, labels?: Record<string, string>) => void;
 
 // @public
-export const useOHLC: (datasource_id: string, product_id: string, duration: string) => {
+export const useOHLC: (product_id: string, duration: string) => {
     time: Series;
     open: Series;
     high: Series;
@@ -163,9 +155,6 @@ export const useOHLC: (datasource_id: string, product_id: string, duration: stri
 
 // @public
 export const useParamSchema: <T>(key: string, schema: JSONSchema7) => T;
-
-// @public
-export const useProduct: (datasource_id: string, product_id: string) => IProduct;
 
 // @public
 export const useRecordTable: (name: string) => Record<string, any>[];
