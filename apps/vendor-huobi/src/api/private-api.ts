@@ -683,3 +683,100 @@ export const getAccountHistory = (
 }> => {
   return spotPrivateQueryRequest(credential, 'GET', '/v1/account/history', params);
 };
+
+/**
+ * 查询资产模式
+ *
+ * https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb89359-77b5-11ed-9966-1957dd37de0
+ */
+export const getAccountAssetsMode = (
+  credential: ICredential,
+): Promise<{
+  code: number;
+  msg: string;
+  data: {
+    asset_mode: number;
+  };
+  ts: number;
+}> => {
+  return linearSwapPrivateQueryRequest(credential, 'GET', '/v5/account/asset_mode');
+};
+
+/**
+ * 查询联合保证金账户余额
+ *
+ * https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb89359-77b5-11ed-9966-195703a12d5
+ */
+export const getUnionAccountBalance = (
+  credential: ICredential,
+): Promise<{
+  code: number;
+  message: string;
+  data: {
+    available_margin: string;
+    created_time: number;
+    details: {
+      available: string;
+      created_time: number;
+      currency: string;
+      equity: string;
+      initial_margin: string;
+      initial_margin_rate: string;
+      maintenance_margin: string;
+      maintenance_margin_rate: string;
+      profit_unreal: string;
+      voucher: string;
+      voucher_value: string;
+      withdraw_available: string;
+      updated_time: number;
+    }[];
+    equity: string;
+    initial_margin: string;
+    maintenance_margin: string;
+    maintenance_margin_rate: string;
+    profit_unreal: string;
+    state: string;
+    voucher_value: string;
+    updated_time: number;
+  };
+  ts: number;
+}> => {
+  return linearSwapPrivateQueryRequest(credential, 'GET', '/v5/account/balance');
+};
+
+/**
+ * 查询联合保证金账户持仓
+ *
+ * https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb89359-77b5-11ed-9966-1957f1fbee4
+ */
+export const getUnionAccountPositions = (
+  credential: ICredential,
+): Promise<{
+  code: number;
+  message: string;
+  data: {
+    contract_code: string;
+    position_side: string;
+    direction: string;
+    margin_mode: string;
+    open_avg_price: string;
+    volume: string;
+    available: string;
+    lever_rate: number;
+    adl_risk_percent: null;
+    liquidation_price: string;
+    initial_margin: string;
+    maintenance_margin: string;
+    profit_unreal: string;
+    profit_rate: string;
+    margin_rate: string;
+    mark_price: string;
+    margin_currency: string;
+    contract_type: string;
+    created_time: number;
+    updated_time: number;
+  }[];
+  ts: number;
+}> => {
+  return linearSwapPrivateQueryRequest(credential, 'GET', '/v5/trade/position/opens');
+};
