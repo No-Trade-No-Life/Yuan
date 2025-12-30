@@ -1,18 +1,21 @@
 import { formatTime, listWatch } from '@yuants/utils';
 import { defer, map, Observable, repeat, retry, tap } from 'rxjs';
 import { handleIngestInterestRateBackward } from './backwards-interest-rate';
-import { listInterestRateSeriesIds } from './discovery';
+import { listOHLCSeriesIds } from './discovery';
 import { handleIngestInterestRateForward } from './forwards-interest-rate';
 import { handleInterestRatePatch } from './patch-interest-rate';
+import { handleIngestOHLCForward } from './forwards-ohlc';
+import { handleIngestOHLCBackward } from './backwards-ohlc';
+import { handleOHLCPatch } from './patch-ohlc';
 
-defer(() => listInterestRateSeriesIds())
+defer(() => listOHLCSeriesIds())
   .pipe(
     retry({ delay: 1000 }),
     repeat({ delay: 60000 }),
     map((x) => Array.from(x.entries())),
     listWatch(
       (x) => x[0],
-      ([product_id, meta]) =>
+      ([product_id, direction]) =>
         new Observable((sub) => {
           // 处理每个利率品种任务: (forward / backward / patch)，都需要独立调度
           const abortController = new AbortController();
@@ -23,17 +26,12 @@ defer(() => listInterestRateSeriesIds())
 
           // 先处理前向任务
           const forwardTask = defer(async () => {
-            await handleIngestInterestRateForward(product_id, meta, abortController.signal);
+            await handleIngestOHLCForward(product_id, direction, abortController.signal);
           })
             .pipe(
               tap({
                 error: (err) =>
-                  console.info(
-                    formatTime(Date.now()),
-                    `[SeriesCollector][InterestRate][Forward]`,
-                    'Error',
-                    err,
-                  ),
+                  console.info(formatTime(Date.now()), `[SeriesCollector][OHLC][Forward]`, 'Error', err),
               }),
 
               retry(),
@@ -47,17 +45,12 @@ defer(() => listInterestRateSeriesIds())
 
           // 设置后向任务
           const backwardTask = defer(async () => {
-            await handleIngestInterestRateBackward(product_id, meta, abortController.signal);
+            await handleIngestOHLCBackward(product_id, direction, abortController.signal);
           })
             .pipe(
               tap({
                 error: (err) =>
-                  console.info(
-                    formatTime(Date.now()),
-                    `[SeriesCollector][InterestRate][Backward]`,
-                    'Error',
-                    err,
-                  ),
+                  console.info(formatTime(Date.now()), `[SeriesCollector][OHLC][Backward]`, 'Error', err),
               }),
               retry(),
               repeat(),
@@ -70,17 +63,12 @@ defer(() => listInterestRateSeriesIds())
 
           // 设置补齐任务
           const patchTask = defer(async () => {
-            await handleInterestRatePatch(product_id, meta, abortController.signal);
+            await handleOHLCPatch(product_id, direction, abortController.signal);
           })
             .pipe(
               tap({
                 error: (err) =>
-                  console.info(
-                    formatTime(Date.now()),
-                    `[SeriesCollector][InterestRate][Patch]`,
-                    'Error',
-                    err,
-                  ),
+                  console.info(formatTime(Date.now()), `[SeriesCollector][OHLC][Patch]`, 'Error', err),
               }),
               retry(),
               repeat(),

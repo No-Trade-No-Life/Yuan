@@ -1,8 +1,5 @@
-import {
-  IIngestInterestRateRequest,
-  IInterestRateServiceMetadata,
-  ISeriesIngestResult,
-} from '@yuants/exchange';
+import { decodeOHLCSeriesId } from '@yuants/data-ohlc';
+import { IIngestOHLCRequest, ISeriesIngestResult } from '@yuants/exchange';
 import { Terminal } from '@yuants/protocol';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import { decodePath, formatTime, tokenBucket } from '@yuants/utils';
@@ -11,16 +8,16 @@ const terminal = Terminal.fromNodeEnv();
 
 const ingestCounter = terminal.metrics
   .counter('series_collector_ingest_count', '')
-  .labels({ terminal_id: terminal.terminal_id, type: 'interest_rate', task: 'forward' });
+  .labels({ terminal_id: terminal.terminal_id, type: 'ohlc', task: 'forward' });
 
 // Patch 任务：查找数据缺口并进行补齐
-export const handleInterestRatePatch = async (
-  product_id: string,
-  meta: IInterestRateServiceMetadata,
+export const handleOHLCPatch = async (
+  series_id: string,
+  direction: 'forward' | 'backward',
   signal: AbortSignal,
 ) => {
-  const [datasource_id] = decodePath(product_id);
-  await tokenBucket(`interest_rate:patch:${datasource_id}`).acquire(1, signal);
+  const [datasource_id] = decodePath(series_id);
+  await tokenBucket(`ohlc:patch:${datasource_id}`).acquire(1, signal);
   const [record] = await requestSQL<{ gap_start_time: string; gap_end_time: string }[]>(
     terminal,
     `
@@ -33,8 +30,8 @@ WITH reversed_ranges AS (
             ORDER BY start_time DESC
         ) AS next_end_time  -- 注意：倒序时 LEAD 是前一个区间
     FROM series_data_range
-    WHERE table_name = 'interest_rate' 
-      AND series_id = ${escapeSQL(product_id)}
+    WHERE table_name = 'ohlc_v2' 
+      AND series_id = ${escapeSQL(series_id)}
 )
 SELECT 
     next_end_time AS gap_start_time,  -- 前一个区间的结束时间
@@ -55,17 +52,20 @@ LIMIT 1;
 
   console.info(
     formatTime(Date.now()),
-    '[SeriesCollector][InterestRate][Patch]',
+    '[SeriesCollector][OHLC][Patch]',
     'FindGap',
-    `series=${product_id}, from=${formatTime(gapStartTime)}, to=${formatTime(gapEndTime)}`,
+    `series=${series_id}, from=${formatTime(gapStartTime)}, to=${formatTime(gapEndTime)}`,
   );
 
-  let req: IIngestInterestRateRequest;
+  const { product_id, duration } = decodeOHLCSeriesId(series_id);
 
-  if (meta.direction === 'forward') {
+  let req: IIngestOHLCRequest;
+
+  if (direction === 'forward') {
     // forward patch
     req = {
       product_id: product_id,
+      duration,
       direction: 'forward' as const,
       time: gapStartTime,
     };
@@ -73,6 +73,7 @@ LIMIT 1;
     // backward patch
     req = {
       product_id: product_id,
+      duration,
       direction: 'backward' as const,
       time: gapEndTime,
     };
@@ -80,14 +81,14 @@ LIMIT 1;
 
   console.info(
     formatTime(Date.now()),
-    '[SeriesCollector][InterestRate][Patch]',
-    product_id,
+    '[SeriesCollector][OHLC][Patch]',
+    series_id,
     'PatchRequest',
     `direction=${req.direction}, time=${formatTime(req.time)}`,
   );
 
-  const res = await terminal.client.requestForResponseData<IIngestInterestRateRequest, ISeriesIngestResult>(
-    'IngestInterestRate',
+  const res = await terminal.client.requestForResponseData<IIngestOHLCRequest, ISeriesIngestResult>(
+    'IngestOHLC',
     req,
   );
 
@@ -95,8 +96,8 @@ LIMIT 1;
 
   console.info(
     formatTime(Date.now()),
-    '[SeriesCollector][InterestRate][Patch]',
-    product_id,
+    '[SeriesCollector][OHLC][Patch]',
+    series_id,
     'PatchBackwardResult',
     `ingested_count=${res.wrote_count}, start_time=${formatTime(
       res.range?.start_time ?? NaN,

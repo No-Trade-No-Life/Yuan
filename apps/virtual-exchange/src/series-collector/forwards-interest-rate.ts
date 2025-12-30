@@ -14,6 +14,10 @@ import { findInterestRateEndTimeForward } from './sql-helpers';
 
 const terminal = Terminal.fromNodeEnv();
 
+const ingestCounter = terminal.metrics
+  .counter('series_collector_ingest_count', '')
+  .labels({ terminal_id: terminal.terminal_id, type: 'interest_rate', task: 'forward' });
+
 export const handleIngestInterestRateForward = async (
   product_id: string,
   meta: IInterestRateServiceMetadata,
@@ -21,7 +25,7 @@ export const handleIngestInterestRateForward = async (
 ) => {
   const [datasource_id] = decodePath(product_id);
   // 控制速率：每个数据源每秒钟只能请求一次
-  await tokenBucket(`interest_rate_forwards:${datasource_id}`).acquire(1, signal);
+  await tokenBucket(`interest_rate:forwards:${datasource_id}`).acquire(1, signal);
 
   {
     let req: IIngestInterestRateRequest;
@@ -54,10 +58,7 @@ export const handleIngestInterestRateForward = async (
       req,
     );
 
-    terminal.metrics
-      .counter('series_collector_forwards_ingest_count', '')
-      .labels({ terminal_id: terminal.terminal_id, type: 'interest_rate' })
-      .inc(res.wrote_count || 0);
+    ingestCounter.inc(res.wrote_count || 0);
 
     console.info(
       formatTime(Date.now()),

@@ -3,117 +3,80 @@
 // 然后对每个序列，向对应的 IngestOHLC Service 发送拉取请求，补齐历史数据。
 // 使用 Token Bucket 控制每个数据源的请求速率，避免过载。
 
-import { decodeOHLCSeriesId, encodeOHLCSeriesId } from '@yuants/data-ohlc';
-import {
-  IIngestOHLCRequest,
-  ISeriesIngestResult,
-  parseOHLCServiceMetadataFromSchema,
-} from '@yuants/exchange';
+import { decodeOHLCSeriesId } from '@yuants/data-ohlc';
+import { IIngestOHLCRequest, ISeriesIngestResult } from '@yuants/exchange';
 import { Terminal } from '@yuants/protocol';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import { decodePath, formatTime, tokenBucket } from '@yuants/utils';
-import { defer, repeat, retry } from 'rxjs';
 
 const terminal = Terminal.fromNodeEnv();
 
-const listBackwardSeriesIds = async () => {
-  const product_ids = await requestSQL<{ product_id: string }[]>(terminal, `select product_id from product`);
+const ingestCounter = terminal.metrics
+  .counter('series_collector_ingest_count', '')
+  .labels({ terminal_id: terminal.terminal_id, type: 'ohlc', task: 'backward' });
 
-  console.time('[SeriesCollector][Backwards] calc');
+export const handleIngestOHLCBackward = async (
+  series_id: string,
+  direction: 'forward' | 'backward',
+  signal: AbortSignal,
+) => {
+  const { product_id, duration } = decodeOHLCSeriesId(series_id);
+  const [datasource_id] = decodePath(product_id);
+  // 控制速率：每个数据源每秒钟只能请求一次
+  await tokenBucket(`ohlc:backward:${datasource_id}`).acquire(1, signal);
 
-  const series_ids = new Set<string>();
-  for (const terminalInfo of terminal.terminalInfos) {
-    for (const serviceInfo of Object.values(terminalInfo.serviceInfo || {})) {
-      if (serviceInfo.method !== 'IngestOHLC') continue;
-      try {
-        const meta = parseOHLCServiceMetadataFromSchema(serviceInfo.schema);
-        if (meta.direction !== 'backward') continue;
+  let req: IIngestOHLCRequest;
+  if (direction === 'backward') {
+    const [record] = await requestSQL<
+      {
+        start_time: string;
+      }[]
+    >(
+      terminal,
+      `select start_time from series_data_range where series_id = ${escapeSQL(
+        series_id,
+      )} and table_name = 'ohlc_v2' order by start_time limit 1`,
+    );
+    const start_time = record ? new Date(record.start_time).getTime() : Date.now();
 
-        for (const { product_id } of product_ids) {
-          if (!product_id.startsWith(meta.product_id_prefix)) continue;
-          for (const duration of meta.duration_list) {
-            const series_id = encodeOHLCSeriesId(product_id, duration);
-            series_ids.add(series_id);
-          }
-        }
-      } finally {
-      }
-    }
+    req = {
+      product_id,
+      duration,
+      direction: 'backward',
+      time: start_time,
+    };
+  } else {
+    // forward
+    req = {
+      product_id,
+      duration,
+      direction,
+      time: 0,
+    };
   }
 
-  console.timeEnd('[SeriesCollector][Backwards] calc');
+  console.info(
+    formatTime(Date.now()),
+    '[SeriesCollector][OHLC][Backward]',
+    'Request',
+    `product_id=${req.product_id}, duration=${req.duration}, direction=${req.direction}, time=${formatTime(
+      req.time,
+    )}`,
+  );
 
-  return series_ids;
+  const res = await terminal.client.requestForResponseData<IIngestOHLCRequest, ISeriesIngestResult>(
+    'IngestOHLC',
+    req,
+  );
+
+  ingestCounter.inc(res.wrote_count || 0);
+
+  console.info(
+    formatTime(Date.now()),
+    '[SeriesCollector][OHLC][Backward]',
+    'Response',
+    `series_id=${series_id}, ingested_count=${res.wrote_count}, start_time=${formatTime(
+      res.range?.start_time ?? NaN,
+    )}, end_time=${formatTime(res.range?.end_time ?? NaN)}`,
+  );
 };
-
-defer(async () => {
-  const time = Date.now();
-  const series_ids = await listBackwardSeriesIds();
-  console.log(
-    `[SeriesCollector][Backwards] Found ${
-      series_ids.size
-    } series to collect backwards data for. (${formatTime(Date.now() - time)})`,
-  );
-
-  await Promise.all(
-    [...series_ids].map(async (series_id) => {
-      try {
-        const { product_id, duration } = decodeOHLCSeriesId(series_id);
-        const [datasource_id] = decodePath(product_id);
-        // 控制速率：每个数据源每秒钟只能请求一次
-        await tokenBucket(`backwards_target_${datasource_id}`, {
-          refillInterval: 1000,
-          capacity: 1,
-        }).acquire();
-        {
-          const [record] = await requestSQL<
-            {
-              start_time: string;
-            }[]
-          >(
-            terminal,
-            `select start_time from series_data_range where series_id = ${escapeSQL(
-              series_id,
-            )} and table_name = 'ohlc_v2' order by start_time limit 1`,
-          );
-          const start_time = record ? new Date(record.start_time).getTime() : Date.now();
-
-          const req: IIngestOHLCRequest = {
-            product_id,
-            duration,
-            direction: 'backward',
-            time: start_time,
-          };
-
-          console.info(
-            formatTime(Date.now()),
-            'DispatchIngestOHLC',
-            `product_id=${product_id}, duration=${duration}, time=${formatTime(start_time)}`,
-          );
-
-          const res = await terminal.client.requestForResponseData<IIngestOHLCRequest, ISeriesIngestResult>(
-            'IngestOHLC',
-            req,
-          );
-
-          terminal.metrics
-            .counter('series_collector_backwards_ingest_count', '')
-            .labels({ terminal_id: terminal.terminal_id, type: 'ohlc' })
-            .inc(res.wrote_count || 0);
-
-          console.info(
-            formatTime(Date.now()),
-            'DispatchIngestOHLCResult',
-            `series_id=${series_id}, ingested_count=${res.wrote_count}, start_time=${formatTime(
-              res.range?.start_time ?? NaN,
-            )}, end_time=${formatTime(res.range?.end_time ?? NaN)}`,
-          );
-        }
-      } catch (e) {
-        console.info(formatTime(Date.now()), 'DispatchIngestOHLCError', `series_id=${series_id}`, e);
-      }
-    }),
-  );
-})
-  .pipe(retry({ delay: 1000 }), repeat({ delay: 1000 }))
-  .subscribe();

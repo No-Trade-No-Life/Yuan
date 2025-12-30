@@ -19,18 +19,10 @@ export const getDefaultCredential = (): ICredential => {
 type HuobiBusiness = 'spot' | 'linear-swap';
 type HuobiPrivateInterfaceType = 'trade' | 'query';
 
-const createdBuckets = new Set<string>();
-const getOrCreatePrivateBucket = (bucketId: string) => {
-  if (!createdBuckets.has(bucketId)) {
-    createdBuckets.add(bucketId);
-    tokenBucket(bucketId, { capacity: 36, refillAmount: 36, refillInterval: 3000 });
-  }
-  return tokenBucket(bucketId);
-};
-
 const acquirePrivate = (bucketId: string, meta: Record<string, unknown>) => {
-  const bucket = getOrCreatePrivateBucket(bucketId);
-  scopeError('HUOBI_API_RATE_LIMIT', { ...meta, bucketId }, () => bucket.acquireSync(1));
+  scopeError('HUOBI_API_RATE_LIMIT', { ...meta, bucketId }, () =>
+    tokenBucket(bucketId, { capacity: 36, refillAmount: 36, refillInterval: 3000 }).acquireSync(1),
+  );
 };
 
 const privateRequestWithRateLimit = async (
