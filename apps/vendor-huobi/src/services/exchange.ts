@@ -2,10 +2,10 @@ import { IOrder } from '@yuants/data-order';
 import { provideExchangeServices } from '@yuants/exchange';
 import { Terminal } from '@yuants/protocol';
 import { decodePath, encodePath, newError } from '@yuants/utils';
-import { ICredential, getUid } from '../api/private-api';
+import { ICredential, getAccountAssetsMode, getUid } from '../api/private-api';
 import { getSpotAccountInfo } from './accounts/spot';
 import { getSuperMarginAccountInfo } from './accounts/super-margin';
-import { getSwapAccountInfo } from './accounts/swap';
+import { getSwapAccountInfo, getUnionAccountInfo } from './accounts/swap';
 import { listSwapOrders } from './orders/listOrders';
 import { submitOrder } from './orders/submitOrder';
 import { listProducts } from './product';
@@ -28,12 +28,22 @@ provideExchangeServices<ICredential>(terminal, {
   },
   listProducts,
   getPositions: async (credential) => {
-    const [swap, spot, superMargin] = await Promise.all([
-      getSwapAccountInfo(credential),
-      getSpotAccountInfo(credential, 'spot'),
-      getSuperMarginAccountInfo(credential, 'super-margin'),
-    ]);
-    return [...swap, ...spot, ...superMargin];
+    const accountMode = await getAccountAssetsMode(credential);
+    if (accountMode.data.asset_mode === 1) {
+      const [swap, spot, superMargin] = await Promise.all([
+        getUnionAccountInfo(credential),
+        getSpotAccountInfo(credential, 'spot'),
+        getSuperMarginAccountInfo(credential, 'super-margin'),
+      ]);
+      return [...swap, ...spot, ...superMargin];
+    } else {
+      const [swap, spot, superMargin] = await Promise.all([
+        getSwapAccountInfo(credential),
+        getSpotAccountInfo(credential, 'spot'),
+        getSuperMarginAccountInfo(credential, 'super-margin'),
+      ]);
+      return [...swap, ...spot, ...superMargin];
+    }
   },
   getOrders: async (credential) => {
     const swapOrders = await listSwapOrders(credential);
