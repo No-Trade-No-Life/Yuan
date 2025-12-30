@@ -2,15 +2,45 @@ import { IOrder } from '@yuants/data-order';
 import { decodePath, formatTime, newError, roundToStep } from '@yuants/utils';
 import {
   ICredential,
+  getAccountAssetsMode,
   getCrossMarginLoanInfo,
   getSpotAccountBalance,
   getSwapCrossPositionInfo,
   postSpotOrder,
   postSwapOrder,
+  postUnionAccountSwapOrder,
 } from '../../api/private-api';
 import { getSpotTick } from '../../api/public-api';
 import { productCache } from '../product';
 import { superMarginAccountUidCache } from '../uid';
+
+/**
+ * 处理 swap 账户订单提交
+ */
+async function handleUnionAccountSwapOrder(
+  order: IOrder,
+  credential: ICredential,
+): Promise<{ order_id: string }> {
+  const [, instType, contractCode] = decodePath(order.product_id);
+  const params = {
+    contract_code: contractCode,
+    margin_mode: 'cross',
+    price: order.price,
+    volume: order.volume,
+    position_side: 'both',
+    side: order.order_direction === 'OPEN_LONG' || order.order_direction === 'CLOSE_SHORT' ? 'buy' : 'sell',
+    type: order.order_type === 'MARKET' ? 'market' : 'limit',
+    channel_code: process.env.BROKER_ID,
+    reduce_only: order.is_close ? 1 : 0,
+  };
+  const result = await postUnionAccountSwapOrder(credential, params);
+  console.info(formatTime(Date.now()), 'SubmitOrder', JSON.stringify(result), JSON.stringify(params));
+
+  if (result.code !== 200) {
+    throw newError(`HTX_SUBMIT_ORDER_FAILED`, { result });
+  }
+  return { order_id: result.data.order_id_str };
+}
 
 /**
  * 处理 swap 账户订单提交
@@ -112,9 +142,13 @@ async function handleSuperMarginOrder(order: IOrder, credential: ICredential): P
   return { order_id: result.data.orderId.toString() };
 }
 
-export const submitOrder = (credential: ICredential, order: IOrder): Promise<{ order_id: string }> => {
+export const submitOrder = async (credential: ICredential, order: IOrder): Promise<{ order_id: string }> => {
   const [, instType] = decodePath(order.product_id);
   if (instType === 'SWAP') {
+    const accountMode = await getAccountAssetsMode(credential);
+    if (accountMode.data.asset_mode === 1) {
+      return handleUnionAccountSwapOrder(order, credential);
+    }
     return handleSwapOrder(order, credential);
   }
   if (instType === 'SUPER-MARGIN') {

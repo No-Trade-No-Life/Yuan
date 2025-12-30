@@ -331,6 +331,36 @@ export const postSwapOrder = (
 };
 
 /**
+ * 联合保证金模式合约下单
+ *
+ * https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb89359-77b5-11ed-9966-1957dd521e6
+ */
+export const postUnionAccountSwapOrder = (
+  credential: ICredential,
+  params: {
+    time_in_force?: string;
+    price_protect?: string;
+    contract_code: string;
+    margin_mode: string;
+    position_side: string;
+    price?: number;
+    volume: number;
+    side: string;
+    type: string;
+    tp_trigger_price?: string;
+    tp_order_price?: string;
+    tp_trigger_price_type?: string;
+    tp_type?: string;
+    sl_trigger_price?: string;
+    sl_order_price?: string;
+    sl_trigger_price_type?: string;
+    sl_type?: string;
+  },
+): Promise<{ code: number; message: string; data: { order_id: number; order_id_str: string } }> => {
+  return linearSwapPrivateTradeRequest(credential, 'POST', '/v5/trade/order', params);
+};
+
+/**
  * 获取现货存款地址
  *
  * https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec45fb7-7773-11ed-9966-0242ac110003
