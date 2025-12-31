@@ -20,7 +20,7 @@ export const listInterestRateSeriesIds = async () => {
     `select product_id from product where no_interest_rate = false`,
   );
 
-  const series_ids = new Map<string, IInterestRateServiceMetadata>();
+  const series_ids = new Map<string, 'forward' | 'backward'>();
   for (const terminalInfo of terminal.terminalInfos) {
     for (const serviceInfo of Object.values(terminalInfo.serviceInfo || {})) {
       if (serviceInfo.method !== 'IngestInterestRate') continue;
@@ -29,7 +29,7 @@ export const listInterestRateSeriesIds = async () => {
 
         for (const { product_id } of product_ids) {
           if (!product_id.startsWith(meta.product_id_prefix)) continue;
-          series_ids.set(product_id, meta);
+          series_ids.set(product_id, meta.direction);
         }
       } finally {
       }

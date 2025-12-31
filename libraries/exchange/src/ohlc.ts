@@ -2,8 +2,7 @@ import { encodeOHLCSeriesId, IOHLC } from '@yuants/data-ohlc';
 import { IServiceOptions, Terminal } from '@yuants/protocol';
 import { createValidator } from '@yuants/protocol/lib/schema';
 import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
-import { formatTime } from '@yuants/utils';
-import { newError } from '../../utils/lib';
+import { formatTime, newError } from '@yuants/utils';
 import { ISeriesIngestResult, SeriesFetchDirection } from './types';
 
 /**
