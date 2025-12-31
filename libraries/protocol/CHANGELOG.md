@@ -1,6 +1,11 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Sun, 28 Dec 2025 14:50:18 GMT and should not be manually modified.
+This log was last generated on Wed, 31 Dec 2025 14:00:40 GMT and should not be manually modified.
+
+## 0.53.8
+Wed, 31 Dec 2025 14:00:40 GMT
+
+_Version update only_
 
 ## 0.53.7
 Sun, 28 Dec 2025 14:50:18 GMT

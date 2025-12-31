@@ -2,6 +2,55 @@
   "name": "@yuants/exchange",
   "entries": [
     {
+      "version": "0.8.7",
+      "tag": "@yuants/exchange_v0.8.7",
+      "date": "Wed, 31 Dec 2025 14:00:40 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix import"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.53.8`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.11.5`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-order\" to `0.7.6`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.5.6`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-quote\" to `0.4.5`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-ohlc\" to `0.6.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-interest-rate\" to `0.2.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/cache\" to `0.3.9`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.36`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.19.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.8.6",
       "tag": "@yuants/exchange_v0.8.6",
       "date": "Mon, 29 Dec 2025 08:52:40 GMT",

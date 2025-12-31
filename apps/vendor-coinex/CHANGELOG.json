@@ -2,6 +2,44 @@
   "name": "@yuants/vendor-coinex",
   "entries": [
     {
+      "version": "0.2.51",
+      "tag": "@yuants/vendor-coinex_v0.2.51",
+      "date": "Wed, 31 Dec 2025 14:00:40 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.53.8`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/transfer\" to `0.2.45`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.19.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.36`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-series\" to `0.3.58`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.5.6`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-interest-rate\" to `0.2.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.37`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.50",
       "tag": "@yuants/vendor-coinex_v0.2.50",
       "date": "Sun, 28 Dec 2025 14:50:18 GMT",
