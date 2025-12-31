@@ -111,31 +111,30 @@ export const semaphore = (semaphoreId: string): ISemaphore => {
       };
     }
     // 否则加入等待队列
-    const { promise, resolve, reject } = Promise.withResolvers<Disposable>();
-    const waitingRequest: WaitingRequest = { resolve, reject, perms, signal };
-    state!.queue.push(waitingRequest);
+    return new Promise<Disposable>((resolve, reject) => {
+      const waitingRequest: WaitingRequest = { resolve, reject, perms, signal };
+      state!.queue.push(waitingRequest);
 
-    // 如果提供了 signal，设置 abort 事件监听器
-    if (signal) {
-      const onAbort = () => {
-        // 移除事件监听器
-        signal.removeEventListener('abort', onAbort);
-        // 清理存储的清理函数
-        if (waitingRequest.cleanup) {
-          waitingRequest.cleanup();
-        }
-        // 立即拒绝 Promise，但请求保留在队列中等待后续清理
-        reject(newError('SEMAPHORE_ACQUIRE_ABORTED', { semaphoreId, perms }));
-      };
-      signal.addEventListener('abort', onAbort);
-      // 存储清理函数以便在请求被满足时移除监听器
-      waitingRequest.cleanup = () => {
-        signal.removeEventListener('abort', onAbort);
-        waitingRequest.cleanup = undefined;
-      };
-    }
-
-    return promise;
+      // 如果提供了 signal，设置 abort 事件监听器
+      if (signal) {
+        const onAbort = () => {
+          // 移除事件监听器
+          signal.removeEventListener('abort', onAbort);
+          // 清理存储的清理函数
+          if (waitingRequest.cleanup) {
+            waitingRequest.cleanup();
+          }
+          // 立即拒绝 Promise，但请求保留在队列中等待后续清理
+          reject(newError('SEMAPHORE_ACQUIRE_ABORTED', { semaphoreId, perms }));
+        };
+        signal.addEventListener('abort', onAbort);
+        // 存储清理函数以便在请求被满足时移除监听器
+        waitingRequest.cleanup = () => {
+          signal.removeEventListener('abort', onAbort);
+          waitingRequest.cleanup = undefined;
+        };
+      }
+    });
   };
 
   const acquireSync = (perms: number = 1): Disposable => {
