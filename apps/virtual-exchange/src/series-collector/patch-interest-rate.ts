@@ -1,8 +1,4 @@
-import {
-  IIngestInterestRateRequest,
-  IInterestRateServiceMetadata,
-  ISeriesIngestResult,
-} from '@yuants/exchange';
+import { IIngestInterestRateRequest, ISeriesIngestResult } from '@yuants/exchange';
 import { Terminal } from '@yuants/protocol';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import { decodePath, formatTime, tokenBucket } from '@yuants/utils';
@@ -16,7 +12,7 @@ const ingestCounter = terminal.metrics
 // Patch 任务：查找数据缺口并进行补齐
 export const handleInterestRatePatch = async (
   product_id: string,
-  meta: IInterestRateServiceMetadata,
+  direction: 'forward' | 'backward',
   signal: AbortSignal,
 ) => {
   const [datasource_id] = decodePath(product_id);
@@ -62,7 +58,7 @@ LIMIT 1;
 
   let req: IIngestInterestRateRequest;
 
-  if (meta.direction === 'forward') {
+  if (direction === 'forward') {
     // forward patch
     req = {
       product_id: product_id,

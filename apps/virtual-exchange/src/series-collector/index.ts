@@ -1,2 +1,1 @@
-import './interest-rate';
-import './ohlc';
+import './setup';

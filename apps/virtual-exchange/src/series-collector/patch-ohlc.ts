@@ -11,7 +11,7 @@ const ingestCounter = terminal.metrics
   .labels({ terminal_id: terminal.terminal_id, type: 'ohlc', task: 'forward' });
 
 // Patch 任务：查找数据缺口并进行补齐
-export const handleOHLCPatch = async (
+export const handleIngestOHLCPatch = async (
   series_id: string,
   direction: 'forward' | 'backward',
   signal: AbortSignal,

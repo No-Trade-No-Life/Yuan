@@ -1,13 +1,4 @@
-// 解决 Forwards 拉取历史数据的调度器
-// 该文件会定期扫描所有 Terminal 的 ServiceInfo，提取出所有支持 Forwards 拉取的序列。
-// 然后对每个序列，向对应的 IngestInterestRate Service 发送拉取请求，补齐历史数据。
-// 使用 Token Bucket 控制每个数据源的请求速率，避免过载。
-
-import {
-  IIngestInterestRateRequest,
-  IInterestRateServiceMetadata,
-  ISeriesIngestResult,
-} from '@yuants/exchange';
+import { IIngestInterestRateRequest, ISeriesIngestResult } from '@yuants/exchange';
 import { Terminal } from '@yuants/protocol';
 import { decodePath, formatTime, tokenBucket } from '@yuants/utils';
 import { findInterestRateEndTimeForward } from './sql-helpers';
@@ -20,7 +11,7 @@ const ingestCounter = terminal.metrics
 
 export const handleIngestInterestRateForward = async (
   product_id: string,
-  meta: IInterestRateServiceMetadata,
+  direction: 'forward' | 'backward',
   signal: AbortSignal,
 ) => {
   const [datasource_id] = decodePath(product_id);
@@ -29,7 +20,7 @@ export const handleIngestInterestRateForward = async (
 
   {
     let req: IIngestInterestRateRequest;
-    if (meta.direction === 'forward') {
+    if (direction === 'forward') {
       const endTime = await findInterestRateEndTimeForward(terminal, product_id);
       const time = endTime ? new Date(endTime).getTime() : 0;
 

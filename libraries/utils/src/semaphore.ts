@@ -19,6 +19,7 @@ interface WaitingRequest {
 interface ISemaphoreState {
   queue: WaitingRequest[];
   available: number;
+  head: number; // 队列头部指针，指向第一个有效元素
 }
 
 /**
@@ -87,7 +88,7 @@ export interface ISemaphore {
 export const semaphore = (semaphoreId: string): ISemaphore => {
   let state = mapSemaphoreIdToState.get(semaphoreId);
   if (!state) {
-    state = { available: 0, queue: [] };
+    state = { available: 0, queue: [], head: 0 };
     mapSemaphoreIdToState.set(semaphoreId, state);
   }
 
@@ -109,37 +110,32 @@ export const semaphore = (semaphoreId: string): ISemaphore => {
         },
       };
     }
-
     // 否则加入等待队列
-    return new Promise<Disposable>((resolve, reject) => {
-      const waitingRequest: WaitingRequest = { resolve, reject, perms, signal };
-      state!.queue.push(waitingRequest);
+    const { promise, resolve, reject } = Promise.withResolvers<Disposable>();
+    const waitingRequest: WaitingRequest = { resolve, reject, perms, signal };
+    state!.queue.push(waitingRequest);
 
-      // 如果提供了 signal，设置 abort 事件监听器
-      if (signal) {
-        const onAbort = () => {
-          // 移除事件监听器
-          signal.removeEventListener('abort', onAbort);
-          // 清理存储的清理函数
-          if (waitingRequest.cleanup) {
-            waitingRequest.cleanup();
-          }
-          // 从队列中移除请求（如果仍在队列中）
-          const index = state!.queue.indexOf(waitingRequest);
-          if (index !== -1) {
-            state!.queue.splice(index, 1);
-            reject(newError('SEMAPHORE_ACQUIRE_ABORTED', { semaphoreId, perms }));
-          }
-          // 如果请求已被满足（不在队列中），则忽略
-        };
-        signal.addEventListener('abort', onAbort);
-        // 存储清理函数以便在请求被满足时移除监听器
-        waitingRequest.cleanup = () => {
-          signal.removeEventListener('abort', onAbort);
-          waitingRequest.cleanup = undefined;
-        };
-      }
-    });
+    // 如果提供了 signal，设置 abort 事件监听器
+    if (signal) {
+      const onAbort = () => {
+        // 移除事件监听器
+        signal.removeEventListener('abort', onAbort);
+        // 清理存储的清理函数
+        if (waitingRequest.cleanup) {
+          waitingRequest.cleanup();
+        }
+        // 立即拒绝 Promise，但请求保留在队列中等待后续清理
+        reject(newError('SEMAPHORE_ACQUIRE_ABORTED', { semaphoreId, perms }));
+      };
+      signal.addEventListener('abort', onAbort);
+      // 存储清理函数以便在请求被满足时移除监听器
+      waitingRequest.cleanup = () => {
+        signal.removeEventListener('abort', onAbort);
+        waitingRequest.cleanup = undefined;
+      };
+    }
+
+    return promise;
   };
 
   const acquireSync = (perms: number = 1): Disposable => {
@@ -163,11 +159,24 @@ export const semaphore = (semaphoreId: string): ISemaphore => {
     state!.available += perms;
 
     // 处理等待队列
-    while (state!.queue.length > 0) {
-      const next = state!.queue[0];
+    while (state!.head < state!.queue.length) {
+      const next = state!.queue[state!.head];
+
+      // 检查请求是否已被取消
+      if (next.signal?.aborted) {
+        // 跳过已取消的请求，移动头部指针
+        state!.head++;
+        // 清理事件监听器（如果存在）
+        if (next.cleanup) {
+          next.cleanup();
+        }
+        // 请求已被 onAbort 拒绝，无需再次拒绝
+        continue;
+      }
+
       if (state!.available >= next.perms) {
-        // 满足队首请求
-        state!.queue.shift();
+        // 满足队首请求，移动头部指针
+        state!.head++;
         state!.available -= next.perms;
         // 清理事件监听器（如果存在）
         if (next.cleanup) {
@@ -182,6 +191,11 @@ export const semaphore = (semaphoreId: string): ISemaphore => {
         // 许可不足，停止处理
         break;
       }
+    }
+    // 压缩队列以释放内存
+    if (state!.head > 1024 && state!.head * 2 > state!.queue.length) {
+      state!.queue.splice(0, state!.head);
+      state!.head = 0;
     }
   };
 
