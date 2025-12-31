@@ -2,6 +2,32 @@
   "name": "@yuants/data-product",
   "entries": [
     {
+      "version": "0.5.6",
+      "tag": "@yuants/data-product_v0.5.6",
+      "date": "Wed, 31 Dec 2025 14:00:40 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/cache\" to `0.3.9`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.53.8`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.36`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.19.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.5",
       "tag": "@yuants/data-product_v0.5.5",
       "date": "Sun, 28 Dec 2025 14:50:18 GMT",

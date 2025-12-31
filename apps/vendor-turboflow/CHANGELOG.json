@@ -2,6 +2,38 @@
   "name": "@yuants/vendor-turboflow",
   "entries": [
     {
+      "version": "1.2.25",
+      "tag": "@yuants/vendor-turboflow_v1.2.25",
+      "date": "Wed, 31 Dec 2025 14:00:40 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.53.8`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.19.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.7`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.5.6`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.11.5`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-order\" to `0.7.6`"
+          }
+        ]
+      }
+    },
+    {
       "version": "1.2.24",
       "tag": "@yuants/vendor-turboflow_v1.2.24",
       "date": "Mon, 29 Dec 2025 08:52:40 GMT",

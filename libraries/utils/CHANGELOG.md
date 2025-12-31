@@ -1,6 +1,13 @@
 # Change Log - @yuants/utils
 
-This log was last generated on Sun, 28 Dec 2025 14:50:18 GMT and should not be manually modified.
+This log was last generated on Wed, 31 Dec 2025 14:00:40 GMT and should not be manually modified.
+
+## 0.19.1
+Wed, 31 Dec 2025 14:00:40 GMT
+
+### Patches
+
+- optimize semaphore queue
 
 ## 0.19.0
 Sun, 28 Dec 2025 14:50:18 GMT

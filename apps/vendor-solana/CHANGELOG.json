@@ -2,6 +2,35 @@
   "name": "@yuants/vendor-solana",
   "entries": [
     {
+      "version": "0.1.128",
+      "tag": "@yuants/vendor-solana_v0.1.128",
+      "date": "Wed, 31 Dec 2025 14:00:40 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.53.8`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/transfer\" to `0.2.45`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.11.5`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.19.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.37`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.127",
       "tag": "@yuants/vendor-solana_v0.1.127",
       "date": "Sun, 28 Dec 2025 14:50:18 GMT",

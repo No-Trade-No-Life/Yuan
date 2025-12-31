@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-solscan",
-  "version": "0.1.55",
+  "version": "0.1.56",
   "main": "lib/index.js",
   "files": [
     "dist",

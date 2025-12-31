@@ -1,6 +1,6 @@
 {
   "name": "@yuants/tool-yuanctl",
-  "version": "0.2.16",
+  "version": "0.2.17",
   "description": "Kubectl-inspired CLI for managing Yuants deployments",
   "main": "lib/index.js",
   "module": "dist/index.js",
