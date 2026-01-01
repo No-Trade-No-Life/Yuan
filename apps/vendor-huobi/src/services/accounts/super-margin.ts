@@ -11,7 +11,7 @@ export const getSuperMarginAccountInfo: IActionHandlerOfGetAccountInfo<ICredenti
   const positions: IPosition[] = [];
   // get account balance
   const superMarginAccountUid = await superMarginAccountUidCache.query(JSON.stringify(credential));
-  if (!superMarginAccountUid) throw new Error('Failed to get Super Margin Account UID');
+  if (!superMarginAccountUid) return [];
   const accountBalance = await getSpotAccountBalance(credential, superMarginAccountUid);
   const balanceList = accountBalance.data?.list || [];
 
