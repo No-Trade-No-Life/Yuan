@@ -166,7 +166,7 @@ const quoteFromFutureFundingInfo$ = futureFundingInfo$.pipe(
       datasource_id: 'BINANCE',
       product_id: encodePath('BINANCE', 'USDT-FUTURE', entry.symbol),
       interest_rate_settlement_interval: entry.fundingIntervalHours
-        ? `${entry.fundingIntervalHours * 60 * 60}`
+        ? `${entry.fundingIntervalHours * 60 * 60 * 1000}`
         : undefined,
     }),
   ),
