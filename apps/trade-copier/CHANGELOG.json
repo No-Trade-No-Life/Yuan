@@ -2,6 +2,52 @@
   "name": "@yuants/app-trade-copier",
   "entries": [
     {
+      "version": "0.11.52",
+      "tag": "@yuants/app-trade-copier_v0.11.52",
+      "date": "Thu, 01 Jan 2026 18:46:48 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add rate interval to quote"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.5.7`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.11.6`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-order\" to `0.7.7`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.16.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.53.9`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.19.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.37`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-quote\" to `0.4.6`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.38`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.11.51",
       "tag": "@yuants/app-trade-copier_v0.11.51",
       "date": "Wed, 31 Dec 2025 14:00:40 GMT",
