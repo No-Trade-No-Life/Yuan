@@ -39,25 +39,24 @@ export interface IResourcePool {
    * 按照先到先得的顺序 (FIFO) 获取指定数量的令牌。
    * 如果当前令牌不足，则等待直到有足够令牌可用。
    *
-   * 支持 [显式资源管理] 释放获取的许可。(using 语法糖)
+   * 获取令牌后，调用者需要手动调用 release 方法来释放令牌。
    *
    * @param tokens - 需要的令牌数量，默认值为 1
    * @param signal - 可选的 AbortSignal，用于取消等待
-   * @returns 一个 Promise，解析为一个 Disposable 对象，用于释放获取的令牌
+   * @returns 一个 Promise，当令牌获取成功时解析
    */
-  acquire(tokens?: number, signal?: AbortSignal): Promise<Disposable>;
+  acquire(tokens?: number, signal?: AbortSignal): Promise<void>;
 
   /**
    * 同步获取令牌
    *
    * 如果当前可用令牌不足，则立即抛出错误
    *
-   * 支持 [显式资源管理] 释放获取的许可。(using 语法糖)
+   * 获取令牌后，调用者需要手动调用 release 方法来释放令牌。
    *
    * @param tokens - 需要的令牌数量，默认值为 1
-   * @returns 一个 Disposable 对象，用于释放获取的令牌
    */
-  acquireSync(tokens?: number): Disposable;
+  acquireSync(tokens?: number): void;
 
   /**
    * 释放令牌
@@ -103,7 +102,7 @@ export const resourcePool = (poolId: string, options: IResourcePoolOptions = {})
     sem.release(CAPACITY); // 初始化时填满令牌桶
   }
 
-  const acquire = async (tokens: number = 1, signal?: AbortSignal): Promise<Disposable> => {
+  const acquire = async (tokens: number = 1, signal?: AbortSignal): Promise<void> => {
     // 请求的令牌数必须为正整数
     if (tokens <= 0) {
       throw newError('RESOURCE_POOL_INVALID_ACQUIRE_TOKENS', { poolId, tokens });
@@ -136,7 +135,7 @@ export const resourcePool = (poolId: string, options: IResourcePoolOptions = {})
     sem.release(tokens);
   };
 
-  const acquireSync = (tokens: number = 1): Disposable => {
+  const acquireSync = (tokens: number = 1): void => {
     return sem.acquireSync(tokens);
   };
 
