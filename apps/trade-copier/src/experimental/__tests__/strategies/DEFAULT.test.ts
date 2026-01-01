@@ -80,6 +80,7 @@ const createTestContext = (overrides: Partial<StrategyContext>): StrategyContext
     interest_rate_short: '0.01',
     interest_rate_prev_settled_at: new Date().toISOString(),
     interest_rate_next_settled_at: new Date().toISOString(),
+    interest_rate_settlement_interval: '',
   },
   pendingOrders: [],
   strategy: {

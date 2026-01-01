@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-binance",
+      "comment": "add interval",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-binance"
+}

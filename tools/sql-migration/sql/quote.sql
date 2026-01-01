@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS
         open_interest TEXT,
         interest_rate_long TEXT,
         interest_rate_short TEXT,
+        interest_rate_settlement_interval TEXT,
         interest_rate_prev_settled_at TIMESTAMPTZ,
         interest_rate_next_settled_at TIMESTAMPTZ,
         PRIMARY KEY (datasource_id, product_id)

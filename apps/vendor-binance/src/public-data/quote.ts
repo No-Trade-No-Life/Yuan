@@ -28,6 +28,7 @@ import { getMarginAllPairs, getMarginNextHourlyInterestRate, IMarginPair } from 
 import {
   getFutureBookTicker,
   getFutureExchangeInfo,
+  getFutureFundingInfo,
   getFutureOpenInterest,
   getFuturePremiumIndex,
   getSpotBookTicker,
@@ -111,6 +112,12 @@ const futurePremiumIndex$ = defer(() => getFuturePremiumIndex({})).pipe(
   shareReplay({ bufferSize: 1, refCount: true }),
 );
 
+const futureFundingInfo$ = defer(() => getFutureFundingInfo()).pipe(
+  retry({ delay: 30_000 }),
+  repeat({ delay: 60_000 }),
+  shareReplay({ bufferSize: 1, refCount: true }),
+);
+
 const futureBookTicker$ = defer(() => getFutureBookTicker({})).pipe(
   repeat({ delay: 1_000 }),
   retry({ delay: 30_000 }),
@@ -149,6 +156,18 @@ const quoteFromPremiumIndex$ = futurePremiumIndex$.pipe(
       interest_rate_short: entry.lastFundingRate,
       interest_rate_next_settled_at: formatTime(entry.nextFundingTime),
       updated_at: formatTime(entry.time ?? Date.now()),
+    }),
+  ),
+);
+const quoteFromFutureFundingInfo$ = futureFundingInfo$.pipe(
+  mergeMap((entries) => from(entries || [])),
+  map(
+    (entry): Partial<IQuote> => ({
+      datasource_id: 'BINANCE',
+      product_id: encodePath('BINANCE', 'USDT-FUTURE', entry.symbol),
+      interest_rate_settlement_interval: entry.fundingIntervalHours
+        ? `${entry.fundingIntervalHours * 60 * 60}`
+        : undefined,
     }),
   ),
 );
@@ -285,6 +304,7 @@ const quote$ = merge(
   quoteFromSpotBookTicker$,
   quoteFromMarginRates$,
   quoteFromSpotTicker$,
+  quoteFromFutureFundingInfo$,
 ).pipe(
   groupBy((quote) => quote.product_id),
   mergeMap((group$) =>
@@ -295,7 +315,9 @@ const quote$ = merge(
             datasource_id: 'BINANCE',
             product_id: group$.key,
           }),
-        {} as Partial<IQuote>,
+        {
+          interest_rate_settlement_interval: '',
+        } as Partial<IQuote>,
       ),
     ),
   ),

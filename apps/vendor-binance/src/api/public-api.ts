@@ -59,6 +59,14 @@ export interface IFutureFundingRateEntry {
   markPrice: string;
 }
 
+export interface IFutureFundingInfoEntry {
+  symbol: string;
+  adjustedFundingRateCap: string;
+  adjustedFundingRateFloor: string;
+  fundingIntervalHours: number;
+  disclaimer: boolean;
+}
+
 export interface IFuturePremiumIndexEntry {
   symbol: string;
   markPrice: string;
@@ -141,6 +149,30 @@ export const getFutureFundingRate = (params: {
       }).acquireSync(weight),
   );
   return requestPublic<IFutureFundingRateEntry[]>('GET', endpoint, params);
+};
+
+/**
+ * 查询资金费率信息
+ *
+ * 权重: /fapi/v1/fundingRate共享500/5min/IP
+ *
+ * https://developers.binance.com/docs/zh-CN/derivatives/usds-margined-futures/market-data/rest-api/Get-Funding-Rate-Info
+ */
+export const getFutureFundingInfo = (): Promise<IFutureFundingInfoEntry[]> => {
+  const endpoint = 'https://fapi.binance.com/fapi/v1/fundingInfo';
+  const url = new URL(endpoint);
+  const weight = 1;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () =>
+      tokenBucket(url.host + 'fundingRate', {
+        capacity: 500,
+        refillAmount: 500,
+        refillInterval: 300_000,
+      }).acquireSync(weight),
+  );
+  return requestPublic<IFutureFundingInfoEntry[]>('GET', endpoint);
 };
 
 /**
