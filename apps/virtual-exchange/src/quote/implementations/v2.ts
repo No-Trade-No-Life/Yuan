@@ -14,6 +14,7 @@ const FIELDS = ((x: { [key in IQuoteKey]: number }) => Object.keys(x).sort() as 
   interest_rate_prev_settled_at: 0,
   interest_rate_next_settled_at: 0,
   interest_rate_long: 0,
+  interest_rate_settlement_interval: 0,
 });
 
 const FIELD_COUNT = FIELDS.length;
