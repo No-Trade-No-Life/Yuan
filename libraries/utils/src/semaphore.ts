@@ -1,25 +1,26 @@
 import { newError } from './error';
 
 /**
- * 信号量状态
- * @internal
- */
-interface WaitingRequest {
-  resolve: () => void;
-  reject: (reason?: any) => void;
-  perms: number;
-  signal?: AbortSignal;
-}
-
-/**
  * 信号量内部状态
  * @internal
  */
 interface ISemaphoreState {
-  queue: WaitingRequest[];
+  // 统一扁平数组存储，每4个元素为一组：
+  // data[i*4 + 0] = resolve函数
+  // data[i*4 + 1] = reject函数
+  // data[i*4 + 2] = perm数字
+  // data[i*4 + 3] = signal引用
+  data: any[];
   available: number;
-  head: number; // 队列头部指针，指向第一个有效元素
+  head: number; // 队列头部指针（以元素组为单位）
 }
+
+// 扁平数组访问常量
+const RESOLVE_OFFSET = 0;
+const REJECT_OFFSET = 1;
+const PERM_OFFSET = 2;
+const SIGNAL_OFFSET = 3;
+const ELEMENTS_PER_ENTRY = 4;
 
 /**
  * 信号量状态映射
@@ -32,6 +33,32 @@ const mapSemaphoreIdToState = new Map<string, ISemaphoreState>();
  * @internal
  */
 const mapSignalToRejects = new Map<AbortSignal, Set<(reason?: any) => void>>();
+
+const linkSignalAndReject = (signal: AbortSignal, reject: (reason?: any) => void) => {
+  let rejects = mapSignalToRejects.get(signal);
+  // 如果没有 requests 说明这个 signal 没有被注册过，需要初始化监听器
+  if (!rejects) {
+    rejects = new Set();
+    mapSignalToRejects.set(signal, rejects);
+    // Listen Only Once
+    const onAbort = () => {
+      const rejects = mapSignalToRejects.get(signal);
+      if (rejects) {
+        const reason = newError('SEMAPHORE_ACQUIRE_ABORTED', {});
+        for (const reject of rejects) {
+          reject(reason);
+        }
+        rejects.clear();
+        mapSignalToRejects.delete(signal);
+      }
+
+      signal.removeEventListener('abort', onAbort);
+    };
+    signal.addEventListener('abort', onAbort);
+  }
+  // 绑定 signal 和 waitingRequest 的关系
+  rejects.add(reject);
+};
 
 /**
  * 信号量操作接口
@@ -92,7 +119,11 @@ export interface ISemaphore {
 export const semaphore = (semaphoreId: string): ISemaphore => {
   let state = mapSemaphoreIdToState.get(semaphoreId);
   if (!state) {
-    state = { available: 0, queue: [], head: 0 };
+    state = {
+      available: 0,
+      data: [],
+      head: 0,
+    };
     mapSemaphoreIdToState.set(semaphoreId, state);
   }
 
@@ -111,34 +142,12 @@ export const semaphore = (semaphoreId: string): ISemaphore => {
     }
     // 否则加入等待队列
     return new Promise<void>((resolve, reject) => {
-      const waitingRequest: WaitingRequest = { resolve, reject, perms, signal };
-      state!.queue.push(waitingRequest);
+      // 存储到扁平数组 (无需计算存储位置)
+      state!.data.push(resolve, reject, perms, signal);
 
-      // 如果提供了 signal，设置 abort 事件监听器
+      // 如果提供了 signal，绑定 signal 和 reject
       if (signal) {
-        let rejects = mapSignalToRejects.get(signal);
-        // 如果没有 requests 说明这个 signal 没有被注册过，需要初始化监听器
-        if (!rejects) {
-          rejects = new Set();
-          mapSignalToRejects.set(signal, rejects);
-          // Listen Only Once
-          const onAbort = () => {
-            const rejects = mapSignalToRejects.get(signal);
-            if (rejects) {
-              const reason = newError('SEMAPHORE_ACQUIRE_ABORTED', {});
-              for (const reject of rejects) {
-                reject(reason);
-              }
-              rejects.clear();
-              mapSignalToRejects.delete(signal);
-            }
-
-            signal.removeEventListener('abort', onAbort);
-          };
-          signal.addEventListener('abort', onAbort);
-        }
-        // 绑定 signal 和 waitingRequest 的关系
-        rejects.add(reject);
+        linkSignalAndReject(signal, reject);
       }
     });
   };
@@ -160,36 +169,40 @@ export const semaphore = (semaphoreId: string): ISemaphore => {
     state!.available += perms;
 
     // 处理等待队列
-    while (state!.head < state!.queue.length) {
-      const next = state!.queue[state!.head];
+    while (state!.head < state!.data.length) {
+      const baseIndex = state!.head;
+      const nextResolve = state!.data[baseIndex + RESOLVE_OFFSET];
+      const nextReject = state!.data[baseIndex + REJECT_OFFSET];
+      const nextPerms = state!.data[baseIndex + PERM_OFFSET];
+      const nextSignal = state!.data[baseIndex + SIGNAL_OFFSET];
 
       // 检查请求是否已被取消
-      if (next.signal?.aborted) {
+      if (nextSignal?.aborted) {
         // 跳过已取消的请求，移动头部指针
-        state!.head++;
+        state!.head += ELEMENTS_PER_ENTRY;
         // 请求已被 onAbort 拒绝，无需再次拒绝
         continue;
       }
 
-      if (state!.available >= next.perms) {
+      if (state!.available >= nextPerms) {
         // 满足队首请求，移动头部指针
-        state!.head++;
-        state!.available -= next.perms;
+        state!.head += ELEMENTS_PER_ENTRY;
+        state!.available -= nextPerms;
 
-        if (next.signal) {
+        if (nextSignal) {
           // 删除与 signal 的连接
-          mapSignalToRejects.get(next.signal)?.delete(next.reject);
+          mapSignalToRejects.get(nextSignal)?.delete(nextReject);
         }
 
-        next.resolve();
+        nextResolve();
       } else {
         // 许可不足，停止处理
         break;
       }
     }
     // 压缩队列以释放内存
-    if (state!.head > 1024 && state!.head * 2 > state!.queue.length) {
-      state!.queue.splice(0, state!.head);
+    if (state!.head > 1024 && state!.head * 2 > state!.data.length) {
+      state!.data.splice(0, state!.head);
       state!.head = 0;
     }
   };

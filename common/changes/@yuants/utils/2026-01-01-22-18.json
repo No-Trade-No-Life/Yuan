@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/utils",
+      "comment": "optimize by flat array",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/utils"
+}
