@@ -9,7 +9,6 @@ interface WaitingRequest {
   reject: (reason?: any) => void;
   perms: number;
   signal?: AbortSignal;
-  cleanup?: () => void;
 }
 
 /**
@@ -27,6 +26,12 @@ interface ISemaphoreState {
  * @internal
  */
 const mapSemaphoreIdToState = new Map<string, ISemaphoreState>();
+
+/**
+ * 取消信号与对应的请求的 reject 绑定关系
+ * @internal
+ */
+const mapSignalToRejects = new Map<AbortSignal, Set<(reason?: any) => void>>();
 
 /**
  * 信号量操作接口
@@ -117,22 +122,29 @@ export const semaphore = (semaphoreId: string): ISemaphore => {
 
       // 如果提供了 signal，设置 abort 事件监听器
       if (signal) {
-        const onAbort = () => {
-          // 移除事件监听器
-          signal.removeEventListener('abort', onAbort);
-          // 清理存储的清理函数
-          if (waitingRequest.cleanup) {
-            waitingRequest.cleanup();
-          }
-          // 立即拒绝 Promise，但请求保留在队列中等待后续清理
-          reject(newError('SEMAPHORE_ACQUIRE_ABORTED', { semaphoreId, perms }));
-        };
-        signal.addEventListener('abort', onAbort);
-        // 存储清理函数以便在请求被满足时移除监听器
-        waitingRequest.cleanup = () => {
-          signal.removeEventListener('abort', onAbort);
-          waitingRequest.cleanup = undefined;
-        };
+        let requests = mapSignalToRejects.get(signal);
+        // 如果没有 requests 说明这个 signal 没有被注册过，需要初始化监听器
+        if (!requests) {
+          requests = new Set();
+          mapSignalToRejects.set(signal, requests);
+          // Listen Only Once
+          const onAbort = () => {
+            const rejects = mapSignalToRejects.get(signal);
+            if (rejects) {
+              const reason = newError('SEMAPHORE_ACQUIRE_ABORTED', {});
+              for (const reject of rejects) {
+                reject(reason);
+              }
+              rejects.clear();
+              mapSignalToRejects.delete(signal);
+            }
+
+            signal.removeEventListener('abort', onAbort);
+          };
+          signal.addEventListener('abort', onAbort);
+        }
+        // 绑定 signal 和 waitingRequest 的关系
+        requests.add(waitingRequest.reject);
       }
     });
   };
@@ -165,10 +177,6 @@ export const semaphore = (semaphoreId: string): ISemaphore => {
       if (next.signal?.aborted) {
         // 跳过已取消的请求，移动头部指针
         state!.head++;
-        // 清理事件监听器（如果存在）
-        if (next.cleanup) {
-          next.cleanup();
-        }
         // 请求已被 onAbort 拒绝，无需再次拒绝
         continue;
       }
@@ -177,10 +185,12 @@ export const semaphore = (semaphoreId: string): ISemaphore => {
         // 满足队首请求，移动头部指针
         state!.head++;
         state!.available -= next.perms;
-        // 清理事件监听器（如果存在）
-        if (next.cleanup) {
-          next.cleanup();
+
+        if (next.signal) {
+          // 删除与 signal 的连接
+          mapSignalToRejects.get(next.signal)?.delete(next.reject);
         }
+
         next.resolve({
           [Symbol.dispose]() {
             release(next.perms);

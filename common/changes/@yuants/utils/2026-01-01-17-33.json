@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/utils",
+      "comment": "optimize semaphore by reusing abort signal",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/utils"
+}
