@@ -5,7 +5,7 @@ import { newError } from './error';
  * @internal
  */
 interface WaitingRequest {
-  resolve: (disposable: Disposable) => void;
+  resolve: () => void;
   reject: (reason?: any) => void;
   perms: number;
   signal?: AbortSignal;
@@ -46,25 +46,24 @@ export interface ISemaphore {
    *
    * 按照先到先得的顺序 (FIFO) 获取许可，如果当前可用许可不足，则等待直到有足够许可可用。
    *
-   * 支持 [显式资源管理] 释放获取的许可。(using 语法糖)
+   * 获取许可后，调用者需要手动调用 release 方法来释放许可。
    *
    * @param perms - 许可数量，默认值为 1
    * @param signal - 可选的 AbortSignal，用于取消等待
-   * @returns 一个 Promise，解析为一个 Disposable 对象，用于释放获取的许可
+   * @returns 一个 Promise，当许可获取成功时解析
    */
-  acquire(perms?: number, signal?: AbortSignal): Promise<Disposable>;
+  acquire(perms?: number, signal?: AbortSignal): Promise<void>;
 
   /**
    * 同步获取许可
    *
    * 如果当前可用许可不足，则立即抛出错误
    *
-   * 支持 [显式资源管理] 释放获取的许可。(using 语法糖)
+   * 获取许可后，调用者需要手动调用 release 方法来释放许可。
    *
    * @param perms - 许可数量，默认值为 1
-   * @returns 一个 Disposable 对象，用于释放获取的许可
    */
-  acquireSync(perms?: number): Disposable;
+  acquireSync(perms?: number): void;
   /**
    * 释放许可
    *
@@ -97,7 +96,7 @@ export const semaphore = (semaphoreId: string): ISemaphore => {
     mapSemaphoreIdToState.set(semaphoreId, state);
   }
 
-  const acquire = async (perms: number = 1, signal?: AbortSignal): Promise<Disposable> => {
+  const acquire = async (perms: number = 1, signal?: AbortSignal): Promise<void> => {
     if (perms <= 0) throw newError('SEMAPHORE_INVALID_ACQUIRE_PERMS', { semaphoreId, perms });
 
     // 如果信号已经触发，立即拒绝
@@ -108,25 +107,20 @@ export const semaphore = (semaphoreId: string): ISemaphore => {
     // 如果有足够许可，立即获取
     if (state!.available >= perms) {
       state!.available -= perms;
-
-      return {
-        [Symbol.dispose]() {
-          release(perms);
-        },
-      };
+      return;
     }
     // 否则加入等待队列
-    return new Promise<Disposable>((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       const waitingRequest: WaitingRequest = { resolve, reject, perms, signal };
       state!.queue.push(waitingRequest);
 
       // 如果提供了 signal，设置 abort 事件监听器
       if (signal) {
-        let requests = mapSignalToRejects.get(signal);
+        let rejects = mapSignalToRejects.get(signal);
         // 如果没有 requests 说明这个 signal 没有被注册过，需要初始化监听器
-        if (!requests) {
-          requests = new Set();
-          mapSignalToRejects.set(signal, requests);
+        if (!rejects) {
+          rejects = new Set();
+          mapSignalToRejects.set(signal, rejects);
           // Listen Only Once
           const onAbort = () => {
             const rejects = mapSignalToRejects.get(signal);
@@ -144,21 +138,17 @@ export const semaphore = (semaphoreId: string): ISemaphore => {
           signal.addEventListener('abort', onAbort);
         }
         // 绑定 signal 和 waitingRequest 的关系
-        requests.add(waitingRequest.reject);
+        rejects.add(reject);
       }
     });
   };
 
-  const acquireSync = (perms: number = 1): Disposable => {
+  const acquireSync = (perms: number = 1): void => {
     if (perms <= 0) throw newError('SEMAPHORE_INVALID_ACQUIRE_PERMS', { semaphoreId, perms });
     // 如果有足够许可，立即获取
     if (state!.available >= perms) {
       state!.available -= perms;
-      return {
-        [Symbol.dispose]() {
-          release(perms);
-        },
-      };
+      return;
     }
 
     // 否则抛出错误
@@ -191,11 +181,7 @@ export const semaphore = (semaphoreId: string): ISemaphore => {
           mapSignalToRejects.get(next.signal)?.delete(next.reject);
         }
 
-        next.resolve({
-          [Symbol.dispose]() {
-            release(next.perms);
-          },
-        });
+        next.resolve();
       } else {
         // 许可不足，停止处理
         break;
