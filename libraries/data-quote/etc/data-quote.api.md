@@ -17,6 +17,7 @@ export interface IQuote {
     interest_rate_long: string;
     interest_rate_next_settled_at: string;
     interest_rate_prev_settled_at: string;
+    interest_rate_settlement_interval: string;
     interest_rate_short: string;
     last_price: string;
     open_interest: string;

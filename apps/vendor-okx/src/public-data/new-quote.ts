@@ -333,6 +333,10 @@ const interestRateOfSwap$ = fundingRate$.pipe(
       interest_rate_long: premiumData.fundingRate ? `${-+premiumData.fundingRate}` : undefined,
       interest_rate_short: premiumData.fundingRate,
       interest_rate_next_settled_at: formatTime(+premiumData.fundingTime),
+      interest_rate_settlement_interval:
+        premiumData.nextFundingTime && premiumData.fundingTime
+          ? `${+premiumData.nextFundingTime - +premiumData.fundingTime}`
+          : undefined,
     }),
   ),
 );
@@ -361,7 +365,9 @@ const quote$ = defer(() =>
   mergeMap((group$) => {
     return group$.pipe(
       //
-      scan((acc, cur) => Object.assign(acc, cur), {} as Partial<IQuote>),
+      scan((acc, cur) => Object.assign(acc, cur), {
+        interest_rate_settlement_interval: '',
+      } as Partial<IQuote>),
     );
   }),
   share(),

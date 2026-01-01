@@ -83,6 +83,11 @@ export interface IQuote {
    * 下次利率结算时间，即下次利率结算的预定时间
    */
   interest_rate_next_settled_at: string;
+  /**
+   * The time interval for interest settlement, measured in milliseconds.
+   * 利率结算间隔，即利率结算的间隔时间，单位为毫秒
+   */
+  interest_rate_settlement_interval: string;
 }
 
 /**
