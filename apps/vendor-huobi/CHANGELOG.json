@@ -2,6 +2,26 @@
   "name": "@yuants/vendor-huobi",
   "entries": [
     {
+      "version": "0.18.9",
+      "tag": "@yuants/vendor-huobi_v0.18.9",
+      "date": "Thu, 01 Jan 2026 17:00:54 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add mode cache"
+          },
+          {
+            "comment": "fix super-margein"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.18.8",
       "tag": "@yuants/vendor-huobi_v0.18.8",
       "date": "Wed, 31 Dec 2025 14:00:40 GMT",
