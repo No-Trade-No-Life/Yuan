@@ -9,8 +9,22 @@ import { getSwapAccountInfo, getUnionAccountInfo } from './accounts/swap';
 import { listSwapOrders } from './orders/listOrders';
 import { submitOrder } from './orders/submitOrder';
 import { listProducts } from './product';
+import { createCache } from '@yuants/cache';
 
 const terminal = Terminal.fromNodeEnv();
+
+export const accountModeCache = createCache(
+  async (credentialKey: string) => {
+    const [access_key, secret_key] = decodePath(credentialKey);
+    const credential = { access_key, secret_key };
+    const res = await getAccountAssetsMode(credential);
+    return res.data.asset_mode;
+  },
+  {
+    expire: 600_000, // 10 minutes
+    swrAfter: 60_000, // 1 minute
+  },
+);
 
 provideExchangeServices<ICredential>(terminal, {
   name: 'HTX',
@@ -28,8 +42,10 @@ provideExchangeServices<ICredential>(terminal, {
   },
   listProducts,
   getPositions: async (credential) => {
-    const accountMode = await getAccountAssetsMode(credential);
-    if (accountMode.data.asset_mode === 1) {
+    const accountMode = await accountModeCache.query(
+      encodePath(credential.access_key, credential.secret_key),
+    );
+    if (accountMode === 1) {
       const [swap, spot, superMargin] = await Promise.all([
         getUnionAccountInfo(credential),
         getSpotAccountInfo(credential, 'spot'),

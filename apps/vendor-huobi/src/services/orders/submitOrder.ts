@@ -1,5 +1,5 @@
 import { IOrder } from '@yuants/data-order';
-import { decodePath, formatTime, newError, roundToStep } from '@yuants/utils';
+import { decodePath, encodePath, formatTime, newError, roundToStep } from '@yuants/utils';
 import {
   ICredential,
   getAccountAssetsMode,
@@ -13,6 +13,7 @@ import {
 import { getSpotTick } from '../../api/public-api';
 import { productCache } from '../product';
 import { superMarginAccountUidCache } from '../uid';
+import { accountModeCache } from '../exchange';
 
 /**
  * 处理 swap 账户订单提交
@@ -145,8 +146,11 @@ async function handleSuperMarginOrder(order: IOrder, credential: ICredential): P
 export const submitOrder = async (credential: ICredential, order: IOrder): Promise<{ order_id: string }> => {
   const [, instType] = decodePath(order.product_id);
   if (instType === 'SWAP') {
-    const accountMode = await getAccountAssetsMode(credential);
-    if (accountMode.data.asset_mode === 1) {
+    // const accountMode = await getAccountAssetsMode(credential);
+    const accountMode = await accountModeCache.query(
+      encodePath(credential.access_key, credential.secret_key),
+    );
+    if (accountMode === 1) {
       return handleUnionAccountSwapOrder(order, credential);
     }
     return handleSwapOrder(order, credential);
