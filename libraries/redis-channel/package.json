@@ -1,6 +1,6 @@
 {
   "name": "@yuants/redis-channel",
-  "version": "0.2.17",
+  "version": "0.2.18",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [

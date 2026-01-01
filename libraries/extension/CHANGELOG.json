@@ -2,6 +2,23 @@
   "name": "@yuants/extension",
   "entries": [
     {
+      "version": "0.2.38",
+      "tag": "@yuants/extension_v0.2.38",
+      "date": "Thu, 01 Jan 2026 18:46:48 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.19.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.37",
       "tag": "@yuants/extension_v0.2.37",
       "date": "Wed, 31 Dec 2025 14:00:40 GMT",

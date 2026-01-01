@@ -2,6 +2,23 @@
   "name": "@yuants/utils",
   "entries": [
     {
+      "version": "0.19.2",
+      "tag": "@yuants/utils_v0.19.2",
+      "date": "Thu, 01 Jan 2026 18:46:48 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "optimize semaphore by reusing abort signal"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.19.1",
       "tag": "@yuants/utils_v0.19.1",
       "date": "Wed, 31 Dec 2025 14:00:40 GMT",

@@ -2,6 +2,26 @@
   "name": "@yuants/data-trade",
   "entries": [
     {
+      "version": "0.1.28",
+      "tag": "@yuants/data-trade_v0.1.28",
+      "date": "Thu, 01 Jan 2026 18:46:48 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.53.9`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.37`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.27",
       "tag": "@yuants/data-trade_v0.1.27",
       "date": "Wed, 31 Dec 2025 14:00:40 GMT",
