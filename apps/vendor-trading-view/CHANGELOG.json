@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-trading-view",
   "entries": [
     {
+      "version": "0.4.0",
+      "tag": "@yuants/vendor-trading-view_v0.4.0",
+      "date": "Fri, 02 Jan 2026 13:34:11 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "refactor to provideOHLCService"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.52",
       "tag": "@yuants/vendor-trading-view_v0.3.52",
       "date": "Fri, 02 Jan 2026 09:52:20 GMT",
