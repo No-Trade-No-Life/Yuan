@@ -172,7 +172,13 @@ export const createNodeJSHostManager = () => {
     const sub = defer(() => terminalInfos.keys())
       .pipe(
         mergeMap((target_terminal_id) =>
-          from(terminal.client.request('Ping', target_terminal_id, {})).pipe(
+          from(
+            terminal.client.requestByMessage({
+              method: 'Ping',
+              target_terminal_id,
+              req: {},
+            }),
+          ).pipe(
             last(),
             timeout(5000),
             retry(3),

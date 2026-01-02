@@ -77,12 +77,7 @@ registerPage('ServiceList', () => {
                   const value = await showForm(schema, {}, { immediateSubmit: true });
 
                   const a$ = from(
-                    terminal.client.request(
-                      service.serviceInfo.method,
-                      service.terminal_id,
-                      value,
-                      service.serviceInfo.service_id,
-                    ),
+                    terminal.client.requestByServiceId(service.serviceInfo.service_id, value),
                   ).pipe(
                     scan(
                       (acc, x) => [
