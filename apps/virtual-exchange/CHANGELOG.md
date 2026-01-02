@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-virtual-exchange
 
-This log was last generated on Thu, 01 Jan 2026 18:46:48 GMT and should not be manually modified.
+This log was last generated on Fri, 02 Jan 2026 09:52:20 GMT and should not be manually modified.
+
+## 0.18.4
+Fri, 02 Jan 2026 09:52:20 GMT
+
+### Patches
+
+- refactor series collector scheduler
 
 ## 0.18.3
 Thu, 01 Jan 2026 18:46:48 GMT
