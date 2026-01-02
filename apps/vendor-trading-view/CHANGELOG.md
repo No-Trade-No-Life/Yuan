@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-trading-view
 
-This log was last generated on Fri, 02 Jan 2026 09:52:20 GMT and should not be manually modified.
+This log was last generated on Fri, 02 Jan 2026 13:34:11 GMT and should not be manually modified.
+
+## 0.4.0
+Fri, 02 Jan 2026 13:34:11 GMT
+
+### Minor changes
+
+- refactor to provideOHLCService
 
 ## 0.3.52
 Fri, 02 Jan 2026 09:52:20 GMT

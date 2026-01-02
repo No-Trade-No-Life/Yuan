@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-virtual-exchange
 
-This log was last generated on Fri, 02 Jan 2026 09:52:20 GMT and should not be manually modified.
+This log was last generated on Fri, 02 Jan 2026 13:34:11 GMT and should not be manually modified.
+
+## 0.18.5
+Fri, 02 Jan 2026 13:34:11 GMT
+
+### Patches
+
+- add settlement interval from quote
 
 ## 0.18.4
 Fri, 02 Jan 2026 09:52:20 GMT
