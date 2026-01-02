@@ -1440,7 +1440,6 @@ importers:
   ../../apps/vendor-trading-view:
     specifiers:
       '@mathieuc/tradingview': ~3.4.2
-      '@microsoft/api-extractor': ~7.30.0
       '@rushstack/heft': ~0.47.5
       '@rushstack/heft-jest-plugin': ~0.16.8
       '@rushstack/heft-node-rig': ~1.10.7
@@ -1469,7 +1468,6 @@ importers:
       '@yuants/utils': link:../../libraries/utils
       rxjs: 7.5.7
     devDependencies:
-      '@microsoft/api-extractor': 7.30.1
       '@rushstack/heft': 0.47.11
       '@rushstack/heft-jest-plugin': 0.16.8_cd919cf15781346720f8e992576a8e2b
       '@rushstack/heft-node-rig': 1.10.13_@rushstack+heft@0.47.11
