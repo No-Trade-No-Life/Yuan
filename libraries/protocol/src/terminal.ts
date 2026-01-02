@@ -574,7 +574,11 @@ export class Terminal {
         remote_terminal_id: msg.source_terminal_id,
         onSignal: (data) => {
           return from(
-            this.client.request('WebRTC/Answer', msg.source_terminal_id, { session_id, answer: data }),
+            this.client.requestByMessage({
+              method: 'WebRTC/Answer',
+              target_terminal_id: msg.source_terminal_id,
+              req: { session_id, answer: data },
+            }),
           );
         },
         onDestroy: () => {},
@@ -670,9 +674,13 @@ export class Terminal {
                     remote_terminal_id: target_terminal_id,
                     onSignal: (data) => {
                       return from(
-                        this.client.request('WebRTC/Offer', target_terminal_id, {
-                          session_id,
-                          offer: data,
+                        this.client.requestByMessage({
+                          method: 'WebRTC/Offer',
+                          target_terminal_id,
+                          req: {
+                            session_id,
+                            offer: data,
+                          },
                         }),
                       );
                     },
@@ -695,11 +703,11 @@ export class Terminal {
     const refresh$ = new Subject<void>();
 
     defer(() =>
-      this.client.request<{}, { terminals: ITerminalInfo[]; seq_id: number }>(
-        'GetTerminalInfos',
-        '@host',
-        {},
-      ),
+      this.client.requestByMessage<{}, { terminals: ITerminalInfo[]; seq_id: number }>({
+        method: 'GetTerminalInfos',
+        target_terminal_id: '@host',
+        req: {},
+      }),
     )
       .pipe(
         takeUntil(this.dispose$),
@@ -824,7 +832,13 @@ export class Terminal {
         }),
         // request maybe failed, so we should retry until success or cancelled by new pushing action
         switchMap(() =>
-          defer(() => this.client.request('UpdateTerminalInfo', '@host', this.terminalInfo)).pipe(
+          defer(() =>
+            this.client.requestByMessage({
+              method: 'UpdateTerminalInfo',
+              target_terminal_id: '@host',
+              req: this.terminalInfo,
+            }),
+          ).pipe(
             tap((msg) => {
               if (this.options.verbose) {
                 console.info(

@@ -47,10 +47,17 @@ export class TerminalClient {
   }
 
   /**
+   * 等待目标服务列表就绪
+   */
+  servicesReady = async (): Promise<void> => {
+    await firstValueFrom(this._generateCandidates$);
+  };
+
+  /**
    * Resolve candidate target_terminal_ids for a request
    */
   resolveTargetTerminalIds = async (method: string, req: ITerminalMessage['req']): Promise<string[]> => {
-    await firstValueFrom(this._generateCandidates$);
+    await this.servicesReady();
     const candidates = this._mapMethodToServiceIdToCandidateClientSide.get(method);
     if (!candidates) return [];
     const result: string[] = [];
@@ -71,7 +78,14 @@ export class TerminalClient {
     method: string,
     req: ITerminalMessage['req'],
   ): Promise<{ terminal_id: string; service_id: string }[]> => {
-    await firstValueFrom(this._generateCandidates$);
+    await this.servicesReady();
+    return this.resolveTargetServicesSync(method, req);
+  };
+
+  /**
+   * Resolve candidate target services by method and req body
+   */
+  resolveTargetServicesSync = (method: string, req: ITerminalMessage['req']) => {
     const candidates = this._mapMethodToServiceIdToCandidateClientSide.get(method);
     if (!candidates) return [];
     const result: { terminal_id: string; service_id: string }[] = [];
@@ -85,6 +99,34 @@ export class TerminalClient {
     return result;
   };
 
+  /**
+   * Resolve a single target service by method and req body (load balanced)
+   */
+  resolveTargetServiceByMethodSync = (method: string, req: ITerminalMessage['req']) => {
+    const services = this.resolveTargetServicesSync(method, req);
+    if (services.length === 0) {
+      throw newError(`NO_TERMINAL_AVAILABLE_FOR_REQUEST`, { method, req });
+    }
+    if (services.length === 1) return services[0];
+    // 使用简单的随机负载均衡选择
+    const target = services[~~(Math.random() * services.length)];
+    return target;
+  };
+
+  resolveTargetServiceByMethodAndTargetTerminalIdSync = (
+    method: string,
+    target_terminal_id: string,
+    req: ITerminalMessage['req'],
+  ) => {
+    const services = this.resolveTargetServicesSync(method, req);
+    for (const service of services) {
+      if (service.terminal_id === target_terminal_id) {
+        return service;
+      }
+    }
+    throw newError(`NO_TERMINAL_AVAILABLE_FOR_REQUEST`, { method, target_terminal_id, req });
+  };
+
   private _generateCandidates$ = new ReplaySubject<void>(1);
 
   /**
@@ -94,6 +136,8 @@ export class TerminalClient {
     string,
     Map<string, IServiceCandidateClientSide>
   >();
+
+  private _mapServiceIdToService = new Map<string, IServiceCandidateClientSide>();
 
   private _setupTerminalIdAndMethodValidatorSubscription() {
     // CREATE CANDIDATE INDEX
@@ -125,6 +169,7 @@ export class TerminalClient {
                   terminal_id: terminalInfo.terminal_id,
                   validator: undefined, // Lazy init later
                 };
+                this._mapServiceIdToService.set(serviceId, candidate);
               }
               nextMap.get(serviceInfo.method)!.set(serviceId, candidate);
             }
@@ -157,56 +202,45 @@ export class TerminalClient {
    */
 
   requestService<TReq = {}, TRes = void, TFrame = void>(
-    method: string,
+    serviceIdOrMethod: string,
     req: TReq,
   ): Observable<ITerminalMessage & { res?: IResponse<TRes>; frame?: TFrame }> {
-    return defer(() => this.resolveTargetServices(method, req)).pipe(
-      map((arr) => {
-        if (arr.length === 0) {
-          throw newError(`NO_TERMINAL_AVAILABLE_FOR_REQUEST`, { method, req });
-        }
-        const target = arr[~~(Math.random() * arr.length)]; // Simple Random Load Balancer
-        return target;
+    return defer(() => this.servicesReady()).pipe(
+      mergeMap(() => {
+        const serviceId =
+          this._mapServiceIdToService.get(serviceIdOrMethod)?.service_id ||
+          this.resolveTargetServiceByMethodSync(serviceIdOrMethod, req).service_id;
+        return this.requestByServiceId<TReq, TRes, TFrame>(serviceId, req);
       }),
-      mergeMap((target) =>
-        this.request<TReq, TRes, TFrame>(method, target.terminal_id, req, target.service_id),
-      ),
     );
   }
 
   private _mapTraceIdToTerminalMessage$ = new Map<string, Subject<ITerminalMessage>>();
 
   /**
-   * Make a request to specified terminal's service
+   * 通过初始请求消息发送请求。
+   *
+   * 跳过客户端路由逻辑，需要手动指定 msg 的各个字段 (method, service_id, target_terminal_id, req)
    */
-  request<TReq, TRes = void, TFrame = void>(
-    method: string,
-    target_terminal_id: string,
-    req: TReq,
-    service_id?: string,
+  requestByMessage<TReq, TRes = void, TFrame = void>(
+    _msg: Omit<ITerminalMessage & { req: TReq }, 'trace_id' | 'source_terminal_id' | 'seq_id'>,
   ): Observable<ITerminalMessage & { res?: IResponse<TRes>; frame?: TFrame }> {
-    const trace_id = UUID();
-    const msg = {
-      trace_id,
+    const msg: ITerminalMessage & { req: TReq } = {
+      ..._msg,
       seq_id: 0,
-      method,
-      target_terminal_id,
+      trace_id: UUID(),
       source_terminal_id: this.terminal.terminal_id,
-      service_id,
-      req,
     };
     const response$ = new Subject<ITerminalMessage>();
     // Open a new stream for this request
-    this._mapTraceIdToTerminalMessage$.set(trace_id, response$);
+    this._mapTraceIdToTerminalMessage$.set(msg.trace_id, response$);
     return defer((): Observable<any> => {
       if (this.terminal.options.verbose) {
         console.info(
           formatTime(Date.now()),
           'Client',
           'RequestInitiated',
-          trace_id,
-          method,
-          target_terminal_id,
+          `trace_id=${msg.trace_id}, service_id=${msg.service_id}, method=${msg.method}, target=${msg.target_terminal_id}`,
         );
       }
       let ack_seq_id = -1;
@@ -214,7 +248,7 @@ export class TerminalClient {
       return response$.pipe(
         timeout({
           each: 60_000, // maybe configurable in the future
-          meta: `Client Read Timeout: trace_id="${trace_id}" method=${msg.method} target=${msg.target_terminal_id}`,
+          meta: `Client Read Timeout: trace_id="${msg.trace_id}" method=${msg.method} target=${msg.target_terminal_id}`,
         }),
         // auto abort request (throwError) when disconnected
         takeUntil(
@@ -237,21 +271,66 @@ export class TerminalClient {
               console.info(formatTime(Date.now()), 'Client', 'RequestAborted', msg.trace_id);
             }
             this.terminal.output$.next({
-              trace_id,
+              trace_id: msg.trace_id,
               seq_id: ++ack_seq_id,
-              method,
-              target_terminal_id,
-              source_terminal_id: this.terminal.terminal_id,
+              method: msg.method,
+              target_terminal_id: msg.target_terminal_id,
+              source_terminal_id: msg.source_terminal_id,
               done: true,
             });
           },
           finalize: () => {
             response$.complete();
-            this._mapTraceIdToTerminalMessage$.delete(trace_id);
+            this._mapTraceIdToTerminalMessage$.delete(msg.trace_id);
           },
         }),
       );
     });
+  }
+
+  /**
+   * Make a request to specific serviceId
+   */
+  requestByServiceId<TReq, TRes = void, TFrame = void>(
+    service_id: string,
+    req: TReq,
+  ): Observable<ITerminalMessage & { res?: IResponse<TRes>; frame?: TFrame }> {
+    return defer(() => this.servicesReady()).pipe(
+      mergeMap(() => {
+        const serviceInfo = this._mapServiceIdToService.get(service_id);
+        if (!serviceInfo) throw newError('SERVICE_NOT_FOUND', { service_id });
+        const method = serviceInfo.serviceInfo.method;
+        const target_terminal_id = serviceInfo.terminal_id;
+
+        return this.requestByMessage<TReq, TRes, TFrame>({
+          method,
+          target_terminal_id,
+          service_id,
+          req,
+        });
+      }),
+    );
+  }
+
+  /**
+   * Make a request to specified terminal's service
+   * @deprecated - use requestByServiceId instead if you want to specify target service, use requestByMessage if you want to skip client router
+   */
+  request<TReq, TRes = void, TFrame = void>(
+    method: string,
+    target_terminal_id: string,
+    req: TReq,
+  ): Observable<ITerminalMessage & { res?: IResponse<TRes>; frame?: TFrame }> {
+    return defer(() => this.servicesReady()).pipe(
+      mergeMap(() => {
+        const service = this.resolveTargetServiceByMethodAndTargetTerminalIdSync(
+          method,
+          target_terminal_id,
+          req,
+        );
+        return this.requestByServiceId<TReq, TRes, TFrame>(service.service_id, req);
+      }),
+    );
   }
 
   /**
@@ -267,16 +346,22 @@ export class TerminalClient {
    * - [ ] STREAM-IN-STREAM-OUT
    */
   requestForResponse<TReq = {}, TRes = void>(
-    method: string,
+    serviceIdOrMethod: string,
     req: TReq,
     ctx?: { abort$?: AsyncIterable<void> },
   ): Promise<IResponse<TRes>> {
     return firstValueFrom(
-      from(this.requestService(method as any, req as any)).pipe(
+      from(this.requestService(serviceIdOrMethod as any, req as any)).pipe(
         map((msg) => msg.res),
         filter((v): v is Exclude<typeof v, undefined> => v !== undefined),
         ctx?.abort$ ? takeUntil(ctx?.abort$) : identity,
       ),
+      {
+        defaultValue: {
+          code: 'NO_RESPONSE',
+          message: 'No Response Received',
+        } as IResponse<TRes>,
+      },
     ) as any;
   }
 
@@ -286,11 +371,11 @@ export class TerminalClient {
    * if data is undefined, it will throw the response message
    */
   async requestForResponseData<TReq, TData>(
-    method: string,
+    serviceIdOrMethod: string,
     req: TReq,
     ctx?: { abort$?: AsyncIterable<void> },
   ): Promise<TData> {
-    const res = await this.requestForResponse(method, req, ctx);
+    const res = await this.requestForResponse(serviceIdOrMethod, req, ctx);
     if (res.data !== undefined) {
       return res.data as any;
     }

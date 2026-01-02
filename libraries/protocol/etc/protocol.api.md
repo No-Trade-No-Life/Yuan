@@ -208,25 +208,50 @@ export class TerminalChannel {
 // @public
 export class TerminalClient {
     constructor(terminal: Terminal);
-    request<TReq, TRes = void, TFrame = void>(method: string, target_terminal_id: string, req: TReq, service_id?: string): Observable<ITerminalMessage & {
+    // @deprecated
+    request<TReq, TRes = void, TFrame = void>(method: string, target_terminal_id: string, req: TReq): Observable<ITerminalMessage & {
         res?: IResponse<TRes>;
         frame?: TFrame;
     }>;
-    requestForResponse<TReq = {}, TRes = void>(method: string, req: TReq, ctx?: {
+    requestByMessage<TReq, TRes = void, TFrame = void>(_msg: Omit<ITerminalMessage & {
+        req: TReq;
+    }, 'trace_id' | 'source_terminal_id' | 'seq_id'>): Observable<ITerminalMessage & {
+        res?: IResponse<TRes>;
+        frame?: TFrame;
+    }>;
+    requestByServiceId<TReq, TRes = void, TFrame = void>(service_id: string, req: TReq): Observable<ITerminalMessage & {
+        res?: IResponse<TRes>;
+        frame?: TFrame;
+    }>;
+    requestForResponse<TReq = {}, TRes = void>(serviceIdOrMethod: string, req: TReq, ctx?: {
         abort$?: AsyncIterable<void>;
     }): Promise<IResponse<TRes>>;
-    requestForResponseData<TReq, TData>(method: string, req: TReq, ctx?: {
+    requestForResponseData<TReq, TData>(serviceIdOrMethod: string, req: TReq, ctx?: {
         abort$?: AsyncIterable<void>;
     }): Promise<TData>;
-    requestService<TReq = {}, TRes = void, TFrame = void>(method: string, req: TReq): Observable<ITerminalMessage & {
+    requestService<TReq = {}, TRes = void, TFrame = void>(serviceIdOrMethod: string, req: TReq): Observable<ITerminalMessage & {
         res?: IResponse<TRes>;
         frame?: TFrame;
     }>;
+    // (undocumented)
+    resolveTargetServiceByMethodAndTargetTerminalIdSync: (method: string, target_terminal_id: string, req: ITerminalMessage['req']) => {
+        terminal_id: string;
+        service_id: string;
+    };
+    resolveTargetServiceByMethodSync: (method: string, req: ITerminalMessage['req']) => {
+        terminal_id: string;
+        service_id: string;
+    };
     resolveTargetServices: (method: string, req: ITerminalMessage['req']) => Promise<{
         terminal_id: string;
         service_id: string;
     }[]>;
+    resolveTargetServicesSync: (method: string, req: ITerminalMessage['req']) => {
+        terminal_id: string;
+        service_id: string;
+    }[];
     resolveTargetTerminalIds: (method: string, req: ITerminalMessage['req']) => Promise<string[]>;
+    servicesReady: () => Promise<void>;
     // (undocumented)
     readonly terminal: Terminal;
 }

@@ -27,14 +27,14 @@ terminal.server.provideService<{}, { status: number; headers?: Record<string, st
   async () => {
     try {
       const metrics = await firstValueFrom(
-        from(terminal.terminalInfos).pipe(
+        from(terminal.client.resolveTargetServicesSync('Metrics', {})).pipe(
           //
           mergeMap((info) =>
             defer(() =>
-              terminal.client.request<{}, { metrics: string }>('Metrics', info.terminal_id, {}),
+              terminal.client.requestForResponseData<{}, { metrics: string }>(info.service_id, {}),
             ).pipe(
               //
-              map((data) => data.res?.data?.metrics),
+              map((data) => data.metrics),
               filter((v): v is Exclude<typeof v, undefined> => !!v),
               map((content) =>
                 [
