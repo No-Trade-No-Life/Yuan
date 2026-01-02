@@ -1,4 +1,4 @@
-import { formatTime, tokenBucket } from '@yuants/utils';
+import { decodePath, formatTime, tokenBucket } from '@yuants/utils';
 import { handleIngestInterestRateBackward } from './backwards-interest-rate';
 import { handleIngestOHLCBackward } from './backwards-ohlc';
 import { listInterestRateSeriesIds, listOHLCSeriesIds } from './discovery';
@@ -34,20 +34,29 @@ const api = {
           await tokenBucket(`${type}:${task}`).acquire(1, signal);
           try {
             const tasks = await list();
-            // 并行
-            // await Promise.all(
-            //   Array.from(tasks.entries()).map(([series_id, direction]) =>
-            //     handler(series_id, direction, signal).catch((err) => {
-            //       console.info(formatTime(Date.now()), `[SeriesCollector][${type}][${task}]`, 'Error', err);
-            //     }),
-            //   ),
-            // );
-            // 串行调度
-            for (const [series_id, direction] of tasks.entries()) {
-              await handler(series_id, direction, signal).catch((err) => {
-                console.info(formatTime(Date.now()), `[SeriesCollector][${type}][${task}]`, 'Error', err);
-              });
+
+            // const groups = Map.groupBy(tasks, item => decodePath(item[0])[0]);
+            const groups = new Map<string, [string, 'forward' | 'backward'][]>();
+            for (const item of tasks) {
+              const [datasource_id] = decodePath(item[0]);
+              let items = groups.get(datasource_id);
+              if (!items) {
+                items = [];
+                groups.set(datasource_id, items);
+              }
+              items.push(item);
             }
+
+            await Promise.all(
+              Array.from(groups.entries()).map(async ([datasource_id, tasks]) => {
+                for (const [series_id, direction] of tasks) {
+                  await tokenBucket(`${type}:${task}:${datasource_id}`).acquire(1, signal);
+                  await handler(series_id, direction, signal).catch((err) => {
+                    console.info(formatTime(Date.now()), `[SeriesCollector][${type}][${task}]`, 'Error', err);
+                  });
+                }
+              }),
+            );
           } catch (e) {}
         }
       })();

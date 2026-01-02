@@ -1,7 +1,7 @@
 import { IIngestInterestRateRequest, ISeriesIngestResult } from '@yuants/exchange';
 import { Terminal } from '@yuants/protocol';
 import { escapeSQL, requestSQL } from '@yuants/sql';
-import { decodePath, formatTime, tokenBucket } from '@yuants/utils';
+import { formatTime } from '@yuants/utils';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -15,8 +15,6 @@ export const handleInterestRatePatch = async (
   direction: 'forward' | 'backward',
   signal: AbortSignal,
 ) => {
-  const [datasource_id] = decodePath(product_id);
-  await tokenBucket(`interest_rate:patch:${datasource_id}`).acquire(1, signal);
   const [record] = await requestSQL<{ gap_start_time: string; gap_end_time: string }[]>(
     terminal,
     `
