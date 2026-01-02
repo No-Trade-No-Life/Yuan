@@ -52,7 +52,13 @@ const api = {
                 for (const [series_id, direction] of tasks) {
                   await tokenBucket(`${type}:${task}:${datasource_id}`).acquire(1, signal);
                   await handler(series_id, direction, signal).catch((err) => {
-                    console.info(formatTime(Date.now()), `[SeriesCollector][${type}][${task}]`, 'Error', err);
+                    console.info(
+                      formatTime(Date.now()),
+                      `[SeriesCollector][${type}][${task}]`,
+                      series_id,
+                      'Error',
+                      err,
+                    );
                   });
                 }
               }),

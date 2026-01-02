@@ -84,12 +84,17 @@ export const polyfillPosition = async (positions: IPosition[]): Promise<IPositio
 
     // 利率相关信息的追加
     if (quote) {
+      // 优先使用 quote 表中的结算间隔
+      if (quote.interest_rate_settlement_interval) {
+        pos.settlement_interval = +quote.interest_rate_settlement_interval;
+      }
       if (quote.interest_rate_next_settled_at !== null) {
         const nextSettledAt = new Date(quote.interest_rate_next_settled_at).getTime();
         // 优先使用行情数据中的下一个结算时间
         pos.settlement_scheduled_at = nextSettledAt;
-        // 优先使用下一个结算时间推算结算间隔
-        if (interestRateInterval !== undefined) {
+
+        // 如果还没有结算周期，使用下一个结算时间推算结算间隔
+        if (pos.settlement_interval === undefined && interestRateInterval !== undefined) {
           const interval = nextSettledAt - interestRateInterval.prev;
           pos.settlement_interval = interval;
         }

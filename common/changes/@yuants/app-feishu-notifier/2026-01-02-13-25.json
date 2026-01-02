@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-feishu-notifier",
+      "comment": "remove axios",
+      "type": "none"
+    }
+  ],
+  "packageName": "@yuants/app-feishu-notifier"
+}

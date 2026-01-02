@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-virtual-exchange",
+      "comment": "add settlement interval from quote",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-virtual-exchange"
+}
