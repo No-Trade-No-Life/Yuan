@@ -1,10 +1,10 @@
 import { IOHLC, provideOHLCDurationService } from '@yuants/data-ohlc';
-import { createSeriesProvider } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
 import { convertDurationToOffset, decodePath, formatTime } from '@yuants/utils';
 import { Observable, firstValueFrom } from 'rxjs';
 //@ts-ignore
 import TradingView from '@mathieuc/tradingview';
+import { provideOHLCService } from '@yuants/exchange';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -33,23 +33,22 @@ provideOHLCDurationService(
   () => Object.keys(DURATION_TO_TRADINGVIEW_PERIOD),
 );
 
-createSeriesProvider(terminal, {
-  tableName: 'ohlc',
-  series_id_prefix_parts: ['TradingView'],
-  reversed: false,
-  serviceOptions: { concurrent: +(process.env.CONCURRENCY || 2) },
-  queryFn: async ({ series_id, started_at, ended_at }) => {
-    const [datasource_id, product_id, duration] = decodePath(series_id);
+provideOHLCService(
+  terminal,
+  {
+    product_id_prefix: 'TradingView/',
+    direction: 'backward',
+    duration_list: Object.keys(DURATION_TO_TRADINGVIEW_PERIOD),
+  },
+  async ({ product_id, duration, series_id, time }) => {
+    const [datasource_id, symbol] = decodePath(product_id);
     const offset = convertDurationToOffset(duration);
     if (!offset) throw new Error(`Unsupported duration: ${duration}`);
 
     const timeframe = DURATION_TO_TRADINGVIEW_PERIOD[duration];
     if (!timeframe) throw new Error(`Unsupported timeframe: ${duration}`);
 
-    const range = Math.ceil((ended_at - started_at) / offset);
-    if (range <= 0) {
-      throw `range=${range} is invalid`;
-    }
+    const range = 5000;
 
     console.info(
       formatTime(Date.now()),
@@ -61,10 +60,10 @@ createSeriesProvider(terminal, {
       new Observable<IOHLC[]>((subscriber) => {
         const client = new TradingView.Client();
         const chart = new client.Session.Chart();
-        chart.setMarket(product_id, {
+        chart.setMarket(symbol, {
           timeframe,
           range,
-          to: ended_at,
+          to: time,
         });
         chart.onError((e: any) => {
           subscriber.error(e);
@@ -111,4 +110,5 @@ createSeriesProvider(terminal, {
 
     return data;
   },
-});
+  { concurrent: +(process.env.CONCURRENCY || 2) },
+);
