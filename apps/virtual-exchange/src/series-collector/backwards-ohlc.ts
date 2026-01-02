@@ -7,7 +7,7 @@ import { decodeOHLCSeriesId } from '@yuants/data-ohlc';
 import { IIngestOHLCRequest, ISeriesIngestResult } from '@yuants/exchange';
 import { Terminal } from '@yuants/protocol';
 import { escapeSQL, requestSQL } from '@yuants/sql';
-import { decodePath, formatTime, tokenBucket } from '@yuants/utils';
+import { formatTime } from '@yuants/utils';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -21,9 +21,6 @@ export const handleIngestOHLCBackward = async (
   signal: AbortSignal,
 ) => {
   const { product_id, duration } = decodeOHLCSeriesId(series_id);
-  const [datasource_id] = decodePath(product_id);
-  // 控制速率：每个数据源每秒钟只能请求一次
-  await tokenBucket(`ohlc:backward:${datasource_id}`).acquire(1, signal);
 
   let req: IIngestOHLCRequest;
   if (direction === 'backward') {

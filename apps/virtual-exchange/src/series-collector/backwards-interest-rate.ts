@@ -1,6 +1,6 @@
 import { IIngestInterestRateRequest, ISeriesIngestResult } from '@yuants/exchange';
 import { Terminal } from '@yuants/protocol';
-import { decodePath, formatTime, tokenBucket } from '@yuants/utils';
+import { formatTime } from '@yuants/utils';
 import { findInterestRateStartTimeBackward } from './sql-helpers';
 
 const terminal = Terminal.fromNodeEnv();
@@ -13,9 +13,6 @@ export const handleIngestInterestRateBackward = async (
   direction: 'forward' | 'backward',
   signal: AbortSignal,
 ) => {
-  const [datasource_id] = decodePath(product_id);
-  // 控制速率：每个数据源每秒钟只能请求一次
-  await tokenBucket(`interest_rate:backward:${datasource_id}`).acquire(1, signal);
   let req: IIngestInterestRateRequest;
   if (direction === 'backward') {
     const startTime = await findInterestRateStartTimeBackward(terminal, product_id);
