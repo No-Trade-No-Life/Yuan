@@ -233,7 +233,7 @@ registerPage('TradingBoard', () => {
         if (!seriesId || !productInfo) return { data: [], views: [] };
         const ohlc = await loadTimeSeriesData({
           type: 'sql' as const,
-          query: `select * from ohlc where series_id = ${escapeSQL(
+          query: `select * from ohlc_v2 where series_id = ${escapeSQL(
             seriesId,
           )} order by created_at desc limit 5000`,
           time_column_name: 'created_at',
