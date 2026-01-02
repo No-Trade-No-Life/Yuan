@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-telegram-monitor",
-  "version": "0.1.43",
+  "version": "0.1.44",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [

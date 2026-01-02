@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Thu, 01 Jan 2026 18:46:48 GMT and should not be manually modified.
+This log was last generated on Fri, 02 Jan 2026 09:52:20 GMT and should not be manually modified.
+
+## 0.54.0
+Fri, 02 Jan 2026 09:52:20 GMT
+
+### Minor changes
+
+- support client send request with a specified service_id
 
 ## 0.53.9
 Thu, 01 Jan 2026 18:46:48 GMT

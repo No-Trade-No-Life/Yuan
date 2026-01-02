@@ -1,6 +1,14 @@
 # Change Log - @yuants/utils
 
-This log was last generated on Thu, 01 Jan 2026 18:46:48 GMT and should not be manually modified.
+This log was last generated on Fri, 02 Jan 2026 09:52:20 GMT and should not be manually modified.
+
+## 0.19.3
+Fri, 02 Jan 2026 09:52:20 GMT
+
+### Patches
+
+- remove disposable api for performance
+- optimize by flat array
 
 ## 0.19.2
 Thu, 01 Jan 2026 18:46:48 GMT

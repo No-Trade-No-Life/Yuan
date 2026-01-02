@@ -2,6 +2,26 @@
   "name": "@yuants/utils",
   "entries": [
     {
+      "version": "0.19.3",
+      "tag": "@yuants/utils_v0.19.3",
+      "date": "Fri, 02 Jan 2026 09:52:20 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove disposable api for performance"
+          },
+          {
+            "comment": "optimize by flat array"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.19.2",
       "tag": "@yuants/utils_v0.19.2",
       "date": "Thu, 01 Jan 2026 18:46:48 GMT",

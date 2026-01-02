@@ -2,6 +2,31 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.54.0",
+      "tag": "@yuants/protocol_v0.54.0",
+      "date": "Fri, 02 Jan 2026 09:52:20 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "support client send request with a specified service_id"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.19.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/cache\" to `0.3.11`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.53.9",
       "tag": "@yuants/protocol_v0.53.9",
       "date": "Thu, 01 Jan 2026 18:46:48 GMT",
