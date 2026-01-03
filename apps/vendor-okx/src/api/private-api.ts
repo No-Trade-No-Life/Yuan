@@ -10,12 +10,6 @@ export interface ICredential {
   passphrase: string;
 }
 
-export const getDefaultCredential = (): ICredential => ({
-  access_key: process.env.ACCESS_KEY!,
-  secret_key: process.env.SECRET_KEY!,
-  passphrase: process.env.PASSPHRASE!,
-});
-
 export async function request(
   credential: ICredential,
   method: string,
