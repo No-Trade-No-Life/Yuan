@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "chore: upgrade Rush and Heft to latest versions",
+      "type": "patch",
+      "packageName": "@yuants/app-prometheus-client"
+    }
+  ],
+  "packageName": "@yuants/app-prometheus-client",
+  "email": "cz@ntnl.io"
+}

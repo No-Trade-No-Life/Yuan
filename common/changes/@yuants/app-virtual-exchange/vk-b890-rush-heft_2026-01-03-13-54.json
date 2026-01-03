@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "chore: upgrade Rush and Heft to latest versions",
+      "type": "patch",
+      "packageName": "@yuants/app-virtual-exchange"
+    }
+  ],
+  "packageName": "@yuants/app-virtual-exchange",
+  "email": "cz@ntnl.io"
+}

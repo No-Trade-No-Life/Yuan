@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "chore: upgrade Rush and Heft to latest versions",
+      "type": "patch",
+      "packageName": "@yuants/vendor-okx-web3"
+    }
+  ],
+  "packageName": "@yuants/vendor-okx-web3",
+  "email": "cz@ntnl.io"
+}

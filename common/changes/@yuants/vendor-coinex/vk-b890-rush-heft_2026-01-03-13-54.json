@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "chore: upgrade Rush and Heft to latest versions",
+      "type": "patch",
+      "packageName": "@yuants/vendor-coinex"
+    }
+  ],
+  "packageName": "@yuants/vendor-coinex",
+  "email": "cz@ntnl.io"
+}
