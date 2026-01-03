@@ -11,7 +11,7 @@
     "temp"
   ],
   "scripts": {
-    "build": "heft test --clean && api-extractor run --local && node cli.js post-build"
+    "build": "heft test --clean && node cli.js post-build"
   },
   "dependencies": {
     "@microsoft/rush-lib": "~5.165.0",
