@@ -35,7 +35,7 @@
     "@types/heft-jest": "1.0.3",
     "@types/lodash": "~4.14.188",
     "@types/node": "25",
-    "typescript": "~5.9.3"
+    "typescript": "~5.8.3"
   },
   "publishConfig": {
     "access": "public",

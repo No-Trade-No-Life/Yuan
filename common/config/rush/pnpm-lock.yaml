@@ -3501,10 +3501,10 @@ importers:
         version: 1.1.7(@types/node@25.0.3)
       '@rushstack/heft-jest-plugin':
         specifier: ~1.1.7
-        version: 1.1.7(@rushstack/heft@1.1.7(@types/node@25.0.3))(@types/node@25.0.3)(jest-environment-node@29.7.0)(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.9.3))
+        version: 1.1.7(@rushstack/heft@1.1.7(@types/node@25.0.3))(@types/node@25.0.3)(jest-environment-node@29.7.0)(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.8.3))
       '@rushstack/heft-node-rig':
         specifier: ~2.11.12
-        version: 2.11.12(@rushstack/heft@1.1.7(@types/node@25.0.3))(@types/node@25.0.3)(jiti@1.21.7)(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.9.3))
+        version: 2.11.12(@rushstack/heft@1.1.7(@types/node@25.0.3))(@types/node@25.0.3)(jiti@1.21.7)(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.8.3))
       '@types/fs-extra':
         specifier: ~11.0.1
         version: 11.0.4
@@ -3518,8 +3518,8 @@ importers:
         specifier: '25'
         version: 25.0.3
       typescript:
-        specifier: ~5.9.3
-        version: 5.9.3
+        specifier: ~5.8.3
+        version: 5.8.3
 
   ../../tools/yuanctl:
     dependencies:
@@ -10838,11 +10838,6 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  typescript@5.9.3:
-    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
-    engines: {node: '>=14.17'}
-    hasBin: true
-
   uc.micro@2.1.0:
     resolution: {integrity: sha512-ARDJmphmdvUk6Glw7y9DQ2bFkKBHwQHLi2lsaH6PPmz/Ka9sFOBsBluozhDltWmnv9u/cF6Rt87znRTPV+yp/A==}
 
@@ -13094,7 +13089,7 @@ snapshots:
       - supports-color
       - ts-node
 
-  '@jest/core@29.5.0(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.9.3))':
+  '@jest/core@29.5.0(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.8.3))':
     dependencies:
       '@jest/console': 29.7.0
       '@jest/reporters': 29.5.0
@@ -13108,7 +13103,7 @@ snapshots:
       exit: 0.1.2
       graceful-fs: 4.2.11
       jest-changed-files: 29.7.0
-      jest-config: 29.5.0(@types/node@22.19.3)(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.9.3))
+      jest-config: 29.5.0(@types/node@22.19.3)(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.8.3))
       jest-haste-map: 29.7.0
       jest-message-util: 29.7.0
       jest-regex-util: 29.6.3
@@ -14433,16 +14428,16 @@ snapshots:
       - supports-color
       - ts-node
 
-  '@rushstack/heft-jest-plugin@1.1.7(@rushstack/heft@1.1.7(@types/node@25.0.3))(@types/node@25.0.3)(jest-environment-node@29.5.0)(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.9.3))':
+  '@rushstack/heft-jest-plugin@1.1.7(@rushstack/heft@1.1.7(@types/node@25.0.3))(@types/node@25.0.3)(jest-environment-node@29.5.0)(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.8.3))':
     dependencies:
-      '@jest/core': 29.5.0(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.9.3))
+      '@jest/core': 29.5.0(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.8.3))
       '@jest/reporters': 29.5.0
       '@jest/transform': 29.5.0
       '@rushstack/heft': 1.1.7(@types/node@25.0.3)
       '@rushstack/heft-config-file': 0.19.5(@types/node@25.0.3)
       '@rushstack/node-core-library': 5.19.1(@types/node@25.0.3)
       '@rushstack/terminal': 0.19.5(@types/node@25.0.3)
-      jest-config: 29.5.0(@types/node@25.0.3)(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.9.3))
+      jest-config: 29.5.0(@types/node@25.0.3)(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.8.3))
       jest-resolve: 29.5.0
       jest-snapshot: 29.5.0
       lodash: 4.17.21
@@ -14456,16 +14451,16 @@ snapshots:
       - supports-color
       - ts-node
 
-  '@rushstack/heft-jest-plugin@1.1.7(@rushstack/heft@1.1.7(@types/node@25.0.3))(@types/node@25.0.3)(jest-environment-node@29.7.0)(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.9.3))':
+  '@rushstack/heft-jest-plugin@1.1.7(@rushstack/heft@1.1.7(@types/node@25.0.3))(@types/node@25.0.3)(jest-environment-node@29.7.0)(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.8.3))':
     dependencies:
-      '@jest/core': 29.5.0(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.9.3))
+      '@jest/core': 29.5.0(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.8.3))
       '@jest/reporters': 29.5.0
       '@jest/transform': 29.5.0
       '@rushstack/heft': 1.1.7(@types/node@25.0.3)
       '@rushstack/heft-config-file': 0.19.5(@types/node@25.0.3)
       '@rushstack/node-core-library': 5.19.1(@types/node@25.0.3)
       '@rushstack/terminal': 0.19.5(@types/node@25.0.3)
-      jest-config: 29.5.0(@types/node@25.0.3)(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.9.3))
+      jest-config: 29.5.0(@types/node@25.0.3)(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.8.3))
       jest-resolve: 29.5.0
       jest-snapshot: 29.5.0
       lodash: 4.17.21
@@ -14558,13 +14553,13 @@ snapshots:
       - supports-color
       - ts-node
 
-  '@rushstack/heft-node-rig@2.11.12(@rushstack/heft@1.1.7(@types/node@25.0.3))(@types/node@25.0.3)(jiti@1.21.7)(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.9.3))':
+  '@rushstack/heft-node-rig@2.11.12(@rushstack/heft@1.1.7(@types/node@25.0.3))(@types/node@25.0.3)(jiti@1.21.7)(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.8.3))':
     dependencies:
       '@microsoft/api-extractor': 7.55.2(@types/node@25.0.3)
       '@rushstack/eslint-config': 4.6.1(eslint@9.37.0(jiti@1.21.7))(typescript@5.8.3)
       '@rushstack/heft': 1.1.7(@types/node@25.0.3)
       '@rushstack/heft-api-extractor-plugin': 1.2.3(@rushstack/heft@1.1.7(@types/node@25.0.3))(@types/node@25.0.3)
-      '@rushstack/heft-jest-plugin': 1.1.7(@rushstack/heft@1.1.7(@types/node@25.0.3))(@types/node@25.0.3)(jest-environment-node@29.5.0)(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.9.3))
+      '@rushstack/heft-jest-plugin': 1.1.7(@rushstack/heft@1.1.7(@types/node@25.0.3))(@types/node@25.0.3)(jest-environment-node@29.5.0)(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.8.3))
       '@rushstack/heft-lint-plugin': 1.1.10(@rushstack/heft@1.1.7(@types/node@25.0.3))(@types/node@25.0.3)
       '@rushstack/heft-typescript-plugin': 1.1.7(@rushstack/heft@1.1.7(@types/node@25.0.3))(@types/node@25.0.3)
       '@types/heft-jest': 1.0.1
@@ -18562,7 +18557,7 @@ snapshots:
       - babel-plugin-macros
       - supports-color
 
-  jest-config@29.5.0(@types/node@22.19.3)(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.9.3)):
+  jest-config@29.5.0(@types/node@22.19.3)(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.8.3)):
     dependencies:
       '@babel/core': 7.28.5
       '@jest/test-sequencer': 29.7.0
@@ -18588,12 +18583,12 @@ snapshots:
       strip-json-comments: 3.1.1
     optionalDependencies:
       '@types/node': 22.19.3
-      ts-node: 10.9.2(@types/node@25.0.3)(typescript@5.9.3)
+      ts-node: 10.9.2(@types/node@25.0.3)(typescript@5.8.3)
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
 
-  jest-config@29.5.0(@types/node@25.0.3)(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.9.3)):
+  jest-config@29.5.0(@types/node@25.0.3)(ts-node@10.9.2(@types/node@25.0.3)(typescript@5.8.3)):
     dependencies:
       '@babel/core': 7.28.5
       '@jest/test-sequencer': 29.7.0
@@ -18619,7 +18614,7 @@ snapshots:
       strip-json-comments: 3.1.1
     optionalDependencies:
       '@types/node': 25.0.3
-      ts-node: 10.9.2(@types/node@25.0.3)(typescript@5.9.3)
+      ts-node: 10.9.2(@types/node@25.0.3)(typescript@5.8.3)
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
@@ -21234,7 +21229,7 @@ snapshots:
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
 
-  ts-node@10.9.2(@types/node@25.0.3)(typescript@5.9.3):
+  ts-node@10.9.2(@types/node@25.0.3)(typescript@5.8.3):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.12
@@ -21248,7 +21243,7 @@ snapshots:
       create-require: 1.1.1
       diff: 4.0.2
       make-error: 1.3.6
-      typescript: 5.9.3
+      typescript: 5.8.3
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
     optional: true
@@ -21343,8 +21338,6 @@ snapshots:
   typescript@5.8.2: {}
 
   typescript@5.8.3: {}
-
-  typescript@5.9.3: {}
 
   uc.micro@2.1.0: {}
 
