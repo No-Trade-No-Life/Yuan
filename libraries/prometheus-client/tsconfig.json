@@ -2,6 +2,7 @@
   "extends": "./node_modules/@rushstack/heft-node-rig/profiles/default/tsconfig-base.json",
   "compilerOptions": {
     "types": ["heft-jest", "node"],
-    "lib": ["es2023", "esnext.disposable"]
+    "lib": ["es2022"],
+    "skipLibCheck": true
   }
 }
