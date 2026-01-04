@@ -16,9 +16,9 @@ CREATE INDEX IF NOT EXISTS idx_account_interest_ledger_account_id ON account_int
 
 CREATE INDEX IF NOT EXISTS idx_account_interest_ledger_product_id ON account_interest_ledger (product_id);
 
-CREATE INDEX IF NOT EXISTS idx_account_interest_ledger_created_at ON account_interest_ledger (created_at);
+CREATE INDEX IF NOT EXISTS idx_account_interest_ledger_created_at ON account_interest_ledger (created_at desc);
 
-CREATE INDEX IF NOT EXISTS idx_account_interest_ledger_updated_at ON account_interest_ledger (updated_at);
+CREATE INDEX IF NOT EXISTS idx_account_interest_ledger_updated_at ON account_interest_ledger (updated_at desc);
 
 CREATE OR REPLACE TRIGGER auto_update_updated_at BEFORE
 UPDATE ON account_interest_ledger FOR EACH ROW
