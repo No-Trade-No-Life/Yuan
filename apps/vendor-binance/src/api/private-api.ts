@@ -230,6 +230,17 @@ export interface IUMIncomeRecord {
   tradeId: string;
 }
 
+export interface IAccountIncomeRecord {
+  symbol: string;
+  incomeType: string;
+  income: string;
+  asset: string;
+  info: string;
+  time: number;
+  tranId: string;
+  tradeId: string;
+}
+
 /**
  * 查询账户信息(USER_DATA)
  *
@@ -747,6 +758,36 @@ export const getUMIncome = (
     () => tokenBucket(url.host).acquireSync(weight),
   );
   return requestPrivate<IUMIncomeRecord[]>(credential, 'GET', endpoint, params);
+};
+/**
+ * 获取账户损益资金流水(USER_DATA)
+ *
+ * 权重: 30
+ *
+ * https://developers.binance.com/docs/zh-CN/derivatives/usds-margined-futures/account/rest-api/Get-Income-History
+ */
+export const getAccountIncome = (
+  credential: ICredential,
+  params?: {
+    symbol?: string;
+    incomeType?: string;
+    startTime?: number;
+    endTime?: number;
+    page?: number;
+    recvWindow?: number;
+    limit?: number;
+    timestamp?: number;
+  },
+): Promise<IAccountIncomeRecord[]> => {
+  const endpoint = 'https://fapi.binance.com/fapi/v1/income';
+  const url = new URL(endpoint);
+  const weight = 30;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
+  );
+  return requestPrivate<IAccountIncomeRecord[]>(credential, 'GET', endpoint, params);
 };
 
 /**

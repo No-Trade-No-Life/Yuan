@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/tool-sql-migration",
+      "comment": "add ledger",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/tool-sql-migration"
+}

@@ -5,6 +5,7 @@
 ```ts
 
 import { IInterestRate } from '@yuants/data-interest-rate';
+import { IInterestRateLedger } from '@yuants/data-interest-rate';
 import { IOHLC } from '@yuants/data-ohlc';
 import { IOrder } from '@yuants/data-order';
 import { IPosition } from '@yuants/data-account';
@@ -151,6 +152,15 @@ export const parseQuoteServiceMetadataFromSchema: (schema: any) => IQuoteService
 
 // @public
 export const provideExchangeServices: <T>(terminal: Terminal, exchange: IExchange<T>) => void;
+
+// Warning: (ae-forgotten-export) The symbol "IIngestInterestRateLedgerRequest" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export const provideInterestRateLedgerService: (terminal: Terminal, metadata: {
+    direction: string;
+}, fetchPage: (request: IIngestInterestRateLedgerRequest) => Promise<IInterestRateLedger[]>, serviceOptions?: IServiceOptions) => {
+    dispose: () => void;
+};
 
 // @public (undocumented)
 export const provideInterestRateService: (terminal: Terminal, metadata: IInterestRateServiceMetadata, fetchPage: (request: IIngestInterestRateRequest & {

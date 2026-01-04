@@ -23,6 +23,17 @@ export interface IInterestRate {
     short_rate: string;
 }
 
+// @public
+export interface IInterestRateLedger {
+    account_id: string;
+    amount: string;
+    created_at: string;
+    currency: string;
+    id: string;
+    product_id: string;
+    updated_at: string;
+}
+
 // (No @packageDocumentation comment for this package)
 
 ```

@@ -56,3 +56,37 @@ export const decodeInterestRateSeriesId = (series_id: string): { product_id: str
   })();
   return { product_id };
 };
+
+/**
+ * 资金费流水
+ */
+export interface IInterestRateLedger {
+  /**
+   * 资金费流水记录id
+   */
+  id: string;
+  /**
+   * 产品ID
+   */
+  product_id: string;
+  /**
+   * 金额
+   */
+  amount: string;
+  /**
+   * 账户ID
+   */
+  account_id: string;
+  /**
+   * 货币
+   */
+  currency: string;
+  /**
+   * 创建时间
+   */
+  created_at: string;
+  /**
+   * 更新时间
+   */
+  updated_at: string;
+}
