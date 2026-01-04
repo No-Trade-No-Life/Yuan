@@ -2,6 +2,31 @@
   "name": "@yuants/vendor-binance",
   "entries": [
     {
+      "version": "0.12.11",
+      "tag": "@yuants/vendor-binance_v0.12.11",
+      "date": "Sun, 04 Jan 2026 18:08:06 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add ledger"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-interest-rate\" to `0.2.7`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.10`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.12.10",
       "tag": "@yuants/vendor-binance_v0.12.10",
       "date": "Fri, 02 Jan 2026 09:52:20 GMT",
