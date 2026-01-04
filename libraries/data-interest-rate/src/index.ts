@@ -59,6 +59,7 @@ export const decodeInterestRateSeriesId = (series_id: string): { product_id: str
 
 /**
  * 资金费流水
+ * @public
  */
 export interface IInterestLedger {
   /**
