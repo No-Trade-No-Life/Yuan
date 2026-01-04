@@ -1,0 +1,207 @@
+{
+  "range": {
+    "old": "71d92eb6a48f1f2186d2efb3b2d2a4e66d05c205",
+    "new": "b47dff5533c5ef8806fd4444f8b3045067902d1f",
+    "label": "71d92eb6a..b47dff553",
+    "startDate": "2026-01-02",
+    "endDate": "2026-01-02",
+    "commitCount": 1,
+    "generatedAt": "2026-01-04T00:06:30.324Z"
+  },
+  "contributors": [
+    {
+      "name": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "commits": 1
+    }
+  ],
+  "directoryAnalysis": {
+    "topLevel": [
+      {
+        "dir": "apps",
+        "fileCount": 6
+      },
+      {
+        "dir": "common",
+        "fileCount": 4
+      }
+    ],
+    "projects": [
+      {
+        "project": "common",
+        "fileCount": 4,
+        "marker": null
+      },
+      {
+        "project": "apps/vendor-trading-view",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/virtual-exchange",
+        "fileCount": 3,
+        "marker": "package.json"
+      }
+    ],
+    "markersUsed": [
+      "package.json",
+      "Cargo.toml",
+      "go.mod",
+      "requirements.txt",
+      "pyproject.toml",
+      "setup.py",
+      "pom.xml",
+      "build.gradle",
+      "build.gradle.kts",
+      "CMakeLists.txt",
+      "Makefile",
+      "pubspec.yaml",
+      "mix.exs",
+      "Gemfile",
+      "composer.json"
+    ]
+  },
+  "commits": [
+    {
+      "hash": "b47dff5533c5ef8806fd4444f8b3045067902d1f",
+      "short": "b47dff553",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2026-01-02 21:35:57 +0800",
+      "subject": "chore: bump version (#2461)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-trading-view/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit b47dff5533c5ef8806fd4444f8b3045067902d1f\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Jan 2 21:35:57 2026 +0800\n\n    chore: bump version (#2461)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-trading-view/CHANGELOG.json b/apps/vendor-trading-view/CHANGELOG.json\nindex 194728b6b..5f15eca70 100644\n--- a/apps/vendor-trading-view/CHANGELOG.json\n+++ b/apps/vendor-trading-view/CHANGELOG.json\n@@ -4,0 +5,17 @@\n+      \"version\": \"0.4.0\",\n+      \"tag\": \"@yuants/vendor-trading-view_v0.4.0\",\n+      \"date\": \"Fri, 02 Jan 2026 13:34:11 GMT\",\n+      \"comments\": {\n+        \"minor\": [\n+          {\n+            \"comment\": \"refactor to provideOHLCService\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n+    {\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-trading-view/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit b47dff5533c5ef8806fd4444f8b3045067902d1f\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Jan 2 21:35:57 2026 +0800\n\n    chore: bump version (#2461)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-trading-view/CHANGELOG.md b/apps/vendor-trading-view/CHANGELOG.md\nindex e510a40dc..3a6c78323 100644\n--- a/apps/vendor-trading-view/CHANGELOG.md\n+++ b/apps/vendor-trading-view/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Fri, 02 Jan 2026 09:52:20 GMT and should not be manually modified.\n+This log was last generated on Fri, 02 Jan 2026 13:34:11 GMT and should not be manually modified.\n+\n+## 0.4.0\n+Fri, 02 Jan 2026 13:34:11 GMT\n+\n+### Minor changes\n+\n+- refactor to provideOHLCService\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-trading-view/package.json",
+          "changeType": "modified",
+          "patch": "commit b47dff5533c5ef8806fd4444f8b3045067902d1f\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Jan 2 21:35:57 2026 +0800\n\n    chore: bump version (#2461)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-trading-view/package.json b/apps/vendor-trading-view/package.json\nindex 5b4f7fcd6..cda1486e6 100644\n--- a/apps/vendor-trading-view/package.json\n+++ b/apps/vendor-trading-view/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.3.52\",\n+  \"version\": \"0.4.0\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/virtual-exchange/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit b47dff5533c5ef8806fd4444f8b3045067902d1f\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Jan 2 21:35:57 2026 +0800\n\n    chore: bump version (#2461)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/virtual-exchange/CHANGELOG.json b/apps/virtual-exchange/CHANGELOG.json\nindex 9bd3a22a2..9eb6631cf 100644\n--- a/apps/virtual-exchange/CHANGELOG.json\n+++ b/apps/virtual-exchange/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.18.5\",\n+      \"tag\": \"@yuants/app-virtual-exchange_v0.18.5\",\n+      \"date\": \"Fri, 02 Jan 2026 13:34:11 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"add settlement interval from quote\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/virtual-exchange/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit b47dff5533c5ef8806fd4444f8b3045067902d1f\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Jan 2 21:35:57 2026 +0800\n\n    chore: bump version (#2461)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/virtual-exchange/CHANGELOG.md b/apps/virtual-exchange/CHANGELOG.md\nindex ed307a558..6e8cf9302 100644\n--- a/apps/virtual-exchange/CHANGELOG.md\n+++ b/apps/virtual-exchange/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Fri, 02 Jan 2026 09:52:20 GMT and should not be manually modified.\n+This log was last generated on Fri, 02 Jan 2026 13:34:11 GMT and should not be manually modified.\n+\n+## 0.18.5\n+Fri, 02 Jan 2026 13:34:11 GMT\n+\n+### Patches\n+\n+- add settlement interval from quote\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/virtual-exchange/package.json",
+          "changeType": "modified",
+          "patch": "commit b47dff5533c5ef8806fd4444f8b3045067902d1f\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Jan 2 21:35:57 2026 +0800\n\n    chore: bump version (#2461)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/virtual-exchange/package.json b/apps/virtual-exchange/package.json\nindex 93bc48396..a5d99d962 100644\n--- a/apps/virtual-exchange/package.json\n+++ b/apps/virtual-exchange/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.18.4\",\n+  \"version\": \"0.18.5\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/app-virtual-exchange/2026-01-02-13-25.json",
+          "changeType": "deleted",
+          "patch": "commit b47dff5533c5ef8806fd4444f8b3045067902d1f\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Jan 2 21:35:57 2026 +0800\n\n    chore: bump version (#2461)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/app-virtual-exchange/2026-01-02-13-25.json b/common/changes/@yuants/app-virtual-exchange/2026-01-02-13-25.json\ndeleted file mode 100644\nindex fc084e5b9..000000000\n--- a/common/changes/@yuants/app-virtual-exchange/2026-01-02-13-25.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/app-virtual-exchange\",\n-      \"comment\": \"add settlement interval from quote\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/app-virtual-exchange\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/app-virtual-exchange/{main_2026-01-02-09-53.json => main_2026-01-02-13-34.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-trading-view/2026-01-02-12-19.json",
+          "changeType": "deleted",
+          "patch": "commit b47dff5533c5ef8806fd4444f8b3045067902d1f\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Fri Jan 2 21:35:57 2026 +0800\n\n    chore: bump version (#2461)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-trading-view/2026-01-02-12-19.json b/common/changes/@yuants/vendor-trading-view/2026-01-02-12-19.json\ndeleted file mode 100644\nindex b45ab6435..000000000\n--- a/common/changes/@yuants/vendor-trading-view/2026-01-02-12-19.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-trading-view\",\n-      \"comment\": \"refactor to provideOHLCService\",\n-      \"type\": \"minor\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-trading-view\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-trading-view/{main_2026-01-02-09-53.json => main_2026-01-02-13-34.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        }
+      ]
+    }
+  ],
+  "analysis": {
+    "domains": [
+      {
+        "name": "配置与环境",
+        "commits": [
+          "b47dff553"
+        ],
+        "files": [
+          "apps/vendor-trading-view/CHANGELOG.json",
+          "apps/vendor-trading-view/CHANGELOG.md",
+          "apps/vendor-trading-view/package.json",
+          "apps/virtual-exchange/CHANGELOG.json",
+          "apps/virtual-exchange/CHANGELOG.md",
+          "apps/virtual-exchange/package.json",
+          "common/changes/@yuants/app-virtual-exchange/2026-01-02-13-25.json",
+          "common/changes/@yuants/app-virtual-exchange/{main_2026-01-02-09-53.json => main_2026-01-02-13-34.json}",
+          "common/changes/@yuants/vendor-trading-view/2026-01-02-12-19.json",
+          "common/changes/@yuants/vendor-trading-view/{main_2026-01-02-09-53.json => main_2026-01-02-13-34.json}"
+        ]
+      },
+      {
+        "name": "文档",
+        "commits": [
+          "b47dff553"
+        ],
+        "files": [
+          "apps/vendor-trading-view/CHANGELOG.json",
+          "apps/vendor-trading-view/CHANGELOG.md",
+          "apps/vendor-trading-view/package.json",
+          "apps/virtual-exchange/CHANGELOG.json",
+          "apps/virtual-exchange/CHANGELOG.md",
+          "apps/virtual-exchange/package.json",
+          "common/changes/@yuants/app-virtual-exchange/2026-01-02-13-25.json",
+          "common/changes/@yuants/app-virtual-exchange/{main_2026-01-02-09-53.json => main_2026-01-02-13-34.json}",
+          "common/changes/@yuants/vendor-trading-view/2026-01-02-12-19.json",
+          "common/changes/@yuants/vendor-trading-view/{main_2026-01-02-09-53.json => main_2026-01-02-13-34.json}"
+        ]
+      }
+    ],
+    "riskIndicators": []
+  },
+  "metadata": {
+    "tool": "git-changes-reporter",
+    "version": "3.0.0",
+    "repository": "/home/runner/work/Yuan/Yuan"
+  }
+}
