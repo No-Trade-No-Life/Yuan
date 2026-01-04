@@ -1,9 +1,10 @@
-import { encodeInterestRateSeriesId, IInterestRate } from '@yuants/data-interest-rate';
+import { encodeInterestRateSeriesId, IInterestRate, IInterestLedger } from '@yuants/data-interest-rate';
 import { IServiceOptions, Terminal } from '@yuants/protocol';
 import { createValidator } from '@yuants/protocol/lib/schema';
 import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
 import { newError } from '../../utils/lib';
 import { ISeriesIngestResult, SeriesFetchDirection } from './types';
+import { IExchange } from '.';
 
 /**
  * Interest Rate Service Metadata
@@ -84,7 +85,7 @@ const INTEREST_RATE_INSERT_COLUMNS: Array<keyof IInterestRate> = [
 ];
 
 const computeInterestRatePageRange = (
-  items: IInterestRate[],
+  items: (IInterestRate | IInterestLedger)[],
 ): { start_time: string; end_time: string } | undefined => {
   if (items.length === 0) return undefined;
 
@@ -190,6 +191,120 @@ export const provideInterestRateService = (
         }
 
         return { res: { code: 0, message: 'OK', data: { wrote_count: normalized.length, range } } };
+      } catch (error) {
+        const message = error instanceof Error ? error.message : `${error}`;
+        return { res: { code: 1, message } };
+      }
+    },
+    serviceOptions,
+  );
+};
+interface IExchangeCredential {
+  type: string;
+  payload: any;
+}
+
+interface IIngestInterestLedgerRequest {
+  credential: IExchangeCredential;
+  account_id: string;
+  time: number;
+  ledger_type: string;
+}
+
+const INTEREST_RATE_LEDGER_INSERT_COLUMNS: Array<keyof IInterestLedger> = [
+  'created_at',
+  'product_id',
+  'account_id',
+  'amount',
+  'currency',
+  'id',
+];
+
+/**
+ * @public
+ */
+export const provideInterestLedgerService = (
+  terminal: Terminal,
+  metadata: { direction: string; type: string },
+  fetchPage: (request: IIngestInterestLedgerRequest) => Promise<IInterestLedger[]>,
+  serviceOptions?: IServiceOptions,
+) => {
+  return terminal.server.provideService<IIngestInterestLedgerRequest, ISeriesIngestResult>(
+    'IngestInterestLedger',
+    {
+      type: 'object',
+      required: ['account_id', 'direction', 'time', 'credential', 'ledger_type'],
+      properties: {
+        account_id: { type: 'string', pattern: `^${metadata.type}` },
+        direction: { const: metadata.direction },
+        time: { type: 'number' },
+        ledger_type: { type: 'string' },
+        credential: {
+          type: 'object',
+          required: ['type', 'payload'],
+          properties: {
+            type: { type: 'string', const: metadata.type },
+            payload: { type: 'object' },
+          },
+        },
+      },
+    },
+    async (msg) => {
+      try {
+        const interestRateLedgers = await fetchPage({ ...msg.req });
+        const range = computeInterestRatePageRange(interestRateLedgers);
+
+        // Atomic write: data rows + series_data_range in the same statement.
+        if (interestRateLedgers.length > 0 && range) {
+          const writeInterestRate = `${buildInsertManyIntoTableSQL(
+            interestRateLedgers,
+            'interest_rate_ledger',
+            {
+              columns: INTEREST_RATE_LEDGER_INSERT_COLUMNS,
+              conflictKeys: ['id'],
+            },
+          )} RETURNING 1`;
+
+          const writeRange = `${buildInsertManyIntoTableSQL(
+            [
+              {
+                series_id: msg.req.account_id,
+                table_name: 'interest_rate_ledger',
+                start_time: range.start_time,
+                end_time: range.end_time,
+              },
+            ],
+            'series_data_range',
+            {
+              columns: ['series_id', 'table_name', 'start_time', 'end_time'],
+              ignoreConflict: true,
+            },
+          )} RETURNING 1`;
+
+          await requestSQL(
+            terminal,
+            `
+            WITH
+              write_interest_rate_ledger AS (
+                ${writeInterestRate}
+              ),
+              write_range AS (
+                ${writeRange}
+              )
+            SELECT 1 as ok;
+            `,
+          );
+        } else if (interestRateLedgers.length > 0) {
+          await requestSQL(
+            terminal,
+            buildInsertManyIntoTableSQL(interestRateLedgers, 'interest_rate_ledger', {
+              columns: INTEREST_RATE_LEDGER_INSERT_COLUMNS,
+              conflictKeys: ['id'],
+            }),
+          );
+        }
+
+        return { res: { code: 0, message: 'OK', data: { wrote_count: interestRateLedgers.length, range } } };
       } catch (error) {
         const message = error instanceof Error ? error.message : `${error}`;
         return { res: { code: 1, message } };

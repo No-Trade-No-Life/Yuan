@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/exchange",
+      "comment": "add interest rete ledger",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/exchange"
+}
