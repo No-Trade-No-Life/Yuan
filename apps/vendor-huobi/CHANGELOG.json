@@ -2,6 +2,26 @@
   "name": "@yuants/vendor-huobi",
   "entries": [
     {
+      "version": "0.18.12",
+      "tag": "@yuants/vendor-huobi_v0.18.12",
+      "date": "Sun, 04 Jan 2026 18:08:06 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-interest-rate\" to `0.2.7`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.10`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.18.11",
       "tag": "@yuants/vendor-huobi_v0.18.11",
       "date": "Fri, 02 Jan 2026 09:52:20 GMT",

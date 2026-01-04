@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-interest-rate
 
-This log was last generated on Fri, 02 Jan 2026 09:52:20 GMT and should not be manually modified.
+This log was last generated on Sun, 04 Jan 2026 18:08:05 GMT and should not be manually modified.
+
+## 0.2.7
+Sun, 04 Jan 2026 18:08:05 GMT
+
+### Patches
+
+- add interest rate ledger
 
 ## 0.2.6
 Fri, 02 Jan 2026 09:52:20 GMT

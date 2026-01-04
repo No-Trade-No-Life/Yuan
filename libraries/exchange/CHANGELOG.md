@@ -1,6 +1,13 @@
 # Change Log - @yuants/exchange
 
-This log was last generated on Fri, 02 Jan 2026 09:52:20 GMT and should not be manually modified.
+This log was last generated on Sun, 04 Jan 2026 18:08:05 GMT and should not be manually modified.
+
+## 0.8.10
+Sun, 04 Jan 2026 18:08:05 GMT
+
+### Patches
+
+- add interest rete ledger
 
 ## 0.8.9
 Fri, 02 Jan 2026 09:52:20 GMT
