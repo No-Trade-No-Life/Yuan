@@ -13,6 +13,17 @@ export const decodeInterestRateSeriesId: (series_id: string) => {
 export const encodeInterestRateSeriesId: (product_id: string) => string;
 
 // @public
+export interface IInterestLedger {
+    account_id: string;
+    amount: string;
+    created_at: string;
+    currency: string;
+    id: string;
+    product_id: string;
+    updated_at: string;
+}
+
+// @public
 export interface IInterestRate {
     created_at: string;
     datasource_id: string;
@@ -21,17 +32,6 @@ export interface IInterestRate {
     series_id: string;
     settlement_price: string;
     short_rate: string;
-}
-
-// @public
-export interface IInterestRateLedger {
-    account_id: string;
-    amount: string;
-    created_at: string;
-    currency: string;
-    id: string;
-    product_id: string;
-    updated_at: string;
 }
 
 // (No @packageDocumentation comment for this package)

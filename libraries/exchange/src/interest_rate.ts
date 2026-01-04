@@ -1,9 +1,10 @@
-import { encodeInterestRateSeriesId, IInterestRate, IInterestRateLedger } from '@yuants/data-interest-rate';
+import { encodeInterestRateSeriesId, IInterestRate, IInterestLedger } from '@yuants/data-interest-rate';
 import { IServiceOptions, Terminal } from '@yuants/protocol';
 import { createValidator } from '@yuants/protocol/lib/schema';
 import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
 import { newError } from '../../utils/lib';
 import { ISeriesIngestResult, SeriesFetchDirection } from './types';
+import { IExchange } from '.';
 
 /**
  * Interest Rate Service Metadata
@@ -84,7 +85,7 @@ const INTEREST_RATE_INSERT_COLUMNS: Array<keyof IInterestRate> = [
 ];
 
 const computeInterestRatePageRange = (
-  items: (IInterestRate | IInterestRateLedger)[],
+  items: (IInterestRate | IInterestLedger)[],
 ): { start_time: string; end_time: string } | undefined => {
   if (items.length === 0) return undefined;
 
@@ -198,19 +199,19 @@ export const provideInterestRateService = (
     serviceOptions,
   );
 };
-
-interface ICredential {
-  access_key: string;
-  secret_key: string;
+interface IExchangeCredential {
+  type: string;
+  payload: any;
 }
 
-interface IIngestInterestRateLedgerRequest {
-  credential: ICredential;
+interface IIngestInterestLedgerRequest {
+  credential: IExchangeCredential;
   account_id: string;
   time: number;
+  ledger_type: string;
 }
 
-const INTEREST_RATE_LEDGER_INSERT_COLUMNS: Array<keyof IInterestRateLedger> = [
+const INTEREST_RATE_LEDGER_INSERT_COLUMNS: Array<keyof IInterestLedger> = [
   'created_at',
   'product_id',
   'account_id',
@@ -222,27 +223,28 @@ const INTEREST_RATE_LEDGER_INSERT_COLUMNS: Array<keyof IInterestRateLedger> = [
 /**
  * @public
  */
-export const provideInterestRateLedgerService = (
+export const provideInterestLedgerService = (
   terminal: Terminal,
-  metadata: { direction: string },
-  fetchPage: (request: IIngestInterestRateLedgerRequest) => Promise<IInterestRateLedger[]>,
+  metadata: { direction: string; type: string },
+  fetchPage: (request: IIngestInterestLedgerRequest) => Promise<IInterestLedger[]>,
   serviceOptions?: IServiceOptions,
 ) => {
-  return terminal.server.provideService<IIngestInterestRateLedgerRequest, ISeriesIngestResult>(
-    'IngestInterestRateLedger',
+  return terminal.server.provideService<IIngestInterestLedgerRequest, ISeriesIngestResult>(
+    'IngestInterestLedger',
     {
       type: 'object',
-      required: ['account_id', 'direction', 'time', 'credential'],
+      required: ['account_id', 'direction', 'time', 'credential', 'ledger_type'],
       properties: {
-        account_id: { type: 'string' },
+        account_id: { type: 'string', pattern: `^${metadata.type}` },
         direction: { const: metadata.direction },
         time: { type: 'number' },
+        ledger_type: { type: 'string' },
         credential: {
           type: 'object',
-          required: ['access_key', 'secret_key'],
+          required: ['type', 'payload'],
           properties: {
-            access_key: { type: 'string' },
-            secret_key: { type: 'string' },
+            type: { type: 'string', const: metadata.type },
+            payload: { type: 'object' },
           },
         },
       },
@@ -250,14 +252,6 @@ export const provideInterestRateLedgerService = (
     async (msg) => {
       try {
         const interestRateLedgers = await fetchPage({ ...msg.req });
-
-        // const normalized: IInterestRate[] = items.map((x) => ({
-        //   ...x,
-        //   series_id,
-        //   datasource_id: '',
-        //   product_id: msg.req.product_id,
-        // }));
-
         const range = computeInterestRatePageRange(interestRateLedgers);
 
         // Atomic write: data rows + series_data_range in the same statement.

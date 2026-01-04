@@ -60,7 +60,7 @@ export const decodeInterestRateSeriesId = (series_id: string): { product_id: str
 /**
  * 资金费流水
  */
-export interface IInterestRateLedger {
+export interface IInterestLedger {
   /**
    * 资金费流水记录id
    */
