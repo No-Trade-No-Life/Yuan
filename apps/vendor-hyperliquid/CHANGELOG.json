@@ -2,6 +2,26 @@
   "name": "@yuants/vendor-hyperliquid",
   "entries": [
     {
+      "version": "0.9.9",
+      "tag": "@yuants/vendor-hyperliquid_v0.9.9",
+      "date": "Sun, 04 Jan 2026 18:08:06 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-interest-rate\" to `0.2.7`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.10`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.9.8",
       "tag": "@yuants/vendor-hyperliquid_v0.9.8",
       "date": "Fri, 02 Jan 2026 09:52:20 GMT",
