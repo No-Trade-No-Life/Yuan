@@ -2,6 +2,26 @@
   "name": "@yuants/vendor-aster",
   "entries": [
     {
+      "version": "0.9.11",
+      "tag": "@yuants/vendor-aster_v0.9.11",
+      "date": "Sun, 04 Jan 2026 18:08:05 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-interest-rate\" to `0.2.7`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.10`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.9.10",
       "tag": "@yuants/vendor-aster_v0.9.10",
       "date": "Fri, 02 Jan 2026 09:52:20 GMT",
