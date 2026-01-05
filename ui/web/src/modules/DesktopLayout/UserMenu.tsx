@@ -43,6 +43,7 @@ registerCommand('OpenSource', () => {
 
 export const UserMenu = React.memo(() => {
   const { t } = useTranslation(['UserMenu', 'common']);
+  const canPickDirectory = typeof (window as any).showDirectoryPicker === 'function';
 
   return (
     <Dropdown
@@ -53,7 +54,7 @@ export const UserMenu = React.memo(() => {
         <Dropdown.Menu style={{ width: 300 }}>
           <Dropdown.Title>{t('settings')}</Dropdown.Title>
           <Dropdown.Item
-            disabled={!window.showDirectoryPicker}
+            disabled={!canPickDirectory}
             icon={<IconFolderOpen />}
             onClick={() => {
               executeCommand('workspace.open');

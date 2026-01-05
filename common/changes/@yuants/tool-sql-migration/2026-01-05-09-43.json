@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/tool-sql-migration",
+      "comment": "upgrade node and ts and etc.",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/tool-sql-migration"
+}

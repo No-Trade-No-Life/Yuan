@@ -7,6 +7,12 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      'fs/promises': resolve(__dirname, 'src/shims/fs-promises.ts'),
+      'node:fs/promises': resolve(__dirname, 'src/shims/fs-promises.ts'),
+    },
+  },
   build: {
     // 多入口配置 - Chrome 扩展需要多个入口点
     rollupOptions: {

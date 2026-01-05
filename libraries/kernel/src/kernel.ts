@@ -122,6 +122,7 @@ export class Kernel {
         if (this.isTerminating) break;
 
         const id = this.queue.dequeue();
+        if (id === null) continue;
         const timestamp = this.mapIdToTimestamp.get(id)!;
         this.mapIdToTimestamp.delete(id);
         if (timestamp === Infinity) {
