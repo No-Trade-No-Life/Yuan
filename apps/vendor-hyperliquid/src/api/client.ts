@@ -1,9 +1,17 @@
-import { UUID, formatTime } from '@yuants/utils';
+import { UUID, formatTime, newError } from '@yuants/utils';
 import { Subject, filter, firstValueFrom, mergeMap, of, shareReplay, throwError, timeout, timer } from 'rxjs';
+import { afterRestResponse, beforeRestRequest, getRestRequestContext } from './rate-limit';
 
 type HttpMethod = 'GET' | 'POST';
 
 const BASE_URL = 'https://api.hyperliquid.xyz';
+
+const getRequestKey = (ctx: ReturnType<typeof getRestRequestContext>) => {
+  if (ctx.kind === 'info') return `info:${ctx.infoType ?? 'unknown'}`;
+  if (ctx.kind === 'exchange') return `exchange:${ctx.exchangeActionType ?? 'unknown'}`;
+  if (ctx.kind === 'explorer') return `explorer:${ctx.path}`;
+  return `other:${ctx.path}`;
+};
 
 const buildUrl = (path: string, method: HttpMethod, params?: any) => {
   const url = new URL(BASE_URL);
@@ -22,17 +30,58 @@ const callApi = async (method: HttpMethod, path: string, params?: any) => {
   const body = method === 'GET' ? '' : JSON.stringify(params ?? {});
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   console.info(formatTime(Date.now()), method, url.href, body);
+
+  const requestContext = getRestRequestContext(method, path, params);
+  const requestKey = getRequestKey(requestContext);
+
+  const { estimatedExtraWeight } = beforeRestRequest(
+    { method, url: url.href, path, kind: requestContext.kind, infoType: requestContext.infoType, requestKey },
+    requestContext,
+  );
+
   const res = await fetch(url.href, {
     method,
     headers,
     body: method === 'GET' ? undefined : body || undefined,
   });
   const retStr = await res.text();
+  if (res.status === 429) {
+    console.info(
+      formatTime(Date.now()),
+      'HyperliquidResponse',
+      method,
+      url.href,
+      `status=${res.status}`,
+      retStr,
+    );
+    throw newError('HYPERLIQUID_HTTP_429', {
+      status: res.status,
+      requestKey,
+      method,
+      path,
+      url: url.href,
+      response: retStr,
+    });
+  }
   try {
     if (process.env.LOG_LEVEL === 'DEBUG') {
       console.debug(formatTime(Date.now()), 'HyperliquidResponse', path, JSON.stringify(params), retStr);
     }
-    return JSON.parse(retStr);
+    const response = JSON.parse(retStr);
+    await afterRestResponse(
+      {
+        method,
+        url: url.href,
+        path,
+        kind: requestContext.kind,
+        infoType: requestContext.infoType,
+        requestKey,
+      },
+      requestContext,
+      response,
+      estimatedExtraWeight,
+    );
+    return response;
   } catch (err) {
     console.error(
       formatTime(Date.now()),

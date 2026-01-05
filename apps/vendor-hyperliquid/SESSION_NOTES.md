@@ -7,8 +7,8 @@
 ## 0. 元信息（Meta）
 
 - **项目名称**：@yuants/vendor-hyperliquid
-- **最近更新时间**：2025-11-26 18:30（由 Codex Agent 更新，接入 Exchange 服务并全局化 Product ID）
-- **当前状态标签**：重构进行中（provideExchangeServices 接入、product_id 全局路径调整，等待完整编译验证）
+- **最近更新时间**：2025-12-26 15:30（由 Codex Agent 更新，接入 REST/IP tokenBucket 主动限流）
+- **当前状态标签**：已接入 REST/IP 主动限流（等待线上验证与观测增强）
 
 ---
 
@@ -158,6 +158,19 @@
   - 背景：项目要求使用 console.info 而非 console.log 以保持日志输出一致性。
   - 决策：所有服务模块中的 console.log 替换为 console.info，保持错误信息仍使用 console.error。
   - 影响：统一日志输出格式，便于日志分析和系统监控。
+
+- **[D8] 接入 Hyperliquid REST/IP 主动限流（2025-12-26）**
+  - 背景：官方说明 REST 请求按 IP 聚合限额 `1200 weight / minute`，且 `info/exchange` 不同 type/action 有不同 weight；当前 vendor 存在高频轮询（quote/ohlc）容易触发 429。
+  - 决策：
+    - 在 `src/api/client.ts` 的 `fetch` 前执行 `tokenBucket(...).acquireSync(weight)`，不足时直接抛错（不捕获），交给上层 retry/backoff。
+    - weight 计算与额外加权策略集中在 `src/api/rate-limit.ts`，以 rule registry 的方式保持开闭原则（新增 type 只加规则，不改核心流程）。
+    - `candleSnapshot` 的额外 weight 按官方“最多 5000 根 candles”做有界估算；响应后按返回条数计算 `deltaWeight` 并用 `await tokenBucket(...).acquire(deltaWeight)` 阻塞等待（不使用 acquireSync，避免响应后因令牌不足报错）。
+    - 若收到 429：先打印日志并抛错（不做 client 内主动退避；等待官方文档明确后再补）。
+    - WebSocket 限流本轮不实现；address-based 动态 action budget 本轮不实现，仅保留扩展点。
+  - 影响：上层调用链需要能承接 `HYPERLIQUID_API_RATE_LIMIT` 抛错（scopeError 包装）并做重试/退避。
+  - 验证命令（项目目录 `apps/vendor-hyperliquid`）：
+    - `./node_modules/.bin/tsc --noEmit --project tsconfig.json`
+    - `./node_modules/.bin/heft test --clean`
 
 ### 4.3 已接受的折衷 / 技术债
 
@@ -449,7 +462,6 @@
     - 方案 A：引用官方 WS，降级 REST；需要实现重连与去重。
     - 方案 B：维持 REST，但通过 `requestWithFlowControl` 加强限频管理；延迟仍较高。
 - **问题 4：老调用端如何兼容新的凭证化请求结构**
-
   - 当前思路：所有调用端逐步升级到 `credential.type/payload` 结构。
   - 备选方案：
     - 方案 A：在 Terminal 层保留旧端点或在 handler 中检测旧结构并做转换（短期兼容，但需额外测试）。
