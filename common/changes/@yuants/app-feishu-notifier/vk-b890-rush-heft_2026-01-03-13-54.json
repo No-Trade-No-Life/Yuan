@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "chore: upgrade Rush and Heft to latest versions",
+      "type": "patch",
+      "packageName": "@yuants/app-feishu-notifier"
+    }
+  ],
+  "packageName": "@yuants/app-feishu-notifier",
+  "email": "cz@ntnl.io"
+}
