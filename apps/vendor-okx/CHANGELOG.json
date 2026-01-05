@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.31.10",
+      "tag": "@yuants/vendor-okx_v0.31.10",
+      "date": "Mon, 05 Jan 2026 07:03:01 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "double write ohlc to ohlc_v2 table"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.31.9",
       "tag": "@yuants/vendor-okx_v0.31.9",
       "date": "Sun, 04 Jan 2026 18:08:06 GMT",
