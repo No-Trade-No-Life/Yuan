@@ -530,3 +530,45 @@ export const deleteApiV1Order = (
   );
   return request(credential, 'DELETE', SpotBaseURL, endpoint, params);
 };
+
+/**
+ * 获取账户损益资金流水(USER_DATA)
+ *
+ * 权重: 30
+ *
+ * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#%E8%8E%B7%E5%8F%96%E8%B4%A6%E6%88%B7%E6%8D%9F%E7%9B%8A%E8%B5%84%E9%87%91%E6%B5%81%E6%B0%B4user_data
+ */
+export const getAccountIncome = (
+  credential: ICredential,
+  params: {
+    symbol?: string;
+    incomeType?: string;
+    startTime?: number;
+    endTime?: number;
+    recvWindow?: number;
+    limit?: number;
+    timestamp: number;
+  },
+): Promise<
+  {
+    symbol: string;
+    incomeType: string;
+    income: string;
+    asset: string;
+    info: string;
+    time: number;
+    tranId: string;
+    tradeId: string;
+  }[]
+> => {
+  const endpoint = '/fapi/v1/income';
+  const url = new URL(FutureBaseURL);
+  url.pathname = endpoint;
+  const weight = 30;
+  scopeError(
+    'ASTER_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
+  );
+  return request(credential, 'GET', FutureBaseURL, endpoint, params);
+};
