@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-aster",
-  "version": "0.9.11",
+  "version": "0.9.12",
   "main": "lib/index.js",
   "files": [
     "dist",
