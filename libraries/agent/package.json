@@ -9,7 +9,7 @@
     "temp"
   ],
   "scripts": {
-    "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
+    "build": "heft test --clean && api-extractor run --local --config ./config/api-extractor.json && yuan-toolkit post-build"
   },
   "repository": {
     "type": "git",
@@ -28,15 +28,15 @@
     "rxjs": "~7.5.6"
   },
   "devDependencies": {
-    "@microsoft/api-extractor": "~7.30.0",
-    "@rushstack/heft": "~0.47.5",
-    "@rushstack/heft-jest-plugin": "~0.16.8",
-    "@rushstack/heft-node-rig": "~1.10.7",
-    "@types/heft-jest": "1.0.3",
+    "@microsoft/api-extractor": "~7.55.2",
+    "@rushstack/heft": "~1.1.7",
+    "@rushstack/heft-jest-plugin": "~1.1.7",
+    "@rushstack/heft-node-rig": "~2.11.12",
+    "@types/heft-jest": "1.0.6",
     "@types/json-schema": "7.0.11",
-    "@types/node": "22",
+    "@types/node": "24",
     "@yuants/tool-kit": "workspace:*",
-    "typescript": "~4.7.4"
+    "typescript": "~5.9.3"
   },
   "publishConfig": {
     "access": "public",

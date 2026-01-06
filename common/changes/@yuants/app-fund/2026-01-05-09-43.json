@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-fund",
+      "comment": "upgrade node and ts and etc.",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-fund"
+}

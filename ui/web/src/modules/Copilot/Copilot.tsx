@@ -218,7 +218,7 @@ registerPage('Copilot', () => {
 
             <Typography.Text style={{ marginTop: '1em' }}>{t('Copilot:extra_action')}</Typography.Text>
             <Space style={{ flexWrap: 'wrap' }}>
-              {!!window['showDirectoryPicker'] && (
+              {typeof (window as any).showDirectoryPicker === 'function' && (
                 <Typography.Text
                   icon={<IconFolderOpen />}
                   strong

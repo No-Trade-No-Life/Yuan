@@ -18,13 +18,13 @@
     "@yuants/utils": "workspace:*"
   },
   "devDependencies": {
-    "@microsoft/api-extractor": "~7.48.1",
-    "@rushstack/heft": "~0.68.11",
-    "@rushstack/heft-jest-plugin": "~0.14.1",
-    "@rushstack/heft-node-rig": "~2.6.46",
-    "@types/heft-jest": "1.0.3",
-    "@types/node": "22",
-    "typescript": "~5.5.4",
+    "@microsoft/api-extractor": "~7.55.2",
+    "@rushstack/heft": "~1.1.7",
+    "@rushstack/heft-jest-plugin": "~1.1.7",
+    "@rushstack/heft-node-rig": "~2.11.12",
+    "@types/heft-jest": "1.0.6",
+    "@types/node": "24",
+    "typescript": "~5.9.3",
     "ts-node": "~10.9.2",
     "@yuants/extension": "workspace:*",
     "@yuants/tool-kit": "workspace:*"

@@ -11,10 +11,10 @@
     "temp"
   ],
   "scripts": {
-    "build": "heft test --clean && api-extractor run --local && node cli.js post-build"
+    "build": "heft test --clean && api-extractor run --local --config ./config/api-extractor.json && node cli.js post-build"
   },
   "dependencies": {
-    "@microsoft/rush-lib": "~5.147.0",
+    "@microsoft/rush-lib": "~5.165.0",
     "@rollup/plugin-commonjs": "~25.0.4",
     "@rollup/plugin-json": "~6.0.0",
     "@rollup/plugin-node-resolve": "~15.2.1",
@@ -27,15 +27,15 @@
     "rxjs": "~7.5.6"
   },
   "devDependencies": {
-    "@microsoft/api-extractor": "~7.30.0",
-    "@rushstack/heft": "~0.47.5",
-    "@rushstack/heft-jest-plugin": "~0.16.8",
-    "@rushstack/heft-node-rig": "~1.10.7",
+    "@microsoft/api-extractor": "~7.55.2",
+    "@rushstack/heft": "~1.1.7",
+    "@rushstack/heft-jest-plugin": "~1.1.7",
+    "@rushstack/heft-node-rig": "~2.11.12",
     "@types/fs-extra": "~11.0.1",
-    "@types/heft-jest": "1.0.3",
+    "@types/heft-jest": "1.0.6",
     "@types/lodash": "~4.14.188",
-    "@types/node": "22",
-    "typescript": "~4.7.4"
+    "@types/node": "24",
+    "typescript": "~5.9.3"
   },
   "publishConfig": {
     "access": "public",

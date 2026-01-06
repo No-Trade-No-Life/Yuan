@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/extension",
+      "comment": "upgrade node and ts and etc.",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/extension"
+}

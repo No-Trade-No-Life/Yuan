@@ -4,8 +4,6 @@
 
 ```ts
 
-/// <reference types="node" />
-
 import { IRegistry } from '@yuants/prometheus';
 import { Observable } from 'rxjs';
 import { OperatorFunction } from 'rxjs';
@@ -66,10 +64,10 @@ export const encodePath: (...params: any[]) => string;
 export const encrypt: (data: Uint8Array, base58_key: string) => Promise<Uint8Array>;
 
 // @public
-export const encryptByPublicKey: (data: Uint8Array, publicKey: string) => Uint8Array;
+export const encryptByPublicKey: (data: Uint8Array, publicKey: string) => Uint8Array<ArrayBuffer>;
 
 // @public
-export const encryptByPublicKeyAsync: (data: Uint8Array, publicKey: string) => Promise<Uint8Array>;
+export const encryptByPublicKeyAsync: (data: Uint8Array, publicKey: string) => Promise<Uint8Array<ArrayBuffer>>;
 
 // @public (undocumented)
 export const errorRegistry: IRegistry;

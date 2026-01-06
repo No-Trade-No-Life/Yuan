@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-trade",
+      "comment": "upgrade node and ts and etc.",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/data-trade"
+}
