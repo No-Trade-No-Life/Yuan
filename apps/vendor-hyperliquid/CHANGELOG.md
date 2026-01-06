@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-hyperliquid
 
-This log was last generated on Sun, 04 Jan 2026 18:08:06 GMT and should not be manually modified.
+This log was last generated on Tue, 06 Jan 2026 15:53:08 GMT and should not be manually modified.
+
+## 0.9.10
+Tue, 06 Jan 2026 15:53:08 GMT
+
+### Patches
+
+- upgrade node and ts and etc.
 
 ## 0.9.9
 Sun, 04 Jan 2026 18:08:06 GMT

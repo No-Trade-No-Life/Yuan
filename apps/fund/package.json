@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-fund",
-  "version": "0.1.45",
+  "version": "0.1.46",
   "main": "lib/index.js",
   "files": [
     "dist",

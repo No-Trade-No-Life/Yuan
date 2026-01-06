@@ -2,6 +2,79 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.31.11",
+      "tag": "@yuants/vendor-okx_v0.31.11",
+      "date": "Tue, 06 Jan 2026 15:53:08 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "upgrade node and ts and etc."
+          },
+          {
+            "comment": "fix"
+          },
+          {
+            "comment": "add interest ledger"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.54.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/transfer\" to `0.2.48`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.11.8`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-order\" to `0.7.9`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.19.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/cache\" to `0.3.12`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.39`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-series\" to `0.3.61`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.5.9`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-ohlc\" to `0.6.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-interest-rate\" to `0.2.8`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-quote\" to `0.4.8`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-trade\" to `0.1.30`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.11`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.40`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.2.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.31.10",
       "tag": "@yuants/vendor-okx_v0.31.10",
       "date": "Mon, 05 Jan 2026 07:03:01 GMT",

@@ -1,6 +1,14 @@
 # Change Log - @yuants/exchange
 
-This log was last generated on Sun, 04 Jan 2026 18:08:05 GMT and should not be manually modified.
+This log was last generated on Tue, 06 Jan 2026 15:53:08 GMT and should not be manually modified.
+
+## 0.8.11
+Tue, 06 Jan 2026 15:53:08 GMT
+
+### Patches
+
+- upgrade node and ts and etc.
+- add okx interest ledger
 
 ## 0.8.10
 Sun, 04 Jan 2026 18:08:05 GMT
