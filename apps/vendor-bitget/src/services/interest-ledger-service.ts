@@ -2,7 +2,7 @@ import { IInterestLedger } from '@yuants/data-interest-rate';
 import { Terminal } from '@yuants/protocol';
 import { encodePath, formatTime } from '@yuants/utils';
 import { provideInterestLedgerService } from '@yuants/exchange';
-import { getAccountBillsArchive } from '../api/private-api';
+import { getAccountFinancialRecords } from '../api/private-api';
 
 interface IExchangeCredential {
   type: string;
@@ -11,7 +11,7 @@ interface IExchangeCredential {
 
 const terminal = Terminal.fromNodeEnv();
 
-const WINDOW_MS = 365 * 24 * 3600_000;
+const WINDOW_MS = 20 * 24 * 3600_000;
 
 const fetchInterestRateLedgerBackward = async (req: {
   credential: IExchangeCredential;
@@ -19,21 +19,22 @@ const fetchInterestRateLedgerBackward = async (req: {
   time: number;
   ledger_type: string;
 }): Promise<IInterestLedger[]> => {
-  const params: Record<string, string | number> = {};
-  params.end = req.time.toString();
-  params.begin = (req.time - WINDOW_MS).toString();
-  params.limit = 100;
-  params.type = req.ledger_type;
-  const res = await getAccountBillsArchive(req.credential.payload, params);
-  return (res.data ?? [])
+  const params = {
+    category: 'USDT-FUTURES',
+    endTime: req.time.toString(),
+    startTime: (req.time - WINDOW_MS).toString(),
+    type: req.ledger_type,
+  };
+  const res = await getAccountFinancialRecords(req.credential.payload, params);
+  return (res.data.list ?? [])
     .map((v): IInterestLedger => {
       const ms = Number(v.ts);
       return {
-        id: v.billId,
-        product_id: encodePath('OKX', v.instType, v.instId),
-        amount: v.balChg,
+        id: v.id,
+        product_id: encodePath('OKX', 'USDT-FUTURES', v.symbol),
+        amount: v.amount,
         account_id: req.account_id,
-        currency: v.ccy,
+        currency: v.coin,
         created_at: formatTime(ms),
       } as IInterestLedger;
     })
@@ -44,7 +45,7 @@ provideInterestLedgerService(
   terminal,
   {
     direction: 'backward',
-    type: 'OKX',
+    type: 'BITGET',
   },
   fetchInterestRateLedgerBackward,
 );
