@@ -32,7 +32,7 @@ const fetchInterestRateLedgerBackward = async (req: {
       const ms = Number(v.time * 1000);
       return {
         id: v.id,
-        product_id: encodePath('OKX', 'FUTURE', v.contract),
+        product_id: encodePath('GATE', 'FUTURE', v.contract),
         amount: v.change,
         account_id: req.account_id,
         currency: 'USDT',
