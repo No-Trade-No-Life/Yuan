@@ -31,7 +31,7 @@ const fetchInterestRateLedgerBackward = async (req: {
       const ms = Number(v.ts);
       return {
         id: v.id,
-        product_id: encodePath('OKX', 'USDT-FUTURES', v.symbol),
+        product_id: encodePath('BITGET', 'USDT-FUTURES', v.symbol),
         amount: v.amount,
         account_id: req.account_id,
         currency: v.coin,
