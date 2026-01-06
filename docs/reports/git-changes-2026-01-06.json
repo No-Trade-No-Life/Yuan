@@ -1,0 +1,318 @@
+{
+  "range": {
+    "old": "9b6f0cec20a135c643e7d253cdc95a27f04aa5f2",
+    "new": "f41c302e49952b56517c44a5f38e5cb37f4943cf",
+    "label": "9b6f0cec2..f41c302e4",
+    "startDate": "2026-01-05",
+    "endDate": "2026-01-05",
+    "commitCount": 2,
+    "generatedAt": "2026-01-06T00:06:34.076Z"
+  },
+  "contributors": [
+    {
+      "name": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "commits": 1
+    },
+    {
+      "name": "Siyuan Wang",
+      "email": "c.one@thrimbda.com",
+      "commits": 1
+    }
+  ],
+  "directoryAnalysis": {
+    "topLevel": [
+      {
+        "dir": "apps",
+        "fileCount": 4
+      },
+      {
+        "dir": ".legion",
+        "fileCount": 3
+      },
+      {
+        "dir": "common",
+        "fileCount": 1
+      }
+    ],
+    "projects": [
+      {
+        "project": "apps/vendor-okx",
+        "fileCount": 4,
+        "marker": "package.json"
+      },
+      {
+        "project": ".legion",
+        "fileCount": 3,
+        "marker": null
+      },
+      {
+        "project": "common",
+        "fileCount": 1,
+        "marker": null
+      }
+    ],
+    "markersUsed": [
+      "package.json",
+      "Cargo.toml",
+      "go.mod",
+      "requirements.txt",
+      "pyproject.toml",
+      "setup.py",
+      "pom.xml",
+      "build.gradle",
+      "build.gradle.kts",
+      "CMakeLists.txt",
+      "Makefile",
+      "pubspec.yaml",
+      "mix.exs",
+      "Gemfile",
+      "composer.json"
+    ]
+  },
+  "commits": [
+    {
+      "hash": "50afccf76fcdf052714625db77d53caa1989e979",
+      "short": "50afccf76",
+      "author": "Siyuan Wang",
+      "email": "c.one@thrimbda.com",
+      "authoredAt": "2026-01-05 15:01:35 +0800",
+      "subject": "feat: 添加对 ohlc_v2 表的双写支持，更新 publishChannel 逻辑以实现数据同步 (#2471)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 62,
+          "deletions": 0,
+          "path": ".legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/context.md",
+          "changeType": "added",
+          "patch": "commit 50afccf76fcdf052714625db77d53caa1989e979\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Jan 5 15:01:35 2026 +0800\n\n    feat: 添加对 ohlc_v2 表的双写支持，更新 publishChannel 逻辑以实现数据同步 (#2471)\n\ndiff --git a/.legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/context.md b/.legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/context.md\nnew file mode 100644\nindex 000000000..c9e47f79e\n--- /dev/null\n+++ b/.legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/context.md\n@@ -0,0 +1,62 @@\n+# OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写 - 上下文\n+\n+## 会话进展 (2026-01-05)\n+\n+### ✅ 已完成\n+\n+- 全仓确认 publishChannel('ohlc') 仅出现 1 处：apps/vendor-okx/src/public-data/ohlc.ts\n+- 阅读 apps/vendor-okx 的 OHLC 实时链路：useOHLC → map(IOHLC) → writeToSQL({tableName:'ohlc'})\n+- 阅读 @yuants/sql 的 writeToSQL/createSQLWriter/bufferWriter：写入失败不抛出到上游、会保留 buffer 并周期重试\n+- （记录）legion_update_tasks 曾误将 tasks.md 全部任务标为完成，已手工更正为“仅调研完成，设计进行中”。\n+- 已在 apps/vendor-okx/src/public-data/ohlc.ts 的 publishChannel('ohlc') 链路实现双写：先写入 ohlc_v2（归一化 series_id），再写入旧表 ohlc（不改变对外返回 IOHLC）。\n+- 已运行 prettier 格式化相关文件。\n+- 已运行 `node common/scripts/install-run-rush.js build -t @yuants/vendor-okx`，构建通过。\n+\n+### 🟡 进行中\n+\n+- 补“线上可复现”的最小验证：跑 OKX OHLC 订阅并确认同一条 K 线同时写入 ohlc 与 ohlc_v2（series_id 形态不同但可命中读取侧）。\n+\n+### ⚠️ 阻塞/待定\n+\n+(暂无)\n+\n+---\n+\n+## 关键文件\n+\n+- `apps/vendor-okx/src/public-data/ohlc.ts`：OKX OHLC 实时订阅 + `publishChannel('ohlc')` 发布点（本任务主要改动位置）。\n+- `libraries/sql/src/index.ts`：`writeToSQL/createSQLWriter/buildInsertManyIntoTableSQL` 实现（确认双写可用 columns 限定列集合）。\n+- `libraries/sql/src/bufferWriter.ts`：buffer writer 重试/错误行为（评估双写失败的影响）。\n+- `tools/sql-migration/sql/ohlc_v2.sql`：`ohlc_v2` 表结构（字段/主键/索引）。\n+- `tools/sql-migration/sql/ohlc.sql`：旧表 `ohlc` 表结构（对比差异）。\n+- `libraries/data-ohlc/src/loadOHLC.ts`：读取侧对 `ohlc_v2` 的 `series_id` 编码约定（决定了写入 v2 时需要归一化 legacy series_id）。\n+- `libraries/data-ohlc/src/series_id.ts`：`encodeOHLCSeriesId/decodeOHLCSeriesId`（series_id 编码规则）。\n+- `libraries/exchange/src/ohlc.ts`：写入 `ohlc_v2` 的参考实现（columns 列表 + conflictKeys）。\n+\n+---\n+\n+## 关键决策\n+\n+| 决策                                                                                                                                                                | 原因                                                                                                                                                                                                                                                                              | 替代方案                                                                                                                                                     | 日期       |\n+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------- |\n+| 写入 ohlc_v2 时对 OKX legacy series_id 做归一化（series_id_v2 = `${encodePath(datasource_id, instType, instId)}/${duration}`），而不是原样写入 legacy series_id。   | 读取侧（libraries/data-ohlc/src/loadOHLC.ts）查询 ohlc_v2 使用 encodeOHLCSeriesId(product_id, duration)，其中 product_id 约定为 encodePath(datasource_id, instType, instId) 的“展开多段”形式；若原样写 legacy（包含 %2F 的单段 product_id），读取侧将无法命中，双写价值大幅下降。 | 原样写入 legacy series_id（实现更简单，但会产生与读取侧不一致的 key，需要额外兼容/迁移）,同时写入两份 series_id（legacy + v2，数据翻倍且去重/查询更复杂）    | 2026-01-05 |\n+| 在 publishChannel('ohlc') 的同一订阅链路内完成双写：通过“携带 \\_\\_origin + columns 限定”实现 `writeToSQL(ohlc_v2)` 与 `writeToSQL(ohlc)` 串联，避免额外 subscribe。 | publishChannel 回调应返回可被 Terminal 管控生命周期的 Observable；若为双写额外 subscribe，会导致即使无人订阅 channel 也持续占用 WS 连接/写库。串联两个 writeToSQL 不改变对外流类型，且复用现有 bufferWriter 行为。                                                                | 分叉流并对两个分支各自 subscribe（实现直观但生命周期不可控，易泄露连接）,在 tap 内直接 requestSQL 写入 v2（绕开 writeToSQL，失去统一 bufferWriter/状态监控） | 2026-01-05 |\n+\n+---\n+\n+## 快速交接\n+\n+**下次继续从这里开始：**\n+\n+1. 做一次可复现验证：跑 OKX OHLC 订阅并观察同一批数据同时写入 `ohlc` 与 `ohlc_v2`。\n+2. 若需要线上可控回滚：决定是否要在 `apps/vendor-okx/src/public-data/ohlc.ts` 增加 `WRITE_OHLC_V2_TO_SQL` 之类的开关（当前实现为默认双写）。\n+\n+**注意事项：**\n+\n+- `ohlc_v2` 目前读取侧基于 `encodeOHLCSeriesId(product_id, duration)` 查询；若 v2 写入仍使用 legacy series_id（包含 `%2F` 的单段 product_id），读取侧大概率无法命中。\n+- 当前实现写入 `ohlc_v2` 会把 legacy `series_id` 归一化为展开路径（例如 `OKX/SWAP/BTC-USDT-SWAP/PT1M`），而旧表 `ohlc` 仍保留 legacy 形态（例如 `OKX/SWAP%2FBTC-USDT-SWAP/PT1M`）。\n+- 本任务只做“数据行双写”，不负责维护 `series_data_range`（是否需要另起任务补齐范围表，由业务决定）。\n+\n+---\n+\n+_最后更新: 2026-01-05 15:03 by Claude_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 131,
+          "deletions": 0,
+          "path": ".legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/plan.md",
+          "changeType": "added",
+          "patch": "commit 50afccf76fcdf052714625db77d53caa1989e979\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Jan 5 15:01:35 2026 +0800\n\n    feat: 添加对 ohlc_v2 表的双写支持，更新 publishChannel 逻辑以实现数据同步 (#2471)\n\ndiff --git a/.legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/plan.md b/.legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/plan.md\nnew file mode 100644\nindex 000000000..7b2b0c019\n--- /dev/null\n+++ b/.legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/plan.md\n@@ -0,0 +1,131 @@\n+# OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写\n+\n+## 目标\n+\n+查找所有 publishChannel 发布 'ohlc' 的位置，并在 writeToSQL 时将 OHLC 数据同时写入 ohlc_v2 表（按表结构做映射）。\n+\n+## 要点\n+\n+- 先全仓搜索并列出所有 publishChannel('ohlc') 的发布点、payload 结构与来源（vendor/服务/调度器）\n+- 定位 writeToSQL 调用链与旧表结构（ohlc/ohlc_interest_rate 等），确认哪些路径需要双写\n+- 读取 ohlc_v2 表结构（迁移 SQL/类型定义），设计字段映射与主键/去重策略\n+- 先写 .legion 详细设计并等待 review；通过后再落代码改动与最小验证\n+\n+## 范围\n+\n+- apps/vendor-okx/src/public-data/ohlc.ts\n+- \\**/*writeToSQL\\*\n+- \\**/*publishChannel\\*\n+- tools/sql-migration/\\*\\*\n+- supabase/migrations/\\*\\*\n+- .legion/tasks/<new-task>/{plan,context,tasks}.md\n+\n+## 阶段概览\n+\n+1. **调研** - 2 个任务\n+2. **设计（先写文档，等待 review）** - 1 个任务\n+3. **实现** - 1 个任务\n+4. **验证与交接** - 1 个任务\n+\n+## 现状梳理\n+\n+### 1) publishChannel('ohlc') 发布点（全仓搜索结果）\n+\n+- 仅发现 1 处：`apps/vendor-okx/src/public-data/ohlc.ts` 内的 `terminal.channel.publishChannel('ohlc', { pattern: '^OKX/' }, ...)`\n+- 该回调以 `series_id` 作为 channel key，订阅 OKX WebSocket 的 K 线并返回 `Observable<IOHLC>`\n+- 在 `pipe` 内调用 `writeToSQL({ tableName: 'ohlc', ... })` 写入旧表 `ohlc`\n+\n+> 备注：其它 vendor 的 OHLC 目前使用 `createSeriesProvider`（服务端写库，不经过 `publishChannel`），不在本任务修改范围内。\n+\n+### 2) 当前 SQL 写入行为（writeToSQL）\n+\n+- `writeToSQL` 实现位于 `libraries/sql/src/index.ts`：使用 `bufferWriter` 以固定间隔批量 INSERT/UPSERT\n+- 写入失败不会向上游抛错：会保留 buffer 并在后续 interval 周期重试（见 `libraries/sql/src/bufferWriter.ts`）\n+- 因此“新增 ohlc_v2 双写”不应影响现有 channel 发布（最多导致 v2 写入侧 buffer 积压/重复重试）\n+\n+## 详细设计（先文档，review 通过后再动代码）\n+\n+### 1) ohlc_v2 表结构（来源）\n+\n+来自 `tools/sql-migration/sql/ohlc_v2.sql`：\n+\n+- 主键：`(series_id, created_at)`\n+- 列：\n+  - `series_id` (TEXT, NOT NULL)\n+  - `created_at` (TIMESTAMPTZ, NOT NULL)\n+  - `closed_at` (TIMESTAMPTZ, NOT NULL)\n+  - `open/high/low/close` (TEXT, NOT NULL；SQL 中写作 `CLOSE`，Postgres 实际为 `close`)\n+  - `volume/open_interest` (TEXT, nullable)\n+  - `updated_at` (TIMESTAMPTZ, DEFAULT CURRENT_TIMESTAMP)\n+- 与旧表 `ohlc` 的差异：移除了 `datasource_id/product_id/duration` 三列（这些信息应可由 `series_id` 反推）\n+\n+### 2) 写入 ohlc_v2 的 series_id 编码策略（关键）\n+\n+读取侧（`libraries/data-ohlc/src/loadOHLC.ts`）在查询 `ohlc_v2` 时使用：\n+\n+- `series_id = encodeOHLCSeriesId(product_id, duration)`（即 `${product_id}/${duration}`）\n+- 其中 `product_id` 约定为 `encodePath(datasource_id, instType, instId)` 这种“展开后的多段路径”\n+\n+而 OKX 的 `publishChannel('ohlc')` 当前收到的 `series_id` 采用“把 product_id 作为单段”的旧编码：\n+\n+- 形如：`OKX/<product_id_legacy>/<duration>`，其中 `<product_id_legacy>` 本身通常是 `encodePath(instType, instId)`，会被作为一个 segment 写入（因此在 `series_id` 中会出现 `%2F`）\n+\n+为了让双写的 `ohlc_v2` 数据能被现有读取侧直接命中，本任务建议在写入 v2 时 **归一化** `series_id`：\n+\n+1. 从 channel key 解析旧字段：\n+   - `[datasource_id, product_id_legacy, duration] = decodePath(series_id_legacy)`\n+   - `[instType, instId] = decodePath(product_id_legacy)`\n+2. 构造 v2 使用的 product_id 与 series_id：\n+   - `product_id_v2 = encodePath(datasource_id, instType, instId)`\n+   - `series_id_v2 = `${product_id_v2}/${duration}``\n+\n+示例（便于 review 时快速对齐）：\n+\n+- legacy：`OKX/SWAP%2FBTC-USDT-SWAP/PT1M`\n+- v2：`OKX/SWAP/BTC-USDT-SWAP/PT1M`\n+\n+### 3) 字段映射（IOHLC → ohlc_v2 row）\n+\n+写入 ohlc_v2 时仅保留表中存在的列（其余列丢弃）：\n+\n+| ohlc_v2 列            | 来源字段                    | 备注                                                    |\n+| --------------------- | --------------------------- | ------------------------------------------------------- |\n+| `series_id`           | `series_id_v2`              | 使用上节的归一化结果                                    |\n+| `created_at`          | `IOHLC.created_at`          | `formatTime(ms)` 产出的时间字符串可直接写入 TIMESTAMPTZ |\n+| `closed_at`           | `IOHLC.closed_at`           | 同上                                                    |\n+| `open/high/low/close` | `IOHLC.open/high/low/close` | 均为 string                                             |\n+| `volume`              | `IOHLC.volume`              | OKX 现有实现为 string                                   |\n+| `open_interest`       | `IOHLC.open_interest`       | OKX 现有实现写死为 `'0'`                                |\n+\n+### 4) 双写落点与实现形态（不改行为、单订阅）\n+\n+目标：保持 publishChannel 返回的 Observable 类型与数据不变（仍为 `IOHLC`），同时在同一订阅链路内完成双写，避免额外 `subscribe()` 导致生命周期不可控。\n+\n+推荐实现形态（伪代码，review 通过后再落盘）：\n+\n+1. 先把 WS payload map 成 `IOHLC`（保持现状）\n+2. 追加一步 map：生成 `{ ...ohlc_v2_row, __origin: IOHLC }`\n+3. `writeToSQL({ tableName: 'ohlc_v2', columns: [...], conflictKeys: ['series_id','created_at'] })`\n+   - 仅插入 v2 需要的列，避免把 `__origin` 等辅助字段写进 SQL\n+4. `map(x => x.__origin)` 还原回 `IOHLC`\n+5. 继续现有 `writeToSQL({ tableName: 'ohlc', conflictKeys: ['series_id','created_at'] })`（可保留现状或顺手把 conflictKeys 调整为主键顺序）\n+\n+### 5) 冲突键/去重策略\n+\n+- `ohlc_v2`：使用 `conflictKeys: ['series_id', 'created_at']`，与主键一致；冲突时按 `writeToSQL` 默认行为更新所有列\n+- `ohlc`：主键同为 `(series_id, created_at)`；当前 OKX 代码使用 `['created_at', 'series_id']`，建议实现时统一为 `['series_id', 'created_at']` 以匹配其它写入侧与迁移定义\n+\n+### 6) 回滚/开关（建议在 review 时确认）\n+\n+本任务最保守的回滚方式是直接回退代码改动即可；如果希望线上可控，可考虑增加一个环境变量开关（例如 `WRITE_OHLC_V2_TO_SQL`），默认开启/关闭需要产品侧决定。\n+\n+### 7) 验证方案（最小可复现）\n+\n+建议在实现后补一个最小脚本/单测（优先单测）验证：\n+\n+- 映射函数：legacy series_id → v2 series_id 的转换符合预期（至少覆盖 1 个 spot + 1 个 swap）\n+- 双写列集合：确保写入 v2 时不包含 `datasource_id/product_id/duration` 等旧列\n+\n+---\n+\n+_创建于: 2026-01-05 | 最后更新: 2026-01-05_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 42,
+          "deletions": 0,
+          "path": ".legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/tasks.md",
+          "changeType": "added",
+          "patch": "commit 50afccf76fcdf052714625db77d53caa1989e979\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Jan 5 15:01:35 2026 +0800\n\n    feat: 添加对 ohlc_v2 表的双写支持，更新 publishChannel 逻辑以实现数据同步 (#2471)\n\ndiff --git a/.legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/tasks.md b/.legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/tasks.md\nnew file mode 100644\nindex 000000000..49b03ea7d\n--- /dev/null\n+++ b/.legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/tasks.md\n@@ -0,0 +1,42 @@\n+# OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写 - 任务清单\n+\n+## 快速恢复\n+\n+**当前阶段**: 阶段 4 - 验证与交接\n+**当前任务**: 补最小验证：单测/脚本对比同一批 OHLC 在两张表的字段值与数量；运行相关 package 的 tsc/测试；更新 context.md 快速交接。\n+**进度**: 4/5 任务完成\n+\n+---\n+\n+## 阶段 1: 调研 ✅ COMPLETE\n+\n+- [x] 全仓搜索 publishChannel 发布 'ohlc' 的位置，记录每个发布点的来源、channel key、payload 字段、以及下游消费者/写入点。 | 验收: context.md 中有完整清单（文件路径+函数名+简要 payload schema），并标注哪些与 OKX 相关、哪些是公共链路。\n+- [x] 定位 writeToSQL 的实现与调用路径：哪些地方把 OHLC 写入 SQL、写入哪张表、主键/唯一约束是什么。 | 验收: context.md 记录 writeToSQL 调用链与当前表结构/索引要点，并确认需要双写的插入点。\n+\n+---\n+\n+## 阶段 2: 设计（先写文档，等待 review） ✅ COMPLETE\n+\n+- [x] 阅读 ohlc_v2 表结构（迁移 SQL/类型定义），设计从现有 OHLC payload → ohlc_v2 字段的映射、数据类型转换、以及冲突处理（upsert/ignore）。 | 验收: plan.md 写清字段映射表、冲突键、示例记录；列出待确认的不确定点；可直接据此进入实现。\n+\n+---\n+\n+## 阶段 3: 实现 ✅ COMPLETE\n+\n+- [x] 在 writeToSQL 写入 OHLC 的位置增加 ohlc_v2 的双写：保持原表不变，同时写入 ohlc_v2（必要时补齐 encodePath/decodePath 等工具）。 | 验收: 所有 OHLC 写入都会同时落到旧表与 ohlc_v2；双写失败的错误处理符合现有模式；不会影响原链路。\n+\n+---\n+\n+## 阶段 4: 验证与交接 🟡 IN PROGRESS\n+\n+- [ ] 补最小验证：单测/脚本对比同一批 OHLC 在两张表的字段值与数量；运行相关 package 的 tsc/测试；更新 context.md 快速交接。 | 验收: 验证命令可复现；关键映射覆盖；context.md 有回滚开关与排障指引。 ← CURRENT\n+\n+---\n+\n+## 发现的新任务\n+\n+(暂无)\n+\n+---\n+\n+_最后更新: 2026-01-05 15:00_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 47,
+          "deletions": 4,
+          "path": "apps/vendor-okx/src/public-data/ohlc.ts",
+          "changeType": "modified",
+          "patch": "commit 50afccf76fcdf052714625db77d53caa1989e979\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Jan 5 15:01:35 2026 +0800\n\n    feat: 添加对 ohlc_v2 表的双写支持，更新 publishChannel 逻辑以实现数据同步 (#2471)\n\ndiff --git a/apps/vendor-okx/src/public-data/ohlc.ts b/apps/vendor-okx/src/public-data/ohlc.ts\nindex 0b5a568e3..121c7ccca 100644\n--- a/apps/vendor-okx/src/public-data/ohlc.ts\n+++ b/apps/vendor-okx/src/public-data/ohlc.ts\n@@ -5 +5 @@ import { writeToSQL } from '@yuants/sql';\n-import { convertDurationToOffset, decodePath, formatTime } from '@yuants/utils';\n+import { convertDurationToOffset, decodePath, encodePath, formatTime } from '@yuants/utils';\n@@ -53,0 +54,17 @@ const DURATION_TO_OKX_CANDLE_TYPE: Record<string, string> = {\n+type IOHLCV2WriteRow = Pick<\n+  IOHLC,\n+  'series_id' | 'created_at' | 'closed_at' | 'open' | 'high' | 'low' | 'close' | 'volume' | 'open_interest'\n+> & { __origin: IOHLC };\n+\n+const OHLC_V2_WRITE_COLUMNS: Array<keyof IOHLCV2WriteRow> = [\n+  'series_id',\n+  'created_at',\n+  'closed_at',\n+  'open',\n+  'high',\n+  'low',\n+  'close',\n+  'volume',\n+  'open_interest',\n+];\n+\n@@ -120 +137 @@ terminal.channel.publishChannel('ohlc', { pattern: `^OKX/` }, (series_id) => {\n-  const [, instId] = decodePath(product_id);\n+  const [instType, instId] = decodePath(product_id);\n@@ -127,0 +145,3 @@ terminal.channel.publishChannel('ohlc', { pattern: `^OKX/` }, (series_id) => {\n+  if (!instType || !instId) {\n+    throw `invalid product_id: ${product_id}`;\n+  }\n@@ -130,0 +151 @@ terminal.channel.publishChannel('ohlc', { pattern: `^OKX/` }, (series_id) => {\n+  const series_id_v2 = `${encodePath(datasource_id, instType, instId)}/${duration}`;\n@@ -157,0 +179,22 @@ terminal.channel.publishChannel('ohlc', { pattern: `^OKX/` }, (series_id) => {\n+    map(\n+      (x): IOHLCV2WriteRow => ({\n+        __origin: x,\n+        series_id: series_id_v2,\n+        created_at: x.created_at,\n+        closed_at: x.closed_at,\n+        open: x.open,\n+        high: x.high,\n+        low: x.low,\n+        close: x.close,\n+        volume: x.volume,\n+        open_interest: x.open_interest,\n+      }),\n+    ),\n+    writeToSQL({\n+      tableName: 'ohlc_v2',\n+      columns: OHLC_V2_WRITE_COLUMNS,\n+      conflictKeys: ['series_id', 'created_at'],\n+      writeInterval: 1000,\n+      terminal,\n+    }),\n+    map((x) => x.__origin),\n@@ -160 +203 @@ terminal.channel.publishChannel('ohlc', { pattern: `^OKX/` }, (series_id) => {\n-      conflictKeys: ['created_at', 'series_id'],\n+      conflictKeys: ['series_id', 'created_at'],\n@@ -162 +205 @@ terminal.channel.publishChannel('ohlc', { pattern: `^OKX/` }, (series_id) => {\n-      terminal: Terminal.fromNodeEnv(),\n+      terminal,\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "OHLC_V2_WRITE_COLUMNS",
+              "code": "const OHLC_V2_WRITE_COLUMNS: Array<keyof IOHLCV2WriteRow> = [\n  'series_id',\n  'created_at',\n  'closed_at',\n  'open',\n  'high',\n  'low',\n  'close',\n  'volume',\n  'open_interest',\n];\n\n  const [instType, instId] = decodePath(product_id);\n  if (!instType || !instId) {\n    throw `invalid product_id: ${product_id}`;",
+              "lineStart": 59,
+              "lineEnd": 150
+            },
+            {
+              "type": "function",
+              "name": "series_id_v2",
+              "code": "const series_id_v2 = `${encodePath(datasource_id, instType, instId)}/${duration}`;\n  map(\n    (x): IOHLCV2WriteRow => ({\n      __origin: x,\n      series_id: series_id_v2,\n      created_at: x.created_at,\n      closed_at: x.closed_at,\n      open: x.open,\n      high: x.high,\n      low: x.low,\n      close: x.close,\n      volume: x.volume,\n      open_interest: x.open_interest,\n    }),\n  ),",
+              "lineStart": 151,
+              "lineEnd": 206
+            }
+          ]
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/2026-01-05-06-59.json",
+          "changeType": "added",
+          "patch": "commit 50afccf76fcdf052714625db77d53caa1989e979\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Mon Jan 5 15:01:35 2026 +0800\n\n    feat: 添加对 ohlc_v2 表的双写支持，更新 publishChannel 逻辑以实现数据同步 (#2471)\n\ndiff --git a/common/changes/@yuants/vendor-okx/2026-01-05-06-59.json b/common/changes/@yuants/vendor-okx/2026-01-05-06-59.json\nnew file mode 100644\nindex 000000000..2abac0245\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-okx/2026-01-05-06-59.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-okx\",\n+      \"comment\": \"double write ohlc to ohlc_v2 table\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-okx\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "f41c302e49952b56517c44a5f38e5cb37f4943cf",
+      "short": "f41c302e4",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2026-01-05 15:03:26 +0800",
+      "subject": "chore: bump version (#2472)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-okx/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit f41c302e49952b56517c44a5f38e5cb37f4943cf\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Jan 5 15:03:26 2026 +0800\n\n    chore: bump version (#2472)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.json b/apps/vendor-okx/CHANGELOG.json\nindex 8f0f1bf24..34a95d525 100644\n--- a/apps/vendor-okx/CHANGELOG.json\n+++ b/apps/vendor-okx/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.31.10\",\n+      \"tag\": \"@yuants/vendor-okx_v0.31.10\",\n+      \"date\": \"Mon, 05 Jan 2026 07:03:01 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"double write ohlc to ohlc_v2 table\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-okx/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit f41c302e49952b56517c44a5f38e5cb37f4943cf\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Jan 5 15:03:26 2026 +0800\n\n    chore: bump version (#2472)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.md b/apps/vendor-okx/CHANGELOG.md\nindex c1ab0ff28..588ef7b4a 100644\n--- a/apps/vendor-okx/CHANGELOG.md\n+++ b/apps/vendor-okx/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Sun, 04 Jan 2026 18:08:06 GMT and should not be manually modified.\n+This log was last generated on Mon, 05 Jan 2026 07:03:01 GMT and should not be manually modified.\n+\n+## 0.31.10\n+Mon, 05 Jan 2026 07:03:01 GMT\n+\n+### Patches\n+\n+- double write ohlc to ohlc_v2 table\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-okx/package.json",
+          "changeType": "modified",
+          "patch": "commit f41c302e49952b56517c44a5f38e5cb37f4943cf\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Jan 5 15:03:26 2026 +0800\n\n    chore: bump version (#2472)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/package.json b/apps/vendor-okx/package.json\nindex 99b1054d1..22c3d2a7f 100644\n--- a/apps/vendor-okx/package.json\n+++ b/apps/vendor-okx/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.31.9\",\n+  \"version\": \"0.31.10\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-okx/2026-01-05-06-59.json",
+          "changeType": "deleted",
+          "patch": "commit f41c302e49952b56517c44a5f38e5cb37f4943cf\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Mon Jan 5 15:03:26 2026 +0800\n\n    chore: bump version (#2472)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-okx/2026-01-05-06-59.json b/common/changes/@yuants/vendor-okx/2026-01-05-06-59.json\ndeleted file mode 100644\nindex 2abac0245..000000000\n--- a/common/changes/@yuants/vendor-okx/2026-01-05-06-59.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-okx\",\n-      \"comment\": \"double write ohlc to ohlc_v2 table\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-okx\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/{main_2026-01-04-18-08.json => main_2026-01-05-07-03.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        }
+      ]
+    }
+  ],
+  "analysis": {
+    "domains": [
+      {
+        "name": "API请求优化与限速",
+        "commits": [
+          "50afccf76"
+        ],
+        "files": [
+          ".legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/context.md",
+          ".legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/plan.md",
+          ".legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/tasks.md",
+          "apps/vendor-okx/src/public-data/ohlc.ts",
+          "common/changes/@yuants/vendor-okx/2026-01-05-06-59.json"
+        ]
+      },
+      {
+        "name": "安全与鉴权",
+        "commits": [
+          "50afccf76"
+        ],
+        "files": [
+          ".legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/context.md",
+          ".legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/plan.md",
+          ".legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/tasks.md",
+          "apps/vendor-okx/src/public-data/ohlc.ts",
+          "common/changes/@yuants/vendor-okx/2026-01-05-06-59.json"
+        ]
+      },
+      {
+        "name": "订单与交易",
+        "commits": [
+          "50afccf76"
+        ],
+        "files": [
+          ".legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/context.md",
+          ".legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/plan.md",
+          ".legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/tasks.md",
+          "apps/vendor-okx/src/public-data/ohlc.ts",
+          "common/changes/@yuants/vendor-okx/2026-01-05-06-59.json"
+        ]
+      },
+      {
+        "name": "账户管理",
+        "commits": [
+          "50afccf76"
+        ],
+        "files": [
+          ".legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/context.md",
+          ".legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/plan.md",
+          ".legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/tasks.md",
+          "apps/vendor-okx/src/public-data/ohlc.ts",
+          "common/changes/@yuants/vendor-okx/2026-01-05-06-59.json"
+        ]
+      },
+      {
+        "name": "市场数据",
+        "commits": [
+          "50afccf76"
+        ],
+        "files": [
+          ".legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/context.md",
+          ".legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/plan.md",
+          ".legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/tasks.md",
+          "apps/vendor-okx/src/public-data/ohlc.ts",
+          "common/changes/@yuants/vendor-okx/2026-01-05-06-59.json"
+        ]
+      },
+      {
+        "name": "配置与环境",
+        "commits": [
+          "50afccf76",
+          "f41c302e4"
+        ],
+        "files": [
+          ".legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/context.md",
+          ".legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/plan.md",
+          ".legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/tasks.md",
+          "apps/vendor-okx/src/public-data/ohlc.ts",
+          "common/changes/@yuants/vendor-okx/2026-01-05-06-59.json",
+          "apps/vendor-okx/CHANGELOG.json",
+          "apps/vendor-okx/CHANGELOG.md",
+          "apps/vendor-okx/package.json",
+          "common/changes/@yuants/vendor-okx/{main_2026-01-04-18-08.json => main_2026-01-05-07-03.json}"
+        ]
+      },
+      {
+        "name": "文档",
+        "commits": [
+          "50afccf76",
+          "f41c302e4"
+        ],
+        "files": [
+          ".legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/context.md",
+          ".legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/plan.md",
+          ".legion/tasks/okx-ohlcpublishchannelohlc-ohlc-v2/tasks.md",
+          "apps/vendor-okx/src/public-data/ohlc.ts",
+          "common/changes/@yuants/vendor-okx/2026-01-05-06-59.json",
+          "apps/vendor-okx/CHANGELOG.json",
+          "apps/vendor-okx/CHANGELOG.md",
+          "apps/vendor-okx/package.json",
+          "common/changes/@yuants/vendor-okx/{main_2026-01-04-18-08.json => main_2026-01-05-07-03.json}"
+        ]
+      }
+    ],
+    "riskIndicators": [
+      {
+        "type": "no_tests",
+        "severity": "medium",
+        "details": "包含功能或修复提交但未见测试文件更新",
+        "commits": []
+      }
+    ]
+  },
+  "metadata": {
+    "tool": "git-changes-reporter",
+    "version": "3.0.0",
+    "repository": "/home/runner/work/Yuan/Yuan"
+  }
+}
