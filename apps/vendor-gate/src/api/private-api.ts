@@ -425,3 +425,32 @@ export const getUnifiedTransferable = (
   currency: string;
   amount: string;
 }> => callPrivate(credential, 'GET', `/unified/transferable`, params);
+
+/**
+ * 查询合约账户变更历史
+ *
+ * https://www.gate.com/docs/developers/apiv4/zh_CN/#%E6%9F%A5%E8%AF%A2%E5%90%88%E7%BA%A6%E8%B4%A6%E6%88%B7%E5%8F%98%E6%9B%B4%E5%8E%86%E5%8F%B2
+ */
+export const getFutureAccountsBook = (
+  credential: ICredential,
+  params: {
+    settle: string;
+    contract?: string;
+    limit?: number;
+    offset?: number;
+    from?: number;
+    to?: number;
+    type?: string; //  | 'dnw' | 'pnl' | 'fee' | 'refr' | 'fund' | 'point_dnw' | 'point_fee' | 'point_refr' | 'bonus_offset'
+  },
+): Promise<
+  {
+    time: number;
+    change: string;
+    balance: string;
+    text: string;
+    type: string;
+    contract: string;
+    trade_id: string;
+    id: string;
+  }[]
+> => callPrivate(credential, 'GET', `/futures/${params.settle}/account_book`, params);
