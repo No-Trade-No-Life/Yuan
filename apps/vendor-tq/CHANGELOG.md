@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-tq
 
-This log was last generated on Fri, 02 Jan 2026 09:52:20 GMT and should not be manually modified.
+This log was last generated on Tue, 06 Jan 2026 17:23:41 GMT and should not be manually modified.
+
+## 0.4.54
+Tue, 06 Jan 2026 17:23:41 GMT
+
+### Patches
+
+- upgrade node and ts and etc.
 
 ## 0.4.53
 Fri, 02 Jan 2026 09:52:20 GMT

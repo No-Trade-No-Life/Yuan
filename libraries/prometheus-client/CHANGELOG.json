@@ -2,6 +2,28 @@
   "name": "@yuants/prometheus-client",
   "entries": [
     {
+      "version": "0.1.9",
+      "tag": "@yuants/prometheus-client_v0.1.9",
+      "date": "Tue, 06 Jan 2026 17:23:41 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "upgrade node and ts and etc."
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.2.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.8",
       "tag": "@yuants/prometheus-client_v0.1.8",
       "date": "Mon, 10 Nov 2025 08:01:57 GMT",

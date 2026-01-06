@@ -1,6 +1,6 @@
 {
   "name": "@yuants/data-interest-rate",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [

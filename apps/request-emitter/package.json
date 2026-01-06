@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-request-emitter",
-  "version": "0.1.32",
+  "version": "0.1.33",
   "main": "lib/index.js",
   "files": [
     "dist",

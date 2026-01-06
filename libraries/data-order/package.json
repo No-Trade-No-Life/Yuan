@@ -1,6 +1,6 @@
 {
   "name": "@yuants/data-order",
-  "version": "0.7.8",
+  "version": "0.7.9",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [
