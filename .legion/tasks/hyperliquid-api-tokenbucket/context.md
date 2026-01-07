@@ -21,6 +21,9 @@
 - 已运行 `apps/vendor-hyperliquid` 的 `./node_modules/.bin/tsc --noEmit --project tsconfig.json` 与 `./node_modules/.bin/heft test --clean` 验证通过
 - 扩展 `apps/vendor-hyperliquid/src/api/rate-limit.test.ts` 覆盖 request context 分类、base/extra weight 计算、beforeRestRequest 扣减、afterRestResponse 追加扣减与无追加场景
 - 已运行 `apps/vendor-hyperliquid` 的 `./node_modules/.bin/heft test --clean` 验证通过（新增用例通过）
+- 为 REST/IP 限流增加 weight 合法性校验：非有限值/非正数/超阈值直接报错（防止错误参数导致长时间阻塞）
+- 扩展 `apps/vendor-hyperliquid/src/api/rate-limit.test.ts` 覆盖：exchange batch 边界、unknown/info/explorer/other 默认权重、candleSnapshot 异常入参、beforeRestRequest 异常 weight、afterRestResponse delta 计算
+- 已运行 `apps/vendor-hyperliquid` 的 `./apps/vendor-hyperliquid/node_modules/.bin/tsc --noEmit --project apps/vendor-hyperliquid/tsconfig.json` 与 `./node_modules/.bin/heft test --clean` 验证通过
 
 ### 🟡 进行中
 

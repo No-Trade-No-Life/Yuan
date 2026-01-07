@@ -1,4 +1,4 @@
-import { scopeError, tokenBucket } from '@yuants/utils';
+import { newError, scopeError, tokenBucket } from '@yuants/utils';
 
 type HttpMethod = 'GET' | 'POST';
 
@@ -21,6 +21,7 @@ type ExtraWeigher = Readonly<{
 
 const REST_IP_BUCKET_ID = 'HYPERLIQUID_REST_IP_WEIGHT_1200_PER_MIN';
 const REST_IP_BUCKET_CAPACITY = 1200;
+const REST_IP_WEIGHT_MAX = REST_IP_BUCKET_CAPACITY * 10;
 
 tokenBucket(REST_IP_BUCKET_ID, {
   capacity: REST_IP_BUCKET_CAPACITY,
@@ -180,14 +181,33 @@ export const getRestEstimatedExtraWeight = (ctx: RestRequestContext): number => 
   return 0;
 };
 
+const normalizeRestWeight = (meta: Record<string, unknown>, weight: number): number => {
+  if (!Number.isFinite(weight)) {
+    throw newError('HYPERLIQUID_REST_WEIGHT_INVALID', { ...meta, weight });
+  }
+  const normalized = Math.floor(weight);
+  if (normalized <= 0) {
+    throw newError('HYPERLIQUID_REST_WEIGHT_INVALID', { ...meta, weight: normalized });
+  }
+  if (normalized > REST_IP_WEIGHT_MAX) {
+    throw newError('HYPERLIQUID_REST_WEIGHT_EXCESSIVE', {
+      ...meta,
+      weight: normalized,
+      maxWeight: REST_IP_WEIGHT_MAX,
+    });
+  }
+  return normalized;
+};
+
 export const acquireRestIpWeightSync = (meta: Record<string, unknown>, weight: number) => {
-  scopeError('HYPERLIQUID_API_RATE_LIMIT', { ...meta, bucketId: REST_IP_BUCKET_ID, weight }, () =>
-    tokenBucket(REST_IP_BUCKET_ID).acquireSync(weight),
+  const normalized = normalizeRestWeight(meta, weight);
+  scopeError('HYPERLIQUID_API_RATE_LIMIT', { ...meta, bucketId: REST_IP_BUCKET_ID, weight: normalized }, () =>
+    tokenBucket(REST_IP_BUCKET_ID).acquireSync(normalized),
   );
 };
 
 const acquireRestIpWeight = async (meta: Record<string, unknown>, weight: number) => {
-  let remaining = Math.max(0, Math.floor(weight));
+  let remaining = normalizeRestWeight(meta, weight);
   while (remaining > 0) {
     const chunk = Math.min(REST_IP_BUCKET_CAPACITY, remaining);
     await scopeError(

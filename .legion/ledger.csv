@@ -709,6 +709,7 @@
 2026-01-07T03:03:31.219Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,addFile: apps/vendor-hyperliquid/src/api/private-api.ts,success
 2026-01-07T03:03:41.495Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,handoff: 如需继续扩充 Hyperliquid API 封装：沿用本次模式先加 `build*RequestBody`/`build*Action` 再补离线单测，避免引入网络或 mock,success
 2026-01-07T10:32:05.508Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,addFile: apps/vendor-hyperliquid/src/api/rate-limit.test.ts,success
+2026-01-07T11:03:38.110Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,addFile: apps/vendor-hyperliquid/src/api/rate-limit.ts,success
 2026-01-07T08:31:34.459Z,legion_approve_proposal,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,proposalId: proposal-mk3rcks9-273cc4,success
 2026-01-07T08:31:38.899Z,legion_switch_task,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,taskId: ohlc-ohlc-v2,success
 2026-01-07T08:31:44.328Z,legion_read_context,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,"section: all, includeReviews: true",success
