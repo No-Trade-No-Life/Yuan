@@ -234,23 +234,23 @@ export class TerminalClient {
         frame?: TFrame;
     }>;
     // (undocumented)
-    resolveTargetServiceByMethodAndTargetTerminalIdSync: (method: string, target_terminal_id: string, req: ITerminalMessage['req']) => {
+    resolveTargetServiceByMethodAndTargetTerminalIdSync: (method: string, target_terminal_id: string, req: ITerminalMessage["req"]) => {
         terminal_id: string;
         service_id: string;
     };
-    resolveTargetServiceByMethodSync: (method: string, req: ITerminalMessage['req']) => {
+    resolveTargetServiceByMethodSync: (method: string, req: ITerminalMessage["req"]) => {
         terminal_id: string;
         service_id: string;
     };
-    resolveTargetServices: (method: string, req: ITerminalMessage['req']) => Promise<{
+    resolveTargetServices: (method: string, req: ITerminalMessage["req"]) => Promise<{
         terminal_id: string;
         service_id: string;
     }[]>;
-    resolveTargetServicesSync: (method: string, req: ITerminalMessage['req']) => {
+    resolveTargetServicesSync: (method: string, req: ITerminalMessage["req"]) => {
         terminal_id: string;
         service_id: string;
     }[];
-    resolveTargetTerminalIds: (method: string, req: ITerminalMessage['req']) => Promise<string[]>;
+    resolveTargetTerminalIds: (method: string, req: ITerminalMessage["req"]) => Promise<string[]>;
     servicesReady: () => Promise<void>;
     // (undocumented)
     readonly terminal: Terminal;

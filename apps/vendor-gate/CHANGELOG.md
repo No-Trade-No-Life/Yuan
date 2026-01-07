@@ -1,6 +1,15 @@
 # Change Log - @yuants/vendor-gate
 
-This log was last generated on Sun, 04 Jan 2026 18:08:06 GMT and should not be manually modified.
+This log was last generated on Tue, 06 Jan 2026 17:23:41 GMT and should not be manually modified.
+
+## 0.6.10
+Tue, 06 Jan 2026 17:23:41 GMT
+
+### Patches
+
+- upgrade node and ts and etc.
+- add interest ledger
+- fix product id
 
 ## 0.6.9
 Sun, 04 Jan 2026 18:08:06 GMT

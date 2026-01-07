@@ -592,3 +592,108 @@
 2025-12-25T17:04:29.949Z,legion_switch_task,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,taskId: huobi-publicprivate-api-tokenbucket,success
 2025-12-25T17:04:34.837Z,legion_list_reviews,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,status: open,success
 2025-12-25T17:04:35.396Z,legion_read_context,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,"section: all, includeReviews: true",success
+2025-12-26T04:49:44.353Z,legion_get_status,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,,success
+2025-12-26T04:49:44.373Z,legion_list_reviews,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,status: open,success
+2025-12-26T04:49:44.677Z,legion_read_context,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,"section: all, includeReviews: true",success
+2025-12-26T04:49:50.084Z,legion_switch_task,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,taskId: vex-series-data-ohlcinterestrate-ohlc-v2,success
+2025-12-26T04:49:52.492Z,legion_read_context,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,"section: all, includeReviews: true",success
+2025-12-26T04:49:53.255Z,legion_list_reviews,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,status: open,success
+2025-12-26T04:49:53.867Z,legion_get_status,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,,success
+2025-12-26T04:55:56.101Z,legion_update_context,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,"addDecision: 选择方案 A：将 `mergeRangesAndGetUnion` 与 `requestIngest` 解耦，merge 作为后台低并发 compaction；同时为 `union_end` 查询新增索引 `(table_name, series_id, end_time DESC)`。",success
+2025-12-26T04:56:08.914Z,legion_update_tasks,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,addTask: 实现方案 A：将 `mergeRangesAndGetUnion` 从 ingest 热路径移出，新增 rangeKey 级后台 merge worker（低并发、debounce），并在热路径仅更新内存 union/ranges 并 enqueue merge。,success
+2025-12-26T04:56:10.070Z,legion_update_tasks,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,"addTask: 新增 `series_data_range` 索引：`(table_name, series_id, end_time DESC)`，用于快速读取 union_end（配合方案 A）。",success
+2025-12-26T04:56:12.483Z,legion_update_tasks,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,addTask: 验证与交接：补充 Peek/日志的 merge 观测字段，跑 `prettier` 与 `tsc --noEmit`，更新 `.legion/.../context.md` 快速交接。,success
+2025-12-26T04:56:28.382Z,legion_update_tasks,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,addDiscoveredTask: 实现方案 A：将 `mergeRangesAndGetUnion` 从 ingest 热路径移出，新增 rangeKey 级后台 merge worker（低并发、debounce），热路径仅更新内存 union/ranges 并 enqueue merge。,success
+2025-12-26T04:56:29.721Z,legion_update_tasks,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,"addDiscoveredTask: 新增 `series_data_range` 索引 `(table_name, series_id, end_time DESC)`，用于快速读取 union_end（配合方案 A）。",success
+2025-12-26T04:56:31.297Z,legion_update_tasks,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,addDiscoveredTask: 补充可观测：Peek/定时日志输出 merge 队列状态（pending/inflight/nextMergeAt 摘要），并记录验证命令（prettier/tsc）。,success
+2025-12-26T05:03:44.762Z,legion_update_context,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,progress.completed: 已实现方案 A：`apps/virtual-exchange/src/series-data/scheduler.ts` 将 ingest 热路径与 `mergeRangesAndGetUnion` 解耦；热路径仅更新内存 union/ranges 并 debounce enqueue 后台 merge worker；,success
+2025-12-26T05:03:51.254Z,legion_list_reviews,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,status: open,success
+2025-12-26T05:04:35.924Z,legion_get_status,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,,success
+2025-12-26T05:23:47.745Z,legion_update_context,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,addFile: apps/virtual-exchange/src/series-data/range-merge.ts,success
+2025-12-26T06:37:46.673Z,legion_init,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,workingDirectory: /Users/c1/Work/Yuan,success
+2025-12-26T06:37:46.938Z,legion_list_reviews,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,status: open,success
+2025-12-26T06:37:47.198Z,legion_get_status,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,,success
+2025-12-26T06:38:16.184Z,legion_propose_task,vex-series-data-ohlcinterestrate-ohlc-v2,VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移,Claude,name: Hyperliquid API tokenBucket：按官方限额主动限流,success
+2025-12-26T06:38:21.416Z,legion_approve_proposal,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,proposalId: proposal-mjmi2ue8-8f5379,success
+2025-12-26T06:38:23.860Z,legion_switch_task,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,taskId: hyperliquid-api-tokenbucket,success
+2025-12-26T06:38:30.641Z,legion_read_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,"section: all, includeReviews: true",success
+2025-12-26T06:38:46.409Z,legion_read_context,binance-private-api-host-tokenbucket,Binance private-api 按 host 选择 tokenBucket 并按权重限流,Claude,"section: all, includeReviews: true",success
+2025-12-26T06:38:46.771Z,legion_read_context,huobi-publicprivate-api-tokenbucket,Huobi public/private API tokenBucket：按业务与接口类型主动限流,Claude,"section: all, includeReviews: true",success
+2025-12-26T06:39:29.370Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,addFile: apps/vendor-binance/src/api/client.ts,success
+2025-12-26T06:39:35.000Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,addFile: apps/vendor-binance/src/api/private-api.ts,success
+2025-12-26T06:39:37.109Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,addFile: apps/vendor-binance/src/api/public-api.ts,success
+2025-12-26T06:39:39.028Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,addFile: apps/vendor-huobi/src/api/public-api.ts,success
+2025-12-26T06:39:42.059Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,addFile: apps/vendor-huobi/src/api/private-api.ts,success
+2025-12-26T06:39:48.642Z,legion_update_tasks,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,completeTask: phase 1,success
+2025-12-26T06:39:56.604Z,legion_read_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,"section: tasks, includeReviews: true",success
+2025-12-26T06:41:58.507Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,progress.completed: 已抓取并解析 Hyperliquid 官方文档 `Rate limits and user limits`（来源：https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/rate-limits-and-user-limits ）：REST 为,success
+2025-12-26T06:47:47.372Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,progress.completed: 已在 `.legion/tasks/hyperliquid-api-tokenbucket/plan.md` 补充“设计细节（待 review）”：包含官方限额摘录、REST/IP bucket 参数、exchange/info weight 规则、返回条数额外加权策略、address-based 与 WebSocke,success
+2025-12-26T06:48:28.601Z,legion_list_reviews,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,status: open,success
+2025-12-26T06:48:40.901Z,legion_respond_review,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,"file: plan.md, reviewId: R1, status: need-info",success
+2025-12-26T07:10:49.821Z,legion_list_reviews,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,status: open,success
+2025-12-26T07:13:03.866Z,legion_respond_review,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,"file: plan.md, reviewId: R1, status: resolved",success
+2025-12-26T07:13:05.870Z,legion_respond_review,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,"file: plan.md, reviewId: R2, status: resolved",success
+2025-12-26T07:13:07.271Z,legion_respond_review,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,"file: plan.md, reviewId: R4, status: resolved",success
+2025-12-26T07:13:10.819Z,legion_respond_review,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,"file: plan.md, reviewId: R6, status: resolved",success
+2025-12-26T07:14:36.422Z,legion_respond_review,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,"file: plan.md, reviewId: R3, status: resolved",success
+2025-12-26T07:14:44.080Z,legion_respond_review,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,"file: plan.md, reviewId: R5, status: resolved",success
+2025-12-26T07:14:51.433Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,addDecision: 本轮 Hyperliquid 限流实现范围采用 v1：只做 REST/IP 聚合限流 + weight 计算；address-based 动态 action budget 不实现，仅保留扩展点,success
+2025-12-26T07:14:57.844Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,addDecision: REST/IP 聚合桶使用 `acquireSync(weight)` + `scopeError` 打印 meta 后直接抛错，不做捕获/等待,success
+2025-12-26T07:15:00.443Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,addDecision: candleSnapshot 不改查询窗口，按官方“最多 5000 candles”上限做额外 weight 有界估算；响应后只做 debt 记账,success
+2025-12-26T07:15:02.205Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,addDecision: WebSocket 限流本轮不实现（out-of-scope），仅保留未来扩展建议,success
+2025-12-26T07:15:06.322Z,legion_list_reviews,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,status: open,success
+2025-12-26T07:15:30.590Z,legion_update_tasks,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,completeTask: phase 2,success
+2025-12-26T07:16:10.783Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,progress.completed: 已响应并闭环全部 inline review（含开闭原则要求、两段式要求、伪代码要求、以及 3 个取舍点确认）；当前设计已可进入实现阶段（但按你的指令暂不改代码）,success
+2025-12-26T07:22:11.427Z,legion_switch_task,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,taskId: hyperliquid-api-tokenbucket,success
+2025-12-26T07:22:14.886Z,legion_update_tasks,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,setCurrentTask: phase 3,success
+2025-12-26T07:22:19.289Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,,success
+2025-12-26T07:25:43.092Z,legion_update_tasks,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,completeTask: phase 3,success
+2025-12-26T07:26:13.422Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,progress.completed: 已实现 REST/IP 主动限流：新增 `apps/vendor-hyperliquid/src/api/rate-limit.ts`（base weight 计算、candleSnapshot 有界额外权重估算、响应后 debt 记账），并在 `apps/vendor-hyperliquid/src/api/clie,success
+2026-01-05T04:22:20.502Z,legion_init,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,workingDirectory: /Users/c1/Work/Yuan,success
+2026-01-05T04:22:26.128Z,legion_list_reviews,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,status: open,success
+2026-01-05T04:26:31.200Z,legion_respond_review,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,"file: plan.md, reviewId: R7, status: resolved",success
+2026-01-05T04:27:31.757Z,legion_list_reviews,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,status: open,success
+2026-01-05T04:27:39.608Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,progress.completed: 已按你新增 review（R7）调整实现：响应后不再用 acquireSync/debt，而是 `await tokenBucket.acquire(deltaWeight)` 阻塞等待；并在 `apps/vendor-hyperliquid/src/api/client.ts` 参考 Binance 增加 429/R,success
+2026-01-05T06:18:36.047Z,legion_list_reviews,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,status: open,success
+2026-01-05T06:20:05.795Z,legion_respond_review,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,"file: plan.md, reviewId: R8, status: resolved",success
+2026-01-05T06:20:19.881Z,legion_list_reviews,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,status: open,success
+2026-01-05T06:20:34.701Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,addDecision: 不做 Hyperliquid 429 主动退避（待官方文档明确后再加）,success
+2026-01-05T06:30:52.174Z,legion_init,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,workingDirectory: /Users/c1/Work/Yuan,success
+2026-01-05T06:30:55.054Z,legion_get_status,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,,success
+2026-01-05T06:31:38.456Z,legion_list_reviews,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,status: open,success
+2026-01-05T06:31:55.804Z,legion_propose_task,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,name: OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写,success
+2026-01-05T06:32:01.461Z,legion_approve_proposal,okx-ohlcpublishchannelohlc-ohlc-v2,OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写,Claude,proposalId: proposal-mk0s97kq-82063b,success
+2026-01-05T06:32:05.928Z,legion_switch_task,okx-ohlcpublishchannelohlc-ohlc-v2,OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写,Claude,taskId: okx-ohlcpublishchannelohlc-ohlc-v2,success
+2026-01-05T06:37:05.415Z,legion_update_tasks,okx-ohlcpublishchannelohlc-ohlc-v2,OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写,Claude,completeTask: phase 1,success
+2026-01-05T06:37:53.652Z,legion_update_context,okx-ohlcpublishchannelohlc-ohlc-v2,OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写,Claude,progress.completed: 全仓确认 publishChannel('ohlc') 仅出现 1 处：apps/vendor-okx/src/public-data/ohlc.ts,success
+2026-01-05T06:37:59.599Z,legion_update_context,okx-ohlcpublishchannelohlc-ohlc-v2,OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写,Claude,addFile: apps/vendor-okx/src/public-data/ohlc.ts,success
+2026-01-05T06:38:01.346Z,legion_update_context,okx-ohlcpublishchannelohlc-ohlc-v2,OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写,Claude,addFile: libraries/sql/src/index.ts,success
+2026-01-05T06:38:03.213Z,legion_update_context,okx-ohlcpublishchannelohlc-ohlc-v2,OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写,Claude,addFile: libraries/sql/src/bufferWriter.ts,success
+2026-01-05T06:38:04.973Z,legion_update_context,okx-ohlcpublishchannelohlc-ohlc-v2,OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写,Claude,addFile: tools/sql-migration/sql/ohlc_v2.sql,success
+2026-01-05T06:38:06.687Z,legion_update_context,okx-ohlcpublishchannelohlc-ohlc-v2,OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写,Claude,addFile: tools/sql-migration/sql/ohlc.sql,success
+2026-01-05T06:38:08.620Z,legion_update_context,okx-ohlcpublishchannelohlc-ohlc-v2,OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写,Claude,addFile: libraries/exchange/src/ohlc.ts,success
+2026-01-05T06:41:20.762Z,legion_update_context,okx-ohlcpublishchannelohlc-ohlc-v2,OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写,Claude,"addDecision: 写入 ohlc_v2 时对 OKX legacy series_id 做归一化（series_id_v2 = `${encodePath(datasource_id, instType, instId)}/${duration}`），而不是原样写入 legacy series_id。",success
+2026-01-05T06:41:28.196Z,legion_update_context,okx-ohlcpublishchannelohlc-ohlc-v2,OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写,Claude,addDecision: 在 publishChannel('ohlc') 的同一订阅链路内完成双写：通过“携带 __origin + columns 限定”实现 `writeToSQL(ohlc_v2)` 与 `writeToSQL(ohlc)` 串联，避免额外 subscribe。,success
+2026-01-05T06:41:33.758Z,legion_update_context,okx-ohlcpublishchannelohlc-ohlc-v2,OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写,Claude,progress.completed: （记录）legion_update_tasks 曾误将 tasks.md 全部任务标为完成，已手工更正为“仅调研完成，设计进行中”。,success
+2026-01-05T06:42:19.849Z,legion_list_reviews,okx-ohlcpublishchannelohlc-ohlc-v2,OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写,Claude,status: open,success
+2026-01-05T06:52:25.020Z,legion_update_tasks,okx-ohlcpublishchannelohlc-ohlc-v2,OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写,Claude,setCurrentTask: phase 2,success
+2026-01-05T06:55:03.667Z,legion_update_tasks,okx-ohlcpublishchannelohlc-ohlc-v2,OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写,Claude,completeTask: phase 2,success
+2026-01-05T06:55:58.502Z,legion_update_context,okx-ohlcpublishchannelohlc-ohlc-v2,OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写,Claude,progress.completed: 已在 apps/vendor-okx/src/public-data/ohlc.ts 的 publishChannel('ohlc') 链路实现双写：先写入 ohlc_v2（归一化 series_id），再写入旧表 ohlc（不改变对外返回 IOHLC）。,success
+2026-01-05T07:40:06.139Z,legion_init,okx-ohlcpublishchannelohlc-ohlc-v2,OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写,Claude,workingDirectory: /Users/c1/Work/Yuan,success
+2026-01-05T07:40:08.363Z,legion_get_status,okx-ohlcpublishchannelohlc-ohlc-v2,OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写,Claude,,success
+2026-01-05T07:40:17.374Z,legion_list_reviews,okx-ohlcpublishchannelohlc-ohlc-v2,OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写,Claude,status: open,success
+2026-01-05T07:43:49.858Z,legion_create_task,okx-ohlcpublishchannelohlc-ohlc-v2,OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写,Claude,goal: 升级 RushJS/PNPM，并统一全仓 TypeScript/@types/node/Heft/API Extractor 到目标新版本，确保安装与构建通过。,failed
+2026-01-05T07:44:10.581Z,legion_propose_task,okx-ohlcpublishchannelohlc-ohlc-v2,OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写,Claude,name: 全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,success
+2026-01-05T07:44:14.022Z,legion_approve_proposal,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,proposalId: proposal-mk0uu4b6-6fb43a,success
+2026-01-05T07:44:16.837Z,legion_switch_task,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,taskId: rush-pnpm-tsheft-2026-01,success
+2026-01-05T07:44:23.948Z,legion_read_context,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,"section: all, includeReviews: true",success
+2026-01-05T07:49:07.434Z,legion_update_tasks,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,completeTask: phase 1,success
+2026-01-05T07:50:32.762Z,legion_list_reviews,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,status: open,success
+2026-01-05T07:50:36.860Z,legion_get_status,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,,success
+2026-01-05T08:06:22.607Z,legion_update_tasks,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,setCurrentTask: phase 2,success
+2026-01-05T08:06:28.371Z,legion_update_context,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,handoff: 执行：更新 rush.json 的 rushVersion/pnpmVersion（先校验 install-run-rush 可运行）,success
+2026-01-05T08:10:51.899Z,legion_update_tasks,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,completeTask: phase 2,success
+2026-01-05T09:28:34.621Z,legion_update_context,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,addConstraint: 用户偏好：不跑 full rebuild；以 `rush build` 作为全仓验证命令。,success
+2026-01-05T09:29:59.546Z,legion_update_tasks,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,completeTask: phase 2,success
+2026-01-05T09:31:37.653Z,legion_update_tasks,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,completeTask: phase 2,success
+2026-01-05T09:32:21.884Z,legion_update_context,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,progress.completed: 升级 Rush 到 5.165.0，PNPM 到 10.27.0，并完成 `rush update --full`/`rush install`,success

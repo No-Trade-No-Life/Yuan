@@ -2,6 +2,43 @@
   "name": "@yuants/vendor-solana",
   "entries": [
     {
+      "version": "0.1.131",
+      "tag": "@yuants/vendor-solana_v0.1.131",
+      "date": "Tue, 06 Jan 2026 17:23:41 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "upgrade node and ts and etc."
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.54.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/transfer\" to `0.2.48`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.11.8`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.19.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.40`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.2.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.130",
       "tag": "@yuants/vendor-solana_v0.1.130",
       "date": "Fri, 02 Jan 2026 09:52:20 GMT",

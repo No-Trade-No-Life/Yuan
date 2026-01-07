@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-trading-view",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "main": "lib/index.js",
   "files": [
     "dist",
@@ -23,15 +23,15 @@
     "@mathieuc/tradingview": "~3.4.2"
   },
   "devDependencies": {
-    "@rushstack/heft": "~0.47.5",
-    "@rushstack/heft-jest-plugin": "~0.16.8",
-    "@rushstack/heft-node-rig": "~1.10.7",
-    "@types/heft-jest": "1.0.3",
+    "@rushstack/heft": "~1.1.7",
+    "@rushstack/heft-jest-plugin": "~1.1.7",
+    "@rushstack/heft-node-rig": "~2.11.12",
+    "@types/heft-jest": "1.0.6",
     "@types/json-schema": "~7.0.11",
-    "@types/node": "22",
+    "@types/node": "24",
     "@yuants/extension": "workspace:*",
     "@yuants/tool-kit": "workspace:*",
-    "typescript": "~4.7.4"
+    "typescript": "~5.9.3"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org",

@@ -2,6 +2,37 @@
   "name": "@yuants/transfer",
   "entries": [
     {
+      "version": "0.2.48",
+      "tag": "@yuants/transfer_v0.2.48",
+      "date": "Tue, 06 Jan 2026 17:23:41 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "upgrade node and ts and etc."
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.54.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.39`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.19.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.2.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.47",
       "tag": "@yuants/transfer_v0.2.47",
       "date": "Fri, 02 Jan 2026 09:52:20 GMT",

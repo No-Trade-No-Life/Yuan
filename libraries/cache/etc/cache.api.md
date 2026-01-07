@@ -5,7 +5,8 @@
 ```ts
 
 // @public
-export const createCache: <T>(readRemote: (key: string, force_update: boolean) => Promise<T | undefined>, options?: ICacheOptions<T> | undefined) => ICache<T>;
+export const createCache: <T>(
+readRemote: (key: string, force_update: boolean) => Promise<T | undefined>, options?: ICacheOptions<T>) => ICache<T>;
 
 // @public
 export interface ICache<T> {

@@ -2,6 +2,49 @@
   "name": "@yuants/agent",
   "entries": [
     {
+      "version": "0.14.4",
+      "tag": "@yuants/agent_v0.14.4",
+      "date": "Tue, 06 Jan 2026 17:23:41 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "upgrade node and ts and etc."
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.5.9`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.11.8`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-ohlc\" to `0.6.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-order\" to `0.7.9`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.16.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.54.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.19.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.2.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.14.3",
       "tag": "@yuants/agent_v0.14.3",
       "date": "Fri, 02 Jan 2026 09:52:20 GMT",

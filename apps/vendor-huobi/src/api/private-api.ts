@@ -802,3 +802,43 @@ export const getUnionAccountPositions = (
 }> => {
   return linearSwapPrivateQueryRequest(credential, 'GET', '/v5/trade/position/opens');
 };
+
+/**
+ * 组合查询用户财务记录 (新))
+ *
+ * https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb75a91-77b5-11ed-9966-0242ac110003
+ */
+export const getAccountFinancialRecordExact = (
+  credential: ICredential,
+  params: {
+    mar_acct: string;
+    contract?: string;
+    type?: string;
+    start_time?: number;
+    end_time?: number;
+    direct?: string;
+    from_id?: number;
+  },
+): Promise<{
+  code: number;
+  msg: string;
+  data: {
+    query_id: number;
+    id: number;
+    type: number;
+    amount: number;
+    ts: number;
+    contract_code: string;
+    asset: string;
+    margin_account: string;
+    face_margin_account: string;
+  }[];
+  ts: number;
+}> => {
+  return linearSwapPrivateTradeRequest(
+    credential,
+    'POST',
+    '/linear-swap-api/v3/swap_financial_record_exact',
+    params,
+  );
+};

@@ -100,7 +100,7 @@ export interface IPositionDiff {
 }
 
 // @public
-export const makeSpotPosition: (position: Omit<IPosition, 'position_price' | 'direction' | 'valuation' | 'floating_profit'>) => IPosition;
+export const makeSpotPosition: (position: Omit<IPosition, "position_price" | "direction" | "valuation" | "floating_profit">) => IPosition;
 
 // @public
 export const mergeAccountInfoPositions: (info: IAccountInfo) => Observable<IAccountInfo>;

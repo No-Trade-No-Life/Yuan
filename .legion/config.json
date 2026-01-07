@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "huobi-publicprivate-api-tokenbucket",
+  "currentTask": "rush-pnpm-tsheft-2026-01",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -80,9 +80,9 @@
     {
       "id": "vex-series-data-ohlcinterestrate-ohlc-v2",
       "name": "VEX series-data 调度器（OHLC/InterestRate）+ ohlc_v2 迁移",
-      "status": "archived",
+      "status": "paused",
       "createdAt": "2025-12-22T07:09:48.363Z",
-      "updatedAt": "2025-12-25T16:33:44.326Z"
+      "updatedAt": "2025-12-26T06:38:21.408Z"
     },
     {
       "id": "binance-private-api-host-tokenbucket",
@@ -101,9 +101,30 @@
     {
       "id": "huobi-publicprivate-api-tokenbucket",
       "name": "Huobi public/private API tokenBucket：按业务与接口类型主动限流",
-      "status": "active",
+      "status": "paused",
       "createdAt": "2025-12-25T16:39:56.385Z",
-      "updatedAt": "2025-12-25T17:04:29.941Z"
+      "updatedAt": "2025-12-26T04:49:50.074Z"
+    },
+    {
+      "id": "hyperliquid-api-tokenbucket",
+      "name": "Hyperliquid API tokenBucket：按官方限额主动限流",
+      "status": "paused",
+      "createdAt": "2025-12-26T06:38:21.408Z",
+      "updatedAt": "2026-01-05T06:32:01.454Z"
+    },
+    {
+      "id": "okx-ohlcpublishchannelohlc-ohlc-v2",
+      "name": "OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写",
+      "status": "paused",
+      "createdAt": "2026-01-05T06:32:01.454Z",
+      "updatedAt": "2026-01-05T07:44:14.014Z"
+    },
+    {
+      "id": "rush-pnpm-tsheft-2026-01",
+      "name": "全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）",
+      "status": "active",
+      "createdAt": "2026-01-05T07:44:14.014Z",
+      "updatedAt": "2026-01-05T09:32:21.881Z"
     }
   ],
   "pendingProposals": [
@@ -1152,6 +1173,213 @@
       "decidedAt": "2025-12-25T16:39:56.385Z",
       "decidedBy": "Claude",
       "createdTaskId": "huobi-publicprivate-api-tokenbucket"
+    },
+    {
+      "id": "proposal-mjmi2ue8-8f5379",
+      "name": "Hyperliquid API tokenBucket：按官方限额主动限流",
+      "goal": "在 apps/vendor-hyperliquid 的 REST/WebSocket 请求入口前接入 tokenBucket 主动限流，并按 Hyperliquid 官方 rate limits & user limits 规则选择/扣减对应 bucket，避免触发 429/封禁。",
+      "rationale": "仓库已在 Binance/Huobi 等 vendor 侧用 tokenBucket 做“请求前主动 acquire”的限流模式；Hyperliquid 官方文档对不同 API/动作给出了明确的速率与用户级限制。把这些限制落到 vendor-hyperliquid 的请求入口，并复用现有 tokenBucket/host 路由模式，可以让各 vendor 行为一致、减少线上 429 并便于观测。",
+      "points": [
+        "先调研并复用既有模式：参考 binance-private-api-host-tokenbucket 与 huobi-publicprivate-api-tokenbucket 的 bucket 定义方式、选择矩阵、以及在 request 前 acquire 的插入点",
+        "限流策略以“保守”为默认：无法识别的 endpoint 走更严格 bucket；并为 429/headers 留出扩展位（可选）",
+        "设计必须覆盖：bucket 列表（id/窗口/容量/维度 key）、endpoint→bucket 映射、错误/观测策略、以及实现落点（哪些文件/函数）",
+        "先写 `.legion` 详细设计并等待 review，通过后再改代码",
+        "保持实现简单直白；避免重复造轮子，优先复用仓库现成 tokenBucket/util"
+      ],
+      "scope": [
+        "apps/vendor-hyperliquid/src/**",
+        "apps/vendor-binance/src/**（仅对照阅读，不改）",
+        "apps/vendor-huobi/src/**（仅对照阅读，不改）",
+        ".legion/tasks/<new-task>/plan.md",
+        ".legion/tasks/<new-task>/context.md",
+        ".legion/tasks/<new-task>/tasks.md"
+      ],
+      "phases": [
+        {
+          "name": "调研",
+          "tasks": [
+            {
+              "description": "阅读 binance-private-api-host-tokenbucket 与 huobi-publicprivate-api-tokenbucket 的实现/文档，总结“bucket 定义、维度 key、host/业务路由、acquire 插入点、观测与错误处理”模式，并记录到 context.md",
+              "acceptance": "context.md 有清晰的对照笔记：关键文件/入口函数、bucket 选择矩阵、以及可直接复用的代码结构"
+            }
+          ]
+        },
+        {
+          "name": "设计（先写文档，等待 review）",
+          "tasks": [
+            {
+              "description": "根据 Hyperliquid 官方文档梳理 rate limits & user limits；产出详细设计：bucket 列表与参数、endpoint→bucket 映射、维度 key（IP/API key/address）、默认策略、以及未来扩展（429 回退/动态 headers）",
+              "acceptance": "plan.md/context.md 写清：规则来源链接、bucket 表格、映射规则与示例；列出不确定点与待验证项；可直接据此进入实现"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "在 vendor-hyperliquid 的 request 入口（REST/WS）调用 acquireSync/async acquire；按映射选择 bucket 并扣减；加最小日志/metadata（可复用 scopeError）",
+              "acceptance": "所有对外请求在发起前都会先 acquire；不同 endpoint/动作走正确 bucket；无法识别时走保守 bucket"
+            }
+          ]
+        },
+        {
+          "name": "验证与交接",
+          "tasks": [
+            {
+              "description": "补最小单测/脚本验证映射与 key 隔离；运行 vendor-hyperliquid 的 tsc/测试；更新 context.md 快速交接",
+              "acceptance": "验证命令可复现；测试通过；context.md 有下一步与排障指引"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2025-12-26T06:38:16.171Z",
+      "status": "approved",
+      "decidedAt": "2025-12-26T06:38:21.408Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "hyperliquid-api-tokenbucket"
+    },
+    {
+      "id": "proposal-mk0s97kq-82063b",
+      "name": "OKX OHLC：publishChannel('ohlc') 梳理 + 写入 ohlc_v2 双写",
+      "goal": "查找所有 publishChannel 发布 'ohlc' 的位置，并在 writeToSQL 时将 OHLC 数据同时写入 ohlc_v2 表（按表结构做映射）。",
+      "rationale": "近期引入了 ohlc_v2 表，需要在现有 OHLC 写入链路上做无损迁移；先盘点所有 'ohlc' 发布点与现有 SQL 写入路径，再按 ohlc_v2 的字段结构补齐映射并开启双写，保证新旧表数据一致，便于后续切流与校验。",
+      "points": [
+        "先全仓搜索并列出所有 publishChannel('ohlc') 的发布点、payload 结构与来源（vendor/服务/调度器）",
+        "定位 writeToSQL 调用链与旧表结构（ohlc/ohlc_interest_rate 等），确认哪些路径需要双写",
+        "读取 ohlc_v2 表结构（迁移 SQL/类型定义），设计字段映射与主键/去重策略",
+        "先写 .legion 详细设计并等待 review；通过后再落代码改动与最小验证"
+      ],
+      "scope": [
+        "apps/vendor-okx/src/public-data/ohlc.ts",
+        "**/*writeToSQL*",
+        "**/*publishChannel*",
+        "tools/sql-migration/**",
+        "supabase/migrations/**",
+        ".legion/tasks/<new-task>/{plan,context,tasks}.md"
+      ],
+      "phases": [
+        {
+          "name": "调研",
+          "tasks": [
+            {
+              "description": "全仓搜索 publishChannel 发布 'ohlc' 的位置，记录每个发布点的来源、channel key、payload 字段、以及下游消费者/写入点。",
+              "acceptance": "context.md 中有完整清单（文件路径+函数名+简要 payload schema），并标注哪些与 OKX 相关、哪些是公共链路。"
+            },
+            {
+              "description": "定位 writeToSQL 的实现与调用路径：哪些地方把 OHLC 写入 SQL、写入哪张表、主键/唯一约束是什么。",
+              "acceptance": "context.md 记录 writeToSQL 调用链与当前表结构/索引要点，并确认需要双写的插入点。"
+            }
+          ]
+        },
+        {
+          "name": "设计（先写文档，等待 review）",
+          "tasks": [
+            {
+              "description": "阅读 ohlc_v2 表结构（迁移 SQL/类型定义），设计从现有 OHLC payload → ohlc_v2 字段的映射、数据类型转换、以及冲突处理（upsert/ignore）。",
+              "acceptance": "plan.md 写清字段映射表、冲突键、示例记录；列出待确认的不确定点；可直接据此进入实现。"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "在 writeToSQL 写入 OHLC 的位置增加 ohlc_v2 的双写：保持原表不变，同时写入 ohlc_v2（必要时补齐 encodePath/decodePath 等工具）。",
+              "acceptance": "所有 OHLC 写入都会同时落到旧表与 ohlc_v2；双写失败的错误处理符合现有模式；不会影响原链路。"
+            }
+          ]
+        },
+        {
+          "name": "验证与交接",
+          "tasks": [
+            {
+              "description": "补最小验证：单测/脚本对比同一批 OHLC 在两张表的字段值与数量；运行相关 package 的 tsc/测试；更新 context.md 快速交接。",
+              "acceptance": "验证命令可复现；关键映射覆盖；context.md 有回滚开关与排障指引。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-01-05T06:31:55.803Z",
+      "status": "approved",
+      "decidedAt": "2026-01-05T06:32:01.454Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "okx-ohlcpublishchannelohlc-ohlc-v2"
+    },
+    {
+      "id": "proposal-mk0uu4b6-6fb43a",
+      "name": "全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）",
+      "goal": "升级 RushJS/PNPM，并统一全仓 TypeScript/@types/node/Heft/API Extractor 到目标新版本，确保安装与构建通过。",
+      "rationale": "当前仓库工具链版本跨度过大（Rush 5.147 + PNPM 6.7 + TS 4.7 + @types/node 22 等），会导致依赖生态/安全补丁/IDE 体验落后，且未来与 Node 版本演进不匹配。该任务用于在不做无关重构的前提下，把 Rush/PNPM/TS/Heft/api-extractor 统一升级到可用的最新组合，并通过分阶段验证降低风险。",
+      "points": [
+        "先输出详细设计（含目标版本、风险、回滚与验证步骤），人类 Review 通过后再改代码",
+        "优先保持可读性与一致性：尽量批量机械替换版本号，避免无关重构",
+        "优先用 Rush 的标准工作流（install-run-rush + rush update/install）驱动升级，避免手工 pnpm 直装造成偏差",
+        "升级跨度很大（pnpm 6 -> 10, TS 4.x -> 5.9），拆成可回滚的阶段执行",
+        "对 UI 包/特殊包（不使用 Heft 的）单独兜底处理，不强行套用同一套脚手架"
+      ],
+      "scope": [
+        "rush.json",
+        "common/config/rush/pnpm-lock.yaml",
+        "common/config/rush/pnpm-config.json",
+        "common/config/rush/common-versions.json",
+        "common/scripts/*",
+        "**/package.json",
+        "**/tsconfig.json",
+        "**/api-extractor.json",
+        "**/config/*.json"
+      ],
+      "phases": [
+        {
+          "name": "调研与方案",
+          "tasks": [
+            {
+              "description": "盘点当前 Rush/PNPM/TS/@types/node/Heft/API Extractor 版本与分布",
+              "acceptance": "在 context.md 记录现状与变更范围（包含至少 1 个代表性包示例）"
+            },
+            {
+              "description": "确定目标版本（Rush 最新、PNPM 为其支持的最新、TS 最新、@types/node 固定 24.x、Heft/rig/plugin 最新、api-extractor 最新）",
+              "acceptance": "在 context.md 记录各工具目标版本号与选择理由（含备选方案）"
+            },
+            {
+              "description": "输出升级执行步骤、验证清单、风险与回滚策略",
+              "acceptance": "plan.md 包含可执行的分阶段步骤与明确的验收标准"
+            }
+          ]
+        },
+        {
+          "name": "落地实施（待 Review 后执行）",
+          "tasks": [
+            {
+              "description": "升级 Rush 版本与配套脚本/配置（如需要）",
+              "acceptance": "`node common/scripts/install-run-rush.js -h` 显示新 Rush 版本；`rush install` 可运行"
+            },
+            {
+              "description": "升级 PNPM 到新 Rush 支持的最新版本并重算 lockfile",
+              "acceptance": "`rush update --full` 成功；`common/config/rush/pnpm-lock.yaml` 由新 pnpm 格式生成"
+            },
+            {
+              "description": "批量升级各包 devDependencies：@types/node=24、typescript=最新、heft*、api-extractor",
+              "acceptance": "全仓 `rg '\"@types/node\"'` 等关键依赖无旧版本残留；`rush install` 通过"
+            },
+            {
+              "description": "修复因 TS/Heft 升级导致的构建/测试问题",
+              "acceptance": "关键命令 `rush rebuild`（或仓库既定 build 命令）通过；必要时补充 globalOverrides/peerRules 并记录"
+            },
+            {
+              "description": "格式化与收尾",
+              "acceptance": "prettier 无格式噪音；context.md 写好交接与后续观察点"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-01-05T07:44:10.578Z",
+      "status": "approved",
+      "decidedAt": "2026-01-05T07:44:14.014Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "rush-pnpm-tsheft-2026-01"
     }
   ]
 }

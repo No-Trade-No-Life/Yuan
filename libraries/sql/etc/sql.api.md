@@ -10,11 +10,11 @@ import { Terminal } from '@yuants/protocol';
 
 // @public
 export const buildInsertManyIntoTableSQL: <T extends {}>(data: T[], tableName: string, options?: {
-    columns?: (keyof T)[] | undefined;
-    ignoreConflict?: boolean | undefined;
-    conflictKeys?: (keyof T)[] | undefined;
-    returningAll?: boolean | undefined;
-} | undefined) => string;
+    columns?: Array<keyof T>;
+    ignoreConflict?: boolean;
+    conflictKeys?: Array<keyof T>;
+    returningAll?: boolean;
+}) => string;
 
 // @public
 export const createSQLWriter: <T extends {}>(terminal: Terminal, ctx: {
