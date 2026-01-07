@@ -1,5 +1,13 @@
 import { request } from './client';
 
+const buildInfoRequestBody = <P extends Record<string, unknown>>(type: string, params?: P) => ({
+  ...(params ?? {}),
+  type,
+});
+
+export const buildUserPerpetualsAccountSummaryRequestBody = (params: { user: string }) =>
+  buildInfoRequestBody('clearinghouseState', params);
+
 /**
  * Get user's perpetual account summary including positions, margin, and portfolio information
  * API Docs: https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/info-endpoint/perpetuals#retrieve-users-perpetuals-account-summary
@@ -45,7 +53,10 @@ export const getUserPerpetualsAccountSummary = (params: { user: string }) =>
       };
     }[];
     time: number;
-  }>('POST', 'info', { ...params, type: 'clearinghouseState' });
+  }>('POST', 'info', buildUserPerpetualsAccountSummaryRequestBody(params));
+
+export const buildPerpetualsMetaDataRequestBody = (params?: { dex?: string }) =>
+  buildInfoRequestBody('meta', params ?? {});
 
 /**
  * Get perpetual market metadata including available assets, their specifications, and margin tiers
@@ -74,7 +85,9 @@ export const getPerpetualsMetaData = (params?: { dex?: string }) =>
         }[];
       },
     ][];
-  }>('POST', 'info', { ...(params ?? {}), type: 'meta' });
+  }>('POST', 'info', buildPerpetualsMetaDataRequestBody(params));
+
+export const buildSpotMetaDataRequestBody = () => buildInfoRequestBody('spotMeta');
 
 /**
  * Get spot market metadata including available tokens and trading pairs
@@ -100,7 +113,13 @@ export const getSpotMetaData = () =>
       index: number;
       isCanonical: boolean;
     }[];
-  }>('POST', 'info', { type: 'spotMeta' });
+  }>('POST', 'info', buildSpotMetaDataRequestBody());
+
+export const buildUserFundingHistoryRequestBody = (params: {
+  user: string;
+  startTime?: number;
+  endTime?: number;
+}) => buildInfoRequestBody('fundingHistory', params);
 
 /**
  * Get user's funding rate payment history for perpetual positions
@@ -119,12 +138,15 @@ export const getUserFundingHistory = (params: { user: string; startTime?: number
       hash: string;
       delta: { type: string; coin: string; usdc: string; szi: string; fundingRate: string };
     }[]
-  >('POST', 'info', { ...params, type: 'fundingHistory' });
+  >('POST', 'info', buildUserFundingHistoryRequestBody(params));
+
+export const buildUserTokenBalancesRequestBody = (params: { user: string }) =>
+  buildInfoRequestBody('spotClearinghouseState', params);
 
 /**
  * Get user's token balances for both spot and perpetual accounts
  * API Docs: https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/info-endpoint/spot#retrieve-a-users-token-balances
- * API Endpoint: POST /info (type: tokenBalances)
+ * API Endpoint: POST /info (type: spotClearinghouseState)
  * @param params - Query parameters
  * @param params.user - User's wallet address
  * @returns Promise resolving to array of token balances with held and total amounts
@@ -133,11 +155,11 @@ export const getUserTokenBalances = (params: { user: string }) =>
   request<{ balances: { coin: string; token: number; hold: string; total: string; entryNtl: string }[] }>(
     'POST',
     'info',
-    {
-      ...params,
-      type: 'spotClearinghouseState',
-    },
+    buildUserTokenBalancesRequestBody(params),
   );
+
+export const buildUserOpenOrdersRequestBody = (params: { user: string }) =>
+  buildInfoRequestBody('openOrders', params);
 
 /**
  * Get user's currently open orders across all markets
@@ -151,11 +173,14 @@ export const getUserOpenOrders = (params: { user: string }) =>
   request<{ coin: string; limitPx: string; oid: number; side: string; sz: string; timestamp: number }[]>(
     'POST',
     'info',
-    {
-      ...params,
-      type: 'openOrders',
-    },
+    buildUserOpenOrdersRequestBody(params),
   );
+
+export const buildHistoricalFundingRatesRequestBody = (params: {
+  coin: string;
+  startTime: number;
+  endTime?: number;
+}) => buildInfoRequestBody('fundingHistory', params);
 
 /**
  * Get historical funding rates for a specific perpetual asset
@@ -168,10 +193,13 @@ export const getUserOpenOrders = (params: { user: string }) =>
  * @returns Promise resolving to array of historical funding rate records
  */
 export const getHistoricalFundingRates = (params: { coin: string; startTime: number; endTime?: number }) =>
-  request<{ coin: string; fundingRate: string; premium: string; time: number }[]>('POST', 'info', {
-    ...params,
-    type: 'fundingHistory',
-  });
+  request<{ coin: string; fundingRate: string; premium: string; time: number }[]>(
+    'POST',
+    'info',
+    buildHistoricalFundingRatesRequestBody(params),
+  );
+
+export const buildAllMidsRequestBody = () => buildInfoRequestBody('allMids');
 
 /**
  * Get current mid prices for all tradable assets
@@ -179,7 +207,9 @@ export const getHistoricalFundingRates = (params: { coin: string; startTime: num
  * API Endpoint: POST /info (type: allMids)
  * @returns Promise resolving to record of asset symbols mapped to their mid prices
  */
-export const getAllMids = () => request<Record<string, string>>('POST', 'info', { type: 'allMids' });
+export const getAllMids = () => request<Record<string, string>>('POST', 'info', buildAllMidsRequestBody());
+
+export const buildMetaAndAssetCtxsRequestBody = () => buildInfoRequestBody('metaAndAssetCtxs');
 
 /**
  * Get metadata and asset contexts (prices, funding, OI) for all perpetuals
@@ -211,7 +241,11 @@ export const getMetaAndAssetCtxs = () =>
         prevDayPx: string;
       }[],
     ]
-  >('POST', 'info', { type: 'metaAndAssetCtxs' });
+  >('POST', 'info', buildMetaAndAssetCtxsRequestBody());
+
+export const buildCandleSnapshotRequestBody = (params: {
+  req: { coin: string; interval: string; startTime: number; endTime: number };
+}) => buildInfoRequestBody('candleSnapshot', params);
 
 /**
  * Get candle/K-line data for a specific asset and time range
@@ -241,4 +275,4 @@ export const getCandleSnapshot = (params: {
       t: number;
       v: string;
     }[]
-  >('POST', 'info', { type: 'candleSnapshot', ...params });
+  >('POST', 'info', buildCandleSnapshotRequestBody(params));

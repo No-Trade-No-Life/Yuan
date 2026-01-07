@@ -55,6 +55,28 @@ type ModifyOrderPayload = {
   order: OrderPayload;
 };
 
+type OrderAction = {
+  type: 'order';
+  orders: OrderPayload[];
+  grouping: 'na';
+  builder?: { b: string; f: number };
+};
+
+type CancelAction = {
+  type: 'cancel';
+  cancels: CancelPayload[];
+};
+
+type ModifyAction = {
+  type: 'modify';
+  oid: number | string;
+  order: OrderPayload;
+};
+
+type ExchangeAction = OrderAction | CancelAction | ModifyAction;
+
+type L1Signature = { r: string; s: string; v: number };
+
 const walletCache = new Map<string, Wallet>();
 
 const getWallet = (credential: ICredential) => {
@@ -62,6 +84,45 @@ const getWallet = (credential: ICredential) => {
     walletCache.set(credential.private_key, new Wallet(credential.private_key));
   }
   return walletCache.get(credential.private_key)!;
+};
+
+export const buildPlaceOrderAction = (params: {
+  orders: OrderPayload[];
+  builder?: { b: string; f: number };
+}) => {
+  const action: OrderAction = { type: 'order', orders: params.orders, grouping: 'na' };
+  if (!params.builder) return action;
+  return { ...action, builder: params.builder };
+};
+
+export const buildCancelOrderAction = (params: { cancels: CancelPayload[] }) =>
+  ({
+    type: 'cancel',
+    cancels: params.cancels,
+  } satisfies CancelAction);
+
+export const buildModifyOrderAction = (params: { oid: number | string; order: OrderPayload }) =>
+  ({
+    type: 'modify',
+    oid: params.oid,
+    order: params.order,
+  } satisfies ModifyAction);
+
+export const createSignedExchangeRequestBody = async (
+  credential: ICredential,
+  action: ExchangeAction,
+  options?: { nonce?: number; vaultAddress?: string; expiresAfter?: number; isMainnet?: boolean },
+) => {
+  const nonce = options?.nonce ?? Date.now();
+  const signature: L1Signature = await signL1Action(
+    getWallet(credential),
+    action,
+    options?.vaultAddress ?? null,
+    nonce,
+    options?.expiresAfter ?? null,
+    options?.isMainnet ?? true,
+  );
+  return { action, nonce, signature };
 };
 
 /**
@@ -81,24 +142,12 @@ export const placeOrder = async (
     expiresAfter?: number;
   },
 ) => {
-  const action: Record<string, any> = {
-    type: 'order',
-    orders: params.orders,
-    grouping: 'na',
-  };
-  if (params.builder) {
-    action['builder'] = params.builder;
-  }
-  const nonce = Date.now();
-  const signature = await signL1Action(
-    getWallet(credential),
-    action,
-    params.vaultAddress ?? null,
-    nonce,
-    params.expiresAfter ?? null,
-    true,
-  );
-  return request('POST', 'exchange', { action, nonce, signature });
+  const action = buildPlaceOrderAction(params);
+  const requestBody = await createSignedExchangeRequestBody(credential, action, {
+    vaultAddress: params.vaultAddress,
+    expiresAfter: params.expiresAfter,
+  });
+  return request('POST', 'exchange', requestBody);
 };
 
 /**
@@ -113,20 +162,12 @@ export const cancelOrder = async (
   credential: ICredential,
   params: { cancels: CancelPayload[]; vaultAddress?: string; expiresAfter?: number },
 ) => {
-  const action: Record<string, any> = {
-    type: 'cancel',
-    cancels: params.cancels,
-  };
-  const nonce = Date.now();
-  const signature = await signL1Action(
-    getWallet(credential),
-    action,
-    params.vaultAddress ?? null,
-    nonce,
-    params.expiresAfter ?? null,
-    true,
-  );
-  return request('POST', 'exchange', { action, nonce, signature });
+  const action = buildCancelOrderAction(params);
+  const requestBody = await createSignedExchangeRequestBody(credential, action, {
+    vaultAddress: params.vaultAddress,
+    expiresAfter: params.expiresAfter,
+  });
+  return request('POST', 'exchange', requestBody);
 };
 
 /**
@@ -145,21 +186,32 @@ export const modifyOrder = async (
     expiresAfter?: number;
   },
 ) => {
-  const action: Record<string, any> = {
-    type: 'modify',
-    oid: params.oid,
-    order: params.order,
+  const action = buildModifyOrderAction(params);
+  const requestBody = await createSignedExchangeRequestBody(credential, action, {
+    vaultAddress: params.vaultAddress,
+    expiresAfter: params.expiresAfter,
+  });
+  return request('POST', 'exchange', requestBody);
+};
+
+export const buildUserFillsRequestBody = (
+  credential: ICredential,
+  params?: { startTime?: number; endTime?: number },
+) => {
+  const requestBody: { type: 'userFills'; user: string; startTime?: number; endTime?: number } = {
+    type: 'userFills',
+    user: credential.address,
   };
-  const nonce = Date.now();
-  const signature = await signL1Action(
-    getWallet(credential),
-    action,
-    params.vaultAddress ?? null,
-    nonce,
-    params.expiresAfter ?? null,
-    true,
-  );
-  return request('POST', 'exchange', { action, nonce, signature });
+
+  if (params?.startTime != null) {
+    requestBody.startTime = params.startTime;
+  }
+
+  if (params?.endTime != null) {
+    requestBody.endTime = params.endTime;
+  }
+
+  return requestBody;
 };
 
 /**
@@ -173,22 +225,6 @@ export const getUserFills = async (
   credential: ICredential,
   params?: { startTime?: number; endTime?: number },
 ) => {
-  const wallet = getWallet(credential);
-  const address = wallet.address;
-
-  const requestBody: any = {
-    type: 'userFills',
-    user: address,
-  };
-
-  if (params?.startTime) {
-    requestBody.startTime = params.startTime;
-  }
-
-  if (params?.endTime) {
-    requestBody.endTime = params.endTime;
-  }
-
   return request<{
     fills: {
       time: number;
@@ -210,7 +246,7 @@ export const getUserFills = async (
       positionAction: string;
       asset: number;
       tid: string;
-      crossChain: any;
+      crossChain: unknown;
     }[];
-  }>('POST', 'info', requestBody);
+  }>('POST', 'info', buildUserFillsRequestBody(credential, params));
 };
