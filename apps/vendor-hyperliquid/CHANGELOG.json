@@ -2,6 +2,28 @@
   "name": "@yuants/vendor-hyperliquid",
   "entries": [
     {
+      "version": "0.10.0",
+      "tag": "@yuants/vendor-hyperliquid_v0.10.0",
+      "date": "Wed, 07 Jan 2026 12:14:06 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add rate limit to hyperliquid based on doc"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "remove legacy ohlc"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.9.10",
       "tag": "@yuants/vendor-hyperliquid_v0.9.10",
       "date": "Tue, 06 Jan 2026 17:23:41 GMT",

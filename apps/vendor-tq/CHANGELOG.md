@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-tq
 
-This log was last generated on Tue, 06 Jan 2026 17:23:41 GMT and should not be manually modified.
+This log was last generated on Wed, 07 Jan 2026 12:14:06 GMT and should not be manually modified.
+
+## 0.5.0
+Wed, 07 Jan 2026 12:14:06 GMT
+
+### Minor changes
+
+- remove legacy ohlc
 
 ## 0.4.54
 Tue, 06 Jan 2026 17:23:41 GMT

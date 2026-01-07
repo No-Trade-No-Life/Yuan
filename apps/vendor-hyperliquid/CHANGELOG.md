@@ -1,6 +1,17 @@
 # Change Log - @yuants/vendor-hyperliquid
 
-This log was last generated on Tue, 06 Jan 2026 17:23:41 GMT and should not be manually modified.
+This log was last generated on Wed, 07 Jan 2026 12:14:06 GMT and should not be manually modified.
+
+## 0.10.0
+Wed, 07 Jan 2026 12:14:06 GMT
+
+### Minor changes
+
+- remove legacy ohlc
+
+### Patches
+
+- add rate limit to hyperliquid based on doc
 
 ## 0.9.10
 Tue, 06 Jan 2026 17:23:41 GMT

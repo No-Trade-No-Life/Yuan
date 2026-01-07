@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Tue, 06 Jan 2026 17:23:41 GMT and should not be manually modified.
+This log was last generated on Wed, 07 Jan 2026 12:14:06 GMT and should not be manually modified.
+
+## 0.32.0
+Wed, 07 Jan 2026 12:14:06 GMT
+
+### Minor changes
+
+- remove legacy ohlc
 
 ## 0.31.11
 Tue, 06 Jan 2026 17:23:41 GMT
