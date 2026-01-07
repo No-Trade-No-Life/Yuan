@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "ohlc-ohlc-v2",
+  "currentTask": "hyperliquid-api-tokenbucket",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -108,9 +108,9 @@
     {
       "id": "hyperliquid-api-tokenbucket",
       "name": "Hyperliquid API tokenBucket：按官方限额主动限流",
-      "status": "paused",
+      "status": "active",
       "createdAt": "2025-12-26T06:38:21.408Z",
-      "updatedAt": "2026-01-05T06:32:01.454Z"
+      "updatedAt": "2026-01-07T10:32:05.491Z"
     },
     {
       "id": "okx-ohlcpublishchannelohlc-ohlc-v2",

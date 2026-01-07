@@ -16,6 +16,11 @@
 - 已重新跑过 `apps/vendor-hyperliquid` 的 `tsc` 与 `heft test`（含新单测）均通过
 - 已按新增 review（R8）移除 client 内 429/Retry-After 主动退避：删除本地 retryAfterUntil 逻辑与 `ACTIVE_RATE_LIMIT` 抛错；429 仅记录日志并抛 `HYPERLIQUID_HTTP_429` 交给上层处理
 - 已重新跑过 `apps/vendor-hyperliquid` 的 `tsc` 与 `heft test` 均通过
+- 为 `apps/vendor-hyperliquid/src/api/public-api.ts` / `apps/vendor-hyperliquid/src/api/private-api.ts` 抽取 request body/action builders（纯函数/无网络），便于离线测试
+- 新增单测覆盖 public-api 与 private-api 的请求体构造与签名输出形状；修复 `userFills` startTime/endTime=0 时不被带上的边界情况
+- 已运行 `apps/vendor-hyperliquid` 的 `./node_modules/.bin/tsc --noEmit --project tsconfig.json` 与 `./node_modules/.bin/heft test --clean` 验证通过
+- 扩展 `apps/vendor-hyperliquid/src/api/rate-limit.test.ts` 覆盖 request context 分类、base/extra weight 计算、beforeRestRequest 扣减、afterRestResponse 追加扣减与无追加场景
+- 已运行 `apps/vendor-hyperliquid` 的 `./node_modules/.bin/heft test --clean` 验证通过（新增用例通过）
 
 ### 🟡 进行中
 
@@ -55,14 +60,14 @@
 
 **下次继续从这里开始：**
 
-1. 如后续 Hyperliquid 官方文档明确 429/`Retry-After` 语义：再补 client 内主动退避策略（目前按 review 已移除）
-2. 如需要增强可观测：可补 Prometheus 指标（例如 429 次数、REST/IP bucket token 使用情况、响应后额外 acquire 累计等待时间）
+1. 如需继续扩充 Hyperliquid API 封装：沿用本次模式先加 `build*RequestBody`/`build*Action` 再补离线单测，避免引入网络或 mock
+2. 如要排查 Jest "failed to exit gracefully"：可在 `apps/vendor-hyperliquid` 下用 `./node_modules/.bin/heft test --clean -- --detectOpenHandles` 定位未释放的 handle（当前不影响通过）
 
 **注意事项：**
 
-- 当前 backoff key：`info:<type>` / `exchange:<actionType>` / `explorer:<path>` / `other:<path>`，可按需要收敛或细化
-- 响应后 acquire 会延迟返回 response（按你要求：不在响应后报错，使用阻塞等待节流）
+- 本次新增 public/private API 单测均为离线纯函数/签名验证，不会触发真实 HTTP 请求
+- `buildUserFillsRequestBody` 已修复 startTime/endTime=0 时构造丢字段的问题（由 `if (params?.startTime)` 改为 `!= null` 判断）
 
 ---
 
-_最后更新: 2026-01-05 14:20 by Claude_
+_最后更新: 2026-01-07 00:00 by Codex_
