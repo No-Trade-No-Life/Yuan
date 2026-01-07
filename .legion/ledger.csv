@@ -697,3 +697,25 @@
 2026-01-05T09:29:59.546Z,legion_update_tasks,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,completeTask: phase 2,success
 2026-01-05T09:31:37.653Z,legion_update_tasks,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,completeTask: phase 2,success
 2026-01-05T09:32:21.884Z,legion_update_context,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,progress.completed: 升级 Rush 到 5.165.0，PNPM 到 10.27.0，并完成 `rush update --full`/`rush install`,success
+2026-01-07T08:22:16.395Z,legion_get_status,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,,success
+2026-01-07T08:22:19.554Z,legion_read_context,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,"section: all, includeReviews: true",success
+2026-01-07T08:29:51.803Z,legion_propose_task,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,name: 移除旧 ohlc 表引用并切换到 ohlc_v2,success
+2026-01-07T08:31:34.459Z,legion_approve_proposal,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,proposalId: proposal-mk3rcks9-273cc4,success
+2026-01-07T08:31:38.899Z,legion_switch_task,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,taskId: ohlc-ohlc-v2,success
+2026-01-07T08:31:44.328Z,legion_read_context,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,"section: all, includeReviews: true",success
+2026-01-07T08:32:32.192Z,legion_update_tasks,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,completeTask: phase 1,success
+2026-01-07T08:34:48.536Z,legion_update_tasks,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,completeTask: phase 1,success
+2026-01-07T08:49:11.223Z,legion_list_reviews,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,status: open,success
+2026-01-07T08:49:33.599Z,legion_respond_review,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,"file: plan.md, reviewId: R1, status: resolved",success
+2026-01-07T08:49:34.754Z,legion_respond_review,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,"file: plan.md, reviewId: R2, status: resolved",success
+2026-01-07T08:49:35.823Z,legion_respond_review,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,"file: plan.md, reviewId: R3, status: resolved",success
+2026-01-07T08:49:38.024Z,legion_respond_review,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,"file: plan.md, reviewId: R4, status: resolved",success
+2026-01-07T08:49:39.020Z,legion_respond_review,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,"file: plan.md, reviewId: R5, status: resolved",success
+2026-01-07T08:49:41.769Z,legion_respond_review,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,"file: plan.md, reviewId: R6, status: resolved",success
+2026-01-07T08:49:45.787Z,legion_list_reviews,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,status: open,success
+2026-01-07T08:56:33.363Z,legion_update_tasks,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,setCurrentTask: phase 3,success
+2026-01-07T09:00:19.680Z,legion_get_status,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,,success
+2026-01-07T09:00:22.355Z,legion_read_context,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,"section: all, includeReviews: true",success
+2026-01-07T09:00:28.350Z,legion_update_tasks,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,setCurrentTask: 逐文件替换 `ohlc` -> `ohlc_v2`，并同步调整 `series_id` 编码/解码与写入列集合，移除旧表写入。,success
+2026-01-07T09:35:08.082Z,legion_update_context,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,progress.completed: 已删除所有基于 createSeriesProvider 的旧 OHLC/interest_rate 脚本与入口（binance/bitget/okx/aster/gate/hyperliquid/tq 等）并清理对应 import。,success
+2026-01-07T09:35:13.641Z,legion_update_tasks,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,completeTask: 逐文件替换 `ohlc` -> `ohlc_v2`，并同步调整 `series_id` 编码/解码与写入列集合，移除旧表写入。,success

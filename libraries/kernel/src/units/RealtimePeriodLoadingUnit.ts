@@ -1,4 +1,4 @@
-import { IOHLC } from '@yuants/data-ohlc';
+import { decodeOHLCSeriesId, IOHLC } from '@yuants/data-ohlc';
 import { ISeriesCollectingTask } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
@@ -17,6 +17,8 @@ const mapDurationToCronPattern: Record<string, string> = {
   PT4H: '0 */4 * * *',
   P1D: '0 0 * * *',
 };
+
+type IOHLCV2Row = Omit<IOHLC, 'datasource_id' | 'product_id' | 'duration'>;
 
 /**
  * 实时周期数据加载单元
@@ -44,9 +46,9 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
 
   async onInit() {
     const tasks = this.seriesIdList.map((series_id): ISeriesCollectingTask => {
-      const [datasource_id, product_id, duration] = decodePath(series_id);
+      const { duration } = decodeOHLCSeriesId(series_id);
       return {
-        table_name: 'ohlc',
+        table_name: 'ohlc_v2',
         series_id: series_id,
         cron_pattern: mapDurationToCronPattern[duration],
         cron_timezone: 'GMT',
@@ -67,7 +69,7 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
         const series = this.periodDataUnit.data[series_id];
         const lastCreatedAt =
           series && series.length >= replay_count ? series[series.length - replay_count].created_at : 0;
-        const sql = `select * from ohlc where series_id = ${escapeSQL(
+        const sql = `select * from ohlc_v2 where series_id = ${escapeSQL(
           series_id,
         )} and created_at >= ${escapeSQL(formatTime(lastCreatedAt))} order by created_at`;
         this.kernel.log?.(
@@ -76,8 +78,15 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
           )}, SQL: ${sql}`,
         );
 
-        const data = await requestSQL<IOHLC[]>(this.terminal, sql);
-        return data;
+        const { product_id, duration } = decodeOHLCSeriesId(series_id);
+        const [datasource_id = ''] = decodePath(product_id);
+        const data = await requestSQL<IOHLCV2Row[]>(this.terminal, sql);
+        return data.map((row) => ({
+          ...row,
+          datasource_id,
+          product_id,
+          duration,
+        }));
       })
         .pipe(
           //

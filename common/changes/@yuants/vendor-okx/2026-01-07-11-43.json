@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-okx",
+      "comment": "remove legacy ohlc",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/vendor-okx"
+}

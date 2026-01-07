@@ -65,7 +65,8 @@
 - `src/services/accounts/futures.ts` / `spot.ts`：封装账户查询与 pending-order mapping，供默认服务与凭证化服务复用。
 - `src/services/exchange.ts`：统一入口，使用 `provideExchangeServices` 注册所有服务。
 - `src/services/orders/order-utils.ts`：参数映射。
-- `src/services/markets/product.ts` / `quote.ts` / `interest-rate.ts`：REST 轮询 + SQL 写入 + quote channel。
+- `src/services/markets/product.ts` / `quote.ts`：REST 轮询 + SQL 写入 + quote channel。
+- `src/services/interest-rate-service.ts`：资金费率历史写库接口。
 - `src/services/transfer.ts`：注册 TRC20 提现、Spot↔Futures 内部调拨、Parent/Sub 互转。
 - `src/api/client.ts`：REST 基础设施（签名、日志、简易限流占位），`api/public-api.ts`/`private-api.ts` 暴露具体接口。
 
@@ -98,6 +99,19 @@
 ## 6. 最近几轮工作记录（Recent Sessions）
 
 > 仅记录已结束的会话；进行中的内容放在第 11 节，收尾后再搬运；最新记录置顶。
+
+### 2026-01-07 — Codex
+
+- **本轮摘要**：
+  - 为切换到 `ohlc_v2`，移除基于 `createSeriesProvider` 的历史数据脚本（markets/ohlc、markets/interest-rate）。
+  - 清理 `src/index.ts` 中对应模块导入，避免旧表链路继续注册。
+- **修改的文件**：
+  - `apps/vendor-bitget/src/services/markets/ohlc.ts`（删除）
+  - `apps/vendor-bitget/src/services/markets/interest-rate.ts`（删除）
+  - `apps/vendor-bitget/src/index.ts`
+- **运行的测试 / 检查**：
+  - 命令：未运行
+  - 结果：未运行（与全仓 ohlc 迁移合并验证）
 
 ### 2025-12-04 — Codex
 

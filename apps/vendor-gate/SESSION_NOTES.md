@@ -67,7 +67,8 @@
 - `src/services/legacy.ts`：默认凭证 wiring（account info、pending orders、Submit/Cancel RPC）。
 - `src/services/order-actions-with-credential.ts`：`provideOrderActionsWithCredential('GATE')`。
 - `src/services/account-actions-with-credential.ts`：`provideAccountActionsWithCredential('GATE')`。
-- `src/services/markets/product.ts` / `interest-rate.ts`：产品元数据 + 资金费率 SQL 输出。
+- `src/services/markets/product.ts`：产品元数据输出。
+- `src/services/interest-rate-service.ts`：资金费率历史写库接口。
 - `src/services/transfer.ts`：账户内互转、链上提现地址注册，缺凭证时跳过。
 
 ### 4.2 已做出的关键决策
@@ -105,6 +106,18 @@
 ---
 
 ## 6. 最近几轮工作记录（Recent Sessions）
+
+### 2026-01-07 — Codex
+
+- **本轮摘要**：
+  - 为切换到 `ohlc_v2`，移除基于 `createSeriesProvider` 的历史利率脚本（markets/interest-rate）。
+  - 清理 `src/index.ts` 中对应模块导入，避免旧表链路继续注册。
+- **修改的文件**：
+  - `apps/vendor-gate/src/services/markets/interest-rate.ts`（删除）
+  - `apps/vendor-gate/src/index.ts`
+- **运行的测试 / 检查**：
+  - 命令：未运行
+  - 结果：未运行（与全仓 ohlc 迁移合并验证）
 
 ### 2025-12-08 — Codex
 

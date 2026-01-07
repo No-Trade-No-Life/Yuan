@@ -1,7 +1,8 @@
 import { DatePicker, Layout, Space } from '@douyinfe/semi-ui';
 import '@yuants/data-series';
+import { decodeOHLCSeriesId } from '@yuants/data-ohlc';
 import { escapeSQL, requestSQL } from '@yuants/sql';
-import { decodePath, formatTime } from '@yuants/utils';
+import { formatTime } from '@yuants/utils';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import { defer, filter, map, pipe, retry, shareReplay, switchMap } from 'rxjs';
@@ -37,11 +38,11 @@ registerPage('Audit', () => {
     pipe(
       //
       switchMap(async ([seriesId, timeRange, accountId, expectedAccountId]) => {
-        const [datasource_id, product_id] = decodePath(seriesId);
         if (!timeRange || !seriesId || !accountId) return { data: [], views: [] };
+        const { product_id } = decodeOHLCSeriesId(seriesId);
         const ohlc = await loadTimeSeriesData({
           type: 'sql' as const,
-          query: `select * from ohlc where series_id = ${escapeSQL(seriesId)} and created_at>=${escapeSQL(
+          query: `select * from ohlc_v2 where series_id = ${escapeSQL(seriesId)} and created_at>=${escapeSQL(
             formatTime(timeRange[0]),
           )} and created_at<=${escapeSQL(formatTime(timeRange[1]))} order by created_at`,
           time_column_name: 'created_at',

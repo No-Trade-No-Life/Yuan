@@ -3,6 +3,7 @@
 [行情数据](../basics/what-is-market-data)有若干种不同的具体类型，但都可以归结为对特定类型，在特定的时间范围内的，对特定序列的查询。
 
 ```ts
+import { decodeOHLCSeriesId } from '@yuants/data-ohlc';
 import { Terminal, provideSeriesData } from '@yuants/protocol';
 
 const terminal = Terminal.fromNodeEnv();
@@ -17,7 +18,7 @@ provideDataSeries(
   },
   async (series_id, [from, to]) => {
     // 从 Series ID 中解析出产品 ID 和周期
-    const [, product_id, duration] = decodePath(series_id);
+    const { product_id, duration } = decodeOHLCSeriesId(series_id);
     // 从外部系统获取 OHLC 数据 (需要自行实现)
     const res = await Api.getOHLC(product_id, duration, from, to);
     // 转换为 Yuan 的 OHLC-V 数据
@@ -41,3 +42,4 @@ provideDataSeries(
 - 当给定的时间范围内没有数据时，返回空数组。
 - 当 API 返回了超出给定时间范围的数据时，Yuan 会自动过滤掉超出范围的数据。提供商不需要自行处理。
 - 给定的时间范围是左闭右开区间，即 `[from, to)`，时间戳的单位是毫秒。
+- OHLC 数据落库使用 `ohlc_v2` 表；旧的 `ohlc` 表已弃用。

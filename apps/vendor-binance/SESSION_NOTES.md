@@ -65,7 +65,7 @@
 - `src/api/public-api.ts`：Binance 公共 REST helper。
 - `src/api/private-api.ts`：Binance 私有 REST helper，需凭证。
 - `src/legacy_index.ts`：旧版 account/order/transfer 逻辑（待迁移）。
-- `src/public-data/*`：quote / interest_rate / product / ohlc。
+- `src/public-data/*`：quote / product（旧的 interest_rate/ohlc 已移除）。
 - `src/services/*`：按 checklist 拆分 account/order/markets/transfer。
 
 ### 4.2 已做出的关键决策
@@ -100,6 +100,19 @@
 ## 6. 最近几轮工作记录（Recent Sessions）
 
 > 仅记录已结束的会话;进行中的内容放在第 11 节,收尾后再搬运;最新记录置顶。
+
+### 2026-01-07 — Codex
+
+- **本轮摘要**：
+  - 为切换到 `ohlc_v2`，移除基于 `createSeriesProvider` 的公共历史数据脚本：`public-data/ohlc.ts` 与 `public-data/interest_rate.ts`。
+  - 清理 `src/index.ts` 中对应模块导入，避免旧表链路继续注册。
+- **修改的文件**：
+  - `apps/vendor-binance/src/public-data/ohlc.ts`（删除）
+  - `apps/vendor-binance/src/public-data/interest_rate.ts`（删除）
+  - `apps/vendor-binance/src/index.ts`
+- **运行的测试 / 检查**：
+  - 命令：未运行
+  - 结果：未运行（与全仓 ohlc 迁移合并验证）
 
 ### 2025-12-24 — Codex
 

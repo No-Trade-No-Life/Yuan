@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-bitget",
+      "comment": "remove legacy ohlc",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/vendor-bitget"
+}

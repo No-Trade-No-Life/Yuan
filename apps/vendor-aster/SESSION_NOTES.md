@@ -64,7 +64,8 @@
 - `src/services/account-actions-with-credential.ts`：暴露凭证化 `ListAccounts` / `GetAccountInfo`，根据 account_id 后缀派发到 Spot/Perp handler。
 - `src/services/order-actions-with-credential.ts`：通过 `provideOrderActionsWithCredential('ASTER')` 注册 Submit/Cancel；handler 位于 `services/orders/*`。
 - `src/services/orders/submitOrder.ts` / `cancelOrder.ts` / `listOrders.ts`：统一的订单行为实现，分别处理 Spot/Perp 下单、Perp 撤单、open orders 映射（listOrders 已支持 Spot + Perp）。
-- `src/services/markets/product.ts` / `quote.ts` / `interest_rate.ts`：REST 轮询 + `@yuants/sql` 写库；quote 结合 open interest 缓存。
+- `src/services/markets/product.ts` / `quote.ts`：REST 轮询 + `@yuants/sql` 写库；quote 结合 open interest 缓存。
+- `src/services/interest-rate-service.ts`：资金费率历史写库服务接口。
 - `src/api/public-api.ts` / `private-api.ts`：REST helper 与签名逻辑；`utils.ts` 仅保留 `uint8ArrayToHex`。
 - `src/e2e/submit-order.e2e.test.ts`：最小 SubmitOrder 端到端测试脚本（需显式提供 `ASTER_E2E_*` 环境变量）。
 
@@ -84,7 +85,7 @@
 
 - **[D3] 统一公共数据输出**
   - 背景：quote/product/interest-rate 分散在旧目录且缺少 SQL 写入；无法满足监控需求。
-  - 方案：新建 `services/markets/*`，所有数据由 REST 拉取并可选写入 SQL + Channel。
+  - 方案：新建 `services/markets/*` 承载产品与行情；资金费率历史写库由 `interest-rate-service` 提供能力接口。
   - 影响：`WRITE_QUOTE_TO_SQL` Flag 成为开关；需监控 open interest API（无官方文档）。
 
 ### 4.3 已接受的折衷 / 技术债
@@ -104,13 +105,26 @@
 - `apps/vendor-aster/src/services/orders/submitOrder.ts`：Spot/Perp 下单逻辑、参数映射、reduceOnly 处理。
 - `apps/vendor-aster/src/services/orders/cancelOrder.ts`：Perp 撤单逻辑，要求 `product_id` 可解码。
 - `apps/vendor-aster/src/services/orders/listOrders.ts`：Perp open orders → `IOrder` 映射，供 pending orders 使用。
-- `apps/vendor-aster/src/services/markets/product.ts` / `quote.ts` / `interest_rate.ts`：公共数据轮询与 SQL 输出。
+- `apps/vendor-aster/src/services/markets/product.ts` / `quote.ts`：公共数据轮询与 SQL 输出。
+- `apps/vendor-aster/src/services/interest-rate-service.ts`：资金费率历史写库接口。
 - `apps/vendor-aster/src/api/private-api.ts` / `public-api.ts`：REST helper + API 文档引用。
 - `apps/vendor-aster/src/e2e/submit-order.e2e.test.ts`：端到端测试示例，依赖 `ASTER_E2E_*` 环境变量。
 
 ---
 
 ## 6. 最近几轮工作记录（Recent Sessions）
+
+### 2026-01-07 — Codex
+
+- **本轮摘要**：
+  - 为切换到 `ohlc_v2`，移除基于 `createSeriesProvider` 的历史利率脚本（services/markets/interest_rate.ts）。
+  - 清理 `src/index.ts` 中对应模块导入，避免旧表链路继续注册。
+- **修改的文件**：
+  - `apps/vendor-aster/src/services/markets/interest_rate.ts`（删除）
+  - `apps/vendor-aster/src/index.ts`
+- **运行的测试 / 检查**：
+  - 命令：未运行
+  - 结果：未运行（与全仓 ohlc 迁移合并验证）
 
 ### 2025-12-24 — Codex
 

@@ -49,7 +49,6 @@ src/
 │   ├── ohlc.ts           # K线数据
 │   ├── product.ts        # 产品信息
 │   ├── quote.ts          # 报价数据
-│   ├── interest_rate.ts  # 利率数据
 │   └── market-order.ts   # 市价单数据
 ├── accountInfos/         # 账户信息处理
 │   ├── trading.ts        # 交易账户信息
@@ -61,9 +60,6 @@ src/
 │   ├── submitOrder.ts   # 提交订单
 │   ├── modifyOrder.ts   # 修改订单
 │   └── cancelOrder.ts   # 取消订单
-├── utils/               # 工具函数
-│   ├── provideOHLCFromTimeBackwardService.ts
-│   └── provideSeriesFromTimeBackwardService.ts
 └── *.ts                 # 核心服务模块
 ```
 

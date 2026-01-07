@@ -1,5 +1,5 @@
 import { DatePicker, Layout, Space } from '@douyinfe/semi-ui';
-import { IOHLC } from '@yuants/data-ohlc';
+import { decodeOHLCSeriesId, IOHLC } from '@yuants/data-ohlc';
 import { IProduct } from '@yuants/data-product';
 import '@yuants/data-series';
 import { escapeSQL, requestSQL } from '@yuants/sql';
@@ -26,6 +26,8 @@ import { seriesIdList$ } from '../OHLC';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
 import { generateNetValue } from './CalculateAccountNetValue';
+
+type IOHLCV2Row = Omit<IOHLC, 'datasource_id' | 'product_id' | 'duration'>;
 
 const accountIds$ = terminal$.pipe(
   filter((x): x is Exclude<typeof x, null> => !!x),
@@ -58,27 +60,34 @@ registerPage('NetValueAudit', () => {
     pipe(
       //
       switchMap(async ([seriesId, timeRange, accountId]) => {
-        const [datasource_id, product_id] = decodePath(seriesId ?? '');
         const terminal = await firstValueFrom(terminal$);
         if (!timeRange || !seriesId || !accountId || !terminal || !timeRange[0] || !timeRange[1])
           return { data: [], views: [] };
+        const { product_id, duration } = decodeOHLCSeriesId(seriesId);
+        const [datasource_id = ''] = decodePath(product_id);
         const productInfoList = await requestSQL<IProduct[]>(
           terminal,
           `select * from product where product_id = ${escapeSQL(product_id)}`,
         );
         const ohlc = await loadTimeSeriesData({
           type: 'sql' as const,
-          query: `select * from ohlc where series_id = ${escapeSQL(seriesId)} and created_at>=${escapeSQL(
+          query: `select * from ohlc_v2 where series_id = ${escapeSQL(seriesId)} and created_at>=${escapeSQL(
             formatTime(timeRange[0]),
           )} and created_at<=${escapeSQL(formatTime(timeRange[1]))} order by created_at`,
           time_column_name: 'created_at',
         });
-        const originOHLC = await requestSQL<IOHLC[]>(
+        const ohlcRows = await requestSQL<IOHLCV2Row[]>(
           terminal,
-          `select * from ohlc where series_id = ${escapeSQL(seriesId)} and created_at>=${escapeSQL(
+          `select * from ohlc_v2 where series_id = ${escapeSQL(seriesId)} and created_at>=${escapeSQL(
             formatTime(timeRange[0]),
           )} and created_at<=${escapeSQL(formatTime(timeRange[1]))} order by created_at`,
         );
+        const originOHLC = ohlcRows.map((row) => ({
+          ...row,
+          datasource_id,
+          product_id,
+          duration,
+        }));
         const [netValueList, volumeList] = await generateNetValue(
           originOHLC,
           timeRange[0],
