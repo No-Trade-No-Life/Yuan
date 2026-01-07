@@ -178,10 +178,10 @@ export const provideOHLCService: (terminal: Terminal, metadata: IOHLCServiceMeta
 };
 
 // @public
-export const provideQuoteService: <K extends IQuoteField>(terminal: Terminal, metadata: IQuoteServiceMetadata<K>, requestFunc: (request: IQuoteServiceRequestByVEX) => Promise<(Pick<IQuote, K> & {
+export const provideQuoteService: <K extends IQuoteField>(terminal: Terminal, metadata: IQuoteServiceMetadata<K>, requestFunc: (request: IQuoteServiceRequestByVEX) => Promise<Array<Pick<IQuote, K> & {
     product_id: string;
     updated_at: number;
-})[]>, serviceOptions?: IServiceOptions) => {
+}>>, serviceOptions?: IServiceOptions) => {
     dispose: () => void;
 };
 

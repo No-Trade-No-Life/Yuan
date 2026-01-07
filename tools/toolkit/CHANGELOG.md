@@ -1,6 +1,13 @@
 # Change Log - @yuants/tool-kit
 
-This log was last generated on Mon, 10 Nov 2025 08:01:57 GMT and should not be manually modified.
+This log was last generated on Tue, 06 Jan 2026 17:23:41 GMT and should not be manually modified.
+
+## 0.2.2
+Tue, 06 Jan 2026 17:23:41 GMT
+
+### Patches
+
+- upgrade node and ts and etc.
 
 ## 0.2.1
 Mon, 10 Nov 2025 08:01:57 GMT

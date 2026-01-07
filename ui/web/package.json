@@ -76,7 +76,7 @@
     "version-compare": "~3.11.0",
     "version-range": "~4.14.0",
     "yalps": "~0.5.6",
-    "yaml": "~2.2.1",
+    "yaml": "~2.8.2",
     "fancy-canvas": "~2.1.0",
     "@zip.js/zip.js": "~2.8.2"
   },
@@ -89,13 +89,13 @@
     "@types/path-browserify": "^1.0.0",
     "@types/react": "^18.2.29",
     "@types/react-dom": "18.2.7",
-    "@vite-pwa/assets-generator": "~0.2.4",
-    "@vitejs/plugin-react": "^2.0.0",
+    "@vite-pwa/assets-generator": "~1.0.2",
+    "@vitejs/plugin-react": "^5.1.2",
     "path-browserify": "^1.0.1",
     "rollup": "~4.21.1",
     "rollup-plugin-dts": "~6.1.1",
-    "typescript": "^4.6.4",
-    "vite": "^3.0.0",
-    "vite-plugin-pwa": "~0.20.2"
+    "typescript": "^5.9.3",
+    "vite": "^6.4.1",
+    "vite-plugin-pwa": "^1.2.0"
   }
 }

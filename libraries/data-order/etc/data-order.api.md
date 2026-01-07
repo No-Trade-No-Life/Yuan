@@ -75,10 +75,10 @@ export const modifyOrder: <T>(terminal: Terminal, credential: ITypedCredential<T
 
 // @public
 export const provideOrderActionsWithCredential: <T>(terminal: Terminal, type: string, credentialSchema: JSONSchema7, actions: {
-    submitOrder?: IActionHandlerOfSubmitOrder<T> | undefined;
-    modifyOrder?: IActionHandlerOfModifyOrder<T> | undefined;
-    cancelOrder?: IActionHandlerOfCancelOrder<T> | undefined;
-    listOrders?: IActionHandlerOfListOrders<T> | undefined;
+    submitOrder?: IActionHandlerOfSubmitOrder<T>;
+    modifyOrder?: IActionHandlerOfModifyOrder<T>;
+    cancelOrder?: IActionHandlerOfCancelOrder<T>;
+    listOrders?: IActionHandlerOfListOrders<T>;
 }) => void;
 
 // @public

@@ -2,6 +2,37 @@
   "name": "@yuants/tool-yuanctl",
   "entries": [
     {
+      "version": "0.2.20",
+      "tag": "@yuants/tool-yuanctl_v0.2.20",
+      "date": "Tue, 06 Jan 2026 17:23:41 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "upgrade node and ts and etc."
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.54.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.39`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/deploy\" to `0.3.42`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.19.4`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.19",
       "tag": "@yuants/tool-yuanctl_v0.2.19",
       "date": "Fri, 02 Jan 2026 09:52:20 GMT",

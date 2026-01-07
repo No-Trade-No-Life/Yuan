@@ -2,7 +2,7 @@ import { IOHLC } from '@yuants/data-ohlc';
 import { createSeriesProvider } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
-import { convertDurationToOffset, decodePath, formatTime } from '@yuants/utils';
+import { convertDurationToOffset, decodePath, encodePath, formatTime } from '@yuants/utils';
 import { firstValueFrom, map, timer } from 'rxjs';
 import { getHistoryCandles } from '../api/public-api';
 import { provideOHLCFromTimeBackwardService } from '../utils/provideOHLCFromTimeBackwardService';
@@ -50,6 +50,23 @@ const DURATION_TO_OKX_CANDLE_TYPE: Record<string, string> = {
   P1W: 'candle1W',
   P1M: 'candle1M',
 };
+
+type IOHLCV2WriteRow = Pick<
+  IOHLC,
+  'series_id' | 'created_at' | 'closed_at' | 'open' | 'high' | 'low' | 'close' | 'volume' | 'open_interest'
+> & { __origin: IOHLC };
+
+const OHLC_V2_WRITE_COLUMNS: Array<keyof IOHLCV2WriteRow> = [
+  'series_id',
+  'created_at',
+  'closed_at',
+  'open',
+  'high',
+  'low',
+  'close',
+  'volume',
+  'open_interest',
+];
 
 createSeriesProvider<IOHLC>(terminal, {
   tableName: 'ohlc',
@@ -117,7 +134,7 @@ createSeriesProvider<IOHLC>(terminal, {
 
 terminal.channel.publishChannel('ohlc', { pattern: `^OKX/` }, (series_id) => {
   const [datasource_id, product_id, duration] = decodePath(series_id);
-  const [, instId] = decodePath(product_id);
+  const [instType, instId] = decodePath(product_id);
   const offset = convertDurationToOffset(duration);
   if (!datasource_id) {
     throw 'datasource_id is required';
@@ -125,9 +142,13 @@ terminal.channel.publishChannel('ohlc', { pattern: `^OKX/` }, (series_id) => {
   if (!product_id) {
     throw 'product_id is required';
   }
+  if (!instType || !instId) {
+    throw `invalid product_id: ${product_id}`;
+  }
   if (!offset) {
     throw 'duration is invalid';
   }
+  const series_id_v2 = `${encodePath(datasource_id, instType, instId)}/${duration}`;
   const candleType = DURATION_TO_OKX_CANDLE_TYPE[duration];
   console.info(formatTime(Date.now()), `subscribe`, series_id, product_id);
 
@@ -155,11 +176,33 @@ terminal.channel.publishChannel('ohlc', { pattern: `^OKX/` }, (series_id) => {
         open_interest: '0',
       };
     }),
+    map(
+      (x): IOHLCV2WriteRow => ({
+        __origin: x,
+        series_id: series_id_v2,
+        created_at: x.created_at,
+        closed_at: x.closed_at,
+        open: x.open,
+        high: x.high,
+        low: x.low,
+        close: x.close,
+        volume: x.volume,
+        open_interest: x.open_interest,
+      }),
+    ),
+    writeToSQL({
+      tableName: 'ohlc_v2',
+      columns: OHLC_V2_WRITE_COLUMNS,
+      conflictKeys: ['series_id', 'created_at'],
+      writeInterval: 1000,
+      terminal,
+    }),
+    map((x) => x.__origin),
     writeToSQL({
       tableName: 'ohlc',
-      conflictKeys: ['created_at', 'series_id'],
+      conflictKeys: ['series_id', 'created_at'],
       writeInterval: 1000,
-      terminal: Terminal.fromNodeEnv(),
+      terminal,
     }),
   );
 });

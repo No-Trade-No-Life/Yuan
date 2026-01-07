@@ -1,6 +1,22 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Sun, 04 Jan 2026 18:08:06 GMT and should not be manually modified.
+This log was last generated on Tue, 06 Jan 2026 17:23:41 GMT and should not be manually modified.
+
+## 0.31.11
+Tue, 06 Jan 2026 17:23:41 GMT
+
+### Patches
+
+- upgrade node and ts and etc.
+- fix
+- add interest ledger
+
+## 0.31.10
+Mon, 05 Jan 2026 07:03:01 GMT
+
+### Patches
+
+- double write ohlc to ohlc_v2 table
 
 ## 0.31.9
 Sun, 04 Jan 2026 18:08:06 GMT

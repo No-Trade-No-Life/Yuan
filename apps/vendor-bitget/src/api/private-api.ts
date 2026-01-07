@@ -485,3 +485,41 @@ export const getSpotCrossInterestRate = (
     '/api/v2/margin/crossed/interest-rate-and-limit',
     params,
   );
+
+export interface FinancialRecord {
+  category: string;
+  id: string;
+  symbol: string;
+  coin: string;
+  type: string;
+  amount: string;
+  fee: string;
+  balance: string;
+  ts: string;
+}
+
+/**
+ * 获取财务记录
+ *获取账户90天内流水信息
+ * 限速规则: 20次/秒/UID
+ *
+ * https://www.bitget.com/zh-CN/api-doc/uta/account/Get-Financial-Records
+ */
+export const getAccountFinancialRecords = (
+  credential: ICredential,
+  params: {
+    category: string;
+    coin?: string;
+    startTime?: string;
+    endTime?: string;
+    type?: string;
+    limit?: string;
+    cursor?: string;
+  },
+) =>
+  requestPrivate<
+    ApiResponse<{
+      list: FinancialRecord[];
+      cursor: string;
+    }>
+  >(credential, 'GET', '/api/v3/account/financial-records', params);
