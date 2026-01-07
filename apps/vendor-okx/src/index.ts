@@ -5,7 +5,6 @@ import './experimental/exchange';
 import './order';
 import './order-actions';
 import './order-actions-with-credential';
-import './public-data/interest_rate';
 import './public-data/market-order';
 import './public-data/ohlc';
 import './public-data/quote';

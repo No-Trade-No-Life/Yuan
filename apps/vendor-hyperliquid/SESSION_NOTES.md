@@ -73,8 +73,8 @@
 - **新目录结构（参考 vendor-aster）**：
   - `src/services/accounts/`：账户相关服务（perp.ts）
   - `src/services/orders/`：订单相关服务（submitOrder.ts, cancelOrder.ts, modifyOrder.ts）
-  - `src/services/markets/`：市场数据服务（product.ts, quote.ts, interest-rate.ts, ohlc.ts）
-  - `src/services/`：根级服务（order-actions-with-credential.ts, fill-history.ts）
+  - `src/services/markets/`：市场数据服务（product.ts, quote.ts）
+  - `src/services/`：根级服务（order-actions-with-credential.ts, fill-history.ts, interest-rate-service.ts, ohlc-service.ts）
 - **代码规范变更**：
   - 所有 `console.log` 统一改为 `console.info` 以遵循项目标准
   - 服务文件导入路径按照新目录结构调整
@@ -183,6 +183,19 @@
 ## 6. 最近几轮工作记录（Recent Sessions）
 
 > 约定：仅记录已经结束的会话；进行中的内容放在第 11 节，收尾后再搬运；按时间倒序追加。
+
+### 2026-01-07 — Codex
+
+- **本轮摘要**：
+  - 为切换到 `ohlc_v2`，移除基于 `createSeriesProvider` 的历史数据脚本（markets/ohlc、markets/interest-rate）。
+  - 清理 `src/index.ts` 中对应模块导入，避免旧表链路继续注册。
+- **修改的文件**：
+  - `apps/vendor-hyperliquid/src/services/markets/ohlc.ts`（删除）
+  - `apps/vendor-hyperliquid/src/services/markets/interest-rate.ts`（删除）
+  - `apps/vendor-hyperliquid/src/index.ts`
+- **运行的测试 / 检查**：
+  - 命令：未运行
+  - 结果：未运行（与全仓 ohlc 迁移合并验证）
 
 ### 2025-12-03 — Codex Agent
 

@@ -1,6 +1,5 @@
 import { defer, from, map, mergeMap, repeat, retry, shareReplay, toArray } from 'rxjs';
 import { client } from './api';
-import './interest_rate';
 
 const mapSymbolToFundingRate$ = defer(() => client.getFuturesFundingRate()).pipe(
   //

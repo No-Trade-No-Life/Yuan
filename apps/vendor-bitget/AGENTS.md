@@ -69,7 +69,8 @@
 
 5. **公共数据**
 
-   - `services/markets/product.ts`, `quote.ts`, `interest-rate.ts` 等分别负责 Catalog / Quote / Funding；默认通过 REST 轮询 + `retry` + `repeat`；
+   - `services/markets/product.ts`, `quote.ts` 分别负责 Catalog / Quote；默认通过 REST 轮询 + `retry` + `repeat`；
+   - 资金费率历史写库由 `services/interest-rate-service.ts` 提供能力接口。
    - `WRITE_QUOTE_TO_SQL=1|true` 时写入 `quote` 表，否则仅发布 Channel；产品至少每小时刷新一次。
 
 6. **转账接口**

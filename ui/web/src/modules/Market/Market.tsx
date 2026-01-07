@@ -1,7 +1,8 @@
 import { IconDownload } from '@douyinfe/semi-icons';
 import { Layout, Space, Toast } from '@douyinfe/semi-ui';
+import { decodeOHLCSeriesId, encodeOHLCSeriesId } from '@yuants/data-ohlc';
 import '@yuants/data-series';
-import { escapeSQL, requestSQL } from '@yuants/sql';
+import { escapeSQL } from '@yuants/sql';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { t } from 'i18next';
 import { useObservableState } from 'observable-hooks';
@@ -18,7 +19,11 @@ import { seriesIdList$ } from '../OHLC';
 registerPage('Market', () => {
   const seriesIdList = useObservableState(seriesIdList$);
   const [seriesId, setSeriesId] = useState('');
-  const [datasource_id, product_id, duration = ''] = decodePath(seriesId);
+  const { product_id: seriesProductId, duration = '' } = seriesId
+    ? decodeOHLCSeriesId(seriesId)
+    : { product_id: '', duration: '' };
+  const [datasource_id = '', ...productParts] = seriesProductId ? decodePath(seriesProductId) : [];
+  const product_id = productParts.length ? encodePath(...productParts) : '';
 
   return (
     <Layout style={{ width: '100%', height: '100%' }}>
@@ -129,8 +134,8 @@ registerCommand('fetchOHLCV', async (params) => {
   await lastValueFrom(
     terminal.client
       .requestService('CollectSeries', {
-        table_name: 'ohlc',
-        series_id: encodePath(datasource_id, product_id, duration),
+        table_name: 'ohlc_v2',
+        series_id: encodeOHLCSeriesId(encodePath(datasource_id, ...decodePath(product_id)), duration),
         started_at: _start_time,
         ended_at: _end_time,
       })

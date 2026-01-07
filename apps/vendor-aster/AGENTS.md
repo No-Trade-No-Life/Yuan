@@ -65,7 +65,8 @@
 
 4. **公共数据**
 
-   - `services/markets/product.ts`、`quote.ts`、`interest_rate.ts` 分别负责产品目录、行情、资金费率。
+   - `services/markets/product.ts`、`quote.ts` 分别负责产品目录与行情。
+   - 资金费率历史写库由 `services/interest-rate-service.ts` 提供能力接口。
    - `WRITE_QUOTE_TO_SQL` 设为 `'true'` 时写入 `quote` 表并发布 Channel；未开启时需评估是否提供只读 Channel。
    - `OPEN_INTEREST_TTL` 控制 open interest 缓存（默认 120s），调整需同步 Session Notes。
 

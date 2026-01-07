@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "rush-pnpm-tsheft-2026-01",
+  "currentTask": "ohlc-ohlc-v2",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -122,9 +122,16 @@
     {
       "id": "rush-pnpm-tsheft-2026-01",
       "name": "全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）",
-      "status": "active",
+      "status": "paused",
       "createdAt": "2026-01-05T07:44:14.014Z",
-      "updatedAt": "2026-01-05T09:32:21.881Z"
+      "updatedAt": "2026-01-07T08:31:34.455Z"
+    },
+    {
+      "id": "ohlc-ohlc-v2",
+      "name": "移除旧 ohlc 表引用并切换到 ohlc_v2",
+      "status": "active",
+      "createdAt": "2026-01-07T08:31:34.455Z",
+      "updatedAt": "2026-01-07T09:35:13.640Z"
     }
   ],
   "pendingProposals": [
@@ -1380,6 +1387,86 @@
       "decidedAt": "2026-01-05T07:44:14.014Z",
       "decidedBy": "Claude",
       "createdTaskId": "rush-pnpm-tsheft-2026-01"
+    },
+    {
+      "id": "proposal-mk3rcks9-273cc4",
+      "name": "移除旧 ohlc 表引用并切换到 ohlc_v2",
+      "goal": "全仓清理对旧 `ohlc` 表的读写/任务引用，统一改为 `ohlc_v2` 并对齐 series_id 编码与查询路径。",
+      "rationale": "用户要求移除所有对旧表 `ohlc` 的引用并切换到 `ohlc_v2`；目前仓库仍存在多处写入/查询旧表的遗留点（vendor、kernel、UI、工具链）。需要集中盘点并统一迁移，避免新旧表并存导致数据不一致与调用混乱。",
+      "points": [
+        "盘点所有对 `ohlc` 表的写入/读取/任务引用并记录到 context 作为变更清单",
+        "写入侧统一改为 `ohlc_v2`：createSeriesProvider、publishChannel 双写、QuerySeriesFromTimeBackward 写库路径等",
+        "读取侧统一改为 `ohlc_v2`：kernel 单元与 Web UI SQL 查询/CollectSeries 参数",
+        "series_id 统一改为 `encodeOHLCSeriesId`/`decodeOHLCSeriesId`，避免旧编码导致查询失配",
+        "确认是否保留 `tools/sql-migration/sql/ohlc.sql` 与文档中的旧表说明，必要时加 review 条目"
+      ],
+      "scope": [
+        "libraries/kernel/src/units/RealtimePeriodLoadingUnit.ts",
+        "apps/vendor-binance/src/public-data/ohlc.ts",
+        "apps/vendor-bitget/src/services/markets/ohlc.ts",
+        "apps/vendor-okx/src/public-data/ohlc.ts",
+        "apps/vendor-okx/src/utils/provideSeriesFromTimeBackwardService.ts",
+        "apps/vendor-okx/src/utils/provideOHLCFromTimeBackwardService.ts",
+        "apps/vendor-tq/src/index.ts",
+        "apps/vendor-hyperliquid/src/services/markets/ohlc.ts",
+        "ui/web/src/modules/Audit/Audit.tsx",
+        "ui/web/src/modules/Audit/NetValueAudit.tsx",
+        "ui/web/src/modules/Market/Market.tsx",
+        "tools/sql-migration/sql/ohlc.sql（是否保留需确认）",
+        "docs/zh-Hans/* 与 docs/en/*（若包含旧表引用需确认是否更新）"
+      ],
+      "phases": [
+        {
+          "name": "调研",
+          "tasks": [
+            {
+              "description": "全仓确认旧表 `ohlc` 的实际引用点（写入/读取/任务参数），整理为文件清单与用途说明。",
+              "acceptance": "context.md 有完整清单（路径 + 使用方式 + 关联调用链）"
+            },
+            {
+              "description": "确认 `ohlc_v2` 表结构与 `series_id` 编码规则，评估 createSeriesProvider 的写入列/字段需要如何裁剪。",
+              "acceptance": "context.md 记录字段映射与是否需要额外 helper/类型调整"
+            }
+          ]
+        },
+        {
+          "name": "设计（待 review）",
+          "tasks": [
+            {
+              "description": "给出逐文件替换策略：如何把旧表写入改为 `ohlc_v2`、如何处理双写/旧表兼容、以及 UI/Kernel 查询与 CollectSeries 参数的调整。",
+              "acceptance": "plan.md 列出每个文件的改动要点与风险"
+            },
+            {
+              "description": "列出需人类确认的问题（是否删除 `ohlc.sql`、是否更新文档、是否保留旧表数据迁移/回滚策略）。",
+              "acceptance": "plan.md 或 context.md 中有 REVIEW 条目"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "逐文件替换 `ohlc` -> `ohlc_v2`，并同步调整 `series_id` 编码/解码与写入列集合，移除旧表写入。",
+              "acceptance": "所有旧表引用清零；写入/读取逻辑对齐新表"
+            }
+          ]
+        },
+        {
+          "name": "验证与交接",
+          "tasks": [
+            {
+              "description": "运行最小验证（按模块 tsc 或既有 build 命令）并更新 context 交接。",
+              "acceptance": "context.md 记录验证命令与结果；说明回滚/兼容注意点"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-01-07T08:29:51.801Z",
+      "status": "approved",
+      "decidedAt": "2026-01-07T08:31:34.455Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "ohlc-ohlc-v2"
     }
   ]
 }
