@@ -2,6 +2,23 @@
   "name": "@yuants/app-virtual-exchange",
   "entries": [
     {
+      "version": "0.18.8",
+      "tag": "@yuants/app-virtual-exchange_v0.18.8",
+      "date": "Thu, 08 Jan 2026 06:07:44 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add vex get c"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.18.7",
       "tag": "@yuants/app-virtual-exchange_v0.18.7",
       "date": "Tue, 06 Jan 2026 17:23:41 GMT",
