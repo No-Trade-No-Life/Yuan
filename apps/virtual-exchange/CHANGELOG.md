@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-virtual-exchange
 
-This log was last generated on Tue, 06 Jan 2026 17:23:41 GMT and should not be manually modified.
+This log was last generated on Thu, 08 Jan 2026 06:07:44 GMT and should not be manually modified.
+
+## 0.18.8
+Thu, 08 Jan 2026 06:07:44 GMT
+
+### Patches
+
+- add vex get c
 
 ## 0.18.7
 Tue, 06 Jan 2026 17:23:41 GMT

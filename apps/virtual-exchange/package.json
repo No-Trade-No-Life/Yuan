@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-virtual-exchange",
-  "version": "0.18.7",
+  "version": "0.18.8",
   "main": "lib/index.js",
   "files": [
     "dist",
