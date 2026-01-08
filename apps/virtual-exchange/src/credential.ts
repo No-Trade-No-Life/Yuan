@@ -6,7 +6,7 @@ import { escapeSQL, requestSQL } from '@yuants/sql';
 import { newError } from '@yuants/utils';
 import { defer, firstValueFrom, map, repeat, retry, shareReplay } from 'rxjs';
 
-interface IExchangeCredential {
+export interface IExchangeCredential {
   type: string;
   payload: any;
 }
