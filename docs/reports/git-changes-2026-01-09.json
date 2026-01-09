@@ -1,0 +1,277 @@
+{
+  "range": {
+    "old": "df07e20b4f7979fa561a2da21cbafcdc40749228",
+    "new": "fb870cb74202b52b6acd6a736e35a96ed1580b08",
+    "label": "df07e20b4..fb870cb74",
+    "startDate": "2026-01-08",
+    "endDate": "2026-01-08",
+    "commitCount": 2,
+    "generatedAt": "2026-01-09T00:06:11.874Z"
+  },
+  "contributors": [
+    {
+      "name": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "commits": 1
+    },
+    {
+      "name": "Ryan",
+      "email": "stayrealrhr@gmail.com",
+      "commits": 1
+    }
+  ],
+  "directoryAnalysis": {
+    "topLevel": [
+      {
+        "dir": "apps",
+        "fileCount": 5
+      },
+      {
+        "dir": "common",
+        "fileCount": 1
+      }
+    ],
+    "projects": [
+      {
+        "project": "apps/virtual-exchange",
+        "fileCount": 5,
+        "marker": "package.json"
+      },
+      {
+        "project": "common",
+        "fileCount": 1,
+        "marker": null
+      }
+    ],
+    "markersUsed": [
+      "package.json",
+      "Cargo.toml",
+      "go.mod",
+      "requirements.txt",
+      "pyproject.toml",
+      "setup.py",
+      "pom.xml",
+      "build.gradle",
+      "build.gradle.kts",
+      "CMakeLists.txt",
+      "Makefile",
+      "pubspec.yaml",
+      "mix.exs",
+      "Gemfile",
+      "composer.json"
+    ]
+  },
+  "commits": [
+    {
+      "hash": "b94412fe5e874eeca50ab01726b5743c8be87a4c",
+      "short": "b94412fe5",
+      "author": "Ryan",
+      "email": "stayrealrhr@gmail.com",
+      "authoredAt": "2026-01-08 14:04:59 +0800",
+      "subject": "feat: add vex get c (#2484)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/virtual-exchange/src/credential.ts",
+          "changeType": "modified",
+          "patch": "commit b94412fe5e874eeca50ab01726b5743c8be87a4c\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Thu Jan 8 14:04:59 2026 +0800\n\n    feat: add vex get c (#2484)\n\ndiff --git a/apps/virtual-exchange/src/credential.ts b/apps/virtual-exchange/src/credential.ts\nindex 7ff9cfe06..f068af9af 100644\n--- a/apps/virtual-exchange/src/credential.ts\n+++ b/apps/virtual-exchange/src/credential.ts\n@@ -9 +9 @@ import { defer, firstValueFrom, map, repeat, retry, shareReplay } from 'rxjs';\n-interface IExchangeCredential {\n+export interface IExchangeCredential {\n",
+          "codeSnippets": [
+            {
+              "type": "interface",
+              "name": "IExchangeCredential",
+              "code": "export interface IExchangeCredential {",
+              "lineStart": 9,
+              "lineEnd": 10
+            }
+          ]
+        },
+        {
+          "additions": 30,
+          "deletions": 1,
+          "path": "apps/virtual-exchange/src/general.ts",
+          "changeType": "modified",
+          "patch": "commit b94412fe5e874eeca50ab01726b5743c8be87a4c\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Thu Jan 8 14:04:59 2026 +0800\n\n    feat: add vex get c (#2484)\n\ndiff --git a/apps/virtual-exchange/src/general.ts b/apps/virtual-exchange/src/general.ts\nindex b3d0cd8c5..fdb8d466d 100644\n--- a/apps/virtual-exchange/src/general.ts\n+++ b/apps/virtual-exchange/src/general.ts\n@@ -5 +5 @@ import { Terminal } from '@yuants/protocol';\n-import { getCredentialBySecretId } from './credential';\n+import { getCredentialBySecretId, IExchangeCredential } from './credential';\n@@ -111,0 +112,29 @@ terminal.server.provideService<{ order: IOrder; secret_id: string }, void>(\n+\n+// GetCredential\n+terminal.server.provideService<\n+  { secret_id: string },\n+  {\n+    sign: string;\n+    credential: IExchangeCredential;\n+    credentialId: string;\n+  }\n+>(\n+  'VEX/GetCredential',\n+  {\n+    type: 'object',\n+    required: ['secret_id'],\n+    properties: {\n+      secret_id: { type: 'string' },\n+    },\n+  },\n+  async (msg) => {\n+    const credential = await getCredentialBySecretId(msg.req.secret_id);\n+    return {\n+      res: {\n+        code: 0,\n+        message: 'OK',\n+        data: credential,\n+      },\n+    };\n+  },\n+);\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "credential",
+              "code": "    const credential = await getCredentialBySecretId(msg.req.secret_id);\n    return {\n      res: {\n        code: 0,\n        message: 'OK',\n        data: credential,\n      },\n    };\n  },\n);",
+              "lineStart": 131,
+              "lineEnd": 141
+            }
+          ]
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/app-virtual-exchange/2026-01-08-06-02.json",
+          "changeType": "added",
+          "patch": "commit b94412fe5e874eeca50ab01726b5743c8be87a4c\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Thu Jan 8 14:04:59 2026 +0800\n\n    feat: add vex get c (#2484)\n\ndiff --git a/common/changes/@yuants/app-virtual-exchange/2026-01-08-06-02.json b/common/changes/@yuants/app-virtual-exchange/2026-01-08-06-02.json\nnew file mode 100644\nindex 000000000..9835f8644\n--- /dev/null\n+++ b/common/changes/@yuants/app-virtual-exchange/2026-01-08-06-02.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/app-virtual-exchange\",\n+      \"comment\": \"add vex get c\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/app-virtual-exchange\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "fb870cb74202b52b6acd6a736e35a96ed1580b08",
+      "short": "fb870cb74",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2026-01-08 14:08:10 +0800",
+      "subject": "chore: bump version (#2485)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/virtual-exchange/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit fb870cb74202b52b6acd6a736e35a96ed1580b08\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Thu Jan 8 14:08:10 2026 +0800\n\n    chore: bump version (#2485)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/virtual-exchange/CHANGELOG.json b/apps/virtual-exchange/CHANGELOG.json\nindex 1ad7da2c1..289255a87 100644\n--- a/apps/virtual-exchange/CHANGELOG.json\n+++ b/apps/virtual-exchange/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.18.8\",\n+      \"tag\": \"@yuants/app-virtual-exchange_v0.18.8\",\n+      \"date\": \"Thu, 08 Jan 2026 06:07:44 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"add vex get c\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/virtual-exchange/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit fb870cb74202b52b6acd6a736e35a96ed1580b08\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Thu Jan 8 14:08:10 2026 +0800\n\n    chore: bump version (#2485)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/virtual-exchange/CHANGELOG.md b/apps/virtual-exchange/CHANGELOG.md\nindex 4ec28e8d9..a607b8fb9 100644\n--- a/apps/virtual-exchange/CHANGELOG.md\n+++ b/apps/virtual-exchange/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Tue, 06 Jan 2026 17:23:41 GMT and should not be manually modified.\n+This log was last generated on Thu, 08 Jan 2026 06:07:44 GMT and should not be manually modified.\n+\n+## 0.18.8\n+Thu, 08 Jan 2026 06:07:44 GMT\n+\n+### Patches\n+\n+- add vex get c\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/virtual-exchange/package.json",
+          "changeType": "modified",
+          "patch": "commit fb870cb74202b52b6acd6a736e35a96ed1580b08\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Thu Jan 8 14:08:10 2026 +0800\n\n    chore: bump version (#2485)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/virtual-exchange/package.json b/apps/virtual-exchange/package.json\nindex 5f183a8b3..e58b4b6c6 100644\n--- a/apps/virtual-exchange/package.json\n+++ b/apps/virtual-exchange/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.18.7\",\n+  \"version\": \"0.18.8\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/app-virtual-exchange/2026-01-08-06-02.json",
+          "changeType": "deleted",
+          "patch": "commit fb870cb74202b52b6acd6a736e35a96ed1580b08\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Thu Jan 8 14:08:10 2026 +0800\n\n    chore: bump version (#2485)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/app-virtual-exchange/2026-01-08-06-02.json b/common/changes/@yuants/app-virtual-exchange/2026-01-08-06-02.json\ndeleted file mode 100644\nindex 9835f8644..000000000\n--- a/common/changes/@yuants/app-virtual-exchange/2026-01-08-06-02.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/app-virtual-exchange\",\n-      \"comment\": \"add vex get c\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/app-virtual-exchange\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/app-virtual-exchange/{main_2026-01-06-17-24.json => main_2026-01-08-06-07.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        }
+      ]
+    }
+  ],
+  "analysis": {
+    "domains": [
+      {
+        "name": "API请求优化与限速",
+        "commits": [
+          "b94412fe5"
+        ],
+        "files": [
+          "apps/virtual-exchange/src/credential.ts",
+          "apps/virtual-exchange/src/general.ts",
+          "common/changes/@yuants/app-virtual-exchange/2026-01-08-06-02.json"
+        ]
+      },
+      {
+        "name": "安全与鉴权",
+        "commits": [
+          "b94412fe5"
+        ],
+        "files": [
+          "apps/virtual-exchange/src/credential.ts",
+          "apps/virtual-exchange/src/general.ts",
+          "common/changes/@yuants/app-virtual-exchange/2026-01-08-06-02.json"
+        ]
+      },
+      {
+        "name": "订单与交易",
+        "commits": [
+          "b94412fe5"
+        ],
+        "files": [
+          "apps/virtual-exchange/src/credential.ts",
+          "apps/virtual-exchange/src/general.ts",
+          "common/changes/@yuants/app-virtual-exchange/2026-01-08-06-02.json"
+        ]
+      },
+      {
+        "name": "账户管理",
+        "commits": [
+          "b94412fe5"
+        ],
+        "files": [
+          "apps/virtual-exchange/src/credential.ts",
+          "apps/virtual-exchange/src/general.ts",
+          "common/changes/@yuants/app-virtual-exchange/2026-01-08-06-02.json"
+        ]
+      },
+      {
+        "name": "市场数据",
+        "commits": [
+          "b94412fe5"
+        ],
+        "files": [
+          "apps/virtual-exchange/src/credential.ts",
+          "apps/virtual-exchange/src/general.ts",
+          "common/changes/@yuants/app-virtual-exchange/2026-01-08-06-02.json"
+        ]
+      },
+      {
+        "name": "配置与环境",
+        "commits": [
+          "b94412fe5",
+          "fb870cb74"
+        ],
+        "files": [
+          "apps/virtual-exchange/src/credential.ts",
+          "apps/virtual-exchange/src/general.ts",
+          "common/changes/@yuants/app-virtual-exchange/2026-01-08-06-02.json",
+          "apps/virtual-exchange/CHANGELOG.json",
+          "apps/virtual-exchange/CHANGELOG.md",
+          "apps/virtual-exchange/package.json",
+          "common/changes/@yuants/app-virtual-exchange/{main_2026-01-06-17-24.json => main_2026-01-08-06-07.json}"
+        ]
+      },
+      {
+        "name": "文档",
+        "commits": [
+          "fb870cb74"
+        ],
+        "files": [
+          "apps/virtual-exchange/CHANGELOG.json",
+          "apps/virtual-exchange/CHANGELOG.md",
+          "apps/virtual-exchange/package.json",
+          "common/changes/@yuants/app-virtual-exchange/2026-01-08-06-02.json",
+          "common/changes/@yuants/app-virtual-exchange/{main_2026-01-06-17-24.json => main_2026-01-08-06-07.json}"
+        ]
+      }
+    ],
+    "riskIndicators": [
+      {
+        "type": "no_tests",
+        "severity": "medium",
+        "details": "包含功能或修复提交但未见测试文件更新",
+        "commits": []
+      }
+    ]
+  },
+  "metadata": {
+    "tool": "git-changes-reporter",
+    "version": "3.0.0",
+    "repository": "/home/runner/work/Yuan/Yuan"
+  }
+}
