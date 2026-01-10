@@ -159,6 +159,7 @@ export const provideExchangeServices: <T>(terminal: Terminal, exchange: IExchang
 export const provideInterestLedgerService: (terminal: Terminal, metadata: {
     direction: string;
     type: string;
+    ledger_type: string[];
 }, fetchPage: (request: IIngestInterestLedgerRequest) => Promise<IInterestLedger[]>, serviceOptions?: IServiceOptions) => {
     dispose: () => void;
 };

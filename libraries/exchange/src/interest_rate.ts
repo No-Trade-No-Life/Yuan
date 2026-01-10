@@ -225,7 +225,7 @@ const ACCOUNT_INTEREST_LEDGER_INSERT_COLUMNS: Array<keyof IInterestLedger> = [
  */
 export const provideInterestLedgerService = (
   terminal: Terminal,
-  metadata: { direction: string; type: string },
+  metadata: { direction: string; type: string; ledger_type: string[] },
   fetchPage: (request: IIngestInterestLedgerRequest) => Promise<IInterestLedger[]>,
   serviceOptions?: IServiceOptions,
 ) => {
@@ -238,7 +238,7 @@ export const provideInterestLedgerService = (
         account_id: { type: 'string', pattern: `^${metadata.type}` },
         direction: { const: metadata.direction },
         time: { type: 'number' },
-        ledger_type: { type: 'string' },
+        ledger_type: { type: 'string', enum: metadata.ledger_type },
         credential: {
           type: 'object',
           required: ['type', 'payload'],

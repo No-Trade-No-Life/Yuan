@@ -19,27 +19,30 @@ const fetchInterestRateLedgerBackward = async (req: {
   time: number;
   ledger_type: string;
 }): Promise<IInterestLedger[]> => {
-  const params = {
-    end_time: req.time,
-    start_time: req.time - WINDOW_MS,
-    type: req.ledger_type,
-    direct: 'prev',
-    mar_acct: 'USDT',
-  };
-  const res = await getAccountFinancialRecordExact(req.credential.payload, params);
-  return (res.data ?? [])
-    .map((v): IInterestLedger => {
-      const ms = v.ts;
-      return {
-        id: v.id.toString(),
-        product_id: encodePath('HTX', 'SWAP', v.contract_code),
-        amount: v.amount.toString(),
-        account_id: req.account_id,
-        currency: v.asset,
-        created_at: formatTime(ms),
-      } as IInterestLedger;
-    })
-    .filter((x) => Date.parse(x.created_at!) <= req.time);
+  if (req.ledger_type === 'FUNDING_FEE') {
+    const params = {
+      end_time: req.time,
+      start_time: req.time - WINDOW_MS,
+      type: '30,31',
+      direct: 'prev',
+      mar_acct: 'USDT',
+    };
+    const res = await getAccountFinancialRecordExact(req.credential.payload, params);
+    return (res.data ?? [])
+      .map((v): IInterestLedger => {
+        const ms = v.ts;
+        return {
+          id: v.id.toString(),
+          product_id: encodePath('HTX', 'SWAP', v.contract_code),
+          amount: v.amount.toString(),
+          account_id: req.account_id,
+          currency: v.asset,
+          created_at: formatTime(ms),
+        } as IInterestLedger;
+      })
+      .filter((x) => Date.parse(x.created_at!) <= req.time);
+  }
+  return [];
 };
 
 const fetchInterestRateLedgerForward = async (req: {
@@ -48,28 +51,30 @@ const fetchInterestRateLedgerForward = async (req: {
   time: number;
   ledger_type: string;
 }): Promise<IInterestLedger[]> => {
-  const params = {
-    end_time: req.time,
-    start_time: req.time - WINDOW_MS,
-    type: req.ledger_type,
-    direct: 'next',
-    mar_acct: 'USDT',
-  };
-  const res = await getAccountFinancialRecordExact(req.credential.payload, params);
-
-  return (res.data ?? [])
-    .map((v): IInterestLedger => {
-      const ms = v.ts;
-      return {
-        id: v.id.toString(),
-        product_id: encodePath('HTX', 'SWAP', v.contract_code),
-        amount: v.amount.toString(),
-        account_id: req.account_id,
-        currency: v.asset,
-        created_at: formatTime(ms),
-      } as IInterestLedger;
-    })
-    .filter((x) => Date.parse(x.created_at!) >= params.start_time);
+  if (req.ledger_type === 'FUNDING_FEE') {
+    const params = {
+      end_time: req.time,
+      start_time: req.time - WINDOW_MS,
+      type: '30,31',
+      direct: 'next',
+      mar_acct: 'USDT',
+    };
+    const res = await getAccountFinancialRecordExact(req.credential.payload, params);
+    return (res.data ?? [])
+      .map((v): IInterestLedger => {
+        const ms = v.ts;
+        return {
+          id: v.id.toString(),
+          product_id: encodePath('HTX', 'SWAP', v.contract_code),
+          amount: v.amount.toString(),
+          account_id: req.account_id,
+          currency: v.asset,
+          created_at: formatTime(ms),
+        } as IInterestLedger;
+      })
+      .filter((x) => Date.parse(x.created_at!) >= params.start_time);
+  }
+  return [];
 };
 
 provideInterestLedgerService(
@@ -77,6 +82,7 @@ provideInterestLedgerService(
   {
     direction: 'backward',
     type: 'HTX',
+    ledger_type: ['FUNDING_FEE'],
   },
   fetchInterestRateLedgerBackward,
 );
@@ -86,6 +92,7 @@ provideInterestLedgerService(
   {
     direction: 'forward',
     type: 'HTX',
+    ledger_type: ['FUNDING_FEE'],
   },
   fetchInterestRateLedgerForward,
 );
