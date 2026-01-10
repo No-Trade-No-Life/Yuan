@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-huobi",
+      "comment": "add ledger type",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-huobi"
+}

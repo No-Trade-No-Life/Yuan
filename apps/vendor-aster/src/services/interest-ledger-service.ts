@@ -19,27 +19,29 @@ const fetchInterestRateLedgerForward = async (req: {
   time: number;
   ledger_type: string;
 }): Promise<IInterestLedger[]> => {
-  const params = {
-    startTime: req.time,
-    endTime: req.time + WINDOW_MS,
-    limit: 10,
-    incomeType: req.ledger_type,
-    timestamp: Date.now(),
-  };
-  const res = await getAccountIncome(req.credential.payload, params);
-  return (res ?? [])
-    .map((v): IInterestLedger => {
-      const ms = Number(v.time);
-      return {
-        id: v.tranId,
-        product_id: encodePath('ASTER', 'PERP', v.symbol),
-        amount: v.income,
-        account_id: req.account_id,
-        currency: v.asset,
-        created_at: formatTime(ms),
-      } as IInterestLedger;
-    })
-    .filter((x) => Date.parse(x.created_at!) >= req.time);
+  if (req.ledger_type === 'FUNDING_FEE') {
+    const params = {
+      startTime: req.time,
+      endTime: req.time + WINDOW_MS,
+      incomeType: 'FUNDING_FEE',
+      timestamp: Date.now(),
+    };
+    const res = await getAccountIncome(req.credential.payload, params);
+    return (res ?? [])
+      .map((v): IInterestLedger => {
+        const ms = Number(v.time);
+        return {
+          id: v.tranId,
+          product_id: encodePath('ASTER', 'PERP', v.symbol),
+          amount: v.income,
+          account_id: req.account_id,
+          currency: v.asset,
+          created_at: formatTime(ms),
+        } as IInterestLedger;
+      })
+      .filter((x) => Date.parse(x.created_at!) >= req.time);
+  }
+  return [];
 };
 
 provideInterestLedgerService(
@@ -47,6 +49,7 @@ provideInterestLedgerService(
   {
     direction: 'forward',
     type: 'ASTER',
+    ledger_type: ['FUNDING_FEE'],
   },
   fetchInterestRateLedgerForward,
 );
