@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-aster
 
-This log was last generated on Wed, 07 Jan 2026 12:14:06 GMT and should not be manually modified.
+This log was last generated on Sun, 11 Jan 2026 00:09:15 GMT and should not be manually modified.
+
+## 0.10.1
+Sun, 11 Jan 2026 00:09:14 GMT
+
+### Patches
+
+- add ledger type
 
 ## 0.10.0
 Wed, 07 Jan 2026 12:14:06 GMT

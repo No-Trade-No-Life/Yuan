@@ -2,6 +2,23 @@
   "name": "@yuants/exchange",
   "entries": [
     {
+      "version": "0.8.12",
+      "tag": "@yuants/exchange_v0.8.12",
+      "date": "Sun, 11 Jan 2026 00:09:14 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add ledger type"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.8.11",
       "tag": "@yuants/exchange_v0.8.11",
       "date": "Tue, 06 Jan 2026 17:23:41 GMT",

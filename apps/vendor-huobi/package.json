@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-huobi",
-  "version": "0.19.0",
+  "version": "0.19.1",
   "main": "lib/index.js",
   "files": [
     "dist",

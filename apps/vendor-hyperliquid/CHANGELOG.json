@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-hyperliquid",
   "entries": [
     {
+      "version": "0.10.1",
+      "tag": "@yuants/vendor-hyperliquid_v0.10.1",
+      "date": "Sun, 11 Jan 2026 00:09:15 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.12`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.10.0",
       "tag": "@yuants/vendor-hyperliquid_v0.10.0",
       "date": "Wed, 07 Jan 2026 12:14:06 GMT",
