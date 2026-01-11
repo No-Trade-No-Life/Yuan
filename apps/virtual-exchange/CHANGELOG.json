@@ -2,6 +2,23 @@
   "name": "@yuants/app-virtual-exchange",
   "entries": [
     {
+      "version": "0.18.9",
+      "tag": "@yuants/app-virtual-exchange_v0.18.9",
+      "date": "Sun, 11 Jan 2026 00:09:14 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.12`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.18.8",
       "tag": "@yuants/app-virtual-exchange_v0.18.8",
       "date": "Thu, 08 Jan 2026 06:07:44 GMT",
