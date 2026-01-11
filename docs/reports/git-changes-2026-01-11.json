@@ -1,0 +1,503 @@
+{
+  "range": {
+    "old": "77191443707a8a61986eb1bd88a2c42403c027b3",
+    "new": "6d44b32d268805f72dc6af004841497cddac25d3",
+    "label": "771914437..6d44b32d2",
+    "startDate": "2026-01-11",
+    "endDate": "2026-01-11",
+    "commitCount": 1,
+    "generatedAt": "2026-01-11T00:06:31.518Z"
+  },
+  "contributors": [
+    {
+      "name": "Ryan",
+      "email": "stayrealrhr@gmail.com",
+      "commits": 1
+    }
+  ],
+  "directoryAnalysis": {
+    "topLevel": [
+      {
+        "dir": "common",
+        "fileCount": 7
+      },
+      {
+        "dir": "apps",
+        "fileCount": 6
+      },
+      {
+        "dir": "libraries",
+        "fileCount": 2
+      }
+    ],
+    "projects": [
+      {
+        "project": "common",
+        "fileCount": 7,
+        "marker": null
+      },
+      {
+        "project": "libraries/exchange",
+        "fileCount": 2,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-aster",
+        "fileCount": 1,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-binance",
+        "fileCount": 1,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-bitget",
+        "fileCount": 1,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-gate",
+        "fileCount": 1,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-huobi",
+        "fileCount": 1,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-okx",
+        "fileCount": 1,
+        "marker": "package.json"
+      }
+    ],
+    "markersUsed": [
+      "package.json",
+      "Cargo.toml",
+      "go.mod",
+      "requirements.txt",
+      "pyproject.toml",
+      "setup.py",
+      "pom.xml",
+      "build.gradle",
+      "build.gradle.kts",
+      "CMakeLists.txt",
+      "Makefile",
+      "pubspec.yaml",
+      "mix.exs",
+      "Gemfile",
+      "composer.json"
+    ]
+  },
+  "commits": [
+    {
+      "hash": "6d44b32d268805f72dc6af004841497cddac25d3",
+      "short": "6d44b32d2",
+      "author": "Ryan",
+      "email": "stayrealrhr@gmail.com",
+      "authoredAt": "2026-01-11 07:04:33 +0800",
+      "subject": "add ledger type (#2488)",
+      "conventionalCommit": {
+        "type": "other",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 24,
+          "deletions": 21,
+          "path": "apps/vendor-aster/src/services/interest-ledger-service.ts",
+          "changeType": "modified",
+          "patch": "commit 6d44b32d268805f72dc6af004841497cddac25d3\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sun Jan 11 07:04:33 2026 +0800\n\n    add ledger type (#2488)\n\ndiff --git a/apps/vendor-aster/src/services/interest-ledger-service.ts b/apps/vendor-aster/src/services/interest-ledger-service.ts\nindex 899b26188..f6c16a1ca 100644\n--- a/apps/vendor-aster/src/services/interest-ledger-service.ts\n+++ b/apps/vendor-aster/src/services/interest-ledger-service.ts\n@@ -22,21 +22,23 @@ const fetchInterestRateLedgerForward = async (req: {\n-  const params = {\n-    startTime: req.time,\n-    endTime: req.time + WINDOW_MS,\n-    limit: 10,\n-    incomeType: req.ledger_type,\n-    timestamp: Date.now(),\n-  };\n-  const res = await getAccountIncome(req.credential.payload, params);\n-  return (res ?? [])\n-    .map((v): IInterestLedger => {\n-      const ms = Number(v.time);\n-      return {\n-        id: v.tranId,\n-        product_id: encodePath('ASTER', 'PERP', v.symbol),\n-        amount: v.income,\n-        account_id: req.account_id,\n-        currency: v.asset,\n-        created_at: formatTime(ms),\n-      } as IInterestLedger;\n-    })\n-    .filter((x) => Date.parse(x.created_at!) >= req.time);\n+  if (req.ledger_type === 'FUNDING_FEE') {\n+    const params = {\n+      startTime: req.time,\n+      endTime: req.time + WINDOW_MS,\n+      incomeType: 'FUNDING_FEE',\n+      timestamp: Date.now(),\n+    };\n+    const res = await getAccountIncome(req.credential.payload, params);\n+    return (res ?? [])\n+      .map((v): IInterestLedger => {\n+        const ms = Number(v.time);\n+        return {\n+          id: v.tranId,\n+          product_id: encodePath('ASTER', 'PERP', v.symbol),\n+          amount: v.income,\n+          account_id: req.account_id,\n+          currency: v.asset,\n+          created_at: formatTime(ms),\n+        } as IInterestLedger;\n+      })\n+      .filter((x) => Date.parse(x.created_at!) >= req.time);\n+  }\n+  return [];\n@@ -49,0 +52 @@ provideInterestLedgerService(\n+    ledger_type: ['FUNDING_FEE'],\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "params",
+              "code": "const params = {\n  startTime: req.time,\n  endTime: req.time + WINDOW_MS,\n  incomeType: 'FUNDING_FEE',\n  timestamp: Date.now(),\n};",
+              "lineStart": 23,
+              "lineEnd": 28
+            },
+            {
+              "type": "function",
+              "name": "res",
+              "code": "const res = await getAccountIncome(req.credential.payload, params);\nreturn (res ?? [])\n  .map((v): IInterestLedger => {",
+              "lineStart": 29,
+              "lineEnd": 31
+            },
+            {
+              "type": "function",
+              "name": "ms",
+              "code": "      const ms = Number(v.time);\n      return {\n        id: v.tranId,\n        product_id: encodePath('ASTER', 'PERP', v.symbol),\n        amount: v.income,\n        account_id: req.account_id,\n        currency: v.asset,\n        created_at: formatTime(ms),\n      } as IInterestLedger;\n    })\n    .filter((x) => Date.parse(x.created_at!) >= req.time);\n}\nreturn [];\n  ledger_type: ['FUNDING_FEE'],",
+              "lineStart": 32,
+              "lineEnd": 53
+            }
+          ]
+        },
+        {
+          "additions": 26,
+          "deletions": 23,
+          "path": "apps/vendor-binance/src/services/interest-ledger.ts",
+          "changeType": "modified",
+          "patch": "commit 6d44b32d268805f72dc6af004841497cddac25d3\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sun Jan 11 07:04:33 2026 +0800\n\n    add ledger type (#2488)\n\ndiff --git a/apps/vendor-binance/src/services/interest-ledger.ts b/apps/vendor-binance/src/services/interest-ledger.ts\nindex 6f741ced3..14fd0d45a 100644\n--- a/apps/vendor-binance/src/services/interest-ledger.ts\n+++ b/apps/vendor-binance/src/services/interest-ledger.ts\n@@ -3 +3 @@ import { Terminal } from '@yuants/protocol';\n-import { formatTime } from '@yuants/utils';\n+import { encodePath, formatTime } from '@yuants/utils';\n@@ -14 +14 @@ const terminal = Terminal.fromNodeEnv();\n-const WINDOW_MS = 365 * 24 * 3600_000;\n+const WINDOW_MS = 10 * 24 * 3600_000;\n@@ -22,21 +22,23 @@ const fetchInterestRateLedgerForward = async (req: {\n-  const startTime = req.time;\n-  const res = await getAccountIncome(req.credential.payload, {\n-    startTime,\n-    endTime: startTime + WINDOW_MS,\n-    limit: 1,\n-    incomeType: req.ledger_type,\n-  });\n-  console.log({ where: 'Here', res });\n-  return (res ?? [])\n-    .map((v): IInterestLedger => {\n-      const ms = Number(v.time);\n-      return {\n-        id: v.tranId,\n-        product_id: v.symbol,\n-        amount: v.income,\n-        account_id: req.account_id,\n-        currency: v.asset,\n-        created_at: formatTime(ms),\n-      } as IInterestLedger;\n-    })\n-    .filter((x) => Date.parse(x.created_at!) >= startTime);\n+  if (req.ledger_type === 'FUNDING_FEE') {\n+    const startTime = req.time;\n+    const res = await getAccountIncome(req.credential.payload, {\n+      startTime,\n+      endTime: startTime + WINDOW_MS,\n+      limit: 1,\n+      incomeType: 'FUNDING_FEE',\n+    });\n+    return (res ?? [])\n+      .map((v): IInterestLedger => {\n+        const ms = Number(v.time);\n+        return {\n+          id: v.tranId,\n+          product_id: encodePath('BINANCE', 'USDT-FUTURE', v.symbol),\n+          amount: v.income,\n+          account_id: req.account_id,\n+          currency: v.asset,\n+          created_at: formatTime(ms),\n+        } as IInterestLedger;\n+      })\n+      .filter((x) => Date.parse(x.created_at!) >= startTime);\n+  }\n+  return [];\n@@ -49,0 +52 @@ provideInterestLedgerService(\n+    ledger_type: ['FUNDING_FEE'],\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "WINDOW_MS",
+              "code": "const WINDOW_MS = 10 * 24 * 3600_000;\n  if (req.ledger_type === 'FUNDING_FEE') {",
+              "lineStart": 14,
+              "lineEnd": 22
+            },
+            {
+              "type": "function",
+              "name": "startTime",
+              "code": "const startTime = req.time;",
+              "lineStart": 23,
+              "lineEnd": 23
+            },
+            {
+              "type": "function",
+              "name": "res",
+              "code": "const res = await getAccountIncome(req.credential.payload, {\n  startTime,\n  endTime: startTime + WINDOW_MS,\n  limit: 1,\n  incomeType: 'FUNDING_FEE',\n});\nreturn (res ?? [])\n  .map((v): IInterestLedger => {",
+              "lineStart": 24,
+              "lineEnd": 31
+            },
+            {
+              "type": "function",
+              "name": "ms",
+              "code": "      const ms = Number(v.time);\n      return {\n        id: v.tranId,\n        product_id: encodePath('BINANCE', 'USDT-FUTURE', v.symbol),\n        amount: v.income,\n        account_id: req.account_id,\n        currency: v.asset,\n        created_at: formatTime(ms),\n      } as IInterestLedger;\n    })\n    .filter((x) => Date.parse(x.created_at!) >= startTime);\n}\nreturn [];\n  ledger_type: ['FUNDING_FEE'],",
+              "lineStart": 32,
+              "lineEnd": 53
+            }
+          ]
+        },
+        {
+          "additions": 42,
+          "deletions": 22,
+          "path": "apps/vendor-bitget/src/services/interest-ledger-service.ts",
+          "changeType": "modified",
+          "patch": "commit 6d44b32d268805f72dc6af004841497cddac25d3\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sun Jan 11 07:04:33 2026 +0800\n\n    add ledger type (#2488)\n\ndiff --git a/apps/vendor-bitget/src/services/interest-ledger-service.ts b/apps/vendor-bitget/src/services/interest-ledger-service.ts\nindex 2f63a5940..f50bef9f2 100644\n--- a/apps/vendor-bitget/src/services/interest-ledger-service.ts\n+++ b/apps/vendor-bitget/src/services/interest-ledger-service.ts\n@@ -14,2 +14 @@ const terminal = Terminal.fromNodeEnv();\n-const WINDOW_MS = 20 * 24 * 3600_000;\n-\n+const WINDOW_MS = 10 * 24 * 3600_000;\n@@ -22,20 +21,40 @@ const fetchInterestRateLedgerBackward = async (req: {\n-  const params = {\n-    category: 'USDT-FUTURES',\n-    endTime: req.time.toString(),\n-    startTime: (req.time - WINDOW_MS).toString(),\n-    type: req.ledger_type,\n-  };\n-  const res = await getAccountFinancialRecords(req.credential.payload, params);\n-  return (res.data.list ?? [])\n-    .map((v): IInterestLedger => {\n-      const ms = Number(v.ts);\n-      return {\n-        id: v.id,\n-        product_id: encodePath('BITGET', 'USDT-FUTURES', v.symbol),\n-        amount: v.amount,\n-        account_id: req.account_id,\n-        currency: v.coin,\n-        created_at: formatTime(ms),\n-      } as IInterestLedger;\n-    })\n-    .filter((x) => Date.parse(x.created_at!) <= req.time);\n+  if (req.ledger_type === 'FUNDING_FEE') {\n+    const params = {\n+      category: 'USDT-FUTURES',\n+      endTime: req.time.toString(),\n+      startTime: (req.time - WINDOW_MS).toString(),\n+      type: 'CONTRACT_MAIN_SETTLE_FEE_USER_IN',\n+    };\n+    const outParams = {\n+      category: 'USDT-FUTURES',\n+      endTime: req.time.toString(),\n+      startTime: (req.time - WINDOW_MS).toString(),\n+      type: 'CONTRACT_MAIN_SETTLE_FEE_USER_OUT',\n+    };\n+    const [res, outRes] = await Promise.all([\n+      getAccountFinancialRecords(req.credential.payload, params),\n+      getAccountFinancialRecords(req.credential.payload, outParams),\n+    ]);\n+    const lastInRecord = res.data.list?.[(res.data.list?.length ?? 0) - 1];\n+    const lastOutRecord = outRes.data.list?.[(outRes.data.list?.length ?? 0) - 1];\n+    const minStartTime = Math.min(\n+      Number(lastInRecord?.ts ?? req.time),\n+      Number(lastOutRecord?.ts ?? req.time),\n+    );\n+    const filteredInRecord = res.data.list?.filter((v) => Number(v.ts) >= minStartTime);\n+    const filteredOutRecord = outRes.data.list?.filter((v) => Number(v.ts) >= minStartTime);\n+    return [...filteredInRecord, ...filteredOutRecord]\n+      .map((v): IInterestLedger => {\n+        const ms = Number(v.ts);\n+        return {\n+          id: v.id,\n+          product_id: encodePath('BITGET', 'USDT-FUTURES', v.symbol),\n+          amount: v.amount,\n+          account_id: req.account_id,\n+          currency: v.coin,\n+          created_at: formatTime(ms),\n+        } as IInterestLedger;\n+      })\n+      .filter((x) => Date.parse(x.created_at!) <= req.time);\n+  }\n+  return [];\n@@ -48,0 +68 @@ provideInterestLedgerService(\n+    ledger_type: ['FUNDING_FEE'],\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "WINDOW_MS",
+              "code": "const WINDOW_MS = 10 * 24 * 3600_000;\n  if (req.ledger_type === 'FUNDING_FEE') {",
+              "lineStart": 14,
+              "lineEnd": 21
+            },
+            {
+              "type": "function",
+              "name": "params",
+              "code": "const params = {\n  category: 'USDT-FUTURES',\n  endTime: req.time.toString(),\n  startTime: (req.time - WINDOW_MS).toString(),\n  type: 'CONTRACT_MAIN_SETTLE_FEE_USER_IN',\n};",
+              "lineStart": 22,
+              "lineEnd": 27
+            },
+            {
+              "type": "function",
+              "name": "outParams",
+              "code": "const outParams = {\n  category: 'USDT-FUTURES',\n  endTime: req.time.toString(),\n  startTime: (req.time - WINDOW_MS).toString(),\n  type: 'CONTRACT_MAIN_SETTLE_FEE_USER_OUT',\n};\nconst [res, outRes] = await Promise.all([\n  getAccountFinancialRecords(req.credential.payload, params),\n  getAccountFinancialRecords(req.credential.payload, outParams),\n]);",
+              "lineStart": 28,
+              "lineEnd": 37
+            },
+            {
+              "type": "function",
+              "name": "lastInRecord",
+              "code": "const lastInRecord = res.data.list?.[(res.data.list?.length ?? 0) - 1];",
+              "lineStart": 38,
+              "lineEnd": 38
+            },
+            {
+              "type": "function",
+              "name": "lastOutRecord",
+              "code": "const lastOutRecord = outRes.data.list?.[(outRes.data.list?.length ?? 0) - 1];",
+              "lineStart": 39,
+              "lineEnd": 39
+            },
+            {
+              "type": "function",
+              "name": "minStartTime",
+              "code": "const minStartTime = Math.min(\n  Number(lastInRecord?.ts ?? req.time),\n  Number(lastOutRecord?.ts ?? req.time),\n);",
+              "lineStart": 40,
+              "lineEnd": 43
+            },
+            {
+              "type": "function",
+              "name": "filteredInRecord",
+              "code": "const filteredInRecord = res.data.list?.filter((v) => Number(v.ts) >= minStartTime);",
+              "lineStart": 44,
+              "lineEnd": 44
+            },
+            {
+              "type": "function",
+              "name": "filteredOutRecord",
+              "code": "const filteredOutRecord = outRes.data.list?.filter((v) => Number(v.ts) >= minStartTime);\nreturn [...filteredInRecord, ...filteredOutRecord]\n  .map((v): IInterestLedger => {",
+              "lineStart": 45,
+              "lineEnd": 47
+            },
+            {
+              "type": "function",
+              "name": "ms",
+              "code": "      const ms = Number(v.ts);\n      return {\n        id: v.id,\n        product_id: encodePath('BITGET', 'USDT-FUTURES', v.symbol),\n        amount: v.amount,\n        account_id: req.account_id,\n        currency: v.coin,\n        created_at: formatTime(ms),\n      } as IInterestLedger;\n    })\n    .filter((x) => Date.parse(x.created_at!) <= req.time);\n}\nreturn [];\n  ledger_type: ['FUNDING_FEE'],",
+              "lineStart": 48,
+              "lineEnd": 69
+            }
+          ]
+        },
+        {
+          "additions": 26,
+          "deletions": 23,
+          "path": "apps/vendor-gate/src/services/interest-ledger-service.ts",
+          "changeType": "modified",
+          "patch": "commit 6d44b32d268805f72dc6af004841497cddac25d3\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sun Jan 11 07:04:33 2026 +0800\n\n    add ledger type (#2488)\n\ndiff --git a/apps/vendor-gate/src/services/interest-ledger-service.ts b/apps/vendor-gate/src/services/interest-ledger-service.ts\nindex 5d4e55648..3258551dd 100644\n--- a/apps/vendor-gate/src/services/interest-ledger-service.ts\n+++ b/apps/vendor-gate/src/services/interest-ledger-service.ts\n@@ -14,2 +14 @@ const terminal = Terminal.fromNodeEnv();\n-const WINDOW_MS = 10 * 24 * 3600_000;\n-\n+const WINDOW_MS = 2 * 24 * 3600_000;\n@@ -22,21 +21,24 @@ const fetchInterestRateLedgerBackward = async (req: {\n-  const params = {\n-    settle: 'usdt',\n-    to: ~~(req.time / 1000),\n-    from: ~~((req.time - WINDOW_MS) / 1000),\n-    limit: 100,\n-    type: req.ledger_type,\n-  };\n-  const res = await getFutureAccountsBook(req.credential.payload, params);\n-  return (res ?? [])\n-    .map((v): IInterestLedger => {\n-      const ms = Number(v.time * 1000);\n-      return {\n-        id: v.id,\n-        product_id: encodePath('GATE', 'FUTURE', v.contract),\n-        amount: v.change,\n-        account_id: req.account_id,\n-        currency: 'USDT',\n-        created_at: formatTime(ms),\n-      } as IInterestLedger;\n-    })\n-    .filter((x) => Date.parse(x.created_at!) <= req.time);\n+  if (req.ledger_type === 'FUNDING_FEE') {\n+    const params = {\n+      settle: 'usdt',\n+      to: ~~(req.time / 1000),\n+      from: ~~((req.time - WINDOW_MS) / 1000),\n+      limit: 100,\n+      type: 'fund',\n+    };\n+    const res = await getFutureAccountsBook(req.credential.payload, params);\n+    return (res ?? [])\n+      .map((v): IInterestLedger => {\n+        const ms = Number(v.time * 1000);\n+        return {\n+          id: v.id,\n+          product_id: encodePath('GATE', 'FUTURE', v.contract),\n+          amount: v.change,\n+          account_id: req.account_id,\n+          currency: 'USDT',\n+          created_at: formatTime(ms),\n+        } as IInterestLedger;\n+      })\n+      .filter((x) => Date.parse(x.created_at!) <= req.time);\n+  }\n+  return [];\n@@ -49,0 +52 @@ provideInterestLedgerService(\n+    ledger_type: ['FUNDING_FEE'],\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "WINDOW_MS",
+              "code": "const WINDOW_MS = 2 * 24 * 3600_000;\n  if (req.ledger_type === 'FUNDING_FEE') {",
+              "lineStart": 14,
+              "lineEnd": 21
+            },
+            {
+              "type": "function",
+              "name": "params",
+              "code": "const params = {\n  settle: 'usdt',\n  to: ~~(req.time / 1000),\n  from: ~~((req.time - WINDOW_MS) / 1000),\n  limit: 100,\n  type: 'fund',\n};",
+              "lineStart": 22,
+              "lineEnd": 28
+            },
+            {
+              "type": "function",
+              "name": "res",
+              "code": "const res = await getFutureAccountsBook(req.credential.payload, params);\nreturn (res ?? [])\n  .map((v): IInterestLedger => {",
+              "lineStart": 29,
+              "lineEnd": 31
+            },
+            {
+              "type": "function",
+              "name": "ms",
+              "code": "      const ms = Number(v.time * 1000);\n      return {\n        id: v.id,\n        product_id: encodePath('GATE', 'FUTURE', v.contract),\n        amount: v.change,\n        account_id: req.account_id,\n        currency: 'USDT',\n        created_at: formatTime(ms),\n      } as IInterestLedger;\n    })\n    .filter((x) => Date.parse(x.created_at!) <= req.time);\n}\nreturn [];\n  ledger_type: ['FUNDING_FEE'],",
+              "lineStart": 32,
+              "lineEnd": 53
+            }
+          ]
+        },
+        {
+          "additions": 50,
+          "deletions": 43,
+          "path": "apps/vendor-huobi/src/services/interest-ledger-service.ts",
+          "changeType": "modified",
+          "patch": "commit 6d44b32d268805f72dc6af004841497cddac25d3\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sun Jan 11 07:04:33 2026 +0800\n\n    add ledger type (#2488)\n\ndiff --git a/apps/vendor-huobi/src/services/interest-ledger-service.ts b/apps/vendor-huobi/src/services/interest-ledger-service.ts\nindex 496a28290..46bf97baa 100644\n--- a/apps/vendor-huobi/src/services/interest-ledger-service.ts\n+++ b/apps/vendor-huobi/src/services/interest-ledger-service.ts\n@@ -22,21 +22,24 @@ const fetchInterestRateLedgerBackward = async (req: {\n-  const params = {\n-    end_time: req.time,\n-    start_time: req.time - WINDOW_MS,\n-    type: req.ledger_type,\n-    direct: 'prev',\n-    mar_acct: 'USDT',\n-  };\n-  const res = await getAccountFinancialRecordExact(req.credential.payload, params);\n-  return (res.data ?? [])\n-    .map((v): IInterestLedger => {\n-      const ms = v.ts;\n-      return {\n-        id: v.id.toString(),\n-        product_id: encodePath('HTX', 'SWAP', v.contract_code),\n-        amount: v.amount.toString(),\n-        account_id: req.account_id,\n-        currency: v.asset,\n-        created_at: formatTime(ms),\n-      } as IInterestLedger;\n-    })\n-    .filter((x) => Date.parse(x.created_at!) <= req.time);\n+  if (req.ledger_type === 'FUNDING_FEE') {\n+    const params = {\n+      end_time: req.time,\n+      start_time: req.time - WINDOW_MS,\n+      type: '30,31',\n+      direct: 'prev',\n+      mar_acct: 'USDT',\n+    };\n+    const res = await getAccountFinancialRecordExact(req.credential.payload, params);\n+    return (res.data ?? [])\n+      .map((v): IInterestLedger => {\n+        const ms = v.ts;\n+        return {\n+          id: v.id.toString(),\n+          product_id: encodePath('HTX', 'SWAP', v.contract_code),\n+          amount: v.amount.toString(),\n+          account_id: req.account_id,\n+          currency: v.asset,\n+          created_at: formatTime(ms),\n+        } as IInterestLedger;\n+      })\n+      .filter((x) => Date.parse(x.created_at!) <= req.time);\n+  }\n+  return [];\n@@ -51,22 +54,24 @@ const fetchInterestRateLedgerForward = async (req: {\n-  const params = {\n-    end_time: req.time,\n-    start_time: req.time - WINDOW_MS,\n-    type: req.ledger_type,\n-    direct: 'next',\n-    mar_acct: 'USDT',\n-  };\n-  const res = await getAccountFinancialRecordExact(req.credential.payload, params);\n-\n-  return (res.data ?? [])\n-    .map((v): IInterestLedger => {\n-      const ms = v.ts;\n-      return {\n-        id: v.id.toString(),\n-        product_id: encodePath('HTX', 'SWAP', v.contract_code),\n-        amount: v.amount.toString(),\n-        account_id: req.account_id,\n-        currency: v.asset,\n-        created_at: formatTime(ms),\n-      } as IInterestLedger;\n-    })\n-    .filter((x) => Date.parse(x.created_at!) >= params.start_time);\n+  if (req.ledger_type === 'FUNDING_FEE') {\n+    const params = {\n+      end_time: req.time,\n+      start_time: req.time - WINDOW_MS,\n+      type: '30,31',\n+      direct: 'next',\n+      mar_acct: 'USDT',\n+    };\n+    const res = await getAccountFinancialRecordExact(req.credential.payload, params);\n+    return (res.data ?? [])\n+      .map((v): IInterestLedger => {\n+        const ms = v.ts;\n+        return {\n+          id: v.id.toString(),\n+          product_id: encodePath('HTX', 'SWAP', v.contract_code),\n+          amount: v.amount.toString(),\n+          account_id: req.account_id,\n+          currency: v.asset,\n+          created_at: formatTime(ms),\n+        } as IInterestLedger;\n+      })\n+      .filter((x) => Date.parse(x.created_at!) >= params.start_time);\n+  }\n+  return [];\n@@ -79,0 +85 @@ provideInterestLedgerService(\n+    ledger_type: ['FUNDING_FEE'],\n@@ -88,0 +95 @@ provideInterestLedgerService(\n+    ledger_type: ['FUNDING_FEE'],\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "params",
+              "code": "const params = {\n  end_time: req.time,\n  start_time: req.time - WINDOW_MS,\n  type: '30,31',\n  direct: 'prev',\n  mar_acct: 'USDT',\n};",
+              "lineStart": 23,
+              "lineEnd": 29
+            },
+            {
+              "type": "function",
+              "name": "res",
+              "code": "const res = await getAccountFinancialRecordExact(req.credential.payload, params);\nreturn (res.data ?? [])\n  .map((v): IInterestLedger => {",
+              "lineStart": 30,
+              "lineEnd": 32
+            },
+            {
+              "type": "function",
+              "name": "ms",
+              "code": "      const ms = v.ts;\n      return {\n        id: v.id.toString(),\n        product_id: encodePath('HTX', 'SWAP', v.contract_code),\n        amount: v.amount.toString(),\n        account_id: req.account_id,\n        currency: v.asset,\n        created_at: formatTime(ms),\n      } as IInterestLedger;\n    })\n    .filter((x) => Date.parse(x.created_at!) <= req.time);\n}\nreturn [];\nif (req.ledger_type === 'FUNDING_FEE') {",
+              "lineStart": 33,
+              "lineEnd": 54
+            },
+            {
+              "type": "function",
+              "name": "params",
+              "code": "const params = {\n  end_time: req.time,\n  start_time: req.time - WINDOW_MS,\n  type: '30,31',\n  direct: 'next',\n  mar_acct: 'USDT',\n};",
+              "lineStart": 55,
+              "lineEnd": 61
+            },
+            {
+              "type": "function",
+              "name": "res",
+              "code": "const res = await getAccountFinancialRecordExact(req.credential.payload, params);\nreturn (res.data ?? [])\n  .map((v): IInterestLedger => {",
+              "lineStart": 62,
+              "lineEnd": 64
+            },
+            {
+              "type": "function",
+              "name": "ms",
+              "code": "      const ms = v.ts;\n      return {\n        id: v.id.toString(),\n        product_id: encodePath('HTX', 'SWAP', v.contract_code),\n        amount: v.amount.toString(),\n        account_id: req.account_id,\n        currency: v.asset,\n        created_at: formatTime(ms),\n      } as IInterestLedger;\n    })\n    .filter((x) => Date.parse(x.created_at!) >= params.start_time);\n}\nreturn [];\n  ledger_type: ['FUNDING_FEE'],\n  ledger_type: ['FUNDING_FEE'],",
+              "lineStart": 65,
+              "lineEnd": 96
+            }
+          ]
+        },
+        {
+          "additions": 23,
+          "deletions": 19,
+          "path": "apps/vendor-okx/src/services/interest-ledger-service.ts",
+          "changeType": "modified",
+          "patch": "commit 6d44b32d268805f72dc6af004841497cddac25d3\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sun Jan 11 07:04:33 2026 +0800\n\n    add ledger type (#2488)\n\ndiff --git a/apps/vendor-okx/src/services/interest-ledger-service.ts b/apps/vendor-okx/src/services/interest-ledger-service.ts\nindex c941cc7cb..de20b615a 100644\n--- a/apps/vendor-okx/src/services/interest-ledger-service.ts\n+++ b/apps/vendor-okx/src/services/interest-ledger-service.ts\n@@ -22,19 +22,22 @@ const fetchInterestRateLedgerBackward = async (req: {\n-  const params: Record<string, string | number> = {};\n-  params.end = req.time.toString();\n-  params.begin = (req.time - WINDOW_MS).toString();\n-  params.limit = 100;\n-  params.type = req.ledger_type;\n-  const res = await getAccountBillsArchive(req.credential.payload, params);\n-  return (res.data ?? [])\n-    .map((v): IInterestLedger => {\n-      const ms = Number(v.ts);\n-      return {\n-        id: v.billId,\n-        product_id: encodePath('OKX', v.instType, v.instId),\n-        amount: v.balChg,\n-        account_id: req.account_id,\n-        currency: v.ccy,\n-        created_at: formatTime(ms),\n-      } as IInterestLedger;\n-    })\n-    .filter((x) => Date.parse(x.created_at!) <= req.time);\n+  if (req.ledger_type === 'FUNDING_FEE') {\n+    const params: Record<string, string | number> = {};\n+    params.end = req.time.toString();\n+    params.begin = (req.time - WINDOW_MS).toString();\n+    params.limit = 100;\n+    params.type = '8';\n+    const res = await getAccountBillsArchive(req.credential.payload, params);\n+    return (res.data ?? [])\n+      .map((v): IInterestLedger => {\n+        const ms = Number(v.ts);\n+        return {\n+          id: v.billId,\n+          product_id: encodePath('OKX', v.instType, v.instId),\n+          amount: v.balChg,\n+          account_id: req.account_id,\n+          currency: v.ccy,\n+          created_at: formatTime(ms),\n+        } as IInterestLedger;\n+      })\n+      .filter((x) => Date.parse(x.created_at!) <= req.time);\n+  }\n+  return [];\n@@ -47,0 +51 @@ provideInterestLedgerService(\n+    ledger_type: ['FUNDING_FEE'],\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "params",
+              "code": "const params: Record<string, string | number> = {};\nparams.end = req.time.toString();\nparams.begin = (req.time - WINDOW_MS).toString();\nparams.limit = 100;\nparams.type = '8';",
+              "lineStart": 23,
+              "lineEnd": 27
+            },
+            {
+              "type": "function",
+              "name": "res",
+              "code": "const res = await getAccountBillsArchive(req.credential.payload, params);\nreturn (res.data ?? [])\n  .map((v): IInterestLedger => {",
+              "lineStart": 28,
+              "lineEnd": 30
+            },
+            {
+              "type": "function",
+              "name": "ms",
+              "code": "      const ms = Number(v.ts);\n      return {\n        id: v.billId,\n        product_id: encodePath('OKX', v.instType, v.instId),\n        amount: v.balChg,\n        account_id: req.account_id,\n        currency: v.ccy,\n        created_at: formatTime(ms),\n      } as IInterestLedger;\n    })\n    .filter((x) => Date.parse(x.created_at!) <= req.time);\n}\nreturn [];\n  ledger_type: ['FUNDING_FEE'],",
+              "lineStart": 31,
+              "lineEnd": 52
+            }
+          ]
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/exchange/2026-01-10-23-01.json",
+          "changeType": "added",
+          "patch": "commit 6d44b32d268805f72dc6af004841497cddac25d3\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sun Jan 11 07:04:33 2026 +0800\n\n    add ledger type (#2488)\n\ndiff --git a/common/changes/@yuants/exchange/2026-01-10-23-01.json b/common/changes/@yuants/exchange/2026-01-10-23-01.json\nnew file mode 100644\nindex 000000000..5d95ad49e\n--- /dev/null\n+++ b/common/changes/@yuants/exchange/2026-01-10-23-01.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/exchange\",\n+      \"comment\": \"add ledger type\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/exchange\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-aster/2026-01-10-23-01.json",
+          "changeType": "added",
+          "patch": "commit 6d44b32d268805f72dc6af004841497cddac25d3\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sun Jan 11 07:04:33 2026 +0800\n\n    add ledger type (#2488)\n\ndiff --git a/common/changes/@yuants/vendor-aster/2026-01-10-23-01.json b/common/changes/@yuants/vendor-aster/2026-01-10-23-01.json\nnew file mode 100644\nindex 000000000..c2ce4cbe8\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-aster/2026-01-10-23-01.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-aster\",\n+      \"comment\": \"add ledger type\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-aster\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-binance/2026-01-10-23-01.json",
+          "changeType": "added",
+          "patch": "commit 6d44b32d268805f72dc6af004841497cddac25d3\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sun Jan 11 07:04:33 2026 +0800\n\n    add ledger type (#2488)\n\ndiff --git a/common/changes/@yuants/vendor-binance/2026-01-10-23-01.json b/common/changes/@yuants/vendor-binance/2026-01-10-23-01.json\nnew file mode 100644\nindex 000000000..459370621\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-binance/2026-01-10-23-01.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-binance\",\n+      \"comment\": \"add ledger type\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-binance\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-bitget/2026-01-10-23-01.json",
+          "changeType": "added",
+          "patch": "commit 6d44b32d268805f72dc6af004841497cddac25d3\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sun Jan 11 07:04:33 2026 +0800\n\n    add ledger type (#2488)\n\ndiff --git a/common/changes/@yuants/vendor-bitget/2026-01-10-23-01.json b/common/changes/@yuants/vendor-bitget/2026-01-10-23-01.json\nnew file mode 100644\nindex 000000000..141c752ab\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-bitget/2026-01-10-23-01.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-bitget\",\n+      \"comment\": \"add ledger type\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-bitget\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-gate/2026-01-10-23-01.json",
+          "changeType": "added",
+          "patch": "commit 6d44b32d268805f72dc6af004841497cddac25d3\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sun Jan 11 07:04:33 2026 +0800\n\n    add ledger type (#2488)\n\ndiff --git a/common/changes/@yuants/vendor-gate/2026-01-10-23-01.json b/common/changes/@yuants/vendor-gate/2026-01-10-23-01.json\nnew file mode 100644\nindex 000000000..cbccde04d\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-gate/2026-01-10-23-01.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-gate\",\n+      \"comment\": \"add ledger type\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-gate\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-huobi/2026-01-10-23-01.json",
+          "changeType": "added",
+          "patch": "commit 6d44b32d268805f72dc6af004841497cddac25d3\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sun Jan 11 07:04:33 2026 +0800\n\n    add ledger type (#2488)\n\ndiff --git a/common/changes/@yuants/vendor-huobi/2026-01-10-23-01.json b/common/changes/@yuants/vendor-huobi/2026-01-10-23-01.json\nnew file mode 100644\nindex 000000000..fd2496de1\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-huobi/2026-01-10-23-01.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-huobi\",\n+      \"comment\": \"add ledger type\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-huobi\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/2026-01-10-23-01.json",
+          "changeType": "added",
+          "patch": "commit 6d44b32d268805f72dc6af004841497cddac25d3\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sun Jan 11 07:04:33 2026 +0800\n\n    add ledger type (#2488)\n\ndiff --git a/common/changes/@yuants/vendor-okx/2026-01-10-23-01.json b/common/changes/@yuants/vendor-okx/2026-01-10-23-01.json\nnew file mode 100644\nindex 000000000..a14f86b48\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-okx/2026-01-10-23-01.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-okx\",\n+      \"comment\": \"add ledger type\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-okx\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 0,
+          "path": "libraries/exchange/etc/exchange.api.md",
+          "changeType": "added",
+          "patch": "commit 6d44b32d268805f72dc6af004841497cddac25d3\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sun Jan 11 07:04:33 2026 +0800\n\n    add ledger type (#2488)\n\ndiff --git a/libraries/exchange/etc/exchange.api.md b/libraries/exchange/etc/exchange.api.md\nindex 3a5f30aee..1e04c32d3 100644\n--- a/libraries/exchange/etc/exchange.api.md\n+++ b/libraries/exchange/etc/exchange.api.md\n@@ -161,0 +162 @@ export const provideInterestLedgerService: (terminal: Terminal, metadata: {\n+    ledger_type: string[];\r\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 2,
+          "deletions": 2,
+          "path": "libraries/exchange/src/interest_rate.ts",
+          "changeType": "modified",
+          "patch": "commit 6d44b32d268805f72dc6af004841497cddac25d3\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Sun Jan 11 07:04:33 2026 +0800\n\n    add ledger type (#2488)\n\ndiff --git a/libraries/exchange/src/interest_rate.ts b/libraries/exchange/src/interest_rate.ts\nindex 836f77334..b45eed424 100644\n--- a/libraries/exchange/src/interest_rate.ts\n+++ b/libraries/exchange/src/interest_rate.ts\n@@ -228 +228 @@ export const provideInterestLedgerService = (\n-  metadata: { direction: string; type: string },\n+  metadata: { direction: string; type: string; ledger_type: string[] },\n@@ -241 +241 @@ export const provideInterestLedgerService = (\n-        ledger_type: { type: 'string' },\n+        ledger_type: { type: 'string', enum: metadata.ledger_type },\n",
+          "codeSnippets": []
+        }
+      ]
+    }
+  ],
+  "analysis": {
+    "domains": [
+      {
+        "name": "接口重构",
+        "commits": [
+          "6d44b32d2"
+        ],
+        "files": [
+          "apps/vendor-aster/src/services/interest-ledger-service.ts",
+          "apps/vendor-binance/src/services/interest-ledger.ts",
+          "apps/vendor-bitget/src/services/interest-ledger-service.ts",
+          "apps/vendor-gate/src/services/interest-ledger-service.ts",
+          "apps/vendor-huobi/src/services/interest-ledger-service.ts",
+          "apps/vendor-okx/src/services/interest-ledger-service.ts",
+          "common/changes/@yuants/exchange/2026-01-10-23-01.json",
+          "common/changes/@yuants/vendor-aster/2026-01-10-23-01.json",
+          "common/changes/@yuants/vendor-binance/2026-01-10-23-01.json",
+          "common/changes/@yuants/vendor-bitget/2026-01-10-23-01.json"
+        ]
+      },
+      {
+        "name": "配置与环境",
+        "commits": [
+          "6d44b32d2"
+        ],
+        "files": [
+          "apps/vendor-aster/src/services/interest-ledger-service.ts",
+          "apps/vendor-binance/src/services/interest-ledger.ts",
+          "apps/vendor-bitget/src/services/interest-ledger-service.ts",
+          "apps/vendor-gate/src/services/interest-ledger-service.ts",
+          "apps/vendor-huobi/src/services/interest-ledger-service.ts",
+          "apps/vendor-okx/src/services/interest-ledger-service.ts",
+          "common/changes/@yuants/exchange/2026-01-10-23-01.json",
+          "common/changes/@yuants/vendor-aster/2026-01-10-23-01.json",
+          "common/changes/@yuants/vendor-binance/2026-01-10-23-01.json",
+          "common/changes/@yuants/vendor-bitget/2026-01-10-23-01.json"
+        ]
+      },
+      {
+        "name": "文档",
+        "commits": [
+          "6d44b32d2"
+        ],
+        "files": [
+          "apps/vendor-aster/src/services/interest-ledger-service.ts",
+          "apps/vendor-binance/src/services/interest-ledger.ts",
+          "apps/vendor-bitget/src/services/interest-ledger-service.ts",
+          "apps/vendor-gate/src/services/interest-ledger-service.ts",
+          "apps/vendor-huobi/src/services/interest-ledger-service.ts",
+          "apps/vendor-okx/src/services/interest-ledger-service.ts",
+          "common/changes/@yuants/exchange/2026-01-10-23-01.json",
+          "common/changes/@yuants/vendor-aster/2026-01-10-23-01.json",
+          "common/changes/@yuants/vendor-binance/2026-01-10-23-01.json",
+          "common/changes/@yuants/vendor-bitget/2026-01-10-23-01.json"
+        ]
+      }
+    ],
+    "riskIndicators": []
+  },
+  "metadata": {
+    "tool": "git-changes-reporter",
+    "version": "3.0.0",
+    "repository": "/home/runner/work/Yuan/Yuan"
+  }
+}
