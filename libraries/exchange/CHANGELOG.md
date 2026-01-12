@@ -1,6 +1,13 @@
 # Change Log - @yuants/exchange
 
-This log was last generated on Sun, 11 Jan 2026 00:09:14 GMT and should not be manually modified.
+This log was last generated on Mon, 12 Jan 2026 03:30:04 GMT and should not be manually modified.
+
+## 0.8.13
+Mon, 12 Jan 2026 03:30:04 GMT
+
+### Patches
+
+- add trade history
 
 ## 0.8.12
 Sun, 11 Jan 2026 00:09:14 GMT

@@ -2,6 +2,31 @@
   "name": "@yuants/vendor-huobi",
   "entries": [
     {
+      "version": "0.19.2",
+      "tag": "@yuants/vendor-huobi_v0.19.2",
+      "date": "Mon, 12 Jan 2026 03:30:04 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add trade history"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-trade\" to `0.1.31`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.13`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.19.1",
       "tag": "@yuants/vendor-huobi_v0.19.1",
       "date": "Sun, 11 Jan 2026 00:09:15 GMT",
