@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-interest-rate",
+      "comment": "add series id parser",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/data-interest-rate"
+}
