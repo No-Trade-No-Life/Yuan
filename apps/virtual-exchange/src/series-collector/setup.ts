@@ -35,17 +35,7 @@ const api = {
           try {
             const tasks = await list();
 
-            // const groups = Map.groupBy(tasks, item => decodePath(item[0])[0]);
-            const groups = new Map<string, [string, 'forward' | 'backward'][]>();
-            for (const item of tasks) {
-              const [datasource_id] = decodePath(item[0]);
-              let items = groups.get(datasource_id);
-              if (!items) {
-                items = [];
-                groups.set(datasource_id, items);
-              }
-              items.push(item);
-            }
+            const groups = Map.groupBy(tasks, (item) => decodePath(item[0])[0]);
 
             await Promise.all(
               Array.from(groups.entries()).map(async ([datasource_id, tasks]) => {
