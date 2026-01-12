@@ -27,7 +27,6 @@ const fetchTradeHistoryBackward = async (req: {
       limit: 100,
     };
     const res = await getFutureAccountsTrades(req.credential.payload, params);
-    console.log({ Where: 'Here', res: res });
     return (
       await Promise.all(
         (res ?? []).map(async (v): Promise<ITradeHistory | undefined> => {

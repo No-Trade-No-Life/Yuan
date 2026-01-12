@@ -842,3 +842,201 @@ export const getAccountFinancialRecordExact = (
     params,
   );
 };
+
+/**
+ * (【全仓】获取历史成交记录(新))
+ *
+ * https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb78c48-77b5-11ed-9966-0242ac110003
+ */
+export const getAccountCrossMatchResults = (
+  credential: ICredential,
+  params: {
+    contract: string;
+    trade_type: number;
+    pair?: string;
+    start_time?: number;
+    end_time?: number;
+    direct?: string;
+    from_id?: number;
+  },
+): Promise<{
+  code: number;
+  msg: string;
+  data: {
+    query_id: number;
+    contract_type: string;
+    pair: string;
+    business_type: string;
+    match_id: number;
+    order_id: number;
+    symbol: string;
+    contract_code: string;
+    direction: string;
+    offset: string;
+    trade_volume: number;
+    trade_price: number;
+    trade_turnover: number;
+    trade_fee: number;
+    offset_profitloss: number;
+    create_date: number;
+    role: string;
+    order_source: string;
+    order_id_str: string;
+    id: string;
+    fee_asset: string;
+    margin_mode: string;
+    margin_account: string;
+    real_profit: number;
+    reduce_only: number;
+  }[];
+  ts: number;
+}> => {
+  return linearSwapPrivateTradeRequest(
+    credential,
+    'POST',
+    '/linear-swap-api/v3/swap_cross_matchresults',
+    params,
+  );
+};
+
+/**
+ * (【全仓】组合查询用户历史成交记录(新))
+ *
+ * https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb78ee2-77b5-11ed-9966-0242ac110003
+ */
+export const getAccountCrossMatchResultsExact = (
+  credential: ICredential,
+  params: {
+    contract: string;
+    trade_type: number;
+    pair?: string;
+    start_time?: number;
+    end_time?: number;
+    direct?: string;
+    from_id?: number;
+  },
+): Promise<{
+  code: number;
+  msg: string;
+  data: {
+    query_id: number;
+    contract_type: string;
+    pair: string;
+    business_type: string;
+    match_id: number;
+    order_id: number;
+    symbol: string;
+    contract_code: string;
+    direction: string;
+    offset: string;
+    trade_volume: number;
+    trade_price: number;
+    trade_turnover: number;
+    trade_fee: number;
+    offset_profitloss: number;
+    create_date: number;
+    role: string;
+    order_source: string;
+    order_id_str: string;
+    id: string;
+    fee_asset: string;
+    ht_price: string;
+    margin_mode: string;
+    margin_account: string;
+    real_profit: number;
+    reduce_only: number;
+  }[];
+  ts: number;
+}> => {
+  return linearSwapPrivateTradeRequest(
+    credential,
+    'POST',
+    '/linear-swap-api/v3/swap_cross_matchresults_exact',
+    params,
+  );
+};
+
+/**
+ * (查询成交明细（近三天）)
+ *
+ * https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb89359-77b5-11ed-9966-1957e2a0e6a
+ *
+ *
+ */
+export const getAccountTradeOrderDetail = (
+  credential: ICredential,
+  params: {
+    contract_code?: string;
+    order_id?: number;
+    start_time?: number;
+    end_time?: number;
+    direct?: string;
+    from?: number;
+    limit?: number;
+  },
+): Promise<{
+  code: number;
+  message: string;
+  data: {
+    id: string;
+    contract_code: string;
+    order_id: string;
+    trade_id: string;
+    side: string;
+    position_side: string;
+    order_type: string;
+    margin_mode: string;
+    type: string;
+    role: string;
+    trade_price: string;
+    trade_volume: string;
+    trade_turnover: string;
+    created_time: number;
+    updated_time: number;
+    order_source: string;
+    fee_currency: string;
+    trade_fee: string;
+    deduction_price: string;
+    profit: string;
+    contract_type: string;
+  }[];
+  ts: number;
+}> => {
+  return linearSwapPrivateQueryRequest(credential, 'GET', '/v5/trade/order/details', params);
+};
+
+/**
+ * (查询流水记录)
+ *
+ * https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb89359-77b5-11ed-9966-19b724157a2
+ *
+ *
+ */
+export const getAccountBills = (
+  credential: ICredential,
+  params: {
+    contract_code?: string;
+    margin_mode?: string;
+    type?: string;
+    start_time?: number;
+    end_time?: number;
+    direct?: string;
+    from?: number;
+    limit?: number;
+  },
+): Promise<{
+  code: number;
+  message: string;
+  data: {
+    id: string;
+    type: string;
+    currency: string;
+    amount: string;
+    contract_code: string;
+    margin_mode: string;
+    created_time: string;
+  }[];
+  ts: number;
+}> => {
+  return linearSwapPrivateQueryRequest(credential, 'GET', '/v5/account/bills', params);
+};
