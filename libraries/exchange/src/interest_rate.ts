@@ -261,7 +261,7 @@ export const provideInterestLedgerService = (
             'account_interest_ledger',
             {
               columns: ACCOUNT_INTEREST_LEDGER_INSERT_COLUMNS,
-              conflictKeys: ['id'],
+              conflictKeys: ['id', 'account_id'],
             },
           )} RETURNING 1`;
 
@@ -299,7 +299,7 @@ export const provideInterestLedgerService = (
             terminal,
             buildInsertManyIntoTableSQL(accountInterestLedgers, 'account_interest_ledger', {
               columns: ACCOUNT_INTEREST_LEDGER_INSERT_COLUMNS,
-              conflictKeys: ['id'],
+              conflictKeys: ['id', 'account_id'],
             }),
           );
         }
