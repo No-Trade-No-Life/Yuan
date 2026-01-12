@@ -1,6 +1,14 @@
 # Change Log - @yuants/exchange
 
-This log was last generated on Mon, 12 Jan 2026 03:30:04 GMT and should not be manually modified.
+This log was last generated on Mon, 12 Jan 2026 05:15:55 GMT and should not be manually modified.
+
+## 0.8.14
+Mon, 12 Jan 2026 05:15:55 GMT
+
+### Patches
+
+- change series name 
+- add is parse
 
 ## 0.8.13
 Mon, 12 Jan 2026 03:30:04 GMT
