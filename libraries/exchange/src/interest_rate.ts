@@ -268,7 +268,7 @@ export const provideInterestLedgerService = (
           const writeRange = `${buildInsertManyIntoTableSQL(
             [
               {
-                series_id: msg.req.account_id,
+                series_id: msg.req.account_id + msg.req.ledger_type,
                 table_name: 'account_interest_ledger',
                 start_time: range.start_time,
                 end_time: range.end_time,
