@@ -1,3 +1,5 @@
+import { decodePath, encodePath } from '@yuants/utils';
+
 /**
  * Interest Rate when holding a product
  *
@@ -91,3 +93,13 @@ export interface IInterestLedger {
    */
   updated_at: string;
 }
+
+export const encodeInterestLedgerSeriesId = (account_id: string, ledger_type: string) =>
+  encodePath(...decodePath(account_id), ledger_type);
+
+export const decodeInterestLedgerSeriesId = (series_id: string) => {
+  const parts = decodePath(series_id);
+  const account_id = encodePath(...parts.slice(0, -1));
+  const ledger_type = parts[parts.length - 1];
+  return { account_id, ledger_type };
+};

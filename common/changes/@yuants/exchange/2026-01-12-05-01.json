@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/exchange",
+      "comment": "add is parse",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/exchange"
+}

@@ -1,4 +1,9 @@
-import { encodeInterestRateSeriesId, IInterestRate, IInterestLedger } from '@yuants/data-interest-rate';
+import {
+  encodeInterestRateSeriesId,
+  IInterestRate,
+  IInterestLedger,
+  encodeInterestLedgerSeriesId,
+} from '@yuants/data-interest-rate';
 import { IServiceOptions, Terminal } from '@yuants/protocol';
 import { createValidator } from '@yuants/protocol/lib/schema';
 import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
@@ -268,7 +273,7 @@ export const provideInterestLedgerService = (
           const writeRange = `${buildInsertManyIntoTableSQL(
             [
               {
-                series_id: msg.req.account_id + msg.req.ledger_type,
+                series_id: encodeInterestLedgerSeriesId(msg.req.account_id, msg.req.ledger_type),
                 table_name: 'account_interest_ledger',
                 start_time: range.start_time,
                 end_time: range.end_time,

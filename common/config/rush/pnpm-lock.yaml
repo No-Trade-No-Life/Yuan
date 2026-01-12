@@ -2503,6 +2503,9 @@ importers:
       '@yuants/tool-kit':
         specifier: workspace:*
         version: link:../../tools/toolkit
+      '@yuants/utils':
+        specifier: workspace:*
+        version: link:../utils
       typescript:
         specifier: ~5.9.3
         version: 5.9.3
