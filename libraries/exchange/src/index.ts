@@ -7,6 +7,7 @@ export * from './quote';
 export * from './ohlc';
 export * from './interest_rate';
 export * from './types';
+export * from './trade_history';
 
 /**
  * Exchange Interface

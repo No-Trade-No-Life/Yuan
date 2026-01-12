@@ -21,6 +21,22 @@ export interface ITrade {
     updated_at?: string;
 }
 
+// @public (undocumented)
+export interface ITradeHistory {
+    account_id: string;
+    created_at: string;
+    direction: string;
+    fee: string;
+    fee_currency: string;
+    // (undocumented)
+    id: string;
+    pnl?: string;
+    price: string;
+    product_id: string;
+    size: string;
+    updated_at: string;
+}
+
 // (No @packageDocumentation comment for this package)
 
 ```

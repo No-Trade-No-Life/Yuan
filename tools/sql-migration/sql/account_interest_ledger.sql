@@ -1,16 +1,17 @@
 -- account_interest_ledger 表
 CREATE TABLE IF NOT EXISTS
     account_interest_ledger (
-        id TEXT PRIMARY KEY,
+        id TEXT NOT NULL,
         account_id TEXT NOT NULL,
         product_id TEXT NOT NULL,
         amount TEXT NOT NULL,
         currency TEXT NOT NULL,
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        primary key (id, account_id)
     );
 
-
+CREATE INDEX IF NOT EXISTS idx_account_interest_ledger_id ON account_interest_ledger (id);
 
 CREATE INDEX IF NOT EXISTS idx_account_interest_ledger_account_id ON account_interest_ledger (account_id);
 

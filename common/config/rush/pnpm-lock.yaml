@@ -1337,6 +1337,9 @@ importers:
       '@yuants/data-series':
         specifier: workspace:*
         version: link:../../libraries/data-series
+      '@yuants/data-trade':
+        specifier: workspace:*
+        version: link:../../libraries/data-trade
       '@yuants/exchange':
         specifier: workspace:*
         version: link:../../libraries/exchange
@@ -1541,6 +1544,9 @@ importers:
       '@yuants/data-series':
         specifier: workspace:*
         version: link:../../libraries/data-series
+      '@yuants/data-trade':
+        specifier: workspace:*
+        version: link:../../libraries/data-trade
       '@yuants/exchange':
         specifier: workspace:*
         version: link:../../libraries/exchange
@@ -1614,6 +1620,9 @@ importers:
       '@yuants/data-series':
         specifier: workspace:*
         version: link:../../libraries/data-series
+      '@yuants/data-trade':
+        specifier: workspace:*
+        version: link:../../libraries/data-trade
       '@yuants/exchange':
         specifier: workspace:*
         version: link:../../libraries/exchange
@@ -2867,6 +2876,9 @@ importers:
       '@yuants/data-quote':
         specifier: workspace:*
         version: link:../data-quote
+      '@yuants/data-trade':
+        specifier: workspace:*
+        version: link:../data-trade
       '@yuants/protocol':
         specifier: workspace:*
         version: link:../protocol

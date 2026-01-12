@@ -454,3 +454,35 @@ export const getFutureAccountsBook = (
     id: string;
   }[]
 > => callPrivate(credential, 'GET', `/futures/${params.settle}/account_book`, params);
+
+/**
+ * 查询个人成交记录(时间区间)
+ *
+ * https://www.gate.com/docs/developers/apiv4/zh_CN/#%E6%9F%A5%E8%AF%A2%E4%B8%AA%E4%BA%BA%E6%88%90%E4%BA%A4%E8%AE%B0%E5%BD%95-%E6%97%B6%E9%97%B4%E5%8C%BA%E9%97%B4
+ */
+export const getFutureAccountsTrades = (
+  credential: ICredential,
+  params: {
+    settle: string;
+    contract?: string;
+    limit?: number;
+    offset?: number;
+    from?: number;
+    to?: number;
+    role?: string;
+  },
+): Promise<
+  {
+    trade_id: string;
+    create_time: number;
+    contract: string;
+    order_id: string;
+    size: string;
+    price: string;
+    text: string;
+    fee: string;
+    point_fee: string;
+    role: string;
+    close_size: string;
+  }[]
+> => callPrivate(credential, 'GET', `/futures/${params.settle}/my_trades_timerange`, params);

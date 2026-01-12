@@ -17,6 +17,7 @@
     "@yuants/data-account": "workspace:*",
     "@yuants/data-order": "workspace:*",
     "@yuants/data-ohlc": "workspace:*",
+    "@yuants/data-trade": "workspace:*",
     "@yuants/sql": "workspace:*",
     "@yuants/data-product": "workspace:*",
     "@yuants/utils": "workspace:*",

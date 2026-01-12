@@ -2,7 +2,7 @@ import { IInterestLedger } from '@yuants/data-interest-rate';
 import { Terminal } from '@yuants/protocol';
 import { encodePath, formatTime } from '@yuants/utils';
 import { provideInterestLedgerService } from '@yuants/exchange';
-import { getAccountFinancialRecordExact } from '../api/private-api';
+import { getAccountBills, getAccountFinancialRecordExact } from '../api/private-api';
 
 interface IExchangeCredential {
   type: string;
@@ -23,20 +23,20 @@ const fetchInterestRateLedgerBackward = async (req: {
     const params = {
       end_time: req.time,
       start_time: req.time - WINDOW_MS,
-      type: '30,31',
       direct: 'prev',
-      mar_acct: 'USDT',
+      limit: 100,
     };
-    const res = await getAccountFinancialRecordExact(req.credential.payload, params);
+    const res = await getAccountBills(req.credential.payload, params);
     return (res.data ?? [])
+      .filter((x) => x.type === '30' || x.type === '31')
       .map((v): IInterestLedger => {
-        const ms = v.ts;
+        const ms = +v.created_time;
         return {
           id: v.id.toString(),
           product_id: encodePath('HTX', 'SWAP', v.contract_code),
           amount: v.amount.toString(),
           account_id: req.account_id,
-          currency: v.asset,
+          currency: v.currency,
           created_at: formatTime(ms),
         } as IInterestLedger;
       })
@@ -53,26 +53,26 @@ const fetchInterestRateLedgerForward = async (req: {
 }): Promise<IInterestLedger[]> => {
   if (req.ledger_type === 'FUNDING_FEE') {
     const params = {
-      end_time: req.time,
-      start_time: req.time - WINDOW_MS,
-      type: '30,31',
-      direct: 'next',
-      mar_acct: 'USDT',
+      start_time: req.time,
+      end_time: req.time + WINDOW_MS,
+      direct: 'prev', //  next 返回数据按照时间从小到大排列，且先返回小的 prev 则相反 从大到小排列，先返回小的
+      limit: 100,
     };
-    const res = await getAccountFinancialRecordExact(req.credential.payload, params);
+    const res = await getAccountBills(req.credential.payload, params);
     return (res.data ?? [])
+      .filter((x) => x.type === '30' || x.type === '31')
       .map((v): IInterestLedger => {
-        const ms = v.ts;
+        const ms = +v.created_time;
         return {
           id: v.id.toString(),
           product_id: encodePath('HTX', 'SWAP', v.contract_code),
           amount: v.amount.toString(),
           account_id: req.account_id,
-          currency: v.asset,
+          currency: v.currency,
           created_at: formatTime(ms),
         } as IInterestLedger;
       })
-      .filter((x) => Date.parse(x.created_at!) >= params.start_time);
+      .filter((x) => Date.parse(x.created_at!) >= req.time);
   }
   return [];
 };
