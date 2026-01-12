@@ -2,6 +2,31 @@
   "name": "@yuants/exchange",
   "entries": [
     {
+      "version": "0.8.14",
+      "tag": "@yuants/exchange_v0.8.14",
+      "date": "Mon, 12 Jan 2026 05:15:55 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "change series name "
+          },
+          {
+            "comment": "add is parse"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-interest-rate\" to `0.2.9`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.8.13",
       "tag": "@yuants/exchange_v0.8.13",
       "date": "Mon, 12 Jan 2026 03:30:04 GMT",

@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-coinex",
   "entries": [
     {
+      "version": "0.3.1",
+      "tag": "@yuants/vendor-coinex_v0.3.1",
+      "date": "Mon, 12 Jan 2026 05:15:55 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-interest-rate\" to `0.2.9`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.0",
       "tag": "@yuants/vendor-coinex_v0.3.0",
       "date": "Wed, 07 Jan 2026 12:14:06 GMT",
