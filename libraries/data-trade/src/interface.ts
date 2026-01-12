@@ -65,6 +65,10 @@ export interface ITrade {
   updated_at?: string;
 }
 
+/**
+ *
+ * @public
+ */
 export interface ITradeHistory {
   id: string;
   /**
