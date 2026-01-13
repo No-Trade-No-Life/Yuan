@@ -9,7 +9,6 @@ import { createValidator } from '@yuants/protocol/lib/schema';
 import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
 import { newError } from '../../utils/lib';
 import { ISeriesIngestResult, SeriesFetchDirection } from './types';
-import { IExchange } from '.';
 
 /**
  * Interest Rate Service Metadata
@@ -259,6 +258,9 @@ export const provideInterestLedgerService = (
         const accountInterestLedgers = await fetchPage({ ...msg.req });
 
         const range = computeInterestRatePageRange(accountInterestLedgers);
+        if (metadata.type === 'GATE') {
+          console.log({ Where: 'Herex', range, accountInterestLedgers });
+        }
         // Atomic write: data rows + series_data_range in the same statement.
         if (accountInterestLedgers.length > 0 && range) {
           const writeInterestRate = `${buildInsertManyIntoTableSQL(
@@ -307,8 +309,35 @@ export const provideInterestLedgerService = (
               conflictKeys: ['id', 'account_id'],
             }),
           );
+        } else {
+          if (
+            (metadata.type === 'HTX' ||
+              metadata.type === 'BITGET' ||
+              metadata.type === 'ASTER' ||
+              metadata.type === 'BINANCE') &&
+            accountInterestLedgers.length === 0
+          ) {
+            await requestSQL(
+              terminal,
+              buildInsertManyIntoTableSQL(
+                [
+                  {
+                    series_id: encodeInterestLedgerSeriesId(msg.req.account_id, msg.req.ledger_type),
+                    table_name: 'account_interest_ledger',
+                    start_time:
+                      metadata.direction === 'backward' ? msg.req.time - 48 * 3600_000 : msg.req.time,
+                    end_time: metadata.direction === 'backward' ? msg.req.time : msg.req.time + 48 * 3600_000,
+                  },
+                ],
+                'series_data_range',
+                {
+                  columns: ['series_id', 'table_name', 'start_time', 'end_time'],
+                  ignoreConflict: true,
+                },
+              ),
+            );
+          }
         }
-
         return {
           res: { code: 0, message: 'OK', data: { wrote_count: accountInterestLedgers.length, range } },
         };

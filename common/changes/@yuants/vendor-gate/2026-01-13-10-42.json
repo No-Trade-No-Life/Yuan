@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-gate",
+      "comment": "fix ",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-gate"
+}
