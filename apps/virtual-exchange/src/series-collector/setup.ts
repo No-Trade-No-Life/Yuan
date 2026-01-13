@@ -4,6 +4,7 @@ import { handleIngestOHLCBackward } from './backwards-ohlc';
 import { listInterestRateSeriesIds, listOHLCSeriesIds } from './discovery';
 import { handleIngestInterestRateForward } from './forwards-interest-rate';
 import { handleIngestOHLCForward } from './forwards-ohlc';
+import { InterestLedger } from './interest-ledger';
 import { handleInterestRatePatch } from './patch-interest-rate';
 import { handleIngestOHLCPatch } from './patch-ohlc';
 
@@ -20,12 +21,13 @@ const api = {
     backward: handleIngestInterestRateBackward,
     patch: handleInterestRatePatch,
   },
+  InterestLedger,
 };
 
 (async () => {
   const abortController = new AbortController();
   const signal = abortController.signal;
-  for (const type of ['OHLC', 'InterestRate'] as const) {
+  for (const type of ['OHLC', 'InterestRate', 'InterestLedger'] as const) {
     const list = api[type].list;
     for (const task of ['forward', 'backward', 'patch'] as const) {
       const handler = api[type][task];

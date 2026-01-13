@@ -55,6 +55,18 @@ export const findForwardTaskLastEndTime = (terminal: Terminal, series_id: string
     )} and table_name = ${escapeSQL(table_name)} order by end_time desc limit 1`,
   ).then((records) => records?.[0]?.end_time);
 
+export const findBackwardTaskFirstStartTime = (terminal: Terminal, series_id: string, table_name: string) =>
+  requestSQL<
+    {
+      start_time: string;
+    }[]
+  >(
+    terminal,
+    `select start_time from series_data_range where series_id = ${escapeSQL(
+      series_id,
+    )} and table_name = ${escapeSQL(table_name)} order by start_time asc limit 1`,
+  ).then((records) => records?.[0]?.start_time);
+
 export const findPatchGap = async (
   terminal: Terminal,
   table_name: string,
