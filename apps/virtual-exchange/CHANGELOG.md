@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-virtual-exchange
 
-This log was last generated on Mon, 12 Jan 2026 05:15:55 GMT and should not be manually modified.
+This log was last generated on Tue, 13 Jan 2026 10:53:40 GMT and should not be manually modified.
+
+## 0.19.0
+Tue, 13 Jan 2026 10:53:40 GMT
+
+### Minor changes
+
+- add interest-ledger scheduler
 
 ## 0.18.11
 Mon, 12 Jan 2026 05:15:55 GMT
