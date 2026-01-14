@@ -2,6 +2,23 @@
   "name": "@yuants/exchange",
   "entries": [
     {
+      "version": "0.8.15",
+      "tag": "@yuants/exchange_v0.8.15",
+      "date": "Tue, 13 Jan 2026 10:53:40 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.8.14",
       "tag": "@yuants/exchange_v0.8.14",
       "date": "Mon, 12 Jan 2026 05:15:55 GMT",

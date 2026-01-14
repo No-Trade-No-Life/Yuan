@@ -5,11 +5,7 @@ import { ISecret, listSecrets, readSecret, writeSecret } from '@yuants/secret';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import { newError } from '@yuants/utils';
 import { defer, firstValueFrom, map, repeat, retry, shareReplay } from 'rxjs';
-
-export interface IExchangeCredential {
-  type: string;
-  payload: any;
-}
+import { IExchangeCredential } from './types';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -29,6 +25,48 @@ const secretSignToCredentialIdCache = createCache(async (sign: string) => {
   const credential = JSON.parse(new TextDecoder().decode(decrypted)) as IExchangeCredential;
   return credential;
 });
+
+export const allCredentials$ = defer(() =>
+  terminal.client.requestForResponseData<{}, Awaited<ReturnType<typeof listAllCredentials>>>(
+    'VEX/ListExchangeCredential',
+    {},
+  ),
+).pipe(repeat({ delay: 10000 }), retry({ delay: 5000 }), shareReplay(1));
+
+export const mapCredentialIdToCredentials$ = allCredentials$.pipe(
+  map((x) => Map.groupBy(x, (item) => item.credentialId || '')),
+  shareReplay(1),
+);
+
+export const validCredentials$ = allCredentials$.pipe(
+  map((x) => {
+    const map = new Map<string, IExchangeCredential>();
+    if (!x) return map;
+    for (const xx of x) {
+      if (xx.credentialId && xx.credential) {
+        map.set(xx.credentialId, xx.credential);
+      }
+    }
+    return map;
+  }),
+  shareReplay(1),
+);
+
+export const validCredentialTypes$ = validCredentials$.pipe(
+  map((credentials) => {
+    const types = new Set<string>();
+    credentials.forEach((credential) => {
+      types.add(credential.type);
+    });
+    return Array.from(types);
+  }),
+);
+
+export const getCredentialByCredentialId = async (credentialId: string) => {
+  const credentials = (await firstValueFrom(mapCredentialIdToCredentials$)).get(credentialId);
+  const theCredential = credentials?.[0].credential;
+  return theCredential;
+};
 
 /**
  * 根据 credential 信息解析出对应的 credential ID
@@ -104,32 +142,6 @@ terminal.server.provideService<void, string[]>('VEX/ListCredentials', {}, async 
   const credentials = await firstValueFrom(validCredentials$);
   return { res: { code: 0, message: 'OK', data: [...credentials.keys()] } };
 });
-
-export const validCredentials$ = defer(() => listAllCredentials()).pipe(
-  map((x) => {
-    const map = new Map<string, IExchangeCredential>();
-    if (!x) return map;
-    for (const xx of x) {
-      if (xx.credentialId && xx.credential) {
-        map.set(xx.credentialId, xx.credential);
-      }
-    }
-    return map;
-  }),
-  repeat({ delay: 10000 }),
-  retry({ delay: 5000 }),
-  shareReplay(1),
-);
-
-export const validCredentialTypes$ = validCredentials$.pipe(
-  map((credentials) => {
-    const types = new Set<string>();
-    credentials.forEach((credential) => {
-      types.add(credential.type);
-    });
-    return Array.from(types);
-  }),
-);
 
 /**
  * 根据 secret sign 解析出对应的 credential 以及 credential ID

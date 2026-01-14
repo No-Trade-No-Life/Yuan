@@ -2,6 +2,28 @@
   "name": "@yuants/app-virtual-exchange",
   "entries": [
     {
+      "version": "0.19.0",
+      "tag": "@yuants/app-virtual-exchange_v0.19.0",
+      "date": "Tue, 13 Jan 2026 10:53:40 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add interest-ledger scheduler"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.15`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.18.11",
       "tag": "@yuants/app-virtual-exchange_v0.18.11",
       "date": "Mon, 12 Jan 2026 05:15:55 GMT",
