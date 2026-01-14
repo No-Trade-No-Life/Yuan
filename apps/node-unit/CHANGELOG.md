@@ -1,6 +1,13 @@
 # Change Log - @yuants/node-unit
 
-This log was last generated on Tue, 06 Jan 2026 17:23:41 GMT and should not be manually modified.
+This log was last generated on Wed, 14 Jan 2026 09:10:04 GMT and should not be manually modified.
+
+## 0.13.11
+Wed, 14 Jan 2026 09:10:04 GMT
+
+### Patches
+
+- add grafana dashboard
 
 ## 0.13.10
 Tue, 06 Jan 2026 17:23:41 GMT

@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-hyperliquid
 
-This log was last generated on Tue, 13 Jan 2026 10:53:40 GMT and should not be manually modified.
+This log was last generated on Wed, 14 Jan 2026 09:10:04 GMT and should not be manually modified.
+
+## 0.10.5
+Wed, 14 Jan 2026 09:10:04 GMT
+
+### Patches
+
+- disable token limit after response
 
 ## 0.10.4
 Tue, 13 Jan 2026 10:53:40 GMT

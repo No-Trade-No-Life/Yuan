@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-hyperliquid",
   "entries": [
     {
+      "version": "0.10.5",
+      "tag": "@yuants/vendor-hyperliquid_v0.10.5",
+      "date": "Wed, 14 Jan 2026 09:10:04 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "disable token limit after response"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.10.4",
       "tag": "@yuants/vendor-hyperliquid_v0.10.4",
       "date": "Tue, 13 Jan 2026 10:53:40 GMT",
