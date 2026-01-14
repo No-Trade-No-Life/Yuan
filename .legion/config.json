@@ -110,7 +110,7 @@
       "name": "Hyperliquid API tokenBucket：按官方限额主动限流",
       "status": "active",
       "createdAt": "2025-12-26T06:38:21.408Z",
-      "updatedAt": "2026-01-07T11:03:38.061Z"
+      "updatedAt": "2026-01-14T08:47:24.074Z"
     },
     {
       "id": "okx-ohlcpublishchannelohlc-ohlc-v2",
@@ -129,9 +129,23 @@
     {
       "id": "ohlc-ohlc-v2",
       "name": "移除旧 ohlc 表引用并切换到 ohlc_v2",
-      "status": "active",
+      "status": "paused",
       "createdAt": "2026-01-07T08:31:34.455Z",
-      "updatedAt": "2026-01-07T09:35:13.640Z"
+      "updatedAt": "2026-01-12T06:01:13.507Z"
+    },
+    {
+      "id": "node-unit-deployment-grafana-dashboard",
+      "name": "node-unit-deployment-grafana-dashboard",
+      "status": "paused",
+      "createdAt": "2026-01-12T06:01:13.507Z",
+      "updatedAt": "2026-01-13T06:01:55.209Z"
+    },
+    {
+      "id": "app-asg-eventbridge-notifier",
+      "name": "app-asg-eventbridge-notifier",
+      "status": "paused",
+      "createdAt": "2026-01-13T02:19:46.029Z",
+      "updatedAt": "2026-01-14T08:39:20.222Z"
     }
   ],
   "pendingProposals": [
@@ -1467,6 +1481,57 @@
       "decidedAt": "2026-01-07T08:31:34.455Z",
       "decidedBy": "Claude",
       "createdTaskId": "ohlc-ohlc-v2"
+    },
+    {
+      "id": "proposal-mkar337v-aba685",
+      "name": "node-unit-deployment-grafana-dashboard",
+      "goal": "基于 node_unit_deployment_cpu_seconds_total 与 node_unit_deployment_memory_rss_bytes 新建 Grafana dashboard，并沿用现有 dashboard.json 的风格与变量配置。",
+      "rationale": "用户要求参考现有 dashboard.json 为 node-unit 部署指标新增 Grafana dashboard，需要调研现有面板结构与指标 label，并输出可直接导入的 JSON 文件。",
+      "points": [
+        "复用 `.c1-cellar/dashboard.json` 的变量、样式与全局设置，保持一致的展示语言",
+        "围绕 CPU/Memory 指标设计关键视图：总量、按 deployment/instance 的 TopN、趋势与分位/极值",
+        "明确指标标签选择（如 deployment、instance、namespace 等）并给出统一过滤变量",
+        "输出新的 dashboard JSON 文件，注明导入方式与依赖的数据源名"
+      ],
+      "scope": [
+        ".c1-cellar/dashboard.json（仅参考）",
+        ".c1-cellar/dashboard-node-unit-deployment.json（新文件）"
+      ],
+      "phases": [
+        {
+          "name": "调研",
+          "tasks": [
+            {
+              "description": "阅读 `.c1-cellar/dashboard.json`，整理现有变量、面板风格与数据源命名规则；同时确认两条指标的 label 结构（通过仓库配置或已有查询规则推断）。",
+              "acceptance": "context.md 记录变量列表、datasource 名称、时间范围/刷新设置，以及 node_unit 指标的 label 假设与不确定点。"
+            }
+          ]
+        },
+        {
+          "name": "设计",
+          "tasks": [
+            {
+              "description": "设计面板列表与查询：CPU rate/利用率、memory RSS、按 deployment/instance TopN、趋势与统计（如 avg/max）。",
+              "acceptance": "plan.md 明确每个面板的标题、PromQL、legend 与单位/阈值。"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "基于现有 dashboard.json 复制并生成新的 dashboard JSON，替换为 node_unit_deployment 指标面板。",
+              "acceptance": "新 JSON 可导入 Grafana；变量与面板可正常渲染（PromQL/单位/legend 合理）。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-01-12T05:56:52.364Z",
+      "status": "approved",
+      "decidedAt": "2026-01-12T06:01:13.507Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "node-unit-deployment-grafana-dashboard"
     }
   ]
 }
