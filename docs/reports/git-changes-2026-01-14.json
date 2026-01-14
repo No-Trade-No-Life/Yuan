@@ -1,0 +1,1408 @@
+{
+  "range": {
+    "old": "5ca622abc64192451d365368e08c1e8d013346a9",
+    "new": "4f7fdb73f2c7e712e1c0630db286e6b287f3bc99",
+    "label": "5ca622abc..4f7fdb73f",
+    "startDate": "2026-01-13",
+    "endDate": "2026-01-13",
+    "commitCount": 3,
+    "generatedAt": "2026-01-14T00:06:32.101Z"
+  },
+  "contributors": [
+    {
+      "name": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "commits": 1
+    },
+    {
+      "name": "Ryan",
+      "email": "stayrealrhr@gmail.com",
+      "commits": 1
+    },
+    {
+      "name": "CZ",
+      "email": "zheng.chen@no-trade-no.life",
+      "commits": 1
+    }
+  ],
+  "directoryAnalysis": {
+    "topLevel": [
+      {
+        "dir": "apps",
+        "fileCount": 46
+      },
+      {
+        "dir": "common",
+        "fileCount": 11
+      },
+      {
+        "dir": "libraries",
+        "fileCount": 4
+      }
+    ],
+    "projects": [
+      {
+        "project": "apps/virtual-exchange",
+        "fileCount": 12,
+        "marker": "package.json"
+      },
+      {
+        "project": "common",
+        "fileCount": 11,
+        "marker": null
+      },
+      {
+        "project": "apps/vendor-binance",
+        "fileCount": 5,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-aster",
+        "fileCount": 4,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-bitget",
+        "fileCount": 4,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-gate",
+        "fileCount": 4,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-huobi",
+        "fileCount": 4,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-okx",
+        "fileCount": 4,
+        "marker": "package.json"
+      },
+      {
+        "project": "libraries/exchange",
+        "fileCount": 4,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-hyperliquid",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-trading-view",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-turboflow",
+        "fileCount": 3,
+        "marker": "package.json"
+      }
+    ],
+    "markersUsed": [
+      "package.json",
+      "Cargo.toml",
+      "go.mod",
+      "requirements.txt",
+      "pyproject.toml",
+      "setup.py",
+      "pom.xml",
+      "build.gradle",
+      "build.gradle.kts",
+      "CMakeLists.txt",
+      "Makefile",
+      "pubspec.yaml",
+      "mix.exs",
+      "Gemfile",
+      "composer.json"
+    ]
+  },
+  "commits": [
+    {
+      "hash": "6563ef37b55183c72811df6c45981ca8a0fe9d84",
+      "short": "6563ef37b",
+      "author": "CZ",
+      "email": "zheng.chen@no-trade-no.life",
+      "authoredAt": "2026-01-13 14:57:03 +0800",
+      "subject": "feat: add interest ledger series handling and patch gap functionality (#2497)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 43,
+          "deletions": 31,
+          "path": "apps/virtual-exchange/src/credential.ts",
+          "changeType": "modified",
+          "patch": "commit 6563ef37b55183c72811df6c45981ca8a0fe9d84\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Tue Jan 13 14:57:03 2026 +0800\n\n    feat: add interest ledger series handling and patch gap functionality (#2497)\n    \n    * feat: add interest ledger series handling and patch gap functionality\n    \n    * feat: refactor credential handling and enhance interest ledger functionality\n\ndiff --git a/apps/virtual-exchange/src/credential.ts b/apps/virtual-exchange/src/credential.ts\nindex f068af9af..8d05d5e9e 100644\n--- a/apps/virtual-exchange/src/credential.ts\n+++ b/apps/virtual-exchange/src/credential.ts\n@@ -8,5 +8 @@ import { defer, firstValueFrom, map, repeat, retry, shareReplay } from 'rxjs';\n-\n-export interface IExchangeCredential {\n-  type: string;\n-  payload: any;\n-}\n+import { IExchangeCredential } from './types';\n@@ -32,0 +29,42 @@ const secretSignToCredentialIdCache = createCache(async (sign: string) => {\n+export const allCredentials$ = defer(() =>\n+  terminal.client.requestForResponseData<{}, Awaited<ReturnType<typeof listAllCredentials>>>(\n+    'VEX/ListExchangeCredential',\n+    {},\n+  ),\n+).pipe(repeat({ delay: 10000 }), retry({ delay: 5000 }), shareReplay(1));\n+\n+export const mapCredentialIdToCredentials$ = allCredentials$.pipe(\n+  map((x) => Map.groupBy(x, (item) => item.credentialId || '')),\n+  shareReplay(1),\n+);\n+\n+export const validCredentials$ = allCredentials$.pipe(\n+  map((x) => {\n+    const map = new Map<string, IExchangeCredential>();\n+    if (!x) return map;\n+    for (const xx of x) {\n+      if (xx.credentialId && xx.credential) {\n+        map.set(xx.credentialId, xx.credential);\n+      }\n+    }\n+    return map;\n+  }),\n+  shareReplay(1),\n+);\n+\n+export const validCredentialTypes$ = validCredentials$.pipe(\n+  map((credentials) => {\n+    const types = new Set<string>();\n+    credentials.forEach((credential) => {\n+      types.add(credential.type);\n+    });\n+    return Array.from(types);\n+  }),\n+);\n+\n+export const getCredentialByCredentialId = async (credentialId: string) => {\n+  const credentials = (await firstValueFrom(mapCredentialIdToCredentials$)).get(credentialId);\n+  const theCredential = credentials?.[0].credential;\n+  return theCredential;\n+};\n+\n@@ -108,26 +145,0 @@ terminal.server.provideService<void, string[]>('VEX/ListCredentials', {}, async\n-export const validCredentials$ = defer(() => listAllCredentials()).pipe(\n-  map((x) => {\n-    const map = new Map<string, IExchangeCredential>();\n-    if (!x) return map;\n-    for (const xx of x) {\n-      if (xx.credentialId && xx.credential) {\n-        map.set(xx.credentialId, xx.credential);\n-      }\n-    }\n-    return map;\n-  }),\n-  repeat({ delay: 10000 }),\n-  retry({ delay: 5000 }),\n-  shareReplay(1),\n-);\n-\n-export const validCredentialTypes$ = validCredentials$.pipe(\n-  map((credentials) => {\n-    const types = new Set<string>();\n-    credentials.forEach((credential) => {\n-      types.add(credential.type);\n-    });\n-    return Array.from(types);\n-  }),\n-);\n-\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "allCredentials",
+              "code": "export const allCredentials$ = defer(() =>\n  terminal.client.requestForResponseData<{}, Awaited<ReturnType<typeof listAllCredentials>>>(\n    'VEX/ListExchangeCredential',\n    {},\n  ),\n).pipe(repeat({ delay: 10000 }), retry({ delay: 5000 }), shareReplay(1));\n",
+              "lineStart": 29,
+              "lineEnd": 35
+            },
+            {
+              "type": "function",
+              "name": "mapCredentialIdToCredentials",
+              "code": "export const mapCredentialIdToCredentials$ = allCredentials$.pipe(\n  map((x) => Map.groupBy(x, (item) => item.credentialId || '')),\n  shareReplay(1),\n);\n",
+              "lineStart": 36,
+              "lineEnd": 40
+            },
+            {
+              "type": "function",
+              "name": "validCredentials",
+              "code": "export const validCredentials$ = allCredentials$.pipe(\n  map((x) => {",
+              "lineStart": 41,
+              "lineEnd": 42
+            },
+            {
+              "type": "function",
+              "name": "map",
+              "code": "const map = new Map<string, IExchangeCredential>();\nif (!x) return map;",
+              "lineStart": 43,
+              "lineEnd": 44
+            },
+            {
+              "type": "function",
+              "name": "xx",
+              "code": "    for (const xx of x) {\n      if (xx.credentialId && xx.credential) {\n        map.set(xx.credentialId, xx.credential);\n      }\n    }\n    return map;\n  }),\n  shareReplay(1),\n);\n",
+              "lineStart": 45,
+              "lineEnd": 54
+            },
+            {
+              "type": "function",
+              "name": "validCredentialTypes",
+              "code": "export const validCredentialTypes$ = validCredentials$.pipe(\n  map((credentials) => {",
+              "lineStart": 55,
+              "lineEnd": 56
+            },
+            {
+              "type": "function",
+              "name": "types",
+              "code": "    const types = new Set<string>();\n    credentials.forEach((credential) => {\n      types.add(credential.type);\n    });\n    return Array.from(types);\n  }),\n);\n",
+              "lineStart": 57,
+              "lineEnd": 64
+            },
+            {
+              "type": "function",
+              "name": "getCredentialByCredentialId",
+              "code": "export const getCredentialByCredentialId = async (credentialId: string) => {",
+              "lineStart": 65,
+              "lineEnd": 65
+            },
+            {
+              "type": "function",
+              "name": "credentials",
+              "code": "const credentials = (await firstValueFrom(mapCredentialIdToCredentials$)).get(credentialId);",
+              "lineStart": 66,
+              "lineEnd": 66
+            },
+            {
+              "type": "function",
+              "name": "theCredential",
+              "code": "  const theCredential = credentials?.[0].credential;\n  return theCredential;\n};\n",
+              "lineStart": 67,
+              "lineEnd": 145
+            }
+          ]
+        },
+        {
+          "additions": 2,
+          "deletions": 1,
+          "path": "apps/virtual-exchange/src/general.ts",
+          "changeType": "modified",
+          "patch": "commit 6563ef37b55183c72811df6c45981ca8a0fe9d84\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Tue Jan 13 14:57:03 2026 +0800\n\n    feat: add interest ledger series handling and patch gap functionality (#2497)\n    \n    * feat: add interest ledger series handling and patch gap functionality\n    \n    * feat: refactor credential handling and enhance interest ledger functionality\n\ndiff --git a/apps/virtual-exchange/src/general.ts b/apps/virtual-exchange/src/general.ts\nindex fdb8d466d..2133b1df3 100644\n--- a/apps/virtual-exchange/src/general.ts\n+++ b/apps/virtual-exchange/src/general.ts\n@@ -5 +5 @@ import { Terminal } from '@yuants/protocol';\n-import { getCredentialBySecretId, IExchangeCredential } from './credential';\n+import { getCredentialBySecretId } from './credential';\n@@ -6,0 +7 @@ import { polyfillOrders, polyfillPosition } from './position';\n+import { IExchangeCredential } from './types';\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 220,
+          "deletions": 0,
+          "path": "apps/virtual-exchange/src/series-collector/interest-ledger.ts",
+          "changeType": "added",
+          "patch": "commit 6563ef37b55183c72811df6c45981ca8a0fe9d84\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Tue Jan 13 14:57:03 2026 +0800\n\n    feat: add interest ledger series handling and patch gap functionality (#2497)\n    \n    * feat: add interest ledger series handling and patch gap functionality\n    \n    * feat: refactor credential handling and enhance interest ledger functionality\n\ndiff --git a/apps/virtual-exchange/src/series-collector/interest-ledger.ts b/apps/virtual-exchange/src/series-collector/interest-ledger.ts\nnew file mode 100644\nindex 000000000..a6696f656\n--- /dev/null\n+++ b/apps/virtual-exchange/src/series-collector/interest-ledger.ts\n@@ -0,0 +1,220 @@\n+import { ISeriesIngestResult } from '@yuants/exchange';\n+import { Terminal } from '@yuants/protocol';\n+import { decodePath, encodePath, formatTime, newError } from '@yuants/utils';\n+import { getCredentialByCredentialId } from '../credential';\n+import { IExchangeCredential } from '../types';\n+import { findBackwardTaskFirstStartTime, findForwardTaskLastEndTime, findPatchGap } from './sql-helpers';\n+\n+const parseInterestLedgerServiceMetadataFromSchema = (\n+  schema: any,\n+): { type: string; direction: 'backward' | 'forward'; ledgerTypes: string[] } => {\n+  //\n+  return {\n+    type: schema.properties.credential.properties.type.const,\n+    direction: schema.properties.direction.const,\n+    ledgerTypes: schema.properties.ledger_type.enum,\n+  };\n+};\n+\n+const terminal = Terminal.fromNodeEnv();\n+\n+export const listInterestLedgerSeriesIds = async () => {\n+  // List All Credentials from VEX\n+  const credentials = await terminal.client.requestForResponseData<\n+    {},\n+    Array<{ sign: string; credential: IExchangeCredential; credentialId?: string }>\n+  >('VEX/ListExchangeCredential', {});\n+\n+  const series_ids = new Map<string, 'forward' | 'backward'>();\n+\n+  for (const terminalInfo of terminal.terminalInfos) {\n+    for (const serviceInfo of Object.values(terminalInfo.serviceInfo || {})) {\n+      if (serviceInfo.method !== 'IngestInterestLedger') continue;\n+      try {\n+        const meta = parseInterestLedgerServiceMetadataFromSchema(serviceInfo.schema);\n+\n+        for (const credential of credentials) {\n+          if (!credential.credentialId) continue;\n+          if (credential.credential.type !== meta.type) continue;\n+\n+          for (const ledgerType of meta.ledgerTypes) {\n+            const series_id = encodeInterestLedgerSeriesId(credential.credentialId, ledgerType);\n+            series_ids.set(series_id, meta.direction);\n+          }\n+        }\n+      } finally {\n+      }\n+    }\n+  }\n+\n+  return series_ids;\n+};\n+\n+export const encodeInterestLedgerSeriesId = (account_id: string, ledger_type: string) =>\n+  encodePath(...decodePath(account_id), ledger_type);\n+\n+export const decodeInterestLedgerSeriesId = (series_id: string) => {\n+  const parts = decodePath(series_id);\n+  const account_id = encodePath(...parts.slice(0, -1));\n+  const ledger_type = parts[parts.length - 1];\n+  return { account_id, ledger_type };\n+};\n+\n+interface IIngestInterestLedgerRequest {\n+  account_id: string;\n+  direction: 'forward' | 'backward';\n+  time: number;\n+  ledger_type: string;\n+  credential: IExchangeCredential;\n+}\n+\n+const ingestCounter = terminal.metrics\n+  .counter('series_collector_ingest_count', '')\n+  .labels({ terminal_id: terminal.terminal_id, type: 'interest_ledger' });\n+\n+export const handleIngestInterestLedgerForward = async (\n+  series_id: string,\n+  direction: 'forward' | 'backward',\n+  signal: AbortSignal,\n+) => {\n+  const { account_id, ledger_type } = decodeInterestLedgerSeriesId(series_id);\n+\n+  const credential = await getCredentialByCredentialId(account_id);\n+  if (!credential) throw newError('CREDENTIAL_NOT_FOUND_WHEN_HANDLING_INGEST', { account_id });\n+\n+  let req: IIngestInterestLedgerRequest;\n+\n+  if (direction === 'forward') {\n+    const endTime = await findForwardTaskLastEndTime(terminal, series_id, 'account_interest_ledger');\n+    const time = endTime ? new Date(endTime).getTime() : 0;\n+    req = {\n+      account_id,\n+      direction,\n+      time,\n+      ledger_type,\n+      credential,\n+    };\n+  } else {\n+    req = {\n+      account_id,\n+      direction,\n+      time: Date.now(),\n+      ledger_type,\n+      credential,\n+    };\n+  }\n+\n+  const res = await terminal.client.requestForResponseData<IIngestInterestLedgerRequest, ISeriesIngestResult>(\n+    'IngestInterestLedger',\n+    req,\n+  );\n+\n+  ingestCounter.labels({ task: 'forward' }).inc(res.wrote_count || 0);\n+\n+  console.info(\n+    formatTime(Date.now()),\n+    '[SeriesCollector][InterestLedger][Forward]',\n+    'Result',\n+    `series_id=${series_id}, ingested_count=${res.wrote_count}, start_time=${formatTime(\n+      res.range?.start_time ?? NaN,\n+    )}, end_time=${formatTime(res.range?.end_time ?? NaN)}`,\n+  );\n+};\n+\n+export const handleIngestInterestLedgerBackward = async (\n+  series_id: string,\n+  direction: 'forward' | 'backward',\n+) => {\n+  const { account_id, ledger_type } = decodeInterestLedgerSeriesId(series_id);\n+\n+  const credential = await getCredentialByCredentialId(account_id);\n+  if (!credential) throw newError('CREDENTIAL_NOT_FOUND_WHEN_HANDLING_INGEST', { account_id });\n+\n+  let req: IIngestInterestLedgerRequest;\n+\n+  if (direction === 'backward') {\n+    const startTime = await findBackwardTaskFirstStartTime(terminal, series_id, 'account_interest_ledger');\n+    const time = startTime ? new Date(startTime).getTime() : Date.now();\n+    req = {\n+      account_id,\n+      direction,\n+      time,\n+      ledger_type,\n+      credential,\n+    };\n+  } else {\n+    // do backward using forward request with time = 0\n+    req = {\n+      account_id,\n+      direction,\n+      time: 0,\n+      ledger_type,\n+      credential,\n+    };\n+  }\n+\n+  const res = await terminal.client.requestForResponseData<IIngestInterestLedgerRequest, ISeriesIngestResult>(\n+    'IngestInterestLedger',\n+    req,\n+  );\n+\n+  ingestCounter.labels({ task: 'backward' }).inc(res.wrote_count || 0);\n+\n+  console.info(\n+    formatTime(Date.now()),\n+    '[SeriesCollector][InterestLedger][Backward]',\n+    'Result',\n+    `series_id=${series_id}, ingested_count=${res.wrote_count}, start_time=${formatTime(\n+      res.range?.start_time ?? NaN,\n+    )}, end_time=${formatTime(res.range?.end_time ?? NaN)}`,\n+  );\n+};\n+\n+export const handleIngestInterestLedgerPatch = async (\n+  series_id: string,\n+  direction: 'forward' | 'backward',\n+  signal: AbortSignal,\n+) => {\n+  const { account_id, ledger_type } = decodeInterestLedgerSeriesId(series_id);\n+\n+  const credential = await getCredentialByCredentialId(account_id);\n+  if (!credential) throw newError('CREDENTIAL_NOT_FOUND_WHEN_HANDLING_INGEST', { account_id });\n+\n+  const patch = await findPatchGap(terminal, 'account_interest_ledger', series_id);\n+\n+  if (!patch) return; // no gap\n+  const time =\n+    direction === 'forward'\n+      ? new Date(patch.gap_start_time).getTime()\n+      : new Date(patch.gap_end_time).getTime();\n+  const req: IIngestInterestLedgerRequest = {\n+    account_id,\n+    direction,\n+    time,\n+    ledger_type,\n+    credential,\n+  };\n+\n+  const res = await terminal.client.requestForResponseData<IIngestInterestLedgerRequest, ISeriesIngestResult>(\n+    'IngestInterestLedger',\n+    req,\n+  );\n+\n+  ingestCounter.labels({ task: 'patch' }).inc(res.wrote_count || 0);\n+\n+  console.info(\n+    formatTime(Date.now()),\n+    '[SeriesCollector][InterestLedger][Patch]',\n+    'Result',\n+    `series_id=${series_id}, ingested_count=${res.wrote_count}, start_time=${formatTime(\n+      res.range?.start_time ?? NaN,\n+    )}, end_time=${formatTime(res.range?.end_time ?? NaN)}`,\n+  );\n+};\n+\n+export const InterestLedger = {\n+  list: listInterestLedgerSeriesIds,\n+  forward: handleIngestInterestLedgerForward,\n+  backward: handleIngestInterestLedgerBackward,\n+  patch: handleIngestInterestLedgerPatch,\n+};\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "parseInterestLedgerServiceMetadataFromSchema",
+              "code": "const parseInterestLedgerServiceMetadataFromSchema = (\n  schema: any,\n): { type: string; direction: 'backward' | 'forward'; ledgerTypes: string[] } => {\n  //\n  return {\n    type: schema.properties.credential.properties.type.const,\n    direction: schema.properties.direction.const,\n    ledgerTypes: schema.properties.ledger_type.enum,\n  };\n};\n",
+              "lineStart": 8,
+              "lineEnd": 18
+            },
+            {
+              "type": "function",
+              "name": "terminal",
+              "code": "const terminal = Terminal.fromNodeEnv();\n",
+              "lineStart": 19,
+              "lineEnd": 20
+            },
+            {
+              "type": "function",
+              "name": "listInterestLedgerSeriesIds",
+              "code": "export const listInterestLedgerSeriesIds = async () => {\n  // List All Credentials from VEX",
+              "lineStart": 21,
+              "lineEnd": 22
+            },
+            {
+              "type": "function",
+              "name": "credentials",
+              "code": "const credentials = await terminal.client.requestForResponseData<\n  {},\n  Array<{ sign: string; credential: IExchangeCredential; credentialId?: string }>\n>('VEX/ListExchangeCredential', {});\n",
+              "lineStart": 23,
+              "lineEnd": 27
+            },
+            {
+              "type": "function",
+              "name": "series_ids",
+              "code": "const series_ids = new Map<string, 'forward' | 'backward'>();\n",
+              "lineStart": 28,
+              "lineEnd": 29
+            },
+            {
+              "type": "function",
+              "name": "terminalInfo",
+              "code": "for (const terminalInfo of terminal.terminalInfos) {",
+              "lineStart": 30,
+              "lineEnd": 30
+            },
+            {
+              "type": "function",
+              "name": "serviceInfo",
+              "code": "for (const serviceInfo of Object.values(terminalInfo.serviceInfo || {})) {\n  if (serviceInfo.method !== 'IngestInterestLedger') continue;\n  try {",
+              "lineStart": 31,
+              "lineEnd": 33
+            },
+            {
+              "type": "function",
+              "name": "meta",
+              "code": "const meta = parseInterestLedgerServiceMetadataFromSchema(serviceInfo.schema);\n",
+              "lineStart": 34,
+              "lineEnd": 35
+            },
+            {
+              "type": "function",
+              "name": "credential",
+              "code": "for (const credential of credentials) {\n  if (!credential.credentialId) continue;\n  if (credential.credential.type !== meta.type) continue;\n",
+              "lineStart": 36,
+              "lineEnd": 39
+            },
+            {
+              "type": "function",
+              "name": "ledgerType",
+              "code": "for (const ledgerType of meta.ledgerTypes) {",
+              "lineStart": 40,
+              "lineEnd": 40
+            },
+            {
+              "type": "function",
+              "name": "series_id",
+              "code": "            const series_id = encodeInterestLedgerSeriesId(credential.credentialId, ledgerType);\n            series_ids.set(series_id, meta.direction);\n          }\n        }\n      } finally {\n      }\n    }\n  }\n\n  return series_ids;\n};\n",
+              "lineStart": 41,
+              "lineEnd": 52
+            },
+            {
+              "type": "function",
+              "name": "encodeInterestLedgerSeriesId",
+              "code": "export const encodeInterestLedgerSeriesId = (account_id: string, ledger_type: string) =>\n  encodePath(...decodePath(account_id), ledger_type);\n",
+              "lineStart": 53,
+              "lineEnd": 55
+            },
+            {
+              "type": "function",
+              "name": "decodeInterestLedgerSeriesId",
+              "code": "export const decodeInterestLedgerSeriesId = (series_id: string) => {",
+              "lineStart": 56,
+              "lineEnd": 56
+            },
+            {
+              "type": "function",
+              "name": "parts",
+              "code": "const parts = decodePath(series_id);",
+              "lineStart": 57,
+              "lineEnd": 57
+            },
+            {
+              "type": "function",
+              "name": "account_id",
+              "code": "const account_id = encodePath(...parts.slice(0, -1));",
+              "lineStart": 58,
+              "lineEnd": 58
+            },
+            {
+              "type": "function",
+              "name": "ledger_type",
+              "code": "  const ledger_type = parts[parts.length - 1];\n  return { account_id, ledger_type };\n};\n",
+              "lineStart": 59,
+              "lineEnd": 62
+            },
+            {
+              "type": "interface",
+              "name": "IIngestInterestLedgerRequest",
+              "code": "interface IIngestInterestLedgerRequest {\n  account_id: string;\n  direction: 'forward' | 'backward';\n  time: number;\n  ledger_type: string;\n  credential: IExchangeCredential;\n}\n",
+              "lineStart": 63,
+              "lineEnd": 70
+            },
+            {
+              "type": "function",
+              "name": "ingestCounter",
+              "code": "const ingestCounter = terminal.metrics\n  .counter('series_collector_ingest_count', '')\n  .labels({ terminal_id: terminal.terminal_id, type: 'interest_ledger' });\n",
+              "lineStart": 71,
+              "lineEnd": 74
+            },
+            {
+              "type": "function",
+              "name": "handleIngestInterestLedgerForward",
+              "code": "export const handleIngestInterestLedgerForward = async (\n  series_id: string,\n  direction: 'forward' | 'backward',\n  signal: AbortSignal,\n) => {\n  const { account_id, ledger_type } = decodeInterestLedgerSeriesId(series_id);\n",
+              "lineStart": 75,
+              "lineEnd": 81
+            },
+            {
+              "type": "function",
+              "name": "credential",
+              "code": "const credential = await getCredentialByCredentialId(account_id);\nif (!credential) throw newError('CREDENTIAL_NOT_FOUND_WHEN_HANDLING_INGEST', { account_id });\n",
+              "lineStart": 82,
+              "lineEnd": 84
+            },
+            {
+              "type": "function",
+              "name": "req",
+              "code": "let req: IIngestInterestLedgerRequest;\n\nif (direction === 'forward') {",
+              "lineStart": 85,
+              "lineEnd": 87
+            },
+            {
+              "type": "function",
+              "name": "endTime",
+              "code": "const endTime = await findForwardTaskLastEndTime(terminal, series_id, 'account_interest_ledger');",
+              "lineStart": 88,
+              "lineEnd": 88
+            },
+            {
+              "type": "function",
+              "name": "time",
+              "code": "  const time = endTime ? new Date(endTime).getTime() : 0;\n  req = {\n    account_id,\n    direction,\n    time,\n    ledger_type,\n    credential,\n  };\n} else {\n  req = {\n    account_id,\n    direction,\n    time: Date.now(),\n    ledger_type,\n    credential,",
+              "lineStart": 89,
+              "lineEnd": 106
+            },
+            {
+              "type": "function",
+              "name": "res",
+              "code": "const res = await terminal.client.requestForResponseData<IIngestInterestLedgerRequest, ISeriesIngestResult>(\n  'IngestInterestLedger',\n  req,\n);\n\ningestCounter.labels({ task: 'forward' }).inc(res.wrote_count || 0);\n\nconsole.info(\n  formatTime(Date.now()),\n  '[SeriesCollector][InterestLedger][Forward]',\n  'Result',\n  `series_id=${series_id}, ingested_count=${res.wrote_count}, start_time=${formatTime(\n    res.range?.start_time ?? NaN,\n  )}, end_time=${formatTime(res.range?.end_time ?? NaN)}`,\n);",
+              "lineStart": 107,
+              "lineEnd": 123
+            },
+            {
+              "type": "function",
+              "name": "handleIngestInterestLedgerBackward",
+              "code": "export const handleIngestInterestLedgerBackward = async (\n  series_id: string,\n  direction: 'forward' | 'backward',\n) => {\n  const { account_id, ledger_type } = decodeInterestLedgerSeriesId(series_id);\n",
+              "lineStart": 124,
+              "lineEnd": 129
+            },
+            {
+              "type": "function",
+              "name": "credential",
+              "code": "const credential = await getCredentialByCredentialId(account_id);\nif (!credential) throw newError('CREDENTIAL_NOT_FOUND_WHEN_HANDLING_INGEST', { account_id });\n",
+              "lineStart": 130,
+              "lineEnd": 132
+            },
+            {
+              "type": "function",
+              "name": "req",
+              "code": "let req: IIngestInterestLedgerRequest;\n\nif (direction === 'backward') {",
+              "lineStart": 133,
+              "lineEnd": 135
+            },
+            {
+              "type": "function",
+              "name": "startTime",
+              "code": "const startTime = await findBackwardTaskFirstStartTime(terminal, series_id, 'account_interest_ledger');",
+              "lineStart": 136,
+              "lineEnd": 136
+            },
+            {
+              "type": "function",
+              "name": "time",
+              "code": "  const time = startTime ? new Date(startTime).getTime() : Date.now();\n  req = {\n    account_id,\n    direction,\n    time,\n    ledger_type,\n    credential,\n  };\n} else {\n  // do backward using forward request with time = 0\n  req = {\n    account_id,\n    direction,\n    time: 0,\n    ledger_type,",
+              "lineStart": 137,
+              "lineEnd": 155
+            },
+            {
+              "type": "function",
+              "name": "res",
+              "code": "const res = await terminal.client.requestForResponseData<IIngestInterestLedgerRequest, ISeriesIngestResult>(\n  'IngestInterestLedger',\n  req,\n);\n\ningestCounter.labels({ task: 'backward' }).inc(res.wrote_count || 0);\n\nconsole.info(\n  formatTime(Date.now()),\n  '[SeriesCollector][InterestLedger][Backward]',\n  'Result',\n  `series_id=${series_id}, ingested_count=${res.wrote_count}, start_time=${formatTime(\n    res.range?.start_time ?? NaN,\n  )}, end_time=${formatTime(res.range?.end_time ?? NaN)}`,\n);",
+              "lineStart": 156,
+              "lineEnd": 172
+            },
+            {
+              "type": "function",
+              "name": "handleIngestInterestLedgerPatch",
+              "code": "export const handleIngestInterestLedgerPatch = async (\n  series_id: string,\n  direction: 'forward' | 'backward',\n  signal: AbortSignal,\n) => {\n  const { account_id, ledger_type } = decodeInterestLedgerSeriesId(series_id);\n",
+              "lineStart": 173,
+              "lineEnd": 179
+            },
+            {
+              "type": "function",
+              "name": "credential",
+              "code": "const credential = await getCredentialByCredentialId(account_id);\nif (!credential) throw newError('CREDENTIAL_NOT_FOUND_WHEN_HANDLING_INGEST', { account_id });\n",
+              "lineStart": 180,
+              "lineEnd": 182
+            },
+            {
+              "type": "function",
+              "name": "patch",
+              "code": "const patch = await findPatchGap(terminal, 'account_interest_ledger', series_id);\n\nif (!patch) return; // no gap",
+              "lineStart": 183,
+              "lineEnd": 185
+            },
+            {
+              "type": "function",
+              "name": "time",
+              "code": "const time =\n  direction === 'forward'\n    ? new Date(patch.gap_start_time).getTime()\n    : new Date(patch.gap_end_time).getTime();",
+              "lineStart": 186,
+              "lineEnd": 189
+            },
+            {
+              "type": "function",
+              "name": "req",
+              "code": "const req: IIngestInterestLedgerRequest = {\n  account_id,\n  direction,\n  time,\n  ledger_type,\n  credential,\n};\n",
+              "lineStart": 190,
+              "lineEnd": 197
+            },
+            {
+              "type": "function",
+              "name": "res",
+              "code": "const res = await terminal.client.requestForResponseData<IIngestInterestLedgerRequest, ISeriesIngestResult>(\n  'IngestInterestLedger',\n  req,\n);\n\ningestCounter.labels({ task: 'patch' }).inc(res.wrote_count || 0);\n\nconsole.info(\n  formatTime(Date.now()),\n  '[SeriesCollector][InterestLedger][Patch]',\n  'Result',\n  `series_id=${series_id}, ingested_count=${res.wrote_count}, start_time=${formatTime(\n    res.range?.start_time ?? NaN,\n  )}, end_time=${formatTime(res.range?.end_time ?? NaN)}`,\n);",
+              "lineStart": 198,
+              "lineEnd": 214
+            },
+            {
+              "type": "function",
+              "name": "InterestLedger",
+              "code": "export const InterestLedger = {\n  list: listInterestLedgerSeriesIds,\n  forward: handleIngestInterestLedgerForward,\n  backward: handleIngestInterestLedgerBackward,\n  patch: handleIngestInterestLedgerPatch,\n};",
+              "lineStart": 215,
+              "lineEnd": 221
+            }
+          ]
+        },
+        {
+          "additions": 2,
+          "deletions": 26,
+          "path": "apps/virtual-exchange/src/series-collector/patch-interest-rate.ts",
+          "changeType": "modified",
+          "patch": "commit 6563ef37b55183c72811df6c45981ca8a0fe9d84\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Tue Jan 13 14:57:03 2026 +0800\n\n    feat: add interest ledger series handling and patch gap functionality (#2497)\n    \n    * feat: add interest ledger series handling and patch gap functionality\n    \n    * feat: refactor credential handling and enhance interest ledger functionality\n\ndiff --git a/apps/virtual-exchange/src/series-collector/patch-interest-rate.ts b/apps/virtual-exchange/src/series-collector/patch-interest-rate.ts\nindex b3c07ded2..20d59c157 100644\n--- a/apps/virtual-exchange/src/series-collector/patch-interest-rate.ts\n+++ b/apps/virtual-exchange/src/series-collector/patch-interest-rate.ts\n@@ -3 +2,0 @@ import { Terminal } from '@yuants/protocol';\n-import { escapeSQL, requestSQL } from '@yuants/sql';\n@@ -4,0 +4 @@ import { formatTime } from '@yuants/utils';\n+import { findPatchGap } from './sql-helpers';\n@@ -18,25 +18 @@ export const handleInterestRatePatch = async (\n-  const [record] = await requestSQL<{ gap_start_time: string; gap_end_time: string }[]>(\n-    terminal,\n-    `\n-WITH reversed_ranges AS (\n-    SELECT \n-        start_time,\n-        end_time,\n-        LEAD(end_time) OVER (\n-            PARTITION BY table_name, series_id \n-            ORDER BY start_time DESC\n-        ) AS next_end_time  -- 注意：倒序时 LEAD 是前一个区间\n-    FROM series_data_range\n-    WHERE table_name = 'interest_rate' \n-      AND series_id = ${escapeSQL(product_id)}\n-)\n-SELECT \n-    next_end_time AS gap_start_time,  -- 前一个区间的结束时间\n-    start_time AS gap_end_time        -- 当前区间的开始时间\n-FROM reversed_ranges\n-WHERE next_end_time IS NOT NULL \n-  AND start_time > next_end_time      -- 有空缺\n-ORDER BY start_time DESC              -- 从最新开始\n-LIMIT 1;\n-    `,\n-  );\n+  const record = await findPatchGap(terminal, 'interest_rate', product_id);\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "record",
+              "code": "const record = await findPatchGap(terminal, 'interest_rate', product_id);",
+              "lineStart": 18,
+              "lineEnd": 19
+            }
+          ]
+        },
+        {
+          "additions": 2,
+          "deletions": 26,
+          "path": "apps/virtual-exchange/src/series-collector/patch-ohlc.ts",
+          "changeType": "modified",
+          "patch": "commit 6563ef37b55183c72811df6c45981ca8a0fe9d84\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Tue Jan 13 14:57:03 2026 +0800\n\n    feat: add interest ledger series handling and patch gap functionality (#2497)\n    \n    * feat: add interest ledger series handling and patch gap functionality\n    \n    * feat: refactor credential handling and enhance interest ledger functionality\n\ndiff --git a/apps/virtual-exchange/src/series-collector/patch-ohlc.ts b/apps/virtual-exchange/src/series-collector/patch-ohlc.ts\nindex 173b976fa..d6e498c2f 100644\n--- a/apps/virtual-exchange/src/series-collector/patch-ohlc.ts\n+++ b/apps/virtual-exchange/src/series-collector/patch-ohlc.ts\n@@ -4 +3,0 @@ import { Terminal } from '@yuants/protocol';\n-import { escapeSQL, requestSQL } from '@yuants/sql';\n@@ -5,0 +5 @@ import { formatTime } from '@yuants/utils';\n+import { findPatchGap } from './sql-helpers';\n@@ -19,25 +19 @@ export const handleIngestOHLCPatch = async (\n-  const [record] = await requestSQL<{ gap_start_time: string; gap_end_time: string }[]>(\n-    terminal,\n-    `\n-WITH reversed_ranges AS (\n-    SELECT \n-        start_time,\n-        end_time,\n-        LEAD(end_time) OVER (\n-            PARTITION BY table_name, series_id \n-            ORDER BY start_time DESC\n-        ) AS next_end_time  -- 注意：倒序时 LEAD 是前一个区间\n-    FROM series_data_range\n-    WHERE table_name = 'ohlc_v2' \n-      AND series_id = ${escapeSQL(series_id)}\n-)\n-SELECT \n-    next_end_time AS gap_start_time,  -- 前一个区间的结束时间\n-    start_time AS gap_end_time        -- 当前区间的开始时间\n-FROM reversed_ranges\n-WHERE next_end_time IS NOT NULL \n-  AND start_time > next_end_time      -- 有空缺\n-ORDER BY start_time DESC              -- 从最新开始\n-LIMIT 1;\n-    `,\n-  );\n+  const record = await findPatchGap(terminal, 'ohlc_v2', series_id);\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "record",
+              "code": "const record = await findPatchGap(terminal, 'ohlc_v2', series_id);",
+              "lineStart": 19,
+              "lineEnd": 20
+            }
+          ]
+        },
+        {
+          "additions": 4,
+          "deletions": 12,
+          "path": "apps/virtual-exchange/src/series-collector/setup.ts",
+          "changeType": "modified",
+          "patch": "commit 6563ef37b55183c72811df6c45981ca8a0fe9d84\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Tue Jan 13 14:57:03 2026 +0800\n\n    feat: add interest ledger series handling and patch gap functionality (#2497)\n    \n    * feat: add interest ledger series handling and patch gap functionality\n    \n    * feat: refactor credential handling and enhance interest ledger functionality\n\ndiff --git a/apps/virtual-exchange/src/series-collector/setup.ts b/apps/virtual-exchange/src/series-collector/setup.ts\nindex ee723be00..c275b9c3f 100644\n--- a/apps/virtual-exchange/src/series-collector/setup.ts\n+++ b/apps/virtual-exchange/src/series-collector/setup.ts\n@@ -6,0 +7 @@ import { handleIngestOHLCForward } from './forwards-ohlc';\n+import { InterestLedger } from './interest-ledger';\n@@ -22,0 +24 @@ const api = {\n+  InterestLedger,\n@@ -28 +30 @@ const api = {\n-  for (const type of ['OHLC', 'InterestRate'] as const) {\n+  for (const type of ['OHLC', 'InterestRate', 'InterestLedger'] as const) {\n@@ -38,11 +40 @@ const api = {\n-            // const groups = Map.groupBy(tasks, item => decodePath(item[0])[0]);\n-            const groups = new Map<string, [string, 'forward' | 'backward'][]>();\n-            for (const item of tasks) {\n-              const [datasource_id] = decodePath(item[0]);\n-              let items = groups.get(datasource_id);\n-              if (!items) {\n-                items = [];\n-                groups.set(datasource_id, items);\n-              }\n-              items.push(item);\n-            }\n+            const groups = Map.groupBy(tasks, (item) => decodePath(item[0])[0]);\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "type",
+              "code": "for (const type of ['OHLC', 'InterestRate', 'InterestLedger'] as const) {",
+              "lineStart": 30,
+              "lineEnd": 39
+            },
+            {
+              "type": "function",
+              "name": "groups",
+              "code": "const groups = Map.groupBy(tasks, (item) => decodePath(item[0])[0]);",
+              "lineStart": 40,
+              "lineEnd": 41
+            }
+          ]
+        },
+        {
+          "additions": 64,
+          "deletions": 0,
+          "path": "apps/virtual-exchange/src/series-collector/sql-helpers.ts",
+          "changeType": "added",
+          "patch": "commit 6563ef37b55183c72811df6c45981ca8a0fe9d84\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Tue Jan 13 14:57:03 2026 +0800\n\n    feat: add interest ledger series handling and patch gap functionality (#2497)\n    \n    * feat: add interest ledger series handling and patch gap functionality\n    \n    * feat: refactor credential handling and enhance interest ledger functionality\n\ndiff --git a/apps/virtual-exchange/src/series-collector/sql-helpers.ts b/apps/virtual-exchange/src/series-collector/sql-helpers.ts\nindex df43a5255..a98cfd381 100644\n--- a/apps/virtual-exchange/src/series-collector/sql-helpers.ts\n+++ b/apps/virtual-exchange/src/series-collector/sql-helpers.ts\n@@ -44,0 +45,64 @@ export const findOHLCEndTimeForward = (terminal: Terminal, series_id: string) =>\n+\n+export const findForwardTaskLastEndTime = (terminal: Terminal, series_id: string, table_name: string) =>\n+  requestSQL<\n+    {\n+      end_time: string;\n+    }[]\n+  >(\n+    terminal,\n+    `select end_time from series_data_range where series_id = ${escapeSQL(\n+      series_id,\n+    )} and table_name = ${escapeSQL(table_name)} order by end_time desc limit 1`,\n+  ).then((records) => records?.[0]?.end_time);\n+\n+export const findBackwardTaskFirstStartTime = (terminal: Terminal, series_id: string, table_name: string) =>\n+  requestSQL<\n+    {\n+      start_time: string;\n+    }[]\n+  >(\n+    terminal,\n+    `select start_time from series_data_range where series_id = ${escapeSQL(\n+      series_id,\n+    )} and table_name = ${escapeSQL(table_name)} order by start_time asc limit 1`,\n+  ).then((records) => records?.[0]?.start_time);\n+\n+export const findPatchGap = async (\n+  terminal: Terminal,\n+  table_name: string,\n+  series_id: string,\n+): Promise<\n+  | {\n+      gap_start_time: string;\n+      gap_end_time: string;\n+    }\n+  | undefined\n+> => {\n+  const [record] = await requestSQL<{ gap_start_time: string; gap_end_time: string }[]>(\n+    terminal,\n+    `\n+WITH reversed_ranges AS (\n+    SELECT \n+        start_time,\n+        end_time,\n+        LEAD(end_time) OVER (\n+            PARTITION BY table_name, series_id \n+            ORDER BY start_time DESC\n+        ) AS next_end_time  -- 注意：倒序时 LEAD 是前一个区间\n+    FROM series_data_range\n+    WHERE table_name = ${escapeSQL(table_name)} \n+      AND series_id = ${escapeSQL(series_id)}\n+)\n+SELECT \n+    next_end_time AS gap_start_time,  -- 前一个区间的结束时间\n+    start_time AS gap_end_time        -- 当前区间的开始时间\n+FROM reversed_ranges\n+WHERE next_end_time IS NOT NULL \n+  AND start_time > next_end_time      -- 有空缺\n+ORDER BY start_time DESC              -- 从最新开始\n+LIMIT 1;\n+    `,\n+  );\n+\n+  return record;\n+};\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "findForwardTaskLastEndTime",
+              "code": "export const findForwardTaskLastEndTime = (terminal: Terminal, series_id: string, table_name: string) =>\n  requestSQL<\n    {\n      end_time: string;\n    }[]\n  >(\n    terminal,\n    `select end_time from series_data_range where series_id = ${escapeSQL(\n      series_id,\n    )} and table_name = ${escapeSQL(table_name)} order by end_time desc limit 1`,\n  ).then((records) => records?.[0]?.end_time);\n",
+              "lineStart": 46,
+              "lineEnd": 57
+            },
+            {
+              "type": "function",
+              "name": "findBackwardTaskFirstStartTime",
+              "code": "export const findBackwardTaskFirstStartTime = (terminal: Terminal, series_id: string, table_name: string) =>\n  requestSQL<\n    {\n      start_time: string;\n    }[]\n  >(\n    terminal,\n    `select start_time from series_data_range where series_id = ${escapeSQL(\n      series_id,\n    )} and table_name = ${escapeSQL(table_name)} order by start_time asc limit 1`,\n  ).then((records) => records?.[0]?.start_time);\n",
+              "lineStart": 58,
+              "lineEnd": 69
+            },
+            {
+              "type": "function",
+              "name": "findPatchGap",
+              "code": "export const findPatchGap = async (\n  terminal: Terminal,\n  table_name: string,\n  series_id: string,\n): Promise<\n  | {\n      gap_start_time: string;\n      gap_end_time: string;\n    }\n  | undefined\n> => {\n  const [record] = await requestSQL<{ gap_start_time: string; gap_end_time: string }[]>(\n    terminal,\n    `\nWITH reversed_ranges AS (",
+              "lineStart": 70,
+              "lineEnd": 109
+            }
+          ]
+        },
+        {
+          "additions": 4,
+          "deletions": 0,
+          "path": "apps/virtual-exchange/src/types.ts",
+          "changeType": "added",
+          "patch": "commit 6563ef37b55183c72811df6c45981ca8a0fe9d84\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Tue Jan 13 14:57:03 2026 +0800\n\n    feat: add interest ledger series handling and patch gap functionality (#2497)\n    \n    * feat: add interest ledger series handling and patch gap functionality\n    \n    * feat: refactor credential handling and enhance interest ledger functionality\n\ndiff --git a/apps/virtual-exchange/src/types.ts b/apps/virtual-exchange/src/types.ts\nnew file mode 100644\nindex 000000000..f1d7f0d30\n--- /dev/null\n+++ b/apps/virtual-exchange/src/types.ts\n@@ -0,0 +1,4 @@\n+export interface IExchangeCredential {\n+  type: string;\n+  payload: any;\n+}\n",
+          "codeSnippets": [
+            {
+              "type": "interface",
+              "name": "IExchangeCredential",
+              "code": "export interface IExchangeCredential {\n  type: string;\n  payload: any;\n}",
+              "lineStart": 1,
+              "lineEnd": 5
+            }
+          ]
+        },
+        {
+          "additions": 2,
+          "deletions": 1,
+          "path": "apps/virtual-exchange/tsconfig.json",
+          "changeType": "modified",
+          "patch": "commit 6563ef37b55183c72811df6c45981ca8a0fe9d84\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Tue Jan 13 14:57:03 2026 +0800\n\n    feat: add interest ledger series handling and patch gap functionality (#2497)\n    \n    * feat: add interest ledger series handling and patch gap functionality\n    \n    * feat: refactor credential handling and enhance interest ledger functionality\n\ndiff --git a/apps/virtual-exchange/tsconfig.json b/apps/virtual-exchange/tsconfig.json\nindex 22f94ca28..b5d105927 100644\n--- a/apps/virtual-exchange/tsconfig.json\n+++ b/apps/virtual-exchange/tsconfig.json\n@@ -4 +4,2 @@\n-    \"types\": [\"heft-jest\", \"node\"]\n+    \"types\": [\"heft-jest\", \"node\"],\n+    \"lib\": [\"ESNext\"]\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/app-virtual-exchange/2026-01-12-14-40.json",
+          "changeType": "added",
+          "patch": "commit 6563ef37b55183c72811df6c45981ca8a0fe9d84\nAuthor: CZ <zheng.chen@no-trade-no.life>\nDate:   Tue Jan 13 14:57:03 2026 +0800\n\n    feat: add interest ledger series handling and patch gap functionality (#2497)\n    \n    * feat: add interest ledger series handling and patch gap functionality\n    \n    * feat: refactor credential handling and enhance interest ledger functionality\n\ndiff --git a/common/changes/@yuants/app-virtual-exchange/2026-01-12-14-40.json b/common/changes/@yuants/app-virtual-exchange/2026-01-12-14-40.json\nnew file mode 100644\nindex 000000000..2d90edbf2\n--- /dev/null\n+++ b/common/changes/@yuants/app-virtual-exchange/2026-01-12-14-40.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/app-virtual-exchange\",\n+      \"comment\": \"add interest-ledger scheduler\",\n+      \"type\": \"minor\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/app-virtual-exchange\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "12ce55f610da4d752a6139efc341fff1fab716e5",
+      "short": "12ce55f61",
+      "author": "Ryan",
+      "email": "stayrealrhr@gmail.com",
+      "authoredAt": "2026-01-13 18:52:59 +0800",
+      "subject": "fix (#2499)",
+      "conventionalCommit": {
+        "type": "other",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 9,
+          "deletions": 4,
+          "path": "apps/vendor-aster/src/services/interest-ledger-service.ts",
+          "changeType": "modified",
+          "patch": "commit 12ce55f610da4d752a6139efc341fff1fab716e5\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Tue Jan 13 18:52:59 2026 +0800\n\n    fix (#2499)\n\ndiff --git a/apps/vendor-aster/src/services/interest-ledger-service.ts b/apps/vendor-aster/src/services/interest-ledger-service.ts\nindex f6c16a1ca..cc4a26e4b 100644\n--- a/apps/vendor-aster/src/services/interest-ledger-service.ts\n+++ b/apps/vendor-aster/src/services/interest-ledger-service.ts\n@@ -14 +14 @@ const terminal = Terminal.fromNodeEnv();\n-const WINDOW_MS = 10 * 24 * 3600_000;\n+const WINDOW_MS = 48 * 3600_000;\n@@ -22,0 +23 @@ const fetchInterestRateLedgerForward = async (req: {\n+    const time = Math.max(req.time, Date.now() - 3600_000 * 24 * 88);\n@@ -24,2 +25,2 @@ const fetchInterestRateLedgerForward = async (req: {\n-      startTime: req.time,\n-      endTime: req.time + WINDOW_MS,\n+      startTime: time,\n+      endTime: time + WINDOW_MS,\n@@ -27,0 +29 @@ const fetchInterestRateLedgerForward = async (req: {\n+      limit: 500,\n@@ -29,0 +32,3 @@ const fetchInterestRateLedgerForward = async (req: {\n+    if (!Array.isArray(res)) {\n+      throw new Error('getAccountIncome failed');\n+    }\n@@ -42 +47 @@ const fetchInterestRateLedgerForward = async (req: {\n-      .filter((x) => Date.parse(x.created_at!) >= req.time);\n+      .filter((x) => Date.parse(x.created_at!) >= time);\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "WINDOW_MS",
+              "code": "const WINDOW_MS = 48 * 3600_000;",
+              "lineStart": 14,
+              "lineEnd": 22
+            },
+            {
+              "type": "function",
+              "name": "time",
+              "code": "const time = Math.max(req.time, Date.now() - 3600_000 * 24 * 88);\n  startTime: time,\n  endTime: time + WINDOW_MS,\n  limit: 500,\nif (!Array.isArray(res)) {\n  throw new Error('getAccountIncome failed');\n}\n  .filter((x) => Date.parse(x.created_at!) >= time);",
+              "lineStart": 23,
+              "lineEnd": 48
+            }
+          ]
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-binance/src/index.ts",
+          "changeType": "modified",
+          "patch": "commit 12ce55f610da4d752a6139efc341fff1fab716e5\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Tue Jan 13 18:52:59 2026 +0800\n\n    fix (#2499)\n\ndiff --git a/apps/vendor-binance/src/index.ts b/apps/vendor-binance/src/index.ts\nindex 37da52aec..4f8f28d35 100644\n--- a/apps/vendor-binance/src/index.ts\n+++ b/apps/vendor-binance/src/index.ts\n@@ -7 +7 @@ import './services/interest-rate-service';\n-import './services/interest-ledger';\n+import './services/interest-ledger-service';\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 7,
+          "deletions": 3,
+          "path": "apps/vendor-binance/src/services/{interest-ledger.ts => interest-ledger-service.ts}",
+          "changeType": "modified",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 12,
+          "deletions": 8,
+          "path": "apps/vendor-bitget/src/services/interest-ledger-service.ts",
+          "changeType": "modified",
+          "patch": "commit 12ce55f610da4d752a6139efc341fff1fab716e5\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Tue Jan 13 18:52:59 2026 +0800\n\n    fix (#2499)\n\ndiff --git a/apps/vendor-bitget/src/services/interest-ledger-service.ts b/apps/vendor-bitget/src/services/interest-ledger-service.ts\nindex f50bef9f2..64107ca3a 100644\n--- a/apps/vendor-bitget/src/services/interest-ledger-service.ts\n+++ b/apps/vendor-bitget/src/services/interest-ledger-service.ts\n@@ -14 +14 @@ const terminal = Terminal.fromNodeEnv();\n-const WINDOW_MS = 10 * 24 * 3600_000;\n+const WINDOW_MS = 48 * 3600_000;\n@@ -21,0 +22 @@ const fetchInterestRateLedgerBackward = async (req: {\n+    const time = Math.max(req.time, Date.now() - 3600_000 * 24 * 88);\n@@ -24,2 +25,2 @@ const fetchInterestRateLedgerBackward = async (req: {\n-      endTime: req.time.toString(),\n-      startTime: (req.time - WINDOW_MS).toString(),\n+      endTime: time.toString(),\n+      startTime: (time - WINDOW_MS).toString(),\n@@ -30,2 +31,2 @@ const fetchInterestRateLedgerBackward = async (req: {\n-      endTime: req.time.toString(),\n-      startTime: (req.time - WINDOW_MS).toString(),\n+      endTime: time.toString(),\n+      startTime: (time - WINDOW_MS).toString(),\n@@ -37,0 +39,3 @@ const fetchInterestRateLedgerBackward = async (req: {\n+    if (res.code !== '00000' || outRes.code !== '00000') {\n+      throw new Error(`${res.msg} || ${outRes.msg}`);\n+    }\n@@ -41,2 +45,2 @@ const fetchInterestRateLedgerBackward = async (req: {\n-      Number(lastInRecord?.ts ?? req.time),\n-      Number(lastOutRecord?.ts ?? req.time),\n+      Number(lastInRecord?.ts ?? params.startTime),\n+      Number(lastOutRecord?.ts ?? params.startTime),\n@@ -58 +62 @@ const fetchInterestRateLedgerBackward = async (req: {\n-      .filter((x) => Date.parse(x.created_at!) <= req.time);\n+      .filter((x) => Date.parse(x.created_at!) <= time);\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "WINDOW_MS",
+              "code": "const WINDOW_MS = 48 * 3600_000;",
+              "lineStart": 14,
+              "lineEnd": 21
+            },
+            {
+              "type": "function",
+              "name": "time",
+              "code": "const time = Math.max(req.time, Date.now() - 3600_000 * 24 * 88);\n  endTime: time.toString(),\n  startTime: (time - WINDOW_MS).toString(),\n  endTime: time.toString(),\n  startTime: (time - WINDOW_MS).toString(),\nif (res.code !== '00000' || outRes.code !== '00000') {\n  throw new Error(`${res.msg} || ${outRes.msg}`);\n}\n  Number(lastInRecord?.ts ?? params.startTime),\n  Number(lastOutRecord?.ts ?? params.startTime),\n  .filter((x) => Date.parse(x.created_at!) <= time);",
+              "lineStart": 22,
+              "lineEnd": 63
+            }
+          ]
+        },
+        {
+          "additions": 8,
+          "deletions": 5,
+          "path": "apps/vendor-gate/src/services/interest-ledger-service.ts",
+          "changeType": "modified",
+          "patch": "commit 12ce55f610da4d752a6139efc341fff1fab716e5\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Tue Jan 13 18:52:59 2026 +0800\n\n    fix (#2499)\n\ndiff --git a/apps/vendor-gate/src/services/interest-ledger-service.ts b/apps/vendor-gate/src/services/interest-ledger-service.ts\nindex 3258551dd..40d88fecf 100644\n--- a/apps/vendor-gate/src/services/interest-ledger-service.ts\n+++ b/apps/vendor-gate/src/services/interest-ledger-service.ts\n@@ -14 +14 @@ const terminal = Terminal.fromNodeEnv();\n-const WINDOW_MS = 2 * 24 * 3600_000;\n+// const WINDOW_MS = 2 * 24 * 3600_000;\n@@ -21,0 +22 @@ const fetchInterestRateLedgerBackward = async (req: {\n+    const time = Math.max(req.time, Date.now() - 3600_000 * 24 * 365);\n@@ -24,3 +25,2 @@ const fetchInterestRateLedgerBackward = async (req: {\n-      to: ~~(req.time / 1000),\n-      from: ~~((req.time - WINDOW_MS) / 1000),\n-      limit: 100,\n+      to: ~~(time / 1000) + 100,\n+      limit: 500,\n@@ -29,0 +30,3 @@ const fetchInterestRateLedgerBackward = async (req: {\n+    if (!Array.isArray(res)) {\n+      throw new Error('getAccountIncome failed');\n+    }\n@@ -42 +45 @@ const fetchInterestRateLedgerBackward = async (req: {\n-      .filter((x) => Date.parse(x.created_at!) <= req.time);\n+      .filter((x) => Date.parse(x.created_at!) <= ~~(time / 1000) * 1000);\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "WINDOW_MS",
+              "code": "// const WINDOW_MS = 2 * 24 * 3600_000;",
+              "lineStart": 14,
+              "lineEnd": 21
+            },
+            {
+              "type": "function",
+              "name": "time",
+              "code": "const time = Math.max(req.time, Date.now() - 3600_000 * 24 * 365);\n  to: ~~(time / 1000) + 100,\n  limit: 500,\nif (!Array.isArray(res)) {\n  throw new Error('getAccountIncome failed');\n}\n  .filter((x) => Date.parse(x.created_at!) <= ~~(time / 1000) * 1000);",
+              "lineStart": 22,
+              "lineEnd": 46
+            }
+          ]
+        },
+        {
+          "additions": 16,
+          "deletions": 8,
+          "path": "apps/vendor-huobi/src/services/interest-ledger-service.ts",
+          "changeType": "modified",
+          "patch": "commit 12ce55f610da4d752a6139efc341fff1fab716e5\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Tue Jan 13 18:52:59 2026 +0800\n\n    fix (#2499)\n\ndiff --git a/apps/vendor-huobi/src/services/interest-ledger-service.ts b/apps/vendor-huobi/src/services/interest-ledger-service.ts\nindex a9934279e..1c8c742a7 100644\n--- a/apps/vendor-huobi/src/services/interest-ledger-service.ts\n+++ b/apps/vendor-huobi/src/services/interest-ledger-service.ts\n@@ -14,2 +14 @@ const terminal = Terminal.fromNodeEnv();\n-const WINDOW_MS = 2 * 24 * 3600_000;\n-\n+const WINDOW_MS = 48 * 3600_000;\n@@ -22,0 +22 @@ const fetchInterestRateLedgerBackward = async (req: {\n+    const time = Math.max(req.time, Date.now() - 3600_000 * 89);\n@@ -24,2 +24,2 @@ const fetchInterestRateLedgerBackward = async (req: {\n-      end_time: req.time,\n-      start_time: req.time - WINDOW_MS,\n+      end_time: time,\n+      start_time: time - WINDOW_MS,\n@@ -29,0 +30,4 @@ const fetchInterestRateLedgerBackward = async (req: {\n+    if (res.code !== 200) {\n+      throw new Error(res.message);\n+    }\n+    // console.log({ where: 'Here', res: res, params, credential: req.credential.payload });\n@@ -43 +47 @@ const fetchInterestRateLedgerBackward = async (req: {\n-      .filter((x) => Date.parse(x.created_at!) <= req.time);\n+      .filter((x) => Date.parse(x.created_at!) <= time);\n@@ -54,0 +59 @@ const fetchInterestRateLedgerForward = async (req: {\n+    const time = Math.max(req.time, Date.now() - 3600_000 * 89);\n@@ -56,2 +61,2 @@ const fetchInterestRateLedgerForward = async (req: {\n-      start_time: req.time,\n-      end_time: req.time + WINDOW_MS,\n+      start_time: time,\n+      end_time: time + WINDOW_MS,\n@@ -61,0 +67,3 @@ const fetchInterestRateLedgerForward = async (req: {\n+    if (res.code !== 200) {\n+      throw new Error(res.message);\n+    }\n@@ -75 +83 @@ const fetchInterestRateLedgerForward = async (req: {\n-      .filter((x) => Date.parse(x.created_at!) >= req.time);\n+      .filter((x) => Date.parse(x.created_at!) >= time);\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "WINDOW_MS",
+              "code": "const WINDOW_MS = 48 * 3600_000;",
+              "lineStart": 14,
+              "lineEnd": 21
+            },
+            {
+              "type": "function",
+              "name": "time",
+              "code": "const time = Math.max(req.time, Date.now() - 3600_000 * 89);\n  end_time: time,\n  start_time: time - WINDOW_MS,\nif (res.code !== 200) {\n  throw new Error(res.message);\n}\n// console.log({ where: 'Here', res: res, params, credential: req.credential.payload });\n  .filter((x) => Date.parse(x.created_at!) <= time);",
+              "lineStart": 22,
+              "lineEnd": 58
+            },
+            {
+              "type": "function",
+              "name": "time",
+              "code": "const time = Math.max(req.time, Date.now() - 3600_000 * 89);\n  start_time: time,\n  end_time: time + WINDOW_MS,\nif (res.code !== 200) {\n  throw new Error(res.message);\n}\n  .filter((x) => Date.parse(x.created_at!) >= time);",
+              "lineStart": 59,
+              "lineEnd": 84
+            }
+          ]
+        },
+        {
+          "additions": 1,
+          "deletions": 0,
+          "path": "apps/vendor-okx/src/services/interest-ledger-service.ts",
+          "changeType": "added",
+          "patch": "commit 12ce55f610da4d752a6139efc341fff1fab716e5\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Tue Jan 13 18:52:59 2026 +0800\n\n    fix (#2499)\n\ndiff --git a/apps/vendor-okx/src/services/interest-ledger-service.ts b/apps/vendor-okx/src/services/interest-ledger-service.ts\nindex de20b615a..c18ac12e5 100644\n--- a/apps/vendor-okx/src/services/interest-ledger-service.ts\n+++ b/apps/vendor-okx/src/services/interest-ledger-service.ts\n@@ -28,0 +29 @@ const fetchInterestRateLedgerBackward = async (req: {\n+    // console.log({ where: 'Here', res: res.data, params, credential: req.credential.payload });\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/exchange/2026-01-13-10-42.json",
+          "changeType": "added",
+          "patch": "commit 12ce55f610da4d752a6139efc341fff1fab716e5\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Tue Jan 13 18:52:59 2026 +0800\n\n    fix (#2499)\n\ndiff --git a/common/changes/@yuants/exchange/2026-01-13-10-42.json b/common/changes/@yuants/exchange/2026-01-13-10-42.json\nnew file mode 100644\nindex 000000000..8ece494dc\n--- /dev/null\n+++ b/common/changes/@yuants/exchange/2026-01-13-10-42.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/exchange\",\n+      \"comment\": \"fix\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/exchange\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-aster/2026-01-13-10-42.json",
+          "changeType": "added",
+          "patch": "commit 12ce55f610da4d752a6139efc341fff1fab716e5\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Tue Jan 13 18:52:59 2026 +0800\n\n    fix (#2499)\n\ndiff --git a/common/changes/@yuants/vendor-aster/2026-01-13-10-42.json b/common/changes/@yuants/vendor-aster/2026-01-13-10-42.json\nnew file mode 100644\nindex 000000000..86cc7829c\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-aster/2026-01-13-10-42.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-aster\",\n+      \"comment\": \"fix\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-aster\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-binance/2026-01-13-10-42.json",
+          "changeType": "added",
+          "patch": "commit 12ce55f610da4d752a6139efc341fff1fab716e5\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Tue Jan 13 18:52:59 2026 +0800\n\n    fix (#2499)\n\ndiff --git a/common/changes/@yuants/vendor-binance/2026-01-13-10-42.json b/common/changes/@yuants/vendor-binance/2026-01-13-10-42.json\nnew file mode 100644\nindex 000000000..0601e823d\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-binance/2026-01-13-10-42.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-binance\",\n+      \"comment\": \"fix \",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-binance\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-bitget/2026-01-13-10-42.json",
+          "changeType": "added",
+          "patch": "commit 12ce55f610da4d752a6139efc341fff1fab716e5\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Tue Jan 13 18:52:59 2026 +0800\n\n    fix (#2499)\n\ndiff --git a/common/changes/@yuants/vendor-bitget/2026-01-13-10-42.json b/common/changes/@yuants/vendor-bitget/2026-01-13-10-42.json\nnew file mode 100644\nindex 000000000..3081f7fda\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-bitget/2026-01-13-10-42.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-bitget\",\n+      \"comment\": \"fix \",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-bitget\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-gate/2026-01-13-10-42.json",
+          "changeType": "added",
+          "patch": "commit 12ce55f610da4d752a6139efc341fff1fab716e5\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Tue Jan 13 18:52:59 2026 +0800\n\n    fix (#2499)\n\ndiff --git a/common/changes/@yuants/vendor-gate/2026-01-13-10-42.json b/common/changes/@yuants/vendor-gate/2026-01-13-10-42.json\nnew file mode 100644\nindex 000000000..b6267a82c\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-gate/2026-01-13-10-42.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-gate\",\n+      \"comment\": \"fix \",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-gate\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-huobi/2026-01-13-10-42.json",
+          "changeType": "added",
+          "patch": "commit 12ce55f610da4d752a6139efc341fff1fab716e5\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Tue Jan 13 18:52:59 2026 +0800\n\n    fix (#2499)\n\ndiff --git a/common/changes/@yuants/vendor-huobi/2026-01-13-10-42.json b/common/changes/@yuants/vendor-huobi/2026-01-13-10-42.json\nnew file mode 100644\nindex 000000000..2912f58c0\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-huobi/2026-01-13-10-42.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-huobi\",\n+      \"comment\": \"fix \",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-huobi\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/2026-01-13-10-42.json",
+          "changeType": "added",
+          "patch": "commit 12ce55f610da4d752a6139efc341fff1fab716e5\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Tue Jan 13 18:52:59 2026 +0800\n\n    fix (#2499)\n\ndiff --git a/common/changes/@yuants/vendor-okx/2026-01-13-10-42.json b/common/changes/@yuants/vendor-okx/2026-01-13-10-42.json\nnew file mode 100644\nindex 000000000..c4222b474\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-okx/2026-01-13-10-42.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-okx\",\n+      \"comment\": \"fix \",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-okx\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 31,
+          "deletions": 2,
+          "path": "libraries/exchange/src/interest_rate.ts",
+          "changeType": "modified",
+          "patch": "commit 12ce55f610da4d752a6139efc341fff1fab716e5\nAuthor: Ryan <stayrealrhr@gmail.com>\nDate:   Tue Jan 13 18:52:59 2026 +0800\n\n    fix (#2499)\n\ndiff --git a/libraries/exchange/src/interest_rate.ts b/libraries/exchange/src/interest_rate.ts\nindex 8509d89b1..771271739 100644\n--- a/libraries/exchange/src/interest_rate.ts\n+++ b/libraries/exchange/src/interest_rate.ts\n@@ -12 +11,0 @@ import { ISeriesIngestResult, SeriesFetchDirection } from './types';\n-import { IExchange } from '.';\n@@ -261,0 +261,3 @@ export const provideInterestLedgerService = (\n+        if (metadata.type === 'GATE') {\n+          console.log({ Where: 'Herex', range, accountInterestLedgers });\n+        }\n@@ -309,0 +312,28 @@ export const provideInterestLedgerService = (\n+        } else {\n+          if (\n+            (metadata.type === 'HTX' ||\n+              metadata.type === 'BITGET' ||\n+              metadata.type === 'ASTER' ||\n+              metadata.type === 'BINANCE') &&\n+            accountInterestLedgers.length === 0\n+          ) {\n+            await requestSQL(\n+              terminal,\n+              buildInsertManyIntoTableSQL(\n+                [\n+                  {\n+                    series_id: encodeInterestLedgerSeriesId(msg.req.account_id, msg.req.ledger_type),\n+                    table_name: 'account_interest_ledger',\n+                    start_time:\n+                      metadata.direction === 'backward' ? msg.req.time - 48 * 3600_000 : msg.req.time,\n+                    end_time: metadata.direction === 'backward' ? msg.req.time : msg.req.time + 48 * 3600_000,\n+                  },\n+                ],\n+                'series_data_range',\n+                {\n+                  columns: ['series_id', 'table_name', 'start_time', 'end_time'],\n+                  ignoreConflict: true,\n+                },\n+              ),\n+            );\n+          }\n@@ -311 +340,0 @@ export const provideInterestLedgerService = (\n-\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "4f7fdb73f2c7e712e1c0630db286e6b287f3bc99",
+      "short": "4f7fdb73f",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2026-01-13 19:00:07 +0800",
+      "subject": "chore: bump version (#2500)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 22,
+          "deletions": 0,
+          "path": "apps/vendor-aster/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/CHANGELOG.json b/apps/vendor-aster/CHANGELOG.json\nindex 8b4d8da7b..2674d47f2 100644\n--- a/apps/vendor-aster/CHANGELOG.json\n+++ b/apps/vendor-aster/CHANGELOG.json\n@@ -3,0 +4,22 @@\n+    {\n+      \"version\": \"0.10.4\",\n+      \"tag\": \"@yuants/vendor-aster_v0.10.4\",\n+      \"date\": \"Tue, 13 Jan 2026 10:53:40 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"fix\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.8.15`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-aster/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/CHANGELOG.md b/apps/vendor-aster/CHANGELOG.md\nindex 6ae5a1d49..1d32ef2e8 100644\n--- a/apps/vendor-aster/CHANGELOG.md\n+++ b/apps/vendor-aster/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Mon, 12 Jan 2026 05:15:55 GMT and should not be manually modified.\n+This log was last generated on Tue, 13 Jan 2026 10:53:40 GMT and should not be manually modified.\n+\n+## 0.10.4\n+Tue, 13 Jan 2026 10:53:40 GMT\n+\n+### Patches\n+\n+- fix\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-aster/package.json",
+          "changeType": "modified",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/package.json b/apps/vendor-aster/package.json\nindex abd017a40..dee53e4e1 100644\n--- a/apps/vendor-aster/package.json\n+++ b/apps/vendor-aster/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.10.3\",\n+  \"version\": \"0.10.4\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 22,
+          "deletions": 0,
+          "path": "apps/vendor-binance/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-binance/CHANGELOG.json b/apps/vendor-binance/CHANGELOG.json\nindex e0e2e93fd..9f0a1a7e8 100644\n--- a/apps/vendor-binance/CHANGELOG.json\n+++ b/apps/vendor-binance/CHANGELOG.json\n@@ -3,0 +4,22 @@\n+    {\n+      \"version\": \"0.13.4\",\n+      \"tag\": \"@yuants/vendor-binance_v0.13.4\",\n+      \"date\": \"Tue, 13 Jan 2026 10:53:40 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"fix \"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.8.15`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-binance/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-binance/CHANGELOG.md b/apps/vendor-binance/CHANGELOG.md\nindex b5f2ab7a2..5017f9acf 100644\n--- a/apps/vendor-binance/CHANGELOG.md\n+++ b/apps/vendor-binance/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Mon, 12 Jan 2026 05:15:55 GMT and should not be manually modified.\n+This log was last generated on Tue, 13 Jan 2026 10:53:40 GMT and should not be manually modified.\n+\n+## 0.13.4\n+Tue, 13 Jan 2026 10:53:40 GMT\n+\n+### Patches\n+\n+- fix \n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-binance/package.json",
+          "changeType": "modified",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-binance/package.json b/apps/vendor-binance/package.json\nindex f8ba8f9b4..c678a8332 100644\n--- a/apps/vendor-binance/package.json\n+++ b/apps/vendor-binance/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.13.3\",\n+  \"version\": \"0.13.4\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 22,
+          "deletions": 0,
+          "path": "apps/vendor-bitget/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-bitget/CHANGELOG.json b/apps/vendor-bitget/CHANGELOG.json\nindex 4f7c8020f..e7373e621 100644\n--- a/apps/vendor-bitget/CHANGELOG.json\n+++ b/apps/vendor-bitget/CHANGELOG.json\n@@ -3,0 +4,22 @@\n+    {\n+      \"version\": \"0.14.4\",\n+      \"tag\": \"@yuants/vendor-bitget_v0.14.4\",\n+      \"date\": \"Tue, 13 Jan 2026 10:53:40 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"fix \"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.8.15`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-bitget/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-bitget/CHANGELOG.md b/apps/vendor-bitget/CHANGELOG.md\nindex bbea4c177..f8d1c7301 100644\n--- a/apps/vendor-bitget/CHANGELOG.md\n+++ b/apps/vendor-bitget/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Mon, 12 Jan 2026 05:15:55 GMT and should not be manually modified.\n+This log was last generated on Tue, 13 Jan 2026 10:53:40 GMT and should not be manually modified.\n+\n+## 0.14.4\n+Tue, 13 Jan 2026 10:53:40 GMT\n+\n+### Patches\n+\n+- fix \n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-bitget/package.json",
+          "changeType": "modified",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-bitget/package.json b/apps/vendor-bitget/package.json\nindex 62f5bad53..9ca58cc08 100644\n--- a/apps/vendor-bitget/package.json\n+++ b/apps/vendor-bitget/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.14.3\",\n+  \"version\": \"0.14.4\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 22,
+          "deletions": 0,
+          "path": "apps/vendor-gate/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-gate/CHANGELOG.json b/apps/vendor-gate/CHANGELOG.json\nindex e0f3b1452..59321f6d2 100644\n--- a/apps/vendor-gate/CHANGELOG.json\n+++ b/apps/vendor-gate/CHANGELOG.json\n@@ -3,0 +4,22 @@\n+    {\n+      \"version\": \"0.7.4\",\n+      \"tag\": \"@yuants/vendor-gate_v0.7.4\",\n+      \"date\": \"Tue, 13 Jan 2026 10:53:40 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"fix \"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.8.15`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-gate/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-gate/CHANGELOG.md b/apps/vendor-gate/CHANGELOG.md\nindex 3aedae436..845a1c659 100644\n--- a/apps/vendor-gate/CHANGELOG.md\n+++ b/apps/vendor-gate/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Mon, 12 Jan 2026 05:15:55 GMT and should not be manually modified.\n+This log was last generated on Tue, 13 Jan 2026 10:53:40 GMT and should not be manually modified.\n+\n+## 0.7.4\n+Tue, 13 Jan 2026 10:53:40 GMT\n+\n+### Patches\n+\n+- fix \n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-gate/package.json",
+          "changeType": "modified",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-gate/package.json b/apps/vendor-gate/package.json\nindex c6f523bed..8f4a6ebab 100644\n--- a/apps/vendor-gate/package.json\n+++ b/apps/vendor-gate/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.7.3\",\n+  \"version\": \"0.7.4\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 22,
+          "deletions": 0,
+          "path": "apps/vendor-huobi/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-huobi/CHANGELOG.json b/apps/vendor-huobi/CHANGELOG.json\nindex 859dbe637..e5db345a6 100644\n--- a/apps/vendor-huobi/CHANGELOG.json\n+++ b/apps/vendor-huobi/CHANGELOG.json\n@@ -3,0 +4,22 @@\n+    {\n+      \"version\": \"0.19.4\",\n+      \"tag\": \"@yuants/vendor-huobi_v0.19.4\",\n+      \"date\": \"Tue, 13 Jan 2026 10:53:40 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"fix \"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.8.15`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-huobi/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-huobi/CHANGELOG.md b/apps/vendor-huobi/CHANGELOG.md\nindex 12d7ee062..968900b3f 100644\n--- a/apps/vendor-huobi/CHANGELOG.md\n+++ b/apps/vendor-huobi/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Mon, 12 Jan 2026 05:15:55 GMT and should not be manually modified.\n+This log was last generated on Tue, 13 Jan 2026 10:53:40 GMT and should not be manually modified.\n+\n+## 0.19.4\n+Tue, 13 Jan 2026 10:53:40 GMT\n+\n+### Patches\n+\n+- fix \n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-huobi/package.json",
+          "changeType": "modified",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-huobi/package.json b/apps/vendor-huobi/package.json\nindex e34ef12b3..b33f6ce33 100644\n--- a/apps/vendor-huobi/package.json\n+++ b/apps/vendor-huobi/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.19.3\",\n+  \"version\": \"0.19.4\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-hyperliquid/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-hyperliquid/CHANGELOG.json b/apps/vendor-hyperliquid/CHANGELOG.json\nindex 7b0eed60c..697a8b45d 100644\n--- a/apps/vendor-hyperliquid/CHANGELOG.json\n+++ b/apps/vendor-hyperliquid/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.10.4\",\n+      \"tag\": \"@yuants/vendor-hyperliquid_v0.10.4\",\n+      \"date\": \"Tue, 13 Jan 2026 10:53:40 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.8.15`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "apps/vendor-hyperliquid/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-hyperliquid/CHANGELOG.md b/apps/vendor-hyperliquid/CHANGELOG.md\nindex d840b34c8..66aa38362 100644\n--- a/apps/vendor-hyperliquid/CHANGELOG.md\n+++ b/apps/vendor-hyperliquid/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Mon, 12 Jan 2026 05:15:55 GMT and should not be manually modified.\n+This log was last generated on Tue, 13 Jan 2026 10:53:40 GMT and should not be manually modified.\n+\n+## 0.10.4\n+Tue, 13 Jan 2026 10:53:40 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-hyperliquid/package.json",
+          "changeType": "modified",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-hyperliquid/package.json b/apps/vendor-hyperliquid/package.json\nindex cdd5fd36a..b5e4e819f 100644\n--- a/apps/vendor-hyperliquid/package.json\n+++ b/apps/vendor-hyperliquid/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.10.3\",\n+  \"version\": \"0.10.4\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 22,
+          "deletions": 0,
+          "path": "apps/vendor-okx/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.json b/apps/vendor-okx/CHANGELOG.json\nindex 0657d500d..ea196f2b4 100644\n--- a/apps/vendor-okx/CHANGELOG.json\n+++ b/apps/vendor-okx/CHANGELOG.json\n@@ -3,0 +4,22 @@\n+    {\n+      \"version\": \"0.32.4\",\n+      \"tag\": \"@yuants/vendor-okx_v0.32.4\",\n+      \"date\": \"Tue, 13 Jan 2026 10:53:40 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"fix \"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.8.15`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-okx/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.md b/apps/vendor-okx/CHANGELOG.md\nindex e8c99270f..87094492c 100644\n--- a/apps/vendor-okx/CHANGELOG.md\n+++ b/apps/vendor-okx/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Mon, 12 Jan 2026 05:15:55 GMT and should not be manually modified.\n+This log was last generated on Tue, 13 Jan 2026 10:53:40 GMT and should not be manually modified.\n+\n+## 0.32.4\n+Tue, 13 Jan 2026 10:53:40 GMT\n+\n+### Patches\n+\n+- fix \n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-okx/package.json",
+          "changeType": "modified",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/package.json b/apps/vendor-okx/package.json\nindex 18c1c4bb6..0eda17e13 100644\n--- a/apps/vendor-okx/package.json\n+++ b/apps/vendor-okx/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.32.3\",\n+  \"version\": \"0.32.4\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-trading-view/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-trading-view/CHANGELOG.json b/apps/vendor-trading-view/CHANGELOG.json\nindex 3af0f101c..2ebab7aff 100644\n--- a/apps/vendor-trading-view/CHANGELOG.json\n+++ b/apps/vendor-trading-view/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.4.6\",\n+      \"tag\": \"@yuants/vendor-trading-view_v0.4.6\",\n+      \"date\": \"Tue, 13 Jan 2026 10:53:40 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.8.15`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "apps/vendor-trading-view/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-trading-view/CHANGELOG.md b/apps/vendor-trading-view/CHANGELOG.md\nindex 6efa9beb9..00692841c 100644\n--- a/apps/vendor-trading-view/CHANGELOG.md\n+++ b/apps/vendor-trading-view/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Mon, 12 Jan 2026 05:15:55 GMT and should not be manually modified.\n+This log was last generated on Tue, 13 Jan 2026 10:53:40 GMT and should not be manually modified.\n+\n+## 0.4.6\n+Tue, 13 Jan 2026 10:53:40 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-trading-view/package.json",
+          "changeType": "modified",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-trading-view/package.json b/apps/vendor-trading-view/package.json\nindex 421a654c5..926ff3b52 100644\n--- a/apps/vendor-trading-view/package.json\n+++ b/apps/vendor-trading-view/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.4.5\",\n+  \"version\": \"0.4.6\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-turboflow/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-turboflow/CHANGELOG.json b/apps/vendor-turboflow/CHANGELOG.json\nindex f05b3d275..4ddaff0b6 100644\n--- a/apps/vendor-turboflow/CHANGELOG.json\n+++ b/apps/vendor-turboflow/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"1.2.33\",\n+      \"tag\": \"@yuants/vendor-turboflow_v1.2.33\",\n+      \"date\": \"Tue, 13 Jan 2026 10:53:40 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.8.15`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "apps/vendor-turboflow/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-turboflow/CHANGELOG.md b/apps/vendor-turboflow/CHANGELOG.md\nindex e9e7ca363..02dbfbe40 100644\n--- a/apps/vendor-turboflow/CHANGELOG.md\n+++ b/apps/vendor-turboflow/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Mon, 12 Jan 2026 05:15:55 GMT and should not be manually modified.\n+This log was last generated on Tue, 13 Jan 2026 10:53:40 GMT and should not be manually modified.\n+\n+## 1.2.33\n+Tue, 13 Jan 2026 10:53:40 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-turboflow/package.json",
+          "changeType": "modified",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-turboflow/package.json b/apps/vendor-turboflow/package.json\nindex 5bb6b3767..8cd8890ac 100644\n--- a/apps/vendor-turboflow/package.json\n+++ b/apps/vendor-turboflow/package.json\n@@ -3 +3 @@\n-  \"version\": \"1.2.32\",\n+  \"version\": \"1.2.33\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 22,
+          "deletions": 0,
+          "path": "apps/virtual-exchange/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/virtual-exchange/CHANGELOG.json b/apps/virtual-exchange/CHANGELOG.json\nindex fa1dee357..9a88356eb 100644\n--- a/apps/virtual-exchange/CHANGELOG.json\n+++ b/apps/virtual-exchange/CHANGELOG.json\n@@ -3,0 +4,22 @@\n+    {\n+      \"version\": \"0.19.0\",\n+      \"tag\": \"@yuants/app-virtual-exchange_v0.19.0\",\n+      \"date\": \"Tue, 13 Jan 2026 10:53:40 GMT\",\n+      \"comments\": {\n+        \"minor\": [\n+          {\n+            \"comment\": \"add interest-ledger scheduler\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.8.15`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/virtual-exchange/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/virtual-exchange/CHANGELOG.md b/apps/virtual-exchange/CHANGELOG.md\nindex 5ec352e3a..45056066f 100644\n--- a/apps/virtual-exchange/CHANGELOG.md\n+++ b/apps/virtual-exchange/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Mon, 12 Jan 2026 05:15:55 GMT and should not be manually modified.\n+This log was last generated on Tue, 13 Jan 2026 10:53:40 GMT and should not be manually modified.\n+\n+## 0.19.0\n+Tue, 13 Jan 2026 10:53:40 GMT\n+\n+### Minor changes\n+\n+- add interest-ledger scheduler\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/virtual-exchange/package.json",
+          "changeType": "modified",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/virtual-exchange/package.json b/apps/virtual-exchange/package.json\nindex a08045924..dd811facf 100644\n--- a/apps/virtual-exchange/package.json\n+++ b/apps/virtual-exchange/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.18.11\",\n+  \"version\": \"0.19.0\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/app-virtual-exchange/2026-01-12-14-40.json",
+          "changeType": "deleted",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/app-virtual-exchange/2026-01-12-14-40.json b/common/changes/@yuants/app-virtual-exchange/2026-01-12-14-40.json\ndeleted file mode 100644\nindex 2d90edbf2..000000000\n--- a/common/changes/@yuants/app-virtual-exchange/2026-01-12-14-40.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/app-virtual-exchange\",\n-      \"comment\": \"add interest-ledger scheduler\",\n-      \"type\": \"minor\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/app-virtual-exchange\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/app-virtual-exchange/{main_2026-01-12-05-16.json => main_2026-01-13-10-53.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/exchange/2026-01-13-10-42.json",
+          "changeType": "deleted",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/exchange/2026-01-13-10-42.json b/common/changes/@yuants/exchange/2026-01-13-10-42.json\ndeleted file mode 100644\nindex 8ece494dc..000000000\n--- a/common/changes/@yuants/exchange/2026-01-13-10-42.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/exchange\",\n-      \"comment\": \"fix\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/exchange\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/exchange/{main_2026-01-12-05-16.json => main_2026-01-13-10-53.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-aster/2026-01-13-10-42.json",
+          "changeType": "deleted",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-aster/2026-01-13-10-42.json b/common/changes/@yuants/vendor-aster/2026-01-13-10-42.json\ndeleted file mode 100644\nindex 86cc7829c..000000000\n--- a/common/changes/@yuants/vendor-aster/2026-01-13-10-42.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-aster\",\n-      \"comment\": \"fix\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-aster\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-aster/{main_2026-01-12-05-16.json => main_2026-01-13-10-53.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-binance/2026-01-13-10-42.json",
+          "changeType": "deleted",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-binance/2026-01-13-10-42.json b/common/changes/@yuants/vendor-binance/2026-01-13-10-42.json\ndeleted file mode 100644\nindex 0601e823d..000000000\n--- a/common/changes/@yuants/vendor-binance/2026-01-13-10-42.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-binance\",\n-      \"comment\": \"fix \",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-binance\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-binance/{main_2026-01-12-05-16.json => main_2026-01-13-10-53.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-bitget/2026-01-13-10-42.json",
+          "changeType": "deleted",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-bitget/2026-01-13-10-42.json b/common/changes/@yuants/vendor-bitget/2026-01-13-10-42.json\ndeleted file mode 100644\nindex 3081f7fda..000000000\n--- a/common/changes/@yuants/vendor-bitget/2026-01-13-10-42.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-bitget\",\n-      \"comment\": \"fix \",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-bitget\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-bitget/{main_2026-01-12-05-16.json => main_2026-01-13-10-53.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-gate/2026-01-13-10-42.json",
+          "changeType": "deleted",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-gate/2026-01-13-10-42.json b/common/changes/@yuants/vendor-gate/2026-01-13-10-42.json\ndeleted file mode 100644\nindex b6267a82c..000000000\n--- a/common/changes/@yuants/vendor-gate/2026-01-13-10-42.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-gate\",\n-      \"comment\": \"fix \",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-gate\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-gate/{main_2026-01-12-05-16.json => main_2026-01-13-10-53.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-huobi/2026-01-13-10-42.json",
+          "changeType": "deleted",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-huobi/2026-01-13-10-42.json b/common/changes/@yuants/vendor-huobi/2026-01-13-10-42.json\ndeleted file mode 100644\nindex 2912f58c0..000000000\n--- a/common/changes/@yuants/vendor-huobi/2026-01-13-10-42.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-huobi\",\n-      \"comment\": \"fix \",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-huobi\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-huobi/{main_2026-01-12-05-16.json => main_2026-01-13-10-53.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-hyperliquid/{main_2026-01-12-05-16.json => main_2026-01-13-10-53.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-okx/2026-01-13-10-42.json",
+          "changeType": "deleted",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-okx/2026-01-13-10-42.json b/common/changes/@yuants/vendor-okx/2026-01-13-10-42.json\ndeleted file mode 100644\nindex c4222b474..000000000\n--- a/common/changes/@yuants/vendor-okx/2026-01-13-10-42.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-okx\",\n-      \"comment\": \"fix \",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-okx\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/{main_2026-01-12-05-16.json => main_2026-01-13-10-53.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-trading-view/{main_2026-01-12-05-16.json => main_2026-01-13-10-53.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-turboflow/{main_2026-01-12-05-16.json => main_2026-01-13-10-53.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "libraries/exchange/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/libraries/exchange/CHANGELOG.json b/libraries/exchange/CHANGELOG.json\nindex 294039885..aa8ecf8a1 100644\n--- a/libraries/exchange/CHANGELOG.json\n+++ b/libraries/exchange/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.8.15\",\n+      \"tag\": \"@yuants/exchange_v0.8.15\",\n+      \"date\": \"Tue, 13 Jan 2026 10:53:40 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"fix\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "libraries/exchange/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/libraries/exchange/CHANGELOG.md b/libraries/exchange/CHANGELOG.md\nindex b0b9ffce2..c97754215 100644\n--- a/libraries/exchange/CHANGELOG.md\n+++ b/libraries/exchange/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Mon, 12 Jan 2026 05:15:55 GMT and should not be manually modified.\n+This log was last generated on Tue, 13 Jan 2026 10:53:40 GMT and should not be manually modified.\n+\n+## 0.8.15\n+Tue, 13 Jan 2026 10:53:40 GMT\n+\n+### Patches\n+\n+- fix\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "libraries/exchange/package.json",
+          "changeType": "modified",
+          "patch": "commit 4f7fdb73f2c7e712e1c0630db286e6b287f3bc99\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Tue Jan 13 19:00:07 2026 +0800\n\n    chore: bump version (#2500)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/libraries/exchange/package.json b/libraries/exchange/package.json\nindex eeb3bffa0..4ef134491 100644\n--- a/libraries/exchange/package.json\n+++ b/libraries/exchange/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.8.14\",\n+  \"version\": \"0.8.15\",\n",
+          "codeSnippets": []
+        }
+      ]
+    }
+  ],
+  "analysis": {
+    "domains": [
+      {
+        "name": "API请求优化与限速",
+        "commits": [
+          "6563ef37b"
+        ],
+        "files": [
+          "apps/virtual-exchange/src/credential.ts",
+          "apps/virtual-exchange/src/general.ts",
+          "apps/virtual-exchange/src/series-collector/interest-ledger.ts",
+          "apps/virtual-exchange/src/series-collector/patch-interest-rate.ts",
+          "apps/virtual-exchange/src/series-collector/patch-ohlc.ts",
+          "apps/virtual-exchange/src/series-collector/setup.ts",
+          "apps/virtual-exchange/src/series-collector/sql-helpers.ts",
+          "apps/virtual-exchange/src/types.ts",
+          "apps/virtual-exchange/tsconfig.json",
+          "common/changes/@yuants/app-virtual-exchange/2026-01-12-14-40.json"
+        ]
+      },
+      {
+        "name": "安全与鉴权",
+        "commits": [
+          "6563ef37b"
+        ],
+        "files": [
+          "apps/virtual-exchange/src/credential.ts",
+          "apps/virtual-exchange/src/general.ts",
+          "apps/virtual-exchange/src/series-collector/interest-ledger.ts",
+          "apps/virtual-exchange/src/series-collector/patch-interest-rate.ts",
+          "apps/virtual-exchange/src/series-collector/patch-ohlc.ts",
+          "apps/virtual-exchange/src/series-collector/setup.ts",
+          "apps/virtual-exchange/src/series-collector/sql-helpers.ts",
+          "apps/virtual-exchange/src/types.ts",
+          "apps/virtual-exchange/tsconfig.json",
+          "common/changes/@yuants/app-virtual-exchange/2026-01-12-14-40.json"
+        ]
+      },
+      {
+        "name": "订单与交易",
+        "commits": [
+          "6563ef37b"
+        ],
+        "files": [
+          "apps/virtual-exchange/src/credential.ts",
+          "apps/virtual-exchange/src/general.ts",
+          "apps/virtual-exchange/src/series-collector/interest-ledger.ts",
+          "apps/virtual-exchange/src/series-collector/patch-interest-rate.ts",
+          "apps/virtual-exchange/src/series-collector/patch-ohlc.ts",
+          "apps/virtual-exchange/src/series-collector/setup.ts",
+          "apps/virtual-exchange/src/series-collector/sql-helpers.ts",
+          "apps/virtual-exchange/src/types.ts",
+          "apps/virtual-exchange/tsconfig.json",
+          "common/changes/@yuants/app-virtual-exchange/2026-01-12-14-40.json"
+        ]
+      },
+      {
+        "name": "账户管理",
+        "commits": [
+          "6563ef37b"
+        ],
+        "files": [
+          "apps/virtual-exchange/src/credential.ts",
+          "apps/virtual-exchange/src/general.ts",
+          "apps/virtual-exchange/src/series-collector/interest-ledger.ts",
+          "apps/virtual-exchange/src/series-collector/patch-interest-rate.ts",
+          "apps/virtual-exchange/src/series-collector/patch-ohlc.ts",
+          "apps/virtual-exchange/src/series-collector/setup.ts",
+          "apps/virtual-exchange/src/series-collector/sql-helpers.ts",
+          "apps/virtual-exchange/src/types.ts",
+          "apps/virtual-exchange/tsconfig.json",
+          "common/changes/@yuants/app-virtual-exchange/2026-01-12-14-40.json"
+        ]
+      },
+      {
+        "name": "市场数据",
+        "commits": [
+          "6563ef37b"
+        ],
+        "files": [
+          "apps/virtual-exchange/src/credential.ts",
+          "apps/virtual-exchange/src/general.ts",
+          "apps/virtual-exchange/src/series-collector/interest-ledger.ts",
+          "apps/virtual-exchange/src/series-collector/patch-interest-rate.ts",
+          "apps/virtual-exchange/src/series-collector/patch-ohlc.ts",
+          "apps/virtual-exchange/src/series-collector/setup.ts",
+          "apps/virtual-exchange/src/series-collector/sql-helpers.ts",
+          "apps/virtual-exchange/src/types.ts",
+          "apps/virtual-exchange/tsconfig.json",
+          "common/changes/@yuants/app-virtual-exchange/2026-01-12-14-40.json"
+        ]
+      },
+      {
+        "name": "接口重构",
+        "commits": [
+          "6563ef37b"
+        ],
+        "files": [
+          "apps/virtual-exchange/src/credential.ts",
+          "apps/virtual-exchange/src/general.ts",
+          "apps/virtual-exchange/src/series-collector/interest-ledger.ts",
+          "apps/virtual-exchange/src/series-collector/patch-interest-rate.ts",
+          "apps/virtual-exchange/src/series-collector/patch-ohlc.ts",
+          "apps/virtual-exchange/src/series-collector/setup.ts",
+          "apps/virtual-exchange/src/series-collector/sql-helpers.ts",
+          "apps/virtual-exchange/src/types.ts",
+          "apps/virtual-exchange/tsconfig.json",
+          "common/changes/@yuants/app-virtual-exchange/2026-01-12-14-40.json"
+        ]
+      },
+      {
+        "name": "配置与环境",
+        "commits": [
+          "6563ef37b",
+          "12ce55f61",
+          "4f7fdb73f"
+        ],
+        "files": [
+          "apps/virtual-exchange/src/credential.ts",
+          "apps/virtual-exchange/src/general.ts",
+          "apps/virtual-exchange/src/series-collector/interest-ledger.ts",
+          "apps/virtual-exchange/src/series-collector/patch-interest-rate.ts",
+          "apps/virtual-exchange/src/series-collector/patch-ohlc.ts",
+          "apps/virtual-exchange/src/series-collector/setup.ts",
+          "apps/virtual-exchange/src/series-collector/sql-helpers.ts",
+          "apps/virtual-exchange/src/types.ts",
+          "apps/virtual-exchange/tsconfig.json",
+          "common/changes/@yuants/app-virtual-exchange/2026-01-12-14-40.json"
+        ]
+      },
+      {
+        "name": "文档",
+        "commits": [
+          "4f7fdb73f"
+        ],
+        "files": [
+          "apps/vendor-aster/CHANGELOG.json",
+          "apps/vendor-aster/CHANGELOG.md",
+          "apps/vendor-aster/package.json",
+          "apps/vendor-binance/CHANGELOG.json",
+          "apps/vendor-binance/CHANGELOG.md",
+          "apps/vendor-binance/package.json",
+          "apps/vendor-bitget/CHANGELOG.json",
+          "apps/vendor-bitget/CHANGELOG.md",
+          "apps/vendor-bitget/package.json",
+          "apps/vendor-gate/CHANGELOG.json"
+        ]
+      }
+    ],
+    "riskIndicators": [
+      {
+        "type": "no_tests",
+        "severity": "medium",
+        "details": "包含功能或修复提交但未见测试文件更新",
+        "commits": []
+      }
+    ]
+  },
+  "metadata": {
+    "tool": "git-changes-reporter",
+    "version": "3.0.0",
+    "repository": "/home/runner/work/Yuan/Yuan"
+  }
+}
