@@ -251,6 +251,49 @@ importers:
         specifier: ~5.9.3
         version: 5.9.3
 
+  ../../apps/asg-eventbridge-notifier:
+    dependencies:
+      '@yuants/protocol':
+        specifier: workspace:*
+        version: link:../../libraries/protocol
+      '@yuants/utils':
+        specifier: workspace:*
+        version: link:../../libraries/utils
+    devDependencies:
+      '@microsoft/api-extractor':
+        specifier: ~7.55.2
+        version: 7.55.2(@types/node@24.10.4)
+      '@rushstack/heft':
+        specifier: ~1.1.7
+        version: 1.1.7(@types/node@24.10.4)
+      '@rushstack/heft-jest-plugin':
+        specifier: ~1.1.7
+        version: 1.1.7(@rushstack/heft@1.1.7(@types/node@24.10.4))(@types/node@24.10.4)(jest-environment-node@29.7.0)(ts-node@10.9.2(@types/node@24.10.4)(typescript@5.9.3))
+      '@rushstack/heft-node-rig':
+        specifier: ~2.11.12
+        version: 2.11.12(@rushstack/heft@1.1.7(@types/node@24.10.4))(@types/node@24.10.4)(jiti@2.6.1)(ts-node@10.9.2(@types/node@24.10.4)(typescript@5.9.3))
+      '@types/heft-jest':
+        specifier: 1.0.6
+        version: 1.0.6
+      '@types/json-schema':
+        specifier: ~7.0.11
+        version: 7.0.15
+      '@types/node':
+        specifier: '24'
+        version: 24.10.4
+      '@yuants/extension':
+        specifier: workspace:*
+        version: link:../../libraries/extension
+      '@yuants/tool-kit':
+        specifier: workspace:*
+        version: link:../../tools/toolkit
+      json-schema:
+        specifier: ~0.4.0
+        version: 0.4.0
+      typescript:
+        specifier: ~5.9.3
+        version: 5.9.3
+
   ../../apps/email-notifier:
     dependencies:
       '@yuants/protocol':

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-asg-eventbridge-notifier",
+      "comment": "add new package",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/app-asg-eventbridge-notifier"
+}

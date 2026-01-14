@@ -1,0 +1,34 @@
+{
+  "name": "@yuants/app-asg-eventbridge-notifier",
+  "version": "0.1.0",
+  "main": "lib/index.js",
+  "files": [
+    "dist",
+    "lib",
+    "temp"
+  ],
+  "scripts": {
+    "build": "heft test --clean && api-extractor run --local --config ./config/api-extractor.json && yuan-toolkit post-build"
+  },
+  "dependencies": {
+    "@yuants/protocol": "workspace:*",
+    "@yuants/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@microsoft/api-extractor": "~7.55.2",
+    "@rushstack/heft": "~1.1.7",
+    "@rushstack/heft-jest-plugin": "~1.1.7",
+    "@rushstack/heft-node-rig": "~2.11.12",
+    "@types/heft-jest": "1.0.6",
+    "@types/json-schema": "~7.0.11",
+    "@types/node": "24",
+    "@yuants/extension": "workspace:*",
+    "@yuants/tool-kit": "workspace:*",
+    "json-schema": "~0.4.0",
+    "typescript": "~5.9.3"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  }
+}

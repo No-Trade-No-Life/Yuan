@@ -729,3 +729,42 @@
 2026-01-07T09:00:28.350Z,legion_update_tasks,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,setCurrentTask: 逐文件替换 `ohlc` -> `ohlc_v2`，并同步调整 `series_id` 编码/解码与写入列集合，移除旧表写入。,success
 2026-01-07T09:35:08.082Z,legion_update_context,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,progress.completed: 已删除所有基于 createSeriesProvider 的旧 OHLC/interest_rate 脚本与入口（binance/bitget/okx/aster/gate/hyperliquid/tq 等）并清理对应 import。,success
 2026-01-07T09:35:13.641Z,legion_update_tasks,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,completeTask: 逐文件替换 `ohlc` -> `ohlc_v2`，并同步调整 `series_id` 编码/解码与写入列集合，移除旧表写入。,success
+2026-01-11T05:50:57.582Z,legion_init,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,workingDirectory: /Users/c1/Work/Yuan,success
+2026-01-11T05:51:00.576Z,legion_get_status,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,,success
+2026-01-11T05:51:05.560Z,legion_switch_task,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,taskId: ohlc-ohlc-v2,success
+2026-01-11T05:51:09.272Z,legion_read_context,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,"section: all, includeReviews: true",success
+2026-01-11T05:52:15.278Z,legion_update_context,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,addFile: .c1-cellar/migrate-ohlc-myquant.js,success
+2026-01-11T05:54:27.406Z,legion_update_context,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,progress.completed: 优化 .c1-cellar/migrate-ohlc-myquant.js：改为单条 CTE SQL 批处理，避免拉取 5000 行到 JS 再拼接插入。,success
+2026-01-11T06:07:19.032Z,legion_update_context,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,progress.completed: 迁移脚本改用 postgresjs（postgreSQL.js）连接方式，替换 pg/pg-connection-string。,success
+2026-01-12T05:56:20.522Z,legion_init,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,workingDirectory: /Users/c1/Work/Yuan,success
+2026-01-12T05:56:24.294Z,legion_get_status,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,,success
+2026-01-12T05:56:29.184Z,legion_read_context,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,"section: all, includeReviews: true",success
+2026-01-12T05:56:52.366Z,legion_propose_task,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,name: node-unit-deployment-grafana-dashboard,success
+2026-01-12T06:01:13.545Z,legion_approve_proposal,node-unit-deployment-grafana-dashboard,node-unit-deployment-grafana-dashboard,Claude,proposalId: proposal-mkar337v-aba685,success
+2026-01-12T06:01:17.073Z,legion_switch_task,node-unit-deployment-grafana-dashboard,node-unit-deployment-grafana-dashboard,Claude,taskId: node-unit-deployment-grafana-dashboard,success
+2026-01-12T06:01:21.178Z,legion_read_context,node-unit-deployment-grafana-dashboard,node-unit-deployment-grafana-dashboard,Claude,"section: all, includeReviews: true",success
+2026-01-12T06:04:26.441Z,legion_update_tasks,node-unit-deployment-grafana-dashboard,node-unit-deployment-grafana-dashboard,Claude,completeTask: phase 1,success
+2026-01-12T06:05:00.852Z,legion_update_context,node-unit-deployment-grafana-dashboard,node-unit-deployment-grafana-dashboard,Claude,addFile: .c1-cellar/dashboard.json,success
+2026-01-12T06:05:04.614Z,legion_update_context,node-unit-deployment-grafana-dashboard,node-unit-deployment-grafana-dashboard,Claude,addFile: apps/node-unit/monitoring.md,success
+2026-01-12T06:05:09.414Z,legion_update_context,node-unit-deployment-grafana-dashboard,node-unit-deployment-grafana-dashboard,Claude,addFile: apps/node-unit/src/index.ts,success
+2026-01-12T06:05:38.472Z,legion_update_tasks,node-unit-deployment-grafana-dashboard,node-unit-deployment-grafana-dashboard,Claude,completeTask: phase 2,success
+2026-01-12T06:09:47.905Z,legion_update_context,node-unit-deployment-grafana-dashboard,node-unit-deployment-grafana-dashboard,Claude,addFile: .c1-cellar/dashboard-node-unit-deployment.json,success
+2026-01-12T06:10:09.480Z,legion_update_context,node-unit-deployment-grafana-dashboard,node-unit-deployment-grafana-dashboard,Claude,handoff: 在 Grafana 中导入 `.c1-cellar/dashboard-node-unit-deployment.json` 并确认数据源名称与变量能正常解析。,success
+2026-01-13T06:01:55.237Z,legion_update_context,node-unit-deployment-grafana-dashboard,node-unit-deployment-grafana-dashboard,Claude,progress.completed: 调整 CPU Rate by Deployment 面板的 legend，追加 package_name 以便识别来源。,success
+2026-01-13T06:54:04.904Z,legion_list_reviews,app-asg-eventbridge-notifier,app-asg-eventbridge-notifier,Claude,,success
+2026-01-13T06:55:16.105Z,legion_respond_review,app-asg-eventbridge-notifier,app-asg-eventbridge-notifier,Claude,"file: plan.md, reviewId: R1, status: resolved",success
+2026-01-13T06:55:17.585Z,legion_respond_review,app-asg-eventbridge-notifier,app-asg-eventbridge-notifier,Claude,"file: plan.md, reviewId: R2, status: resolved",success
+2026-01-13T06:55:21.881Z,legion_update_context,app-asg-eventbridge-notifier,app-asg-eventbridge-notifier,Claude,addDecision: 告警目标固定为 Feishu，通过 `apps/feishu-notifier` 的 `Feishu/SendMessage` 发送，消息卡片参考 `apps/alert-receiver`，不新增配置项。,success
+2026-01-13T07:33:00.650Z,legion_update_tasks,app-asg-eventbridge-notifier,app-asg-eventbridge-notifier,Claude,completeTask: phase 1,success
+2026-01-13T07:33:31.171Z,legion_update_context,app-asg-eventbridge-notifier,app-asg-eventbridge-notifier,Claude,progress.completed: 完成设计 review 并修订 plan：固定 Feishu 目标、长期运行模式、补充 detail-type 与消息字段。,success
+2026-01-13T07:39:50.089Z,legion_update_tasks,app-asg-eventbridge-notifier,app-asg-eventbridge-notifier,Claude,setCurrentTask: phase 3,success
+2026-01-13T07:40:14.613Z,legion_update_tasks,app-asg-eventbridge-notifier,app-asg-eventbridge-notifier,Claude,completeTask: phase 3,success
+2026-01-13T07:40:50.564Z,legion_update_context,app-asg-eventbridge-notifier,app-asg-eventbridge-notifier,Claude,addFile: apps/asg-eventbridge-notifier/src/index.ts,success
+2026-01-13T07:41:17.579Z,legion_update_context,app-asg-eventbridge-notifier,app-asg-eventbridge-notifier,Claude,handoff: 确认依赖安装后重试 `rushx build`（apps/asg-eventbridge-notifier）,success
+2026-01-14T08:39:14.593Z,legion_get_status,app-asg-eventbridge-notifier,app-asg-eventbridge-notifier,Claude,,success
+2026-01-14T08:39:18.038Z,legion_list_tasks,app-asg-eventbridge-notifier,app-asg-eventbridge-notifier,Claude,,success
+2026-01-14T08:39:20.225Z,legion_switch_task,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,taskId: hyperliquid-api-tokenbucket,success
+2026-01-14T08:39:22.070Z,legion_read_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,"section: all, includeReviews: true",success
+2026-01-14T08:42:29.821Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,addDecision: 暂时移除 REST 响应后 tokenBucket 扣减（`afterRestResponse` 不再触发 acquire）,success
+2026-01-14T08:42:55.444Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,handoff: 确保依赖安装后再运行 `npx tsc --noEmit --project apps/vendor-hyperliquid/tsconfig.json`。,success
+2026-01-14T08:47:24.076Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,addDecision: 暂时注释 `afterRestResponse` 调用，保留响应后限流实现但不启用,success
