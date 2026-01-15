@@ -286,3 +286,20 @@ export const startDeploymentScheduler = (
     )
     .subscribe();
 };
+
+// 导出内部函数用于单元测试
+export {
+  loadActiveNodeUnits,
+  getLostAddresses,
+  buildDeploymentCounts,
+  buildSnapshots,
+  pickCandidateDeployment,
+  claimDeployment,
+  loadResourceUsage,
+  buildResourceUsageSnapshot,
+  parseWeight,
+  deploymentCountProvider,
+  resourceUsageProvider,
+  defaultClaimPolicy,
+  resourceOnlyPolicy,
+};
