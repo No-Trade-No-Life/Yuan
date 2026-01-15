@@ -41,6 +41,7 @@ import treeKill from 'tree-kill';
 import { getAbsolutePath, NODE_PATH, WORKSPACE_DIR } from './const';
 import { DEFAULT_LOG_ROTATE_OPTIONS, RotatingLogStream } from './logging';
 import { installWorkspaceTo } from './prepare-workspace';
+import { startDeploymentScheduler } from './scheduler';
 import { spawnChild } from './spawnChild';
 
 // 如果没有制定主机地址，则创建一个默认的主机管理器
@@ -342,6 +343,7 @@ defer(async () => {
   );
 
   setupSecretProxyService(terminal, childPublicKeys);
+  startDeploymentScheduler(terminal, nodeKeyPair.public_key);
 
   terminal.server.provideService(
     'Deployment/ReadLogSlice',

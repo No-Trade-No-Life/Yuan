@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "hyperliquid-api-tokenbucket",
+  "currentTask": "node-unit-deployment-failover-rfc",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -108,9 +108,9 @@
     {
       "id": "hyperliquid-api-tokenbucket",
       "name": "Hyperliquid API tokenBucket：按官方限额主动限流",
-      "status": "active",
+      "status": "paused",
       "createdAt": "2025-12-26T06:38:21.408Z",
-      "updatedAt": "2026-01-14T08:47:24.074Z"
+      "updatedAt": "2026-01-14T15:05:41.801Z"
     },
     {
       "id": "okx-ohlcpublishchannelohlc-ohlc-v2",
@@ -146,6 +146,13 @@
       "status": "paused",
       "createdAt": "2026-01-13T02:19:46.029Z",
       "updatedAt": "2026-01-14T08:39:20.222Z"
+    },
+    {
+      "id": "node-unit-deployment-failover-rfc",
+      "name": "node-unit-deployment-failover-rfc",
+      "status": "active",
+      "createdAt": "2026-01-14T15:05:41.801Z",
+      "updatedAt": "2026-01-15T02:54:28.004Z"
     }
   ],
   "pendingProposals": [
@@ -1532,6 +1539,70 @@
       "decidedAt": "2026-01-12T06:01:13.507Z",
       "decidedBy": "Claude",
       "createdTaskId": "node-unit-deployment-grafana-dashboard"
+    },
+    {
+      "id": "proposal-mke5ia4z-e0f20a",
+      "name": "node-unit-deployment-failover-rfc",
+      "goal": "梳理 node-unit 与 deployment 的绑定/调度/失联处理机制，并产出可 review 的抢占与失联恢复 RFC 设计。",
+      "rationale": "用户要求先调研 node-unit 与 deployment 绑定/发现/失联机制，并基于 host 事件设计“最少 deployment 抢占”策略；需要跨模块调研与详细 RFC 文档，适合用 legionmind 记录。",
+      "points": [
+        "调研 node-unit 与 deployment 的绑定与调度路径（数据源/状态字段/表）",
+        "梳理 node-unit 如何发现未被调度的 deployment",
+        "调研 host 发布 terminal join/exit 消息与 node-unit 失联判定",
+        "设计失联后的 deployment address 置空与抢占流程（一次仅抢占一个）",
+        "抽象可扩展的抢占指标接口（v1=deployment 最少，未来可扩 CPU/memory）",
+        "产出 RFC 风格 plan 并标注不确定点供 review"
+      ],
+      "scope": [
+        "apps/**/node-unit/**",
+        "apps/**/deployment/**",
+        "libs/**/node-unit/**",
+        "libs/**/deployment/**",
+        "libs/**/host/**",
+        "libs/**/terminal/**",
+        ".legion/tasks/<task-id>/plan.md",
+        ".legion/tasks/<task-id>/context.md",
+        ".legion/tasks/<task-id>/tasks.md"
+      ],
+      "phases": [
+        {
+          "name": "调研",
+          "tasks": [
+            {
+              "description": "梳理 node-unit 与 deployment 绑定/调度机制的代码路径与数据结构。",
+              "acceptance": "context.md 记录绑定流程、关键字段与调用路径。"
+            },
+            {
+              "description": "定位未调度 deployment 的发现机制与 host terminal join/exit 的发布/订阅位置。",
+              "acceptance": "context.md 记录相关模块、事件名称、以及失联判定的当前做法。"
+            }
+          ]
+        },
+        {
+          "name": "设计（RFC）",
+          "tasks": [
+            {
+              "description": "输出 RFC 风格详细设计：失联检测、address 置空、抢占规则（一次仅抢占一个）、最少部署者优先、指标接口抽象与并发策略。",
+              "acceptance": "plan.md 包含核心流程、接口/数据结构草图、边界条件与不确定点清单。"
+            }
+          ]
+        },
+        {
+          "name": "实现（待 review）",
+          "tasks": [
+            {
+              "description": "根据审批后的 RFC 落地代码修改与最小验证。",
+              "acceptance": "实现符合 RFC，相关任务清单与 context.md 更新完成。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-01-14T15:03:54.324Z",
+      "status": "approved",
+      "decidedAt": "2026-01-14T15:05:41.801Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "node-unit-deployment-failover-rfc"
     }
   ]
 }

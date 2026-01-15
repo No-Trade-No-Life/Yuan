@@ -77,6 +77,22 @@
 
 ## 6. 最近几轮工作记录（Recent Sessions）
 
+### 2026-01-14 — Codex
+
+- **本轮摘要**：
+  - 新增 node-unit 侧调度循环：识别失联 node-unit、释放部署地址并按最少部署数抢占未指派 deployment。
+  - 抽象抢占指标接口（v1=deployment 数量），候选按 `updated_at/created_at/id` 升序固定。
+- **修改的文件**：
+  - `apps/node-unit/src/scheduler.ts`
+  - `apps/node-unit/src/index.ts`
+- **详细备注**：
+  - 失联判定仅依赖 `terminalInfos$` 缺失；调度间隔默认 5s，可用 `NODE_UNIT_SCHEDULER_INTERVAL_MS` 覆盖。
+  - E2E 验证：使用隔离环境变量（`env -i`，不继承 shell.nix）起 TimescaleDB + host + postgres-storage + 两个 node-unit，插入 5 个 `@yuants/app-portal@0.2.26` deployments；数轮后分配为 node-unit-1=2、node-unit-2=3，未出现抢占在线节点的情况。
+- **运行的测试 / 检查**：
+  - `pnpm -C apps/node-unit build`（heft test + api-extractor + post-build）通过；提示 TypeScript 版本高于 Heft。
+  - `rush build --to @yuants/node-unit` 通过（提示 Node.js 24.11.0 未被 Rush 测试）。
+  - E2E 手动流程：`docker run timescale/timescaledb:latest-pg15` + `apps/host/lib/cli.js` + `apps/postgres-storage/lib/cli.js` + `tools/sql-migration/lib/cli.js` + 两个 `apps/node-unit/lib/cli.js`。
+
 ### 2025-11-24 — Codex
 
 - **本轮摘要**：
@@ -102,6 +118,7 @@
 
 - [x] 在 node-unit 中暴露每个 deployment 的 CPU、内存与网络相关指标（Prometheus 兼容，含 deployment 标签）。
 - [ ] 验证新指标输出是否被 metrics-collector/Prometheus 正常抓取，确认面板所需标签与含义。
+- [ ] 验证失联释放与抢占调度在多 node-unit 环境下的行为（含并列最少场景）。
 
 ### 7.2 中优先级 / 待排期
 

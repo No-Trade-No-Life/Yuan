@@ -768,3 +768,39 @@
 2026-01-14T08:42:29.821Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,addDecision: 暂时移除 REST 响应后 tokenBucket 扣减（`afterRestResponse` 不再触发 acquire）,success
 2026-01-14T08:42:55.444Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,handoff: 确保依赖安装后再运行 `npx tsc --noEmit --project apps/vendor-hyperliquid/tsconfig.json`。,success
 2026-01-14T08:47:24.076Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,addDecision: 暂时注释 `afterRestResponse` 调用，保留响应后限流实现但不启用,success
+2026-01-14T15:03:00.269Z,legion_get_status,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,,success
+2026-01-14T15:03:27.337Z,legion_read_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,"section: all, includeReviews: true",success
+2026-01-14T15:03:54.326Z,legion_propose_task,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,name: node-unit-deployment-failover-rfc,success
+2026-01-14T15:05:41.805Z,legion_approve_proposal,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,proposalId: proposal-mke5ia4z-e0f20a,success
+2026-01-14T15:05:45.309Z,legion_switch_task,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,taskId: node-unit-deployment-failover-rfc,success
+2026-01-14T15:05:49.198Z,legion_read_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,"section: all, includeReviews: true",success
+2026-01-14T15:11:34.873Z,legion_update_tasks,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,completeTask: phase 1,success
+2026-01-14T15:11:52.511Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,addFile: apps/node-unit/src/index.ts,success
+2026-01-14T15:11:57.339Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,addFile: libraries/deploy/src/index.ts,success
+2026-01-14T15:12:00.120Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,addFile: tools/sql-migration/sql/deployment.sql,success
+2026-01-14T15:12:04.742Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,addFile: apps/host/src/host-manager.ts,success
+2026-01-14T15:12:09.150Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,addFile: libraries/protocol/src/terminal.ts,success
+2026-01-14T15:12:13.554Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,addFile: libraries/protocol/src/model.ts,success
+2026-01-14T15:12:20.010Z,legion_update_tasks,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,completeTask: phase 1,success
+2026-01-14T15:14:31.558Z,legion_update_tasks,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,completeTask: phase 2,success
+2026-01-14T15:14:36.765Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,progress.completed: 已完成 RFC 设计并更新 plan.md：覆盖失联检测、address 置空、抢占规则、最少部署优先、指标接口抽象、并发策略与候选排序。,success
+2026-01-14T15:37:09.321Z,legion_list_reviews,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,status: open,success
+2026-01-14T15:39:02.438Z,legion_respond_review,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,"file: plan.md, reviewId: R1, status: resolved",success
+2026-01-14T15:39:03.407Z,legion_respond_review,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,"file: plan.md, reviewId: R2, status: resolved",success
+2026-01-14T15:39:04.161Z,legion_respond_review,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,"file: plan.md, reviewId: R3, status: resolved",success
+2026-01-14T15:39:04.814Z,legion_respond_review,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,"file: plan.md, reviewId: R4, status: resolved",success
+2026-01-14T15:39:05.971Z,legion_respond_review,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,"file: plan.md, reviewId: R5, status: resolved",success
+2026-01-14T15:39:42.116Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,addDecision: 确认失联/抢占策略：失联仅依赖 terminalInfos$ 缺失；抢占排序 updated_at/created_at/id 升序；抢占资格仅统计已指派 deployment；调度间隔默认 5s。,success
+2026-01-14T15:41:25.659Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,addFile: apps/node-unit/src/scheduler.ts,success
+2026-01-14T15:41:28.270Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,addFile: apps/node-unit/src/index.ts,success
+2026-01-14T15:41:31.338Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,addFile: apps/node-unit/SESSION_NOTES.md,success
+2026-01-14T15:41:35.901Z,legion_update_tasks,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,completeTask: phase 3,success
+2026-01-14T15:41:40.380Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,handoff: 如需验证行为，准备多 node-unit 实例并观察 deployment address 的释放/抢占更新。,success
+2026-01-14T15:42:05.789Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,progress.completed: 已运行 `pnpm -C apps/node-unit build`（heft test + api-extractor + post-build）通过；仅提示 TypeScript 5.9.3 版本告警。,success
+2026-01-14T15:43:14.592Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,progress.completed: 调度间隔支持通过 `NODE_UNIT_SCHEDULER_INTERVAL_MS` 覆盖。,success
+2026-01-14T15:45:27.686Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,progress.completed: 已运行 `rush build --to @yuants/node-unit` 成功（警告：Node.js 24.11.0 未被 Rush 测试）。,success
+2026-01-14T15:47:34.339Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,handoff: 如需 E2E，请提供可用的 Postgres（本机或 Docker）与 Host 启动方式，再继续验证抢占/释放流程。,success
+2026-01-14T16:22:48.143Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,progress.completed: 已完成本地 E2E：TimescaleDB + host + postgres-storage + 两个 node-unit；插入 deployments 后，停掉 node-unit-2，address 清空后由 node-unit-1 每轮抢占一个并最终接管。,success
+2026-01-15T02:50:10.845Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,progress.completed: 已按“隔离环境变量”重新执行 E2E（`env -i`），确认不会继承 shell.nix；抢占行为符合预期。,failed
+2026-01-15T02:50:16.528Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,progress.completed: 已按“隔离环境变量”重新执行 E2E（`env -i`），确认不会继承 shell.nix；抢占行为符合预期。,success
+2026-01-15T02:54:28.016Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,progress.completed: 已按 portal 5 实例重新跑 E2E（隔离环境变量）：最终分配为 node-unit-1=2、node-unit-2=3，未抢占在线节点。,success

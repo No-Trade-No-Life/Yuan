@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/node-unit",
+      "comment": "add deployment schedule",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/node-unit"
+}
