@@ -6,7 +6,7 @@ import { catchError, concatMap, defer, EMPTY, interval, takeUntil } from 'rxjs';
 
 const DEFAULT_SCHEDULER_INTERVAL_MS = 5_000;
 
-export type ClaimMetricKey = 'deployment_count' | string;
+export type ClaimMetricKey = 'deployment_count' | 'resource_usage' | string;
 
 export interface ClaimMetricSnapshot {
   key: ClaimMetricKey;
@@ -16,6 +16,7 @@ export interface ClaimMetricSnapshot {
 export interface ClaimMetricContext {
   deployments: IDeployment[];
   deploymentCounts: Map<string, number>;
+  resourceUsage: Map<string, { cpuPercent: number; memoryMb: number }>;
 }
 
 export interface ClaimMetricProvider {
@@ -36,6 +37,61 @@ const deploymentCountProvider: ClaimMetricProvider = {
   }),
 };
 
+const parseWeight = (value: string | undefined, fallback: number): number => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+const loadResourceUsage = (
+  terminalInfos: ITerminalInfo[],
+): Map<string, { cpuPercent: number; memoryMb: number }> => {
+  const usage = new Map<string, { cpuPercent: number; memoryMb: number }>();
+  for (const info of terminalInfos) {
+    const tags = info.tags ?? {};
+    if (tags.node_unit === 'true' && tags.node_unit_address) {
+      const cpuPercent = Number.parseFloat(tags.node_unit_cpu_percent ?? '0');
+      const memoryMb = Number.parseFloat(tags.node_unit_memory_mb ?? '0');
+      usage.set(tags.node_unit_address, {
+        cpuPercent: Number.isFinite(cpuPercent) ? cpuPercent : 0,
+        memoryMb: Number.isFinite(memoryMb) ? memoryMb : 0,
+      });
+    }
+  }
+  return usage;
+};
+
+const resourceUsageProvider: ClaimMetricProvider = {
+  key: 'resource_usage',
+  evaluate: (nodeUnitAddress, ctx) => {
+    const usage = ctx.resourceUsage.get(nodeUnitAddress);
+    if (!usage) return { key: 'resource_usage', value: 0 };
+
+    const cpuWeight = parseWeight(process.env.NODE_UNIT_CPU_WEIGHT, 0.5);
+    const memoryWeight = parseWeight(process.env.NODE_UNIT_MEMORY_WEIGHT, 0.5);
+    const weightSum = cpuWeight + memoryWeight;
+    const normalizedCpuWeight = weightSum > 0 ? cpuWeight / weightSum : 0.5;
+    const normalizedMemoryWeight = weightSum > 0 ? memoryWeight / weightSum : 0.5;
+
+    const normalizedMemory = usage.memoryMb / 1024;
+
+    return {
+      key: 'resource_usage',
+      value: usage.cpuPercent * normalizedCpuWeight + normalizedMemory * normalizedMemoryWeight,
+    };
+  },
+};
+
+const buildResourceUsageSnapshot = (
+  nodeUnits: string[],
+  resourceUsage: Map<string, { cpuPercent: number; memoryMb: number }>,
+): Record<string, { cpuPercent: number; memoryMb: number }> => {
+  return nodeUnits.reduce<Record<string, { cpuPercent: number; memoryMb: number }>>((result, address) => {
+    const usage = resourceUsage.get(address) ?? { cpuPercent: 0, memoryMb: 0 };
+    result[address] = usage;
+    return result;
+  }, {});
+};
+
 const defaultClaimPolicy: ClaimPolicy = {
   providers: [deploymentCountProvider],
   pickEligible: (nodeUnits, snapshots) => {
@@ -43,6 +99,18 @@ const defaultClaimPolicy: ClaimPolicy = {
     const values = nodeUnits.map(
       (address) =>
         snapshots.get(address)?.find((snapshot) => snapshot.key === 'deployment_count')?.value ?? 0,
+    );
+    const minValue = Math.min(...values);
+    return nodeUnits.filter((_, index) => values[index] === minValue);
+  },
+};
+
+const resourceOnlyPolicy: ClaimPolicy = {
+  providers: [resourceUsageProvider],
+  pickEligible: (nodeUnits, snapshots) => {
+    if (nodeUnits.length === 0) return [];
+    const values = nodeUnits.map(
+      (address) => snapshots.get(address)?.find((snapshot) => snapshot.key === 'resource_usage')?.value ?? 0,
     );
     const minValue = Math.min(...values);
     return nodeUnits.filter((_, index) => values[index] === minValue);
@@ -135,6 +203,7 @@ const runSchedulerCycle = async (
   terminal: Terminal,
   nodeUnitAddress: string,
   activeNodeUnits: string[],
+  resourceUsage: Map<string, { cpuPercent: number; memoryMb: number }>,
   policy: ClaimPolicy,
 ): Promise<void> => {
   if (activeNodeUnits.length === 0) return;
@@ -151,7 +220,7 @@ const runSchedulerCycle = async (
   }
 
   const counts = buildDeploymentCounts(deployments, activeNodeUnits);
-  const context: ClaimMetricContext = { deployments, deploymentCounts: counts };
+  const context: ClaimMetricContext = { deployments, deploymentCounts: counts, resourceUsage };
   const snapshots = buildSnapshots(activeNodeUnits, context, policy);
   const eligibleNodeUnits = policy.pickEligible(activeNodeUnits, snapshots);
 
@@ -159,6 +228,12 @@ const runSchedulerCycle = async (
 
   const candidate = await pickCandidateDeployment(terminal);
   if (!candidate) return;
+
+  const usageSnapshot = buildResourceUsageSnapshot(activeNodeUnits, resourceUsage);
+  console.info(formatTime(Date.now()), 'DeploymentClaimAttempt', {
+    deployment_id: candidate.id,
+    usage: usageSnapshot,
+  });
 
   const claimed = await claimDeployment(terminal, candidate, nodeUnitAddress);
   if (claimed) {
@@ -174,12 +249,19 @@ export const startDeploymentScheduler = (
   options: { intervalMs?: number; policy?: ClaimPolicy } = {},
 ) => {
   let activeNodeUnits: string[] = [];
+  let resourceUsage = new Map<string, { cpuPercent: number; memoryMb: number }>();
 
   terminal.terminalInfos$.pipe(takeUntil(terminal.dispose$)).subscribe((terminalInfos) => {
     activeNodeUnits = loadActiveNodeUnits(terminalInfos);
+    resourceUsage = loadResourceUsage(terminalInfos);
   });
 
-  const policy = options.policy ?? defaultClaimPolicy;
+  const policyName = process.env.NODE_UNIT_CLAIM_POLICY ?? 'deployment_count';
+  const policies: Record<string, ClaimPolicy> = {
+    deployment_count: defaultClaimPolicy,
+    resource_usage: resourceOnlyPolicy,
+  };
+  const policy = options.policy ?? policies[policyName] ?? defaultClaimPolicy;
   const intervalFromEnv = Number(process.env.NODE_UNIT_SCHEDULER_INTERVAL_MS);
   const intervalMs =
     Number.isFinite(options.intervalMs) && options.intervalMs! > 0
@@ -192,7 +274,9 @@ export const startDeploymentScheduler = (
     .pipe(
       takeUntil(terminal.dispose$),
       concatMap(() =>
-        defer(() => runSchedulerCycle(terminal, nodeUnitAddress, activeNodeUnits, policy)).pipe(
+        defer(() =>
+          runSchedulerCycle(terminal, nodeUnitAddress, activeNodeUnits, resourceUsage, policy),
+        ).pipe(
           catchError((err) => {
             console.error(formatTime(Date.now()), 'DeploymentSchedulerError', err);
             return EMPTY;

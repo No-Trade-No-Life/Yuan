@@ -804,3 +804,13 @@
 2026-01-15T02:50:10.845Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,progress.completed: 已按“隔离环境变量”重新执行 E2E（`env -i`），确认不会继承 shell.nix；抢占行为符合预期。,failed
 2026-01-15T02:50:16.528Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,progress.completed: 已按“隔离环境变量”重新执行 E2E（`env -i`），确认不会继承 shell.nix；抢占行为符合预期。,success
 2026-01-15T02:54:28.016Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,progress.completed: 已按 portal 5 实例重新跑 E2E（隔离环境变量）：最终分配为 node-unit-1=2、node-unit-2=3，未抢占在线节点。,success
+2026-01-15T03:24:18.686Z,legion_get_status,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,,success
+2026-01-15T03:25:46.805Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,addDecision: v2 资源调度设计：数据源采用 node-unit 自报告（terminalInfo.tags）；策略采用纯资源优先（不考虑 deployment 数量）；权重 CPU 50% / Memory 50%,success
+2026-01-15T03:36:43.572Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,addFile: apps/node-unit/src/scheduler.ts,success
+2026-01-15T03:36:49.755Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,addFile: apps/node-unit/src/index.ts,success
+2026-01-15T03:44:19.352Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,progress.completed: 已用 `NODE_UNIT_CLAIM_POLICY=resource_usage` 重新跑 E2E（隔离环境变量），生成中文报告 `reports/node-unit-portal-resource-usage-e2e-report.md`。,success
+2026-01-15T03:59:09.229Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,progress.completed: 补充抢占时资源快照日志并在报告中按轮次记录 CPU/内存使用情况；重新跑资源策略 E2E。,success
+2026-01-15T04:00:54.637Z,legion_read_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,"section: all, includeReviews: true",success
+2026-01-15T04:04:21.754Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,addDecision: v2 资源上报必须聚合 node-unit 主进程 + 所有子 deployment 进程的 CPU/Memory，而不是只上报主进程,success
+2026-01-15T04:10:51.379Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,progress.completed: 按最新设计聚合 node-unit 主进程+子进程资源上报，重新跑 resource_usage E2E，并更新中文报告与资源快照表。,success
+2026-01-15T04:21:51.516Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,progress.completed: 按 21 个 portal 重新跑资源策略 E2E，更新报告并记录每轮抢占资源快照。,success

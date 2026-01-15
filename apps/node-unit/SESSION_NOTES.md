@@ -81,17 +81,21 @@
 
 - **本轮摘要**：
   - 新增 node-unit 侧调度循环：识别失联 node-unit、释放部署地址并按最少部署数抢占未指派 deployment。
-  - 抽象抢占指标接口（v1=deployment 数量），候选按 `updated_at/created_at/id` 升序固定。
+  - 抽象抢占指标接口，支持 `deployment_count` 与 `resource_usage` 策略切换；候选按 `updated_at/created_at/id` 升序固定。
+  - node-unit 定期上报 CPU/内存占用到 `terminalInfo.tags`，并在抢占前记录资源快照日志。
 - **修改的文件**：
   - `apps/node-unit/src/scheduler.ts`
   - `apps/node-unit/src/index.ts`
 - **详细备注**：
   - 失联判定仅依赖 `terminalInfos$` 缺失；调度间隔默认 5s，可用 `NODE_UNIT_SCHEDULER_INTERVAL_MS` 覆盖。
-  - E2E 验证：使用隔离环境变量（`env -i`，不继承 shell.nix）起 TimescaleDB + host + postgres-storage + 两个 node-unit，插入 5 个 `@yuants/app-portal@0.2.26` deployments；数轮后分配为 node-unit-1=2、node-unit-2=3，未出现抢占在线节点的情况。
+  - 资源调度：`NODE_UNIT_CLAIM_POLICY=resource_usage` 使用 CPU/内存综合评分；权重可用 `NODE_UNIT_CPU_WEIGHT` / `NODE_UNIT_MEMORY_WEIGHT` 覆盖；资源上报为 node-unit 主进程 + 子进程聚合值。
+  - E2E 验证：使用隔离环境变量（`env -i`，不继承 shell.nix）起 TimescaleDB + host + postgres-storage + 两个 node-unit，插入 21 个 `@yuants/app-portal@0.2.26` deployments；最终分配为 node-unit-1=10、node-unit-2=11，未出现抢占在线节点的情况；抢占时记录 CPU/内存快照。
+  - 部署启动在本机 `env -i` 环境下失败（`spawn /nix/store/.../node ENOENT`），不影响调度验证。
 - **运行的测试 / 检查**：
   - `pnpm -C apps/node-unit build`（heft test + api-extractor + post-build）通过；提示 TypeScript 版本高于 Heft。
   - `rush build --to @yuants/node-unit` 通过（提示 Node.js 24.11.0 未被 Rush 测试）。
   - E2E 手动流程：`docker run timescale/timescaledb:latest-pg15` + `apps/host/lib/cli.js` + `apps/postgres-storage/lib/cli.js` + `tools/sql-migration/lib/cli.js` + 两个 `apps/node-unit/lib/cli.js`。
+  - 资源策略 E2E：`NODE_UNIT_CLAIM_POLICY=resource_usage bash scripts/e2e-node-unit-failover.sh`（含资源快照日志）。
 
 ### 2025-11-24 — Codex
 

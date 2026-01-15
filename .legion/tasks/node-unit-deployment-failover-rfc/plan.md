@@ -133,9 +133,167 @@ export interface ClaimPolicy {
 - `deployment_count`：统计 `enabled=true && address != ''` 的数量。
 - 允许抢占的 node-unit：`deployment_count` 最小值的集合。
 
-### v2 方向
+### v2 设计：CPU/Memory 资源优先调度
 
-- CPU/memory 指标可从 node-unit 自身 metrics/host 提供的采样引入，作为额外 provider。
+#### 数据源
+
+采用 **node-unit 自报告** 方案：node-unit 定期更新 `terminalInfo.tags`，携带资源占用信息。
+
+```typescript
+// node-unit 启动时 & 定期更新 terminalInfo.tags
+terminal.terminalInfo.tags = {
+  ...existingTags,
+  node_unit: 'true',
+  node_unit_address: publicKey,
+  node_unit_cpu_percent: '45.2', // 新增：CPU 占用百分比
+  node_unit_memory_mb: '1024', // 新增：内存占用 MB
+};
+```
+
+**上报周期**：与 scheduler loop 间隔对齐（默认 5s），或独立配置。
+
+**采集方式**：**聚合 node-unit 主进程 + 所有子 deployment 进程的资源占用**。
+
+具体实现：
+
+1. **node-unit 主进程**：使用 `process.cpuUsage()` + `process.memoryUsage().rss`
+2. **子 deployment 进程**：遍历 `mapDeploymentIdToProcess`，使用 `pidusage` 获取每个子进程的 CPU/Memory
+3. **聚合**：将主进程和所有子进程的 CPU% 求和、Memory 求和，得到该 node-unit 的总资源占用
+
+```typescript
+const collectTotalResourceUsage = async (
+  mapDeploymentIdToProcess: Map<string, { pid: number; ... }>,
+  lastCpuUsage: NodeJS.CpuUsage,
+  elapsedMs: number,
+  cores: number,
+): Promise<{ cpuPercent: number; memoryMb: number }> => {
+  // 1. node-unit 主进程
+  const currentUsage = process.cpuUsage();
+  const deltaMicros = (currentUsage.user + currentUsage.system) - (lastCpuUsage.user + lastCpuUsage.system);
+  const mainCpuPercent = Math.max((deltaMicros / 1000 / (elapsedMs * cores)) * 100, 0);
+  const mainMemoryMb = process.memoryUsage().rss / 1024 / 1024;
+
+  // 2. 子 deployment 进程
+  let childCpuPercent = 0;
+  let childMemoryMb = 0;
+  for (const [, meta] of mapDeploymentIdToProcess) {
+    const stats = await pidusage(meta.pid).catch(() => null);
+    if (stats) {
+      childCpuPercent += stats.cpu;  // pidusage 返回的是百分比
+      childMemoryMb += stats.memory / 1024 / 1024;
+    }
+  }
+
+  // 3. 聚合
+  return {
+    cpuPercent: mainCpuPercent + childCpuPercent,
+    memoryMb: mainMemoryMb + childMemoryMb,
+  };
+};
+```
+
+> **注意**：`pidusage` 返回的 `cpu` 是该进程相对于单个 CPU 核心的百分比（可能 >100%），与主进程计算方式略有差异。实际实现时需统一口径，建议都采用"相对于总 CPU 容量"的百分比。
+
+#### Context 扩展
+
+```typescript
+export interface ClaimMetricContext {
+  deployments: IDeployment[];
+  deploymentCounts: Map<string, number>;
+  // v2 新增
+  resourceUsage: Map<string, { cpuPercent: number; memoryMb: number }>;
+}
+```
+
+从 `terminalInfos` 提取资源信息：
+
+```typescript
+const loadResourceUsage = (
+  terminalInfos: ITerminalInfo[],
+): Map<string, { cpuPercent: number; memoryMb: number }> => {
+  const usage = new Map();
+  for (const info of terminalInfos) {
+    const tags = info.tags ?? {};
+    if (tags.node_unit === 'true' && tags.node_unit_address) {
+      usage.set(tags.node_unit_address, {
+        cpuPercent: parseFloat(tags.node_unit_cpu_percent ?? '0'),
+        memoryMb: parseFloat(tags.node_unit_memory_mb ?? '0'),
+      });
+    }
+  }
+  return usage;
+};
+```
+
+#### 新增 Provider
+
+```typescript
+const resourceUsageProvider: ClaimMetricProvider = {
+  key: 'resource_usage',
+  evaluate: (nodeUnitAddress, ctx) => {
+    const usage = ctx.resourceUsage.get(nodeUnitAddress);
+    if (!usage) return { key: 'resource_usage', value: 0 };
+
+    // 权重：CPU 50%, Memory 50%
+    const cpuWeight = 0.5;
+    const memoryWeight = 0.5;
+    const normalizedMemory = usage.memoryMb / 1024; // 归一化到 GB
+
+    return {
+      key: 'resource_usage',
+      value: usage.cpuPercent * cpuWeight + normalizedMemory * memoryWeight,
+    };
+  },
+};
+```
+
+#### 策略选择
+
+v2 采用 **纯资源优先** 策略：仅看 CPU/Memory 综合评分，不考虑 deployment 数量。
+
+```typescript
+const resourceOnlyPolicy: ClaimPolicy = {
+  providers: [resourceUsageProvider],
+  pickEligible: (nodeUnits, snapshots) => {
+    if (nodeUnits.length === 0) return [];
+    const values = nodeUnits.map(
+      (addr) => snapshots.get(addr)?.find((s) => s.key === 'resource_usage')?.value ?? 0,
+    );
+    const minValue = Math.min(...values);
+    return nodeUnits.filter((_, i) => values[i] === minValue);
+  },
+};
+```
+
+#### 策略配置化
+
+通过环境变量切换：
+
+```typescript
+const policyName = process.env.NODE_UNIT_CLAIM_POLICY ?? 'deployment_count';
+
+const policies: Record<string, ClaimPolicy> = {
+  deployment_count: defaultClaimPolicy, // v1 默认
+  resource_usage: resourceOnlyPolicy, // v2 纯资源
+};
+
+const policy = policies[policyName] ?? defaultClaimPolicy;
+```
+
+#### 需要修改的文件
+
+| 文件                              | 改动内容                                                                                                                    |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `apps/node-unit/src/index.ts`     | 修改 `startNodeUnitResourceReporter`：聚合主进程 + 所有子 deployment 进程的 CPU/Memory，需要访问 `mapDeploymentIdToProcess` |
+| `apps/node-unit/src/scheduler.ts` | 扩展 `ClaimMetricContext`、新增 `resourceUsageProvider` 和 `resourceOnlyPolicy`、策略配置化（已实现）                       |
+
+#### 边界条件
+
+- **tags 缺失**：若某 node-unit 未上报资源指标，`cpuPercent` 和 `memoryMb` 默认为 0，等同于"资源最空闲"，会被优先选中抢占。可考虑后续加入"tags 缺失则排除"的逻辑。
+- **采集延迟**：资源数据有 1~2 个调度周期的延迟，属于可接受范围。
+- **权重调整**：当前硬编码 50/50，后续可通过环境变量 `NODE_UNIT_CPU_WEIGHT` / `NODE_UNIT_MEMORY_WEIGHT` 配置。
+- **子进程退出**：`pidusage` 对已退出进程会返回 null，已在代码中处理（`.catch(() => null)`）。
+- **CPU 口径统一**：`pidusage` 返回的 cpu 是相对单核的百分比，主进程采集是相对总核心数；实现时需统一为"相对总 CPU 容量"。
 
 ---
 

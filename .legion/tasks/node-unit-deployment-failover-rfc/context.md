@@ -22,6 +22,11 @@
 - 已完成本地 E2E：TimescaleDB + host + postgres-storage + 两个 node-unit；插入 deployments 后，停掉 node-unit-2，address 清空后由 node-unit-1 每轮抢占一个并最终接管。
 - 已按“隔离环境变量”重新执行 E2E（`env -i`），确认不会继承 shell.nix；抢占行为符合预期。
 - 已按 portal 5 实例重新跑 E2E（隔离环境变量）：最终分配为 node-unit-1=2、node-unit-2=3，未抢占在线节点。
+- 已实现 v2 资源调度：node-unit 上报 CPU/内存到 terminalInfo.tags，scheduler 支持 `resource_usage` policy 与权重/间隔配置。
+- 已用 `NODE_UNIT_CLAIM_POLICY=resource_usage` 重新跑 E2E（隔离环境变量），生成中文报告 `reports/node-unit-portal-resource-usage-e2e-report.md`。
+- 补充抢占时资源快照日志并在报告中按轮次记录 CPU/内存使用情况；重新跑资源策略 E2E。
+- 按最新设计聚合 node-unit 主进程+子进程资源上报，重新跑 resource_usage E2E，并更新中文报告与资源快照表。
+- 按 21 个 portal 重新跑资源策略 E2E，更新报告并记录每轮抢占资源快照。
 
 ### 🟡 进行中
 
