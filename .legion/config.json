@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "node-unit-deployment-failover-rfc",
+  "currentTask": null,
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -150,9 +150,9 @@
     {
       "id": "node-unit-deployment-failover-rfc",
       "name": "node-unit-deployment-failover-rfc",
-      "status": "active",
+      "status": "archived",
       "createdAt": "2026-01-14T15:05:41.801Z",
-      "updatedAt": "2026-01-15T04:21:51.505Z"
+      "updatedAt": "2026-01-15T15:16:16.181Z"
     }
   ],
   "pendingProposals": [
