@@ -9,6 +9,9 @@ HOST_URL="ws://localhost:8888"
 DEPLOYMENT_PACKAGE_NAME="${DEPLOYMENT_PACKAGE_NAME:-@yuants/app-portal}"
 DEPLOYMENT_PACKAGE_VERSION="${DEPLOYMENT_PACKAGE_VERSION:-0.2.26}"
 DEPLOYMENT_COUNT="${DEPLOYMENT_COUNT:-5}"
+CLAIM_POLICY="${NODE_UNIT_CLAIM_POLICY:-}"
+CPU_WEIGHT="${NODE_UNIT_CPU_WEIGHT:-}"
+MEMORY_WEIGHT="${NODE_UNIT_MEMORY_WEIGHT:-}"
 
 HOST_PID=""
 PG_STORAGE_PID=""
@@ -77,10 +80,12 @@ sleep 2
 
 echo "[e2e] Starting node-unit instances..."
 env -i PATH="$PATH" HOST_URL="${HOST_URL}" NODE_UNIT_NAME="node-unit-1" NODE_UNIT_PASSWORD="node-unit-1" POSTGRES_URI="" \
+  NODE_UNIT_CLAIM_POLICY="${CLAIM_POLICY}" NODE_UNIT_CPU_WEIGHT="${CPU_WEIGHT}" NODE_UNIT_MEMORY_WEIGHT="${MEMORY_WEIGHT}" \
   node "${ROOT_DIR}/apps/node-unit/lib/cli.js" > "${WORK_DIR}/node-unit-1.log" 2>&1 &
 NODE_UNIT_1_PID=$!
 
 env -i PATH="$PATH" HOST_URL="${HOST_URL}" NODE_UNIT_NAME="node-unit-2" NODE_UNIT_PASSWORD="node-unit-2" POSTGRES_URI="" \
+  NODE_UNIT_CLAIM_POLICY="${CLAIM_POLICY}" NODE_UNIT_CPU_WEIGHT="${CPU_WEIGHT}" NODE_UNIT_MEMORY_WEIGHT="${MEMORY_WEIGHT}" \
   node "${ROOT_DIR}/apps/node-unit/lib/cli.js" > "${WORK_DIR}/node-unit-2.log" 2>&1 &
 NODE_UNIT_2_PID=$!
 
@@ -106,7 +111,7 @@ echo "[e2e] Deployment address distribution after another cycle:"
 docker exec -i "${CONTAINER_NAME}" psql -U postgres -d yuan -c \
   "select address, count(*) from deployment where package_name = '${DEPLOYMENT_PACKAGE_NAME}' group by address order by count(*) desc;"
 
-for attempt in {1..10}; do
+for attempt in {1..30}; do
   remaining=$(docker exec -i "${CONTAINER_NAME}" psql -U postgres -d yuan -t -A -c \
     "select count(*) from deployment where package_name = '${DEPLOYMENT_PACKAGE_NAME}' and address = '';" | tr -d '[:space:]')
   if [[ "${remaining}" == "0" ]]; then

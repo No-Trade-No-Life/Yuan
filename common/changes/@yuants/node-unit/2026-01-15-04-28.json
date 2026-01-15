@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/node-unit",
+      "comment": "use resource usage as scheduler key",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/node-unit"
+}

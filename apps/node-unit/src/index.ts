@@ -16,12 +16,13 @@ import {
 import { spawn } from 'child_process';
 import { createReadStream } from 'fs';
 import { mkdir, stat } from 'fs/promises';
-import { hostname } from 'os';
+import { cpus, hostname } from 'os';
 import { join } from 'path';
 import pidusage from 'pidusage';
 import {
   catchError,
   concat,
+  concatMap,
   defer,
   EMPTY,
   firstValueFrom,
@@ -166,6 +167,53 @@ const startDeploymentMetricsCollector = () => {
       mergeMap(() => defer(() => collectDeploymentMetrics())),
       catchError((err) => {
         console.error(formatTime(Date.now()), 'DeploymentMetricsError', err);
+        return EMPTY;
+      }),
+    )
+    .subscribe();
+};
+
+const startNodeUnitResourceReporter = (terminal: Terminal, intervalMs: number) => {
+  let lastUsage = process.cpuUsage();
+  let lastAt = Date.now();
+  const cores = Math.max(cpus().length, 1);
+
+  interval(intervalMs)
+    .pipe(
+      takeUntil(terminal.dispose$),
+      concatMap(() =>
+        defer(async () => {
+          const now = Date.now();
+          const usage = process.cpuUsage();
+          const deltaMicros = usage.user + usage.system - lastUsage.user - lastUsage.system;
+          const elapsedMs = Math.max(now - lastAt, 1);
+          const cpuMs = Math.max(deltaMicros / 1000, 0);
+          const mainCpuPercent = Math.max((cpuMs / (elapsedMs * cores)) * 100, 0);
+          const mainMemoryMb = Math.max(process.memoryUsage().rss / 1024 / 1024, 0);
+
+          let childCpuPercent = 0;
+          let childMemoryMb = 0;
+          for (const [, meta] of mapDeploymentIdToProcess) {
+            const stats = await pidusage(meta.pid).catch(() => null);
+            if (!stats) continue;
+            childCpuPercent += Math.max(stats.cpu ?? 0, 0);
+            childMemoryMb += Math.max(stats.memory ?? 0, 0) / 1024 / 1024;
+          }
+
+          const totalCpuPercent = mainCpuPercent + childCpuPercent / cores;
+          const totalMemoryMb = mainMemoryMb + childMemoryMb;
+
+          lastUsage = usage;
+          lastAt = now;
+
+          const tags = terminal.terminalInfo.tags ?? {};
+          tags.node_unit_cpu_percent = totalCpuPercent.toFixed(2);
+          tags.node_unit_memory_mb = totalMemoryMb.toFixed(2);
+          terminal.terminalInfoUpdated$.next();
+        }),
+      ),
+      catchError((err) => {
+        console.error(formatTime(Date.now()), 'NodeUnitResourceReporterError', err);
         return EMPTY;
       }),
     )
@@ -335,6 +383,8 @@ defer(async () => {
         node_unit_address: nodeKeyPair.public_key,
         node_unit_name: process.env.NODE_UNIT_NAME || hostname(),
         node_unit_version: require('../package.json').version,
+        node_unit_cpu_percent: '0',
+        node_unit_memory_mb: '0',
       },
     },
     {
@@ -343,6 +393,12 @@ defer(async () => {
   );
 
   setupSecretProxyService(terminal, childPublicKeys);
+  const schedulerIntervalFromEnv = Number(process.env.NODE_UNIT_SCHEDULER_INTERVAL_MS);
+  const resourceIntervalMs =
+    Number.isFinite(schedulerIntervalFromEnv) && schedulerIntervalFromEnv > 0
+      ? schedulerIntervalFromEnv
+      : 5000;
+  startNodeUnitResourceReporter(terminal, resourceIntervalMs);
   startDeploymentScheduler(terminal, nodeKeyPair.public_key);
 
   terminal.server.provideService(
