@@ -1,6 +1,17 @@
 # Change Log - @yuants/node-unit
 
-This log was last generated on Wed, 14 Jan 2026 09:10:04 GMT and should not be manually modified.
+This log was last generated on Thu, 15 Jan 2026 05:08:12 GMT and should not be manually modified.
+
+## 0.14.0
+Thu, 15 Jan 2026 05:08:12 GMT
+
+### Minor changes
+
+- add deployment schedule
+
+### Patches
+
+- use resource usage as scheduler key
 
 ## 0.13.11
 Wed, 14 Jan 2026 09:10:04 GMT
