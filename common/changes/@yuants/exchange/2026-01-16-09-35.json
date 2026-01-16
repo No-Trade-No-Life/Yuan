@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/exchange",
+      "comment": "change ledger time range",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/exchange"
+}
