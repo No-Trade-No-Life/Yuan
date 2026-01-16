@@ -23,6 +23,8 @@ jobs:
       contents: write
       pull-requests: write
       id-token: write
+    env:
+      ACTIONS_STEP_DEBUG: true
 
     steps:
       - name: Checkout repository
@@ -61,6 +63,16 @@ jobs:
             "docs/reports/git-changes-${REPORT_DATE}.json"
           echo "json_file=docs/reports/git-changes-${REPORT_DATE}.json" >> $GITHUB_OUTPUT
 
+      - name: Debug - Check JSON file exists
+        run: |
+          echo "Checking JSON file: ${{ steps.generate_json.outputs.json_file }}"
+          if [ -f "${{ steps.generate_json.outputs.json_file }}" ]; then
+            echo "JSON file exists"
+            head -5 "${{ steps.generate_json.outputs.json_file }}"
+          else
+            echo "JSON file does not exist"
+          fi
+
       - name: Generate report with OpenCode
         id: generate_report
         uses: anomalyco/opencode/github@latest
@@ -70,6 +82,7 @@ jobs:
           model: deepseek/deepseek-reasoner
           agent: build
           share: false
+          use_github_token: true
           prompt: |
             使用 git-changes-reporter skill 生成每日 Git 变更报告，并将结果保存为 Markdown 文件。
 
