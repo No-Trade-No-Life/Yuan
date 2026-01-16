@@ -27,13 +27,15 @@
 
 - [x] 修改 daily-git-report.yml，将 Claude Code Action 替换为 OpenCode Action | 验收: 工作流语法正确，配置参数完整
 - [x] 添加必要的 GitHub Secrets 说明，验证环境变量配置 | 验收: 确认 DEEPSEEK_API_KEY 等 Secret 设置正确
-- [x] 创建测试分支，手动触发工作流验证报告生成 | 验收: 工作流成功运行，生成正确的 Markdown 报告文件 ← CURRENT
+- [x] 创建测试分支，手动触发工作流验证报告生成 | 验收: 工作流成功运行，生成正确的 Markdown 报告文件
 
 ---
 
 ## 发现的新任务
 
 (暂无)
+
+- [ ] 同步上游代码并重新测试 OpenCode 集成 | 来源: 用户反馈测试失败，需要同步 upstream 后重新验证 ← CURRENT
 
 ---
 

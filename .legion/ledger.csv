@@ -852,3 +852,8 @@
 2026-01-16T10:20:54.849Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,completeTask: 创建测试分支，手动触发工作流验证报告生成,success
 2026-01-16T10:21:09.194Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,progress.completed: 分析现有 daily-git-report.yml 工作流结构、Claude Code 配置与依赖,success
 2026-01-16T10:21:16.152Z,legion_generate_dashboard,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,format: markdown,success
+2026-01-16T10:37:58.148Z,legion_get_status,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,,success
+2026-01-16T10:38:04.873Z,legion_read_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,"section: all, includeReviews: true",success
+2026-01-16T10:38:26.081Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addDiscoveredTask: 同步上游代码并重新测试OpenCode集成,success
+2026-01-16T10:38:44.336Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addTask: 同步上游代码并重新测试OpenCode集成,success
+2026-01-16T10:38:50.872Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,setCurrentTask: 同步上游代码并重新测试OpenCode集成,success
