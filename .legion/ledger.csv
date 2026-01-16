@@ -820,3 +820,4 @@
 2026-01-15T15:15:05.383Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,progress.completed: 实现 scheduler 单元测试，修复 TypeScript 类型错误，mock 外部依赖，所有测试通过,success
 2026-01-15T15:16:16.183Z,legion_archive_task,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,taskId: node-unit-deployment-failover-rfc,success
 2026-01-15T15:16:22.078Z,legion_get_status,,,Claude,,success
+2026-01-16T07:57:14.365Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,addFile: reports/node-unit-portal-resource-usage-e2e-report.md,success
