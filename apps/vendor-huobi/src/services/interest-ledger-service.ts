@@ -56,7 +56,7 @@ const fetchInterestRateLedgerForward = async (req: {
   ledger_type: string;
 }): Promise<IInterestLedger[]> => {
   if (req.ledger_type === 'FUNDING_FEE') {
-    const time = Math.max(req.time, Date.now() - 3600_000 * 89);
+    const time = Math.max(req.time, Date.now() - 3600_000 * 88);
     const params = {
       start_time: time,
       end_time: time + WINDOW_MS,

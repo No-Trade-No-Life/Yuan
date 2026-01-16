@@ -1,7 +1,7 @@
 import { IInterestLedger } from '@yuants/data-interest-rate';
 import { Terminal } from '@yuants/protocol';
 import { encodePath, formatTime } from '@yuants/utils';
-import { getAccountIncome } from '../api/private-api';
+import { getAccountIncome, getUMIncome } from '../api/private-api';
 import { provideInterestLedgerService } from '@yuants/exchange';
 
 interface IExchangeCredential {
@@ -22,14 +22,14 @@ const fetchInterestRateLedgerForward = async (req: {
   if (req.ledger_type === 'FUNDING_FEE') {
     const time = Math.max(req.time, Date.now() - 3600_000 * 24 * 88);
     const startTime = time;
-    const res = await getAccountIncome(req.credential.payload, {
+    const res = await getUMIncome(req.credential.payload, {
       startTime,
       endTime: startTime + WINDOW_MS,
       limit: 500,
       incomeType: 'FUNDING_FEE',
     });
     if (!Array.isArray(res)) {
-      throw new Error('getAccountIncome failed');
+      throw new Error(`getAccountIncome failed: ${JSON.stringify(res)}`);
     }
     return (res ?? [])
       .map((v): IInterestLedger => {
