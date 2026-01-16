@@ -30,6 +30,7 @@
 - 实现 scheduler 单元测试，修复 TypeScript 类型错误，mock 外部依赖，所有测试通过
 - 完成构建验证，测试通过，无编译错误
 - 更新 tasks.md 和 context.md 反映任务完成
+- 已增加 eligibility/candidate/claim 原因日志并重新跑 21 portal E2E，生成更新后的中文报告。
 
 ### 🟡 进行中
 

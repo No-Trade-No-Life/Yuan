@@ -180,6 +180,50 @@ const buildSnapshots = (
   return snapshots;
 };
 
+const buildMetricTable = (
+  nodeUnits: string[],
+  snapshots: Map<string, ClaimMetricSnapshot[]>,
+): Map<string, Record<string, number>> => {
+  const table = new Map<string, Record<string, number>>();
+  for (const nodeUnitAddress of nodeUnits) {
+    const metrics: Record<string, number> = {};
+    for (const snapshot of snapshots.get(nodeUnitAddress) ?? []) {
+      metrics[snapshot.key] = snapshot.value;
+    }
+    table.set(nodeUnitAddress, metrics);
+  }
+  return table;
+};
+
+const buildMinMetrics = (metricTable: Map<string, Record<string, number>>): Record<string, number> => {
+  const minMetrics: Record<string, number> = {};
+  for (const metrics of metricTable.values()) {
+    for (const [key, value] of Object.entries(metrics)) {
+      const current = minMetrics[key];
+      minMetrics[key] = current === undefined ? value : Math.min(current, value);
+    }
+  }
+  return minMetrics;
+};
+
+const buildNotEligibleReasons = (
+  selfMetrics: Record<string, number>,
+  minMetrics: Record<string, number>,
+): string[] => {
+  const reasons: string[] = [];
+  for (const [key, minValue] of Object.entries(minMetrics)) {
+    const selfValue = selfMetrics[key];
+    if (selfValue === undefined) {
+      reasons.push(`${key}:missing`);
+      continue;
+    }
+    if (selfValue > minValue) {
+      reasons.push(`${key}:${selfValue.toFixed(4)}>${minValue.toFixed(4)}`);
+    }
+  }
+  return reasons;
+};
+
 const pickCandidateDeployment = async (terminal: Terminal): Promise<IDeployment | undefined> => {
   const sql =
     "select * from deployment where enabled = true and address = '' order by updated_at asc, created_at asc, id asc limit 1";
@@ -223,23 +267,59 @@ const runSchedulerCycle = async (
   const context: ClaimMetricContext = { deployments, deploymentCounts: counts, resourceUsage };
   const snapshots = buildSnapshots(activeNodeUnits, context, policy);
   const eligibleNodeUnits = policy.pickEligible(activeNodeUnits, snapshots);
+  const isEligible = eligibleNodeUnits.includes(nodeUnitAddress);
+  const metricTable = buildMetricTable(activeNodeUnits, snapshots);
+  const minMetrics = buildMinMetrics(metricTable);
+  const selfMetrics = metricTable.get(nodeUnitAddress) ?? {};
+  const notEligibleReasons = buildNotEligibleReasons(selfMetrics, minMetrics);
 
-  if (!eligibleNodeUnits.includes(nodeUnitAddress)) return;
+  console.info(formatTime(Date.now()), 'DeploymentClaimEligibility', {
+    eligible: isEligible,
+    policy: policy.providers.map((provider) => provider.key),
+    activeNodeUnits,
+    eligibleNodeUnits,
+    metrics: selfMetrics,
+    minMetrics,
+    notEligibleReasons,
+  });
+
+  if (!isEligible) {
+    console.info(formatTime(Date.now()), 'DeploymentClaimSkipped', {
+      reason: 'not_eligible',
+      metrics: selfMetrics,
+      minMetrics,
+      notEligibleReasons,
+    });
+    return;
+  }
 
   const candidate = await pickCandidateDeployment(terminal);
-  if (!candidate) return;
+  if (!candidate) {
+    console.info(formatTime(Date.now()), 'DeploymentClaimSkipped', {
+      reason: 'no_candidate',
+    });
+    return;
+  }
 
   const usageSnapshot = buildResourceUsageSnapshot(activeNodeUnits, resourceUsage);
   console.info(formatTime(Date.now()), 'DeploymentClaimAttempt', {
     deployment_id: candidate.id,
+    claimant: nodeUnitAddress,
     usage: usageSnapshot,
   });
 
   const claimed = await claimDeployment(terminal, candidate, nodeUnitAddress);
   if (claimed) {
-    console.info(formatTime(Date.now()), 'DeploymentClaimed', candidate.id);
+    console.info(formatTime(Date.now()), 'DeploymentClaimed', {
+      deployment_id: candidate.id,
+      claimant: nodeUnitAddress,
+    });
   } else {
-    console.info(formatTime(Date.now()), 'DeploymentClaimSkipped', candidate.id);
+    console.info(formatTime(Date.now()), 'DeploymentClaimSkipped', {
+      reason: 'claim_conflict',
+      deployment_id: candidate.id,
+      claimant: nodeUnitAddress,
+    });
   }
 };
 

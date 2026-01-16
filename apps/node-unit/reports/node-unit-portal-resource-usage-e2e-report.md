@@ -4,7 +4,7 @@
 
 - **目标**：验证 `NODE_UNIT_CLAIM_POLICY=resource_usage` 下的抢占行为，确认仅抢占未指派 deployment，且不会影响在线节点的部署。
 - **环境隔离**：所有进程使用 `env -i` 启动，不继承 `shell.nix` 环境变量。
-- **脚本**：`scripts/e2e-node-unit-failover.sh`（通过 `NODE_UNIT_CLAIM_POLICY=resource_usage` 启动）
+- **脚本**：`apps/node-unit/scripts/e2e-node-unit-failover.sh`（通过 `NODE_UNIT_CLAIM_POLICY=resource_usage` 启动）
 - **资源口径**：CPU/内存为 node-unit 主进程 + 所有子 deployment 进程的聚合值
 
 ## 环境与组件
@@ -37,7 +37,7 @@ select '@yuants/app-portal', '0.2.26', true from generate_series(1, 21);
 address                          | count
 ---------------------------------+------
                                  | 20
-GJ93nFZvTSbdDYo4...              | 1
+5DAR2ZCrRAma2...                 | 1
 ```
 
 ### 多轮后收敛
@@ -45,12 +45,18 @@ GJ93nFZvTSbdDYo4...              | 1
 ```
 address                          | count
 ---------------------------------+------
-GJ93nFZvTSbdDYo4...              | 11
-5DAR2ZCrRAma2...                 | 10
+5DAR2ZCrRAma2...                 | 12
+GJ93nFZvTSbdDYo4...              | 9
 ```
 
-- 最终分配：node-unit-1 = 10（`5DAR2Z...`），node-unit-2 = 11（`GJ93nF...`）。
+- 最终分配：node-unit-1 = 12（`5DAR2Z...`），node-unit-2 = 9（`GJ93nF...`）。
 - 全程仅对 `address=''` 的 deployment 进行抢占；未出现在线节点之间的“互抢”。
+
+### Eligibility / Candidate / Claim 日志摘要
+
+- `DeploymentClaimEligibility` 会记录：`eligible`、`policy`、`metrics`、`minMetrics`、`notEligibleReasons`。
+- `DeploymentClaimSkipped` 原因：`not_eligible` / `no_candidate` / `claim_conflict`。
+- `DeploymentClaimed` 记录实际 `claimant` 与 `deployment_id`。
 
 ### 每轮抢占资源快照
 
@@ -58,27 +64,27 @@ GJ93nFZvTSbdDYo4...              | 11
 
 | 轮次 | 时间     | 抢占方      | deployment | node-unit-1 CPU/内存 | node-unit-2 CPU/内存 |
 | ---- | -------- | ----------- | ---------- | -------------------- | -------------------- |
-| 1    | 12:17:05 | node-unit-2 | 0a13f8cb   | 0.38% / 61.25MB      | 0.29% / 60.06MB      |
-| 2    | 12:17:10 | node-unit-2 | 0c2552fe   | 0.06% / 52.70MB      | 0.06% / 50.78MB      |
-| 3    | 12:17:10 | node-unit-1 | 208a3920   | 0.06% / 52.70MB      | 0.28% / 63.19MB      |
-| 4    | 12:17:15 | node-unit-1 | 33f87fe1   | 0.06% / 54.80MB      | 0.41% / 66.94MB      |
-| 5    | 12:17:20 | node-unit-1 | 378f1ac1   | 0.32% / 65.63MB      | 0.41% / 71.11MB      |
-| 6    | 12:17:25 | node-unit-1 | 3b31793a   | 0.29% / 68.58MB      | 0.46% / 99.66MB      |
-| 7    | 12:17:30 | node-unit-2 | 3da34a74   | 0.58% / 76.56MB      | 0.46% / 99.66MB      |
-| 8    | 12:17:35 | node-unit-2 | 402ceb6f   | 0.69% / 106.52MB     | 0.26% / 70.52MB      |
-| 9    | 12:17:40 | node-unit-2 | 4d4e949a   | 0.55% / 93.52MB      | 0.47% / 72.56MB      |
-| 10   | 12:17:45 | node-unit-1 | 58d9c9e8   | 0.56% / 107.28MB     | 0.66% / 112.50MB     |
-| 11   | 12:17:50 | node-unit-2 | 6a7450cd   | 0.71% / 111.02MB     | 0.66% / 106.81MB     |
-| 12   | 12:17:55 | node-unit-2 | 76637a5d   | 0.70% / 113.17MB     | 0.71% / 90.00MB      |
-| 13   | 12:18:00 | node-unit-1 | 7c94e1b1   | 0.84% / 101.70MB     | 0.92% / 112.91MB     |
-| 14   | 12:18:05 | node-unit-1 | 804ac8e9   | 0.66% / 106.78MB     | 1.03% / 112.05MB     |
-| 15   | 12:18:10 | node-unit-1 | 88e50041   | 0.86% / 108.80MB     | 0.97% / 114.77MB     |
-| 16   | 12:18:15 | node-unit-1 | 95bf8c90   | 0.93% / 128.14MB     | 1.06% / 127.30MB     |
-| 17   | 12:18:20 | node-unit-2 | a59d6db5   | 1.04% / 116.58MB     | 1.00% / 128.11MB     |
-| 18   | 12:18:25 | node-unit-2 | b1395878   | 1.14% / 140.56MB     | 0.88% / 142.81MB     |
-| 19   | 12:18:30 | node-unit-2 | caa4c5cd   | 1.10% / 139.20MB     | 0.99% / 139.05MB     |
-| 20   | 12:18:35 | node-unit-2 | e26fb79d   | 1.22% / 132.13MB     | 1.18% / 139.00MB     |
-| 21   | 12:18:40 | node-unit-1 | eebc9676   | 0.98% / 136.66MB     | 1.17% / 137.38MB     |
+| 1    | 15:52:50 | node-unit-1 | 044142ec   | 0.15% / 140.92MB     | 0.16% / 141.91MB     |
+| 2    | 15:52:55 | node-unit-2 | 2065a70f   | 0.02% / 138.19MB     | 0.02% / 137.55MB     |
+| 3    | 15:53:00 | node-unit-2 | 2f75d1b7   | 0.15% / 132.11MB     | 0.02% / 113.95MB     |
+| 4    | 15:53:05 | node-unit-1 | 44db947e   | 0.09% / 122.00MB     | 0.23% / 127.48MB     |
+| 5    | 15:53:10 | node-unit-1 | 501f61f0   | 0.08% / 73.06MB      | 0.14% / 94.91MB      |
+| 6    | 15:53:15 | node-unit-2 | 7278cd6d   | 0.23% / 108.45MB     | 0.21% / 120.42MB     |
+| 7    | 15:53:20 | node-unit-1 | 781dd158   | 0.21% / 68.98MB      | 0.25% / 112.19MB     |
+| 8    | 15:53:25 | node-unit-1 | 7c200e59   | 0.19% / 73.70MB      | 0.24% / 115.84MB     |
+| 9    | 15:53:30 | node-unit-1 | 8aa6bf07   | 0.24% / 72.11MB      | 0.26% / 128.17MB     |
+| 10   | 15:53:35 | node-unit-1 | 8f6837ae   | 0.27% / 75.13MB      | 0.22% / 130.44MB     |
+| 11   | 15:53:40 | node-unit-2 | 90c64b8d   | 0.39% / 90.33MB      | 0.21% / 130.13MB     |
+| 12   | 15:53:45 | node-unit-2 | a3b2e326   | 0.31% / 88.77MB      | 0.20% / 129.73MB     |
+| 13   | 15:53:50 | node-unit-2 | a501d52d   | 0.35% / 89.67MB      | 0.28% / 122.31MB     |
+| 14   | 15:53:55 | node-unit-1 | acb8f53d   | 0.29% / 91.20MB      | 0.33% / 134.20MB     |
+| 15   | 15:54:00 | node-unit-2 | af0c4da9   | 0.43% / 87.08MB      | 0.35% / 135.94MB     |
+| 16   | 15:54:05 | node-unit-1 | b6c8eee9   | 0.34% / 98.59MB      | 0.36% / 147.89MB     |
+| 17   | 15:54:10 | node-unit-1 | c4b460d8   | 0.38% / 98.14MB      | 0.49% / 151.81MB     |
+| 18   | 15:54:15 | node-unit-1 | cb80473f   | 0.38% / 101.56MB     | 0.42% / 156.66MB     |
+| 19   | 15:54:20 | node-unit-2 | d000b32f   | 0.44% / 93.25MB      | 0.39% / 141.69MB     |
+| 20   | 15:54:25 | node-unit-1 | f0ea885b   | 0.49% / 94.69MB      | 0.50% / 144.47MB     |
+| 21   | 15:54:30 | node-unit-2 | f6951698   | 0.60% / 103.67MB     | 0.50% / 149.48MB     |
 
 ## 结论
 
@@ -86,7 +92,7 @@ GJ93nFZvTSbdDYo4...              | 11
   - **仅抢占未指派 deployment**。
   - **每轮最多抢占一个**。
   - **未观察到在线节点间的抢占**。
-- 在资源指标相近的情况下，分配结果接近均衡（10/11）。
+- 分配结果为 12/9，资源评分驱动但仍保持动态均衡。
 
 ## 注意事项
 
@@ -99,4 +105,46 @@ GJ93nFZvTSbdDYo4...              | 11
   - `postgres-storage.log`
   - `node-unit-1.log`
   - `node-unit-2.log`
-- 测试脚本：`scripts/e2e-node-unit-failover.sh`
+- 测试脚本：`apps/node-unit/scripts/e2e-node-unit-failover.sh`
+
+## 原始日志片段
+
+### Eligibility 示例
+
+```
+2026-01-16 15:52:50.542+08:00 DeploymentClaimEligibility {
+  eligible: true,
+  policy: [ 'resource_usage' ],
+  activeNodeUnits: [
+    '5DAR2ZCrRAma2EeGUPRmcYvXUfpaWxSRq5kzWrjs3dmT',
+    'GJ93nFZvTSbdDYo4nR81WjPtEd6ovykN1xvYtX64fAd8'
+  ],
+  eligibleNodeUnits: [ '5DAR2ZCrRAma2EeGUPRmcYvXUfpaWxSRq5kzWrjs3dmT' ],
+  metrics: { resource_usage: 0.14380859375 },
+  minMetrics: { resource_usage: 0.14380859375 },
+  notEligibleReasons: []
+}
+```
+
+### Candidate 缺失示例
+
+```
+2026-01-16 15:52:45.544+08:00 DeploymentClaimSkipped { reason: 'no_candidate' }
+```
+
+### Claim 结果示例
+
+```
+2026-01-16 15:52:50.544+08:00 DeploymentClaimAttempt {
+  deployment_id: '044142ec-6580-404f-96f9-f4695721acde',
+  claimant: '5DAR2ZCrRAma2EeGUPRmcYvXUfpaWxSRq5kzWrjs3dmT',
+  usage: {
+    '5DAR2ZCrRAma2EeGUPRmcYvXUfpaWxSRq5kzWrjs3dmT': { cpuPercent: 0.15, memoryMb: 140.92 },
+    GJ93nFZvTSbdDYo4nR81WjPtEd6ovykN1xvYtX64fAd8: { cpuPercent: 0.16, memoryMb: 141.91 }
+  }
+}
+2026-01-16 15:52:50.549+08:00 DeploymentClaimed {
+  deployment_id: '044142ec-6580-404f-96f9-f4695721acde',
+  claimant: '5DAR2ZCrRAma2EeGUPRmcYvXUfpaWxSRq5kzWrjs3dmT'
+}
+```
