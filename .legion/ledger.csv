@@ -814,3 +814,9 @@
 2026-01-15T04:04:21.754Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,addDecision: v2 资源上报必须聚合 node-unit 主进程 + 所有子 deployment 进程的 CPU/Memory，而不是只上报主进程,success
 2026-01-15T04:10:51.379Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,progress.completed: 按最新设计聚合 node-unit 主进程+子进程资源上报，重新跑 resource_usage E2E，并更新中文报告与资源快照表。,success
 2026-01-15T04:21:51.516Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,progress.completed: 按 21 个 portal 重新跑资源策略 E2E，更新报告并记录每轮抢占资源快照。,success
+2026-01-15T14:41:30.210Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,addDecision: 为 scheduler 设计 Jest 单元测试，采用纯函数导出 + 依赖 mock 策略，覆盖失联检测、部署统计、抢占资格、资源计算、策略选择等核心逻辑,success
+2026-01-15T14:55:26.111Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,addDecision: 将单元测试设计提升为正式的'测试规范'章节，添加结构化测试目标、策略与验证要点表格,success
+2026-01-15T15:14:22.084Z,legion_get_status,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,,success
+2026-01-15T15:15:05.383Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,progress.completed: 实现 scheduler 单元测试，修复 TypeScript 类型错误，mock 外部依赖，所有测试通过,success
+2026-01-15T15:16:16.183Z,legion_archive_task,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,taskId: node-unit-deployment-failover-rfc,success
+2026-01-15T15:16:22.078Z,legion_get_status,,,Claude,,success

@@ -331,6 +331,188 @@ const policy = policies[policyName] ?? defaultClaimPolicy;
 
 ---
 
+## 测试规范 (Test Specification)
+
+### 1. 测试目标
+
+验证 `apps/node-unit/src/scheduler.ts` 核心逻辑的正确性，覆盖以下关键行为：
+
+| 测试领域     | 验证要点                                               |
+| ------------ | ------------------------------------------------------ |
+| **失联检测** | 准确识别 `address` 不在 `activeNodeUnits` 中的部署     |
+| **部署统计** | 按地址计数，正确排除 `address=''` 的记录               |
+| **抢占资格** | 策略正确选出最小值集合（v1）或最低评分（v2）           |
+| **资源计算** | CPU/Memory 加权评分计算正确，缺失 tags 返回 `value: 0` |
+| **策略选择** | 环境变量 `NODE_UNIT_CLAIM_POLICY` 正确切换策略         |
+| **候选排序** | 遵循 `updated_at asc, created_at asc, id asc` 顺序     |
+| **并发安全** | 一次仅抢占一个，`WHERE address=''` 条件保证幂等        |
+
+### 2. 测试策略
+
+采用 **纯函数单元测试 + 依赖注入** 策略：
+
+```typescript
+// 策略：导出内部函数，mock 外部依赖
+export { loadActiveNodeUnits, getLostAddresses, buildDeploymentCounts }; // ← 新增导出
+jest.mock('@yuants/sql'); // ← mock 数据库依赖
+```
+
+### 3. 测试用例规范
+
+### 测试文件结构
+
+```
+apps/node-unit/src/
+├── scheduler.ts           # 实现
+└── scheduler.test.ts     # 新增测试文件
+```
+
+### 测试策略
+
+采用 **纯函数单元测试 + 依赖注入** 策略：
+
+1. **内部函数导出**：将关键纯函数（如 `loadActiveNodeUnits`, `buildDeploymentCounts`, `pickEligible` 等）从 `const` 改为 `export`，便于直接测试
+2. **Mock 外部依赖**：使用 Jest mock 替换 `requestSQL`, `escapeSQL`, `terminalInfos$` 等 I/O 依赖
+3. **策略接口测试**：验证 `ClaimMetricProvider` 和 `ClaimPolicy` 的正确实现
+
+### 关键测试用例
+
+#### 1. 失联检测逻辑
+
+```typescript
+it('identifies lost addresses when node-unit disappears', () => {
+  const deployments = [
+    { id: 'd1', address: 'addr1' },
+    { id: 'd2', address: 'addr2' },
+    { id: 'd3', address: 'addr3' },
+  ];
+  const activeNodeUnits = ['addr1', 'addr3'];
+  const lost = getLostAddresses(deployments, activeNodeUnits);
+  expect(lost).toEqual(['addr2']);
+});
+```
+
+#### 2. 部署数量统计
+
+```typescript
+it('counts deployments per address (ignores empty address)', () => {
+  const deployments = [
+    { id: 'd1', address: 'addr1' },
+    { id: 'd2', address: 'addr1' },
+    { id: 'd3', address: 'addr2' },
+    { id: 'd4', address: '' }, // 未指派
+  ];
+  const activeNodeUnits = ['addr1', 'addr2', 'addr3'];
+  const counts = buildDeploymentCounts(deployments, activeNodeUnits);
+  expect(counts.get('addr1')).toBe(2);
+  expect(counts.get('addr2')).toBe(1);
+  expect(counts.get('addr3')).toBe(0); // 没有部署
+});
+```
+
+#### 3. 部署数量策略（v1）
+
+```typescript
+it('deployment_count policy picks node-units with minimum deployment', () => {
+  const snapshots = new Map([
+    ['addr1', [{ key: 'deployment_count', value: 2 }]],
+    ['addr2', [{ key: 'deployment_count', value: 1 }]],
+    ['addr3', [{ key: 'deployment_count', value: 1 }]],
+  ]);
+  const eligible = defaultClaimPolicy.pickEligible(['addr1', 'addr2', 'addr3'], snapshots);
+  expect(eligible).toEqual(['addr2', 'addr3']); // 并列最少
+});
+```
+
+#### 4. 资源使用策略（v2）
+
+```typescript
+it('resource_usage policy picks node-units with minimum weighted score', () => {
+  const snapshots = new Map([
+    ['addr1', [{ key: 'resource_usage', value: 45.2 }]], // CPU 30% + Memory 1024MB => 30*0.5 + 1*0.5 = 15.5
+    ['addr2', [{ key: 'resource_usage', value: 22.1 }]],
+  ]);
+  const eligible = resourceOnlyPolicy.pickEligible(['addr1', 'addr2'], snapshots);
+  expect(eligible).toEqual(['addr2']); // 资源占用更低
+});
+```
+
+#### 5. 候选排序
+
+```typescript
+it('picks deployment candidates in deterministic order', async () => {
+  const mockTerminal = {
+    /* mock */
+  };
+  const deployments = [
+    { id: 'd1', address: '', updated_at: '2025-01-02', created_at: '2025-01-01' },
+    { id: 'd2', address: '', updated_at: '2025-01-01', created_at: '2025-01-01' }, // 更早的 updated_at
+  ];
+
+  // mock requestSQL 返回 deployments
+  const candidate = await pickCandidateDeployment(mockTerminal);
+  expect(candidate?.id).toBe('d2'); // updated_at 更早的优先
+});
+```
+
+#### 6. 策略配置化
+
+```typescript
+it('uses environment variable to select policy', () => {
+  process.env.NODE_UNIT_CLAIM_POLICY = 'resource_usage';
+  const policyName = process.env.NODE_UNIT_CLAIM_POLICY ?? 'deployment_count';
+  expect(policyName).toBe('resource_usage');
+  // 验证 policies[policyName] 返回正确策略
+});
+```
+
+### 需要导出的函数（用于测试）
+
+| 函数                              | 作用                                 | 测试重点             |
+| --------------------------------- | ------------------------------------ | -------------------- |
+| `loadActiveNodeUnits`             | 从 terminalInfos 提取 node-unit 地址 | tag 解析正确性       |
+| `getLostAddresses`                | 识别失联地址                         | 集合差集计算         |
+| `buildDeploymentCounts`           | 统计各地址部署数                     | 空地址过滤、计数     |
+| `buildSnapshots`                  | 构建指标快照                         | Provider 评估调用    |
+| `pickCandidateDeployment`         | 选择待抢占部署                       | SQL 排序逻辑（mock） |
+| `claimDeployment`                 | 执行抢占                             | SQL 条件更新（mock） |
+| `defaultClaimPolicy.pickEligible` | v1 策略                              | 最小值集合           |
+| `resourceOnlyPolicy.pickEligible` | v2 策略                              | 加权评分比较         |
+
+### 集成测试（可选）
+
+```typescript
+describe('scheduler integration', () => {
+  it('releases lost deployments and claims one per cycle', async () => {
+    // 模拟 terminalInfos$ 变化
+    // 验证 releaseLostDeployments 和 claimDeployment 调用
+  });
+
+  it('respects NODE_UNIT_SCHEDULER_INTERVAL_MS', () => {
+    // 验证 interval 间隔配置
+  });
+});
+```
+
+### 测试配置
+
+- **测试框架**：Jest（与现有 `logging.test.ts` 保持一致）
+- **Mock 策略**：`jest.mock('@yuants/sql')` 替换 `requestSQL`, `escapeSQL`
+- **环境变量**：每个测试用例前设置/清除 `process.env`
+- **异步测试**：使用 `async/await` 配合 mock resolved value
+
+### 验证要点
+
+- [ ] 失联检测准确识别 `address` 不在 `activeNodeUnits` 中的部署
+- [ ] 部署数量统计排除 `address=''` 的记录
+- [ ] `deployment_count` 策略正确选出最小值集合
+- [ ] `resource_usage` 策略正确计算加权评分并比较
+- [ ] 候选排序遵循 `updated_at asc, created_at asc, id asc`
+- [ ] 环境变量 `NODE_UNIT_CLAIM_POLICY` 正确切换策略
+- [ ] 缺失资源 tags 时返回 `value: 0`
+
+---
+
 ## 阶段概览
 
 1. **调研** - 2 个任务
