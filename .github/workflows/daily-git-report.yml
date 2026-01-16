@@ -61,20 +61,15 @@ jobs:
             "docs/reports/git-changes-${REPORT_DATE}.json"
           echo "json_file=docs/reports/git-changes-${REPORT_DATE}.json" >> $GITHUB_OUTPUT
 
-      - name: Generate report with Claude Code
+      - name: Generate report with OpenCode
         id: generate_report
-        uses: anthropics/claude-code-base-action@beta
+        uses: anomalyco/opencode/github@latest
         env:
-          ANTHROPIC_AUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
-          ANTHROPIC_BASE_URL: 'https://api.deepseek.com/anthropic'
-          ANTHROPIC_MODEL: 'deepseek-reasoner'
-          ANTHROPIC_SMALL_FAST_MODEL: 'deepseek-chat'
-          API_TIMEOUT_MS: '600000'
-          CLAUDE_CODE_MAX_OUTPUT_TOKENS: '32000'
-          CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1'
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          allowed_tools: 'Bash(git:*),Bash(touch:*),Bash(node:*),View,GlobTool,GrepTool,BatchTool,Edit,Read,Write'
+          model: deepseek/deepseek-reasoner
+          agent: build
+          share: false
           prompt: |
             使用 git-changes-reporter skill 生成每日 Git 变更报告，并将结果保存为 Markdown 文件。
 

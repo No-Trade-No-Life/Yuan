@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": null,
+  "currentTask": "git-opencode",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -153,6 +153,13 @@
       "status": "archived",
       "createdAt": "2026-01-14T15:05:41.801Z",
       "updatedAt": "2026-01-16T07:57:14.363Z"
+    },
+    {
+      "id": "git-opencode",
+      "name": "替换 Git 报告工作流为 OpenCode",
+      "status": "active",
+      "createdAt": "2026-01-16T10:15:46.738Z",
+      "updatedAt": "2026-01-16T10:21:09.193Z"
     }
   ],
   "pendingProposals": [
@@ -1603,6 +1610,79 @@
       "decidedAt": "2026-01-14T15:05:41.801Z",
       "decidedBy": "Claude",
       "createdTaskId": "node-unit-deployment-failover-rfc"
+    },
+    {
+      "id": "proposal-mkgq3bag-3e8d93",
+      "name": "替换 Git 报告工作流为 OpenCode",
+      "goal": "将 .github/workflows/daily-git-report.yml 中的 Claude Code 替换为 OpenCode，使用 DeepSeek Reasoner 输出报告",
+      "rationale": "OpenCode 是开源免费的 AI 编程助手，支持 75+ LLM 提供商，配置更简化，可降低潜在费用并提供更大的灵活性。当前工作流依赖 Claude Code 和多个 Anthropic 相关 Secret，迁移到 OpenCode 可简化配置并利用 DeepSeek Reasoner 模型。",
+      "points": [
+        "调研现有工作流结构与配置",
+        "设计 OpenCode 集成方案与配置变更",
+        "更新 daily-git-report.yml 工作流文件",
+        "更新 README-daily-git-report.md 文档",
+        "测试验证与回滚方案设计"
+      ],
+      "scope": [
+        ".github/workflows/daily-git-report.yml",
+        ".github/workflows/README-daily-git-report.md",
+        ".claude/skills/git-changes-reporter/"
+      ],
+      "phases": [
+        {
+          "name": "调研与分析",
+          "tasks": [
+            {
+              "description": "分析现有 daily-git-report.yml 工作流结构、Claude Code 配置与依赖",
+              "acceptance": "明确当前使用的 Action、环境变量、Secret 和模型配置"
+            },
+            {
+              "description": "调研 OpenCode GitHub Action 的用法、配置选项与 DeepSeek 提供商集成",
+              "acceptance": "确定 OpenCode Action 的参数、所需 Secret 和模型指定方式"
+            },
+            {
+              "description": "分析 git-changes-reporter skill 的调用方式与兼容性",
+              "acceptance": "确保 OpenCode 能正确调用现有技能生成报告"
+            }
+          ]
+        },
+        {
+          "name": "方案设计与文档更新",
+          "tasks": [
+            {
+              "description": "设计 OpenCode 替换方案，包括 Secret 变更、工作流步骤修改",
+              "acceptance": "提供详细的配置变更清单和步骤说明"
+            },
+            {
+              "description": "更新 README-daily-git-report.md 文档，反映 OpenCode 集成",
+              "acceptance": "文档准确说明新的 API Key 设置和工作流步骤"
+            }
+          ]
+        },
+        {
+          "name": "实施与测试",
+          "tasks": [
+            {
+              "description": "修改 daily-git-report.yml，将 Claude Code Action 替换为 OpenCode Action",
+              "acceptance": "工作流语法正确，配置参数完整"
+            },
+            {
+              "description": "添加必要的 GitHub Secrets 说明，验证环境变量配置",
+              "acceptance": "确认 DEEPSEEK_API_KEY 等 Secret 设置正确"
+            },
+            {
+              "description": "创建测试分支，手动触发工作流验证报告生成",
+              "acceptance": "工作流成功运行，生成正确的 Markdown 报告文件"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-01-16T10:15:40.264Z",
+      "status": "approved",
+      "decidedAt": "2026-01-16T10:15:46.738Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "git-opencode"
     }
   ]
 }
