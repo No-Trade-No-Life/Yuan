@@ -83,7 +83,6 @@ jobs:
           model: deepseek/deepseek-reasoner
           agent: build
           share: false
-          use_github_token: true
           prompt: |
             使用 git-changes-reporter skill 生成每日 Git 变更报告，并将结果保存为 Markdown 文件。
 
