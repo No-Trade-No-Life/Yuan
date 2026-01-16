@@ -2,6 +2,23 @@
   "name": "@yuants/node-unit",
   "entries": [
     {
+      "version": "0.14.1",
+      "tag": "@yuants/node-unit_v0.14.1",
+      "date": "Fri, 16 Jan 2026 09:43:32 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add unit test"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.14.0",
       "tag": "@yuants/node-unit_v0.14.0",
       "date": "Thu, 15 Jan 2026 05:08:12 GMT",
