@@ -8,7 +8,7 @@
 
 1. **自动时间范围计算**：提取昨日 8 点到今日 8 点的 commit 范围
 2. **结构化数据生成**：生成 JSON 格式的详细提交数据
-3. **语义化报告生成**：使用 Claude Code 的 git-changes-reporter skill 生成专业报告
+3. **语义化报告生成**：使用 OpenCode 生成专业报告
 4. **自动 PR 创建**：创建包含报告文件的 Pull Request
 5. **制品上传**：将报告文件上传为工作流制品
 
@@ -54,12 +54,11 @@
 - 包含提交统计、作者信息、文件变更等
 - 保存为 `docs/reports/git-changes-YYYY-MM-DD.json`
 
-### 3. 通过 DeepSeek 模拟 skill 生成报告
+### 3. 通过 OpenCode 生成报告
 
-- 使用 `@anthropic-ai/sdk` 包
-- 通过 DeepSeek 的 Anthropic 兼容接口调用 API
-- 使用 **skill-emulator.js** 模拟 git-changes-reporter skill 的行为
-- 严格按照 skill 的所有规则和要求生成语义化报告
+- 使用 `anomalyco/opencode/github` Action
+- 通过 DeepSeek 提供商直接调用 `deepseek-reasoner` 模型
+- 严格按照 git-changes-reporter skill 的规则和要求生成语义化报告
 - 保存为 `docs/reports/git-changes-report-YYYY-MM-DD.md`
 
 ### 4. 创建 Pull Request
@@ -149,5 +148,5 @@ schedule:
 
 如有问题，请参考：
 
-- [Claude Code GitHub Actions 文档](https://code.claude.com/docs/en/github-actions)
+- [OpenCode GitHub Actions 文档](https://opencode.ai/docs/github)
 - [GitHub Actions 文档](https://docs.github.com/en/actions)

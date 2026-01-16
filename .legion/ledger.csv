@@ -821,3 +821,34 @@
 2026-01-15T15:16:16.183Z,legion_archive_task,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,taskId: node-unit-deployment-failover-rfc,success
 2026-01-15T15:16:22.078Z,legion_get_status,,,Claude,,success
 2026-01-16T07:57:14.365Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,addFile: reports/node-unit-portal-resource-usage-e2e-report.md,success
+2026-01-16T10:14:49.652Z,legion_get_status,,,Claude,,success
+2026-01-16T10:14:59.171Z,legion_list_proposals,,,Claude,status: pending,success
+2026-01-16T10:15:40.267Z,legion_propose_task,,,Claude,name: 替换 Git 报告工作流为 OpenCode,success
+2026-01-16T10:15:46.743Z,legion_approve_proposal,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,proposalId: proposal-mkgq3bag-3e8d93,success
+2026-01-16T10:15:53.369Z,legion_switch_task,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,taskId: git-opencode,success
+2026-01-16T10:15:55.436Z,legion_read_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,"section: all, includeReviews: true",success
+2026-01-16T10:16:09.037Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,setCurrentTask: 分析现有 daily-git-report.yml 工作流结构、Claude Code 配置与依赖,success
+2026-01-16T10:16:16.508Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addDecision: 采用 OpenCode 替换 Claude Code,success
+2026-01-16T10:16:24.629Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addFile: .github/workflows/README-daily-git-report.md,success
+2026-01-16T10:16:28.024Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addFile: .claude/skills/git-changes-reporter/SKILL.md,success
+2026-01-16T10:16:31.910Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addDecision: 使用 DeepSeek Reasoner 作为替换后的模型,success
+2026-01-16T10:16:42.646Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,completeTask: 分析现有 daily-git-report.yml 工作流结构、Claude Code 配置与依赖,success
+2026-01-16T10:16:45.776Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,progress.completed: 分析现有 daily-git-report.yml 工作流结构、Claude Code 配置与依赖,success
+2026-01-16T10:16:58.807Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addDecision: 使用 anomalyco/opencode/github@latest Action 替换 anthropics/claude-code-base-action@beta,success
+2026-01-16T10:17:03.096Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,completeTask: 调研 OpenCode GitHub Action 的用法、配置选项与 DeepSeek 提供商集成,success
+2026-01-16T10:17:14.207Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addDecision: 保持现有 prompt 不变，OpenCode 可兼容调用 git-changes-reporter skill,success
+2026-01-16T10:17:18.454Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,completeTask: 分析 git-changes-reporter skill 的调用方式与兼容性,success
+2026-01-16T10:17:29.387Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,progress.completed: 分析现有 daily-git-report.yml 工作流结构、Claude Code 配置与依赖,success
+2026-01-16T10:17:35.055Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addDecision: 采用以下配置变更清单：1) 添加 DEEPSEEK_API_KEY Secret；2) 移除 ANTHROPIC_AUTH_TOKEN 和 CLAUDE_CODE_OAUTH_TOKEN；3) 替换 Action 为 anomalyco/opencode/github@latest；4) 简化环境变量，仅需 DEEPS,success
+2026-01-16T10:17:43.139Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,completeTask: 设计 OpenCode 替换方案，包括 Secret 变更、工作流步骤修改,success
+2026-01-16T10:17:47.573Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,progress.completed: 分析现有 daily-git-report.yml 工作流结构、Claude Code 配置与依赖,success
+2026-01-16T10:19:11.680Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,completeTask: 更新 README-daily-git-report.md 文档，反映 OpenCode 集成,success
+2026-01-16T10:19:16.716Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,progress.completed: 分析现有 daily-git-report.yml 工作流结构、Claude Code 配置与依赖,success
+2026-01-16T10:20:20.242Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,completeTask: 修改 daily-git-report.yml，将 Claude Code Action 替换为 OpenCode Action,success
+2026-01-16T10:20:25.664Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,progress.completed: 分析现有 daily-git-report.yml 工作流结构、Claude Code 配置与依赖,success
+2026-01-16T10:20:39.193Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addDecision: 需要添加 DEEPSEEK_API_KEY Secret，可移除 ANTHROPIC_AUTH_TOKEN 和 CLAUDE_CODE_OAUTH_TOKEN（如不再使用 Claude Code）,success
+2026-01-16T10:20:43.229Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,completeTask: 添加必要的 GitHub Secrets 说明，验证环境变量配置,success
+2026-01-16T10:20:52.335Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addDecision: 验证步骤：1) 在 GitHub 仓库 Settings 中添加 DEEPSEEK_API_KEY Secret；2) 创建测试分支推送修改；3) 在 Actions 页面手动触发工作流；4) 检查报告生成和 PR 创建,success
+2026-01-16T10:20:54.849Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,completeTask: 创建测试分支，手动触发工作流验证报告生成,success
+2026-01-16T10:21:09.194Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,progress.completed: 分析现有 daily-git-report.yml 工作流结构、Claude Code 配置与依赖,success
+2026-01-16T10:21:16.152Z,legion_generate_dashboard,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,format: markdown,success
