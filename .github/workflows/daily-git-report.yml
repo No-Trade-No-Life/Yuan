@@ -23,6 +23,8 @@ jobs:
       contents: write
       pull-requests: write
       id-token: write
+    env:
+      ACTIONS_STEP_DEBUG: true
 
     steps:
       - name: Checkout repository
@@ -61,32 +63,87 @@ jobs:
             "docs/reports/git-changes-${REPORT_DATE}.json"
           echo "json_file=docs/reports/git-changes-${REPORT_DATE}.json" >> $GITHUB_OUTPUT
 
-      - name: Generate report with OpenCode
+      - name: Debug - Check JSON file exists
+        run: |
+          echo "Checking JSON file: ${{ steps.generate_json.outputs.json_file }}"
+          if [ -f "${{ steps.generate_json.outputs.json_file }}" ]; then
+            echo "JSON file exists"
+            head -5 "${{ steps.generate_json.outputs.json_file }}"
+          else
+            echo "JSON file does not exist"
+          fi
+
+      - name: Debug - Check OpenCode environment and version
+        env:
+          USE_GITHUB_TOKEN: false
+          GITHUB_TOKEN: ''
+          OIDC_BASE_URL: ''
+        run: |
+          echo "=== Environment Variables Debug ==="
+          echo "USE_GITHUB_TOKEN: $USE_GITHUB_TOKEN"
+          echo "GITHUB_TOKEN (length): ${#GITHUB_TOKEN}"
+          echo "OIDC_BASE_URL: $OIDC_BASE_URL"
+          echo "ACTIONS_STEP_DEBUG: $ACTIONS_STEP_DEBUG"
+          echo "PATH: $PATH"
+
+          echo "=== OpenCode Version Check ==="
+          npm install -g opencode-ai@latest
+          OPENCODE_VERSION=$(opencode --version 2>/dev/null || echo "not installed")
+          echo "OpenCode version: $OPENCODE_VERSION"
+
+          echo "=== Check OpenCode installation path ==="
+          which opencode
+          npm list -g opencode-ai --depth=0
+
+          echo "=== Verify OpenCode github.ts source logic ==="
+          # Try to inspect the installed package
+          OPENCODE_PATH=$(npm root -g)/opencode-ai
+          if [ -d "$OPENCODE_PATH" ]; then
+            echo "OpenCode installed at: $OPENCODE_PATH"
+            # Look for github.ts or compiled .js files
+            find "$OPENCODE_PATH" -name "*github*" -type f | head -10
+          else
+            echo "OpenCode not found in global node_modules"
+          fi
+
+          echo "=== Test OpenCode with minimal command ==="
+          echo "Testing OpenCode with echo command..." | opencode run --model deepseek/deepseek-reasoner --dry-run 2>&1 || echo "OpenCode test failed (expected)"
+
+      - name: Debug - Env before OpenCode
+        env:
+          USE_GITHUB_TOKEN: false
+          GITHUB_TOKEN: 'dummy'
+        run: |
+          echo "USE_GITHUB_TOKEN: $USE_GITHUB_TOKEN"
+          echo "GITHUB_TOKEN length: ${#GITHUB_TOKEN}"
+          echo "Testing OpenCode version:"
+          opencode --version 2>&1 || echo "OpenCode not found"
+
+      - name: Generate report with OpenCode CLI
         id: generate_report
-        uses: anomalyco/opencode/github@latest
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-        with:
-          model: deepseek/deepseek-reasoner
-          agent: build
-          share: false
-          prompt: |
-            使用 git-changes-reporter skill 生成每日 Git 变更报告，并将结果保存为 Markdown 文件。
+          USE_GITHUB_TOKEN: false
+          GITHUB_TOKEN: 'dummy'
+          OIDC_BASE_URL: ''
+        run: |
+          npm install -g opencode-ai@latest
+          echo "使用 git-changes-reporter skill 生成每日 Git 变更报告，并将结果保存为 Markdown 文件。
 
-            - 起始提交: ${{ steps.commit_range.outputs.old_commit }}
-            - 结束提交: ${{ steps.commit_range.outputs.new_commit }}
-            - 提交范围: ${{ steps.commit_range.outputs.old_commit_short }}..${{ steps.commit_range.outputs.new_commit_short }}
-            - 提交数量: ${{ steps.commit_range.outputs.commit_count }}
-            - JSON 数据文件: ${{ steps.generate_json.outputs.json_file }}
-            - 输出文件: docs/reports/git-changes-report-${{ steps.report_date.outputs.value }}.md
-            - 技能文档路径: .claude/skills/git-changes-reporter/SKILL.md
+          - 起始提交: ${{ steps.commit_range.outputs.old_commit }}
+          - 结束提交: ${{ steps.commit_range.outputs.new_commit }}
+          - 提交范围: ${{ steps.commit_range.outputs.old_commit_short }}..${{ steps.commit_range.outputs.new_commit_short }}
+          - 提交数量: ${{ steps.commit_range.outputs.commit_count }}
+          - JSON 数据文件: ${{ steps.generate_json.outputs.json_file }}
+          - 输出文件: docs/reports/git-changes-report-${{ steps.report_date.outputs.value }}.md
+          - 技能文档路径: .claude/skills/git-changes-reporter/SKILL.md
 
-            要求：
-            1) 读取上述 JSON 数据，并严格按照 git-changes-reporter skill 的规则生成报告。
-            2) 必须使用短哈希引用提交，绝对不要使用 JSON 行号。
-            3) 按技能文档的语义聚类和报告结构输出，包含具体文件引用和代码位置。
-            4) 将最终 Markdown 报告写入指定输出文件。
-            5) 必须运行 validate-report.js 脚本以确保报告格式正确。
+          要求：
+          1) 读取上述 JSON 数据，并严格按照 git-changes-reporter skill 的规则生成报告。
+          2) 必须使用短哈希引用提交，绝对不要使用 JSON 行号。
+          3) 按技能文档的语义聚类和报告结构输出，包含具体文件引用和代码位置。
+          4) 将最终 Markdown 报告写入指定输出文件。
+          5) 必须运行 validate-report.js 脚本以确保报告格式正确。" | opencode run --model deepseek/deepseek-reasoner
 
       - name: Check if report was generated
         id: check_report

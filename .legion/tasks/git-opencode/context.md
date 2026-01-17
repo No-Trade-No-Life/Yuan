@@ -31,10 +31,16 @@
 - 修改 daily-git-report.yml，将 Claude Code Action 替换为 OpenCode Action
 - 添加必要的 GitHub Secrets 说明，验证环境变量配置
 - 创建测试分支，手动触发工作流验证报告生成
+- 同步上游代码并重新测试 OpenCode 集成
+- 同步上游代码并重新测试 OpenCode 集成
+- 调查 OpenCode Action GITHUB_TOKEN 错误根本原因
+- 改用 opencode CLI 直接运行，替代 GitHub Action
+- 决定下一步方向：回退、替代方案或继续调试
+- 深入调试 OpenCode 源码，尝试修复或绕开 GITHUB_TOKEN bug
 
 ### 🟡 进行中
 
-(暂无)
+- 深度调试 OpenCode 环境变量与版本问题
 
 ### ⚠️ 阻塞/待定
 
@@ -66,16 +72,11 @@
 
 **下次继续从这里开始：**
 
-1. 在 GitHub 仓库 Settings → Secrets and variables → Actions 中添加 DEEPSEEK_API_KEY Secret
-2. 创建新分支推送修改，在 Actions 页面手动触发工作流验证
-3. 检查生成的 Markdown 报告是否符合 git-changes-reporter skill 要求
-4. 确认 PR 创建和制品上传功能正常
+1. 向用户报告 OpenCode 集成失败，提供三个选项：1) 回退到 Claude Code；2) 尝试其他 AI 助手；3) 直接使用 DeepSeek API
 
 **注意事项：**
 
-- 如遇 OpenCode 工具权限问题，可调整 prompt 或检查 OpenCode 配置
-- 建议保留原有 Secret 一段时间以便回滚
-- 可考虑创建 opencode.json 配置文件以进一步定制模型参数
+- OpenCode 在 GitHub Actions 环境中存在 GITHUB_TOKEN bug，无法解决。建议先回退到 Claude Code 保证每日报告正常运行，同时向 OpenCode 社区报告 issue。
 
 ---
 
