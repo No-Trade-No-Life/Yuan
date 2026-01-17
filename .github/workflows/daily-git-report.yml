@@ -73,6 +73,42 @@ jobs:
             echo "JSON file does not exist"
           fi
 
+      - name: Debug - Check OpenCode environment and version
+        env:
+          USE_GITHUB_TOKEN: false
+          GITHUB_TOKEN: ''
+          OIDC_BASE_URL: ''
+        run: |
+          echo "=== Environment Variables Debug ==="
+          echo "USE_GITHUB_TOKEN: $USE_GITHUB_TOKEN"
+          echo "GITHUB_TOKEN (length): ${#GITHUB_TOKEN}"
+          echo "OIDC_BASE_URL: $OIDC_BASE_URL"
+          echo "ACTIONS_STEP_DEBUG: $ACTIONS_STEP_DEBUG"
+          echo "PATH: $PATH"
+
+          echo "=== OpenCode Version Check ==="
+          npm install -g opencode-ai@latest
+          OPENCODE_VERSION=$(opencode --version 2>/dev/null || echo "not installed")
+          echo "OpenCode version: $OPENCODE_VERSION"
+
+          echo "=== Check OpenCode installation path ==="
+          which opencode
+          npm list -g opencode-ai --depth=0
+
+          echo "=== Verify OpenCode github.ts source logic ==="
+          # Try to inspect the installed package
+          OPENCODE_PATH=$(npm root -g)/opencode-ai
+          if [ -d "$OPENCODE_PATH" ]; then
+            echo "OpenCode installed at: $OPENCODE_PATH"
+            # Look for github.ts or compiled .js files
+            find "$OPENCODE_PATH" -name "*github*" -type f | head -10
+          else
+            echo "OpenCode not found in global node_modules"
+          fi
+
+          echo "=== Test OpenCode with minimal command ==="
+          echo "Testing OpenCode with echo command..." | opencode run --model deepseek/deepseek-reasoner --dry-run 2>&1 || echo "OpenCode test failed (expected)"
+
       - name: Generate report with OpenCode CLI
         id: generate_report
         env:

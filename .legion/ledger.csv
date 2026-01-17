@@ -857,3 +857,43 @@
 2026-01-16T10:38:26.081Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addDiscoveredTask: 同步上游代码并重新测试OpenCode集成,success
 2026-01-16T10:38:44.336Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addTask: 同步上游代码并重新测试OpenCode集成,success
 2026-01-16T10:38:50.872Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,setCurrentTask: 同步上游代码并重新测试OpenCode集成,success
+2026-01-16T10:39:39.729Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,,success
+2026-01-16T10:46:02.526Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,progress.completed: 同步上游代码并重新测试OpenCode集成,success
+2026-01-16T10:46:13.877Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addDecision: OpenCode Action 存在 GITHUB_TOKEN 配置问题，无论 use_github_token 如何设置都报错,success
+2026-01-16T10:46:20.823Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addDiscoveredTask: 调查OpenCode Action GITHUB_TOKEN错误根本原因,success
+2026-01-16T10:46:27.088Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addTask: 调查OpenCode Action GITHUB_TOKEN错误根本原因,success
+2026-01-16T10:46:32.252Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,setCurrentTask: 调查OpenCode Action GITHUB_TOKEN错误根本原因,success
+2026-01-16T10:46:37.556Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,progress.completed: 同步上游代码并重新测试OpenCode集成,success
+2026-01-16T10:47:06.741Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addDecision: 建议改用opencode CLI直接运行，替代GitHub Action,success
+2026-01-16T10:47:13.336Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addDiscoveredTask: 改用opencode CLI直接运行，替代GitHub Action,success
+2026-01-16T10:47:19.114Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addTask: 改用opencode CLI直接运行，替代GitHub Action,success
+2026-01-16T10:47:23.995Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,setCurrentTask: 改用opencode CLI直接运行，替代GitHub Action,success
+2026-01-16T10:47:29.619Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,progress.completed: 调查OpenCode Action GITHUB_TOKEN错误根本原因,success
+2026-01-16T10:49:56.330Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addDecision: opencode CLI方案同样失败，错误依旧，表明问题在OpenCode核心,success
+2026-01-16T10:50:02.616Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,progress.completed: 改用opencode CLI直接运行，替代GitHub Action,success
+2026-01-16T10:50:10.825Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,completeTask: 改用opencode CLI直接运行，替代GitHub Action,success
+2026-01-16T10:50:18.765Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addDiscoveredTask: 决定下一步方向：回退、替代方案或继续调试,success
+2026-01-16T10:50:24.417Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addTask: 决定下一步方向：回退、替代方案或继续调试,success
+2026-01-16T10:50:29.705Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,setCurrentTask: 决定下一步方向：回退、替代方案或继续调试,success
+2026-01-16T10:50:36.415Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,,success
+2026-01-16T10:50:44.500Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,handoff: 向用户报告OpenCode集成失败，提供三个选项：1) 回退到Claude Code；2) 尝试其他AI助手；3) 直接使用DeepSeek API,success
+2026-01-17T06:50:11.129Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addDiscoveredTask: 深入调试OpenCode源码，尝试修复或绕开GITHUB_TOKEN bug,success
+2026-01-17T06:50:16.691Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addTask: 深入调试OpenCode源码，尝试修复或绕开GITHUB_TOKEN bug,success
+2026-01-17T06:50:22.765Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,setCurrentTask: 深入调试OpenCode源码，尝试修复或绕开GITHUB_TOKEN bug,success
+2026-01-17T06:50:29.520Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,progress.completed: 决定下一步方向：回退、替代方案或继续调试,success
+2026-01-17T06:53:54.257Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addDecision: 确认OpenCode存在GITHUB_TOKEN bug，无法在当前版本中修复,success
+2026-01-17T06:54:01.365Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,progress.completed: 深入调试OpenCode源码，尝试修复或绕开GITHUB_TOKEN bug,success
+2026-01-17T06:54:08.406Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,completeTask: 深入调试OpenCode源码，尝试修复或绕开GITHUB_TOKEN bug,success
+2026-01-17T06:54:14.450Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addDiscoveredTask: 向OpenCode项目报告GITHUB_TOKEN bug issue,success
+2026-01-17T06:54:19.741Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addTask: 向OpenCode项目报告GITHUB_TOKEN bug issue,success
+2026-01-17T06:54:25.506Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,setCurrentTask: 向OpenCode项目报告GITHUB_TOKEN bug issue,success
+2026-01-17T06:54:31.410Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,,success
+2026-01-17T06:56:03.045Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addDecision: 用户质疑为何需要GITHUB_TOKEN，确认这是OpenCode的bug,success
+2026-01-17T07:04:10.958Z,legion_get_status,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,,success
+2026-01-17T07:04:15.822Z,legion_read_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,"section: all, includeReviews: true",success
+2026-01-17T07:04:34.754Z,legion_list_reviews,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,,success
+2026-01-17T07:04:55.949Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,completeTask: 向OpenCode项目报告GITHUB_TOKEN bug issue,success
+2026-01-17T07:05:06.267Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addDiscoveredTask: 深度调试OpenCode环境变量与版本问题,success
+2026-01-17T07:05:17.925Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,setCurrentTask: 深度调试OpenCode环境变量与版本问题,success
+2026-01-17T07:06:04.790Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,,success
+2026-01-17T07:06:10.906Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,addFile: .github/workflows/daily-git-report.yml,success

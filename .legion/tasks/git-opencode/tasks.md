@@ -35,7 +35,13 @@
 
 (暂无)
 
-- [ ] 同步上游代码并重新测试 OpenCode 集成 | 来源: 用户反馈测试失败，需要同步 upstream 后重新验证 ← CURRENT
+- [ ] 同步上游代码并重新测试 OpenCode 集成 | 来源: 用户反馈测试失败，需要同步 upstream 后重新验证
+- [ ] 调查 OpenCode Action GITHUB_TOKEN 错误根本原因 | 来源: 多次测试表明 OpenCode Action 配置有问题
+- [x] 改用 opencode CLI 直接运行，替代 GitHub Action | 来源: OpenCode Action 存在 bug，CLI 方案更可靠
+- [ ] 决定下一步方向：回退、替代方案或继续调试 | 来源: OpenCode 集成遇到难以克服的 bug
+- [x] 深入调试 OpenCode 源码，尝试修复或绕开 GITHUB_TOKEN bug | 来源: 用户选择继续调试
+- [x] 向 OpenCode 项目报告 GITHUB_TOKEN bug issue | 来源: 确认是 OpenCode 自身 bug
+- [ ] 深度调试 OpenCode 环境变量与版本问题 | 来源: 继续调试 OpenCode GITHUB_TOKEN 错误 ← CURRENT
 
 ---
 
