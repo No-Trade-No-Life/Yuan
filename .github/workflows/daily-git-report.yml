@@ -109,12 +109,22 @@ jobs:
           echo "=== Test OpenCode with minimal command ==="
           echo "Testing OpenCode with echo command..." | opencode run --model deepseek/deepseek-reasoner --dry-run 2>&1 || echo "OpenCode test failed (expected)"
 
+      - name: Debug - Env before OpenCode
+        env:
+          USE_GITHUB_TOKEN: false
+          GITHUB_TOKEN: 'dummy'
+        run: |
+          echo "USE_GITHUB_TOKEN: $USE_GITHUB_TOKEN"
+          echo "GITHUB_TOKEN length: ${#GITHUB_TOKEN}"
+          echo "Testing OpenCode version:"
+          opencode --version 2>&1 || echo "OpenCode not found"
+
       - name: Generate report with OpenCode CLI
         id: generate_report
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           USE_GITHUB_TOKEN: false
-          GITHUB_TOKEN: ''
+          GITHUB_TOKEN: 'dummy'
           OIDC_BASE_URL: ''
         run: |
           npm install -g opencode-ai@latest
