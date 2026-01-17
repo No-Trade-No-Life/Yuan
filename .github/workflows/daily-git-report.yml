@@ -77,6 +77,7 @@ jobs:
         id: generate_report
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          USE_GITHUB_TOKEN: false
         run: |
           npm install -g opencode-ai@latest
           echo "使用 git-changes-reporter skill 生成每日 Git 变更报告，并将结果保存为 Markdown 文件。
