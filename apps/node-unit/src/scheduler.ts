@@ -2,7 +2,7 @@ import { IDeployment } from '@yuants/deploy';
 import { ITerminalInfo, Terminal } from '@yuants/protocol';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
-import { catchError, concatMap, defer, EMPTY, interval, takeUntil } from 'rxjs';
+import { catchError, concatMap, defer, EMPTY, interval, takeUntil, firstValueFrom, timeout } from 'rxjs';
 
 const DEFAULT_SCHEDULER_INTERVAL_MS = 5_000;
 
@@ -42,21 +42,43 @@ const parseWeight = (value: string | undefined, fallback: number): number => {
   return Number.isFinite(parsed) ? parsed : fallback;
 };
 
-const loadResourceUsage = (
-  terminalInfos: ITerminalInfo[],
-): Map<string, { cpuPercent: number; memoryMb: number }> => {
-  const usage = new Map<string, { cpuPercent: number; memoryMb: number }>();
+const resolveNodeUnitTerminalIds = (terminalInfos: ITerminalInfo[]): Map<string, string> => {
+  const map = new Map<string, string>();
   for (const info of terminalInfos) {
     const tags = info.tags ?? {};
-    if (tags.node_unit === 'true' && tags.node_unit_address) {
-      const cpuPercent = Number.parseFloat(tags.node_unit_cpu_percent ?? '0');
-      const memoryMb = Number.parseFloat(tags.node_unit_memory_mb ?? '0');
-      usage.set(tags.node_unit_address, {
-        cpuPercent: Number.isFinite(cpuPercent) ? cpuPercent : 0,
-        memoryMb: Number.isFinite(memoryMb) ? memoryMb : 0,
-      });
+    if (tags.node_unit === 'true' && tags.node_unit_address && info.terminal_id) {
+      map.set(tags.node_unit_address, info.terminal_id);
     }
   }
+  return map;
+};
+
+const fetchResourceUsage = async (
+  terminal: Terminal,
+  activeNodeUnits: string[],
+  addressToTerminalId: Map<string, string>,
+): Promise<Map<string, { cpuPercent: number; memoryMb: number }>> => {
+  const usage = new Map<string, { cpuPercent: number; memoryMb: number }>();
+  await Promise.all(
+    activeNodeUnits.map(async (address) => {
+      const terminalId = addressToTerminalId.get(address);
+      if (!terminalId) return;
+      try {
+        const msg = await firstValueFrom(
+          terminal.client.request('NodeUnit/InspectResourceUsage', terminalId, {}).pipe(timeout(5000)),
+        );
+        if (msg.res?.code === 0 && msg.res.data) {
+          const data = msg.res.data as { cpu_percent: number; memory_mb: number };
+          usage.set(address, {
+            cpuPercent: data.cpu_percent,
+            memoryMb: data.memory_mb,
+          });
+        }
+      } catch (e) {
+        // ignore
+      }
+    }),
+  );
   return usage;
 };
 
@@ -247,7 +269,7 @@ const runSchedulerCycle = async (
   terminal: Terminal,
   nodeUnitAddress: string,
   activeNodeUnits: string[],
-  resourceUsage: Map<string, { cpuPercent: number; memoryMb: number }>,
+  terminalInfos: ITerminalInfo[],
   policy: ClaimPolicy,
 ): Promise<void> => {
   if (activeNodeUnits.length === 0) return;
@@ -262,6 +284,9 @@ const runSchedulerCycle = async (
       deployments = await listDeployments(terminal);
     }
   }
+
+  const addressToTerminalId = resolveNodeUnitTerminalIds(terminalInfos);
+  const resourceUsage = await fetchResourceUsage(terminal, activeNodeUnits, addressToTerminalId);
 
   const counts = buildDeploymentCounts(deployments, activeNodeUnits);
   const context: ClaimMetricContext = { deployments, deploymentCounts: counts, resourceUsage };
@@ -329,11 +354,11 @@ export const startDeploymentScheduler = (
   options: { intervalMs?: number; policy?: ClaimPolicy } = {},
 ) => {
   let activeNodeUnits: string[] = [];
-  let resourceUsage = new Map<string, { cpuPercent: number; memoryMb: number }>();
+  let terminalInfos: ITerminalInfo[] = [];
 
-  terminal.terminalInfos$.pipe(takeUntil(terminal.dispose$)).subscribe((terminalInfos) => {
-    activeNodeUnits = loadActiveNodeUnits(terminalInfos);
-    resourceUsage = loadResourceUsage(terminalInfos);
+  terminal.terminalInfos$.pipe(takeUntil(terminal.dispose$)).subscribe((infos) => {
+    terminalInfos = infos;
+    activeNodeUnits = loadActiveNodeUnits(infos);
   });
 
   const policyName = process.env.NODE_UNIT_CLAIM_POLICY ?? 'deployment_count';
@@ -355,7 +380,7 @@ export const startDeploymentScheduler = (
       takeUntil(terminal.dispose$),
       concatMap(() =>
         defer(() =>
-          runSchedulerCycle(terminal, nodeUnitAddress, activeNodeUnits, resourceUsage, policy),
+          runSchedulerCycle(terminal, nodeUnitAddress, activeNodeUnits, terminalInfos, policy),
         ).pipe(
           catchError((err) => {
             console.error(formatTime(Date.now()), 'DeploymentSchedulerError', err);
@@ -375,7 +400,8 @@ export {
   buildSnapshots,
   pickCandidateDeployment,
   claimDeployment,
-  loadResourceUsage,
+  fetchResourceUsage,
+  resolveNodeUnitTerminalIds,
   buildResourceUsageSnapshot,
   parseWeight,
   deploymentCountProvider,

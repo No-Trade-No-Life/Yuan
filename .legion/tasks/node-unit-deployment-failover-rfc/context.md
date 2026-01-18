@@ -31,6 +31,10 @@
 - 完成构建验证，测试通过，无编译错误
 - 更新 tasks.md 和 context.md 反映任务完成
 - 已增加 eligibility/candidate/claim 原因日志并重新跑 21 portal E2E，生成更新后的中文报告。
+- [Refactor] apps/node-unit/src/index.ts: 移除 tags 更新逻辑，注册 NodeUnit/InspectResourceUsage 服务
+- [Refactor] apps/node-unit/src/scheduler.ts: 实现 fetchResourceUsage，使用 terminal.client.request 替代 loadResourceUsage 从 tags 读取
+- [Test] apps/node-unit/src/scheduler.test.ts: 更新单元测试，Mock 远程 Service 调用，验证异常处理与超时逻辑
+- [Build] pnpm build 通过，TypeScript 5.9.3 兼容性检查通过
 
 ### 🟡 进行中
 

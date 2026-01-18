@@ -1,6 +1,7 @@
 import { IDeployment } from '@yuants/deploy';
 import { ITerminalInfo } from '@yuants/protocol';
 import { escapeSQL, requestSQL } from '@yuants/sql';
+import { of, throwError, timeout } from 'rxjs';
 
 // Mock 外部依赖
 const mockRequestSQL = jest.fn();
@@ -19,7 +20,8 @@ import {
   buildSnapshots,
   pickCandidateDeployment,
   claimDeployment,
-  loadResourceUsage,
+  fetchResourceUsage,
+  resolveNodeUnitTerminalIds,
   buildResourceUsageSnapshot,
   deploymentCountProvider,
   resourceUsageProvider,
@@ -63,6 +65,83 @@ describe('loadActiveNodeUnits', () => {
 
     const result = loadActiveNodeUnits(terminalInfos);
     expect(result).toEqual([]);
+  });
+});
+
+describe('resolveNodeUnitTerminalIds', () => {
+  it('maps node_unit_address to terminal_id', () => {
+    const terminalInfos: ITerminalInfo[] = [
+      { terminal_id: 't1', tags: { node_unit: 'true', node_unit_address: 'addr1' } } as ITerminalInfo,
+      { terminal_id: 't2', tags: { node_unit: 'true', node_unit_address: 'addr2' } } as ITerminalInfo,
+      { terminal_id: 't3', tags: { node_unit: 'false', node_unit_address: 'addr3' } } as ITerminalInfo,
+    ];
+
+    const result = resolveNodeUnitTerminalIds(terminalInfos);
+    expect(result.get('addr1')).toBe('t1');
+    expect(result.get('addr2')).toBe('t2');
+    expect(result.has('addr3')).toBe(false);
+  });
+});
+
+describe('fetchResourceUsage', () => {
+  it('requests resource usage from node units', async () => {
+    const mockRequest = jest.fn();
+    const mockTerminal = {
+      client: {
+        request: mockRequest,
+      },
+    } as any;
+
+    mockRequest.mockImplementation((method, terminalId) => {
+      if (terminalId === 't1') {
+        return of({
+          res: {
+            code: 0,
+            data: { cpu_percent: 30.5, memory_mb: 512 },
+          },
+        });
+      }
+      if (terminalId === 't2') {
+        return of({
+          res: {
+            code: 0,
+            data: { cpu_percent: 45.2, memory_mb: 1024 },
+          },
+        });
+      }
+      return throwError(() => new Error('Unknown terminal'));
+    });
+
+    const activeNodeUnits = ['addr1', 'addr2', 'addr3'];
+    const addressToTerminalId = new Map([
+      ['addr1', 't1'],
+      ['addr2', 't2'],
+      // addr3 missing terminal id or offline
+    ]);
+
+    const usage = await fetchResourceUsage(mockTerminal, activeNodeUnits, addressToTerminalId);
+
+    expect(usage.get('addr1')).toEqual({ cpuPercent: 30.5, memoryMb: 512 });
+    expect(usage.get('addr2')).toEqual({ cpuPercent: 45.2, memoryMb: 1024 });
+    expect(usage.has('addr3')).toBe(false);
+
+    expect(mockRequest).toHaveBeenCalledWith('NodeUnit/InspectResourceUsage', 't1', {});
+    expect(mockRequest).toHaveBeenCalledWith('NodeUnit/InspectResourceUsage', 't2', {});
+  });
+
+  it('handles request errors/timeouts gracefully', async () => {
+    const mockRequest = jest.fn().mockReturnValue(throwError(() => new Error('Timeout')));
+    const mockTerminal = {
+      client: {
+        request: mockRequest,
+      },
+    } as any;
+
+    const activeNodeUnits = ['addr1'];
+    const addressToTerminalId = new Map([['addr1', 't1']]);
+
+    const usage = await fetchResourceUsage(mockTerminal, activeNodeUnits, addressToTerminalId);
+    expect(usage.size).toBe(0);
   });
 });
 
@@ -164,35 +243,6 @@ describe('resource_usage provider and policy', () => {
   beforeEach(() => {
     delete process.env.NODE_UNIT_CPU_WEIGHT;
     delete process.env.NODE_UNIT_MEMORY_WEIGHT;
-  });
-
-  it('loads resource usage from terminalInfo tags', () => {
-    const terminalInfos: ITerminalInfo[] = [
-      {
-        terminal_id: 't1',
-        tags: {
-          node_unit: 'true',
-          node_unit_address: 'addr1',
-          node_unit_cpu_percent: '30.5',
-          node_unit_memory_mb: '512',
-        },
-      } as ITerminalInfo,
-      {
-        terminal_id: 't2',
-        tags: {
-          node_unit: 'true',
-          node_unit_address: 'addr2',
-          node_unit_cpu_percent: '45.2',
-          node_unit_memory_mb: '1024',
-        },
-      } as ITerminalInfo,
-      { terminal_id: 't3', tags: { node_unit: 'true', node_unit_address: 'addr3' } } as ITerminalInfo, // 缺少资源 tags
-    ];
-
-    const resourceUsage = loadResourceUsage(terminalInfos);
-    expect(resourceUsage.get('addr1')).toEqual({ cpuPercent: 30.5, memoryMb: 512 });
-    expect(resourceUsage.get('addr2')).toEqual({ cpuPercent: 45.2, memoryMb: 1024 });
-    expect(resourceUsage.get('addr3')).toEqual({ cpuPercent: 0, memoryMb: 0 });
   });
 
   it('evaluates resource usage with default 50/50 weights', () => {

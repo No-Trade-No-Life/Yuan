@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "git-opencode",
+  "currentTask": "node-unit-deployment-failover-rfc",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -150,16 +150,16 @@
     {
       "id": "node-unit-deployment-failover-rfc",
       "name": "node-unit-deployment-failover-rfc",
-      "status": "archived",
+      "status": "active",
       "createdAt": "2026-01-14T15:05:41.801Z",
-      "updatedAt": "2026-01-16T07:57:14.363Z"
+      "updatedAt": "2026-01-18T04:36:36.329Z"
     },
     {
       "id": "git-opencode",
       "name": "替换 Git 报告工作流为 OpenCode",
-      "status": "active",
+      "status": "paused",
       "createdAt": "2026-01-16T10:15:46.738Z",
-      "updatedAt": "2026-01-16T10:21:09.193Z"
+      "updatedAt": "2026-01-18T04:19:40.707Z"
     }
   ],
   "pendingProposals": [
