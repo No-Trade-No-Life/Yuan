@@ -74,6 +74,7 @@ const childPublicKeys = new Set<string>();
 const LOG_ROTATE_OPTIONS = DEFAULT_LOG_ROTATE_OPTIONS;
 const NODE_UNIT_NAME = process.env.NODE_UNIT_NAME || hostname();
 let nodeUnitAddress = '';
+let currentResourceUsage = { cpuPercent: 0, memoryMb: 0 };
 
 const MetricDeploymentCpuSecondsTotal = GlobalPrometheusRegistry.counter(
   'node_unit_deployment_cpu_seconds_total',
@@ -106,7 +107,6 @@ const makeDeploymentMetricLabels = (
   package_version: meta.package_version,
   node_unit_name: NODE_UNIT_NAME,
   node_unit_address: nodeUnitAddress,
-  pid: String(meta.pid),
 });
 
 const resetDeploymentGauges = (
@@ -173,14 +173,14 @@ const startDeploymentMetricsCollector = () => {
     .subscribe();
 };
 
-const startNodeUnitResourceReporter = (terminal: Terminal, intervalMs: number) => {
+const startResourceCollector = (intervalMs: number) => {
   let lastUsage = process.cpuUsage();
   let lastAt = Date.now();
   const cores = Math.max(cpus().length, 1);
 
   interval(intervalMs)
     .pipe(
-      takeUntil(terminal.dispose$),
+      takeUntil(kill$), // Use kill$ instead of terminal.dispose$ as it's global now
       concatMap(() =>
         defer(async () => {
           const now = Date.now();
@@ -206,14 +206,14 @@ const startNodeUnitResourceReporter = (terminal: Terminal, intervalMs: number) =
           lastUsage = usage;
           lastAt = now;
 
-          const tags = terminal.terminalInfo.tags ?? {};
-          tags.node_unit_cpu_percent = totalCpuPercent.toFixed(2);
-          tags.node_unit_memory_mb = totalMemoryMb.toFixed(2);
-          terminal.terminalInfoUpdated$.next();
+          currentResourceUsage = {
+            cpuPercent: totalCpuPercent,
+            memoryMb: totalMemoryMb,
+          };
         }),
       ),
       catchError((err) => {
-        console.error(formatTime(Date.now()), 'NodeUnitResourceReporterError', err);
+        console.error(formatTime(Date.now()), 'ResourceCollectorError', err);
         return EMPTY;
       }),
     )
@@ -383,8 +383,6 @@ defer(async () => {
         node_unit_address: nodeKeyPair.public_key,
         node_unit_name: process.env.NODE_UNIT_NAME || hostname(),
         node_unit_version: require('../package.json').version,
-        node_unit_cpu_percent: '0',
-        node_unit_memory_mb: '0',
       },
     },
     {
@@ -398,8 +396,21 @@ defer(async () => {
     Number.isFinite(schedulerIntervalFromEnv) && schedulerIntervalFromEnv > 0
       ? schedulerIntervalFromEnv
       : 5000;
-  startNodeUnitResourceReporter(terminal, resourceIntervalMs);
+  startResourceCollector(resourceIntervalMs);
   startDeploymentScheduler(terminal, nodeKeyPair.public_key);
+
+  terminal.server.provideService('NodeUnit/InspectResourceUsage', {}, async () => {
+    return {
+      res: {
+        code: 0,
+        message: 'OK',
+        data: {
+          cpu_percent: currentResourceUsage.cpuPercent,
+          memory_mb: currentResourceUsage.memoryMb,
+        },
+      },
+    };
+  });
 
   terminal.server.provideService(
     'Deployment/ReadLogSlice',

@@ -852,3 +852,16 @@
 2026-01-16T10:20:54.849Z,legion_update_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,completeTask: 创建测试分支，手动触发工作流验证报告生成,success
 2026-01-16T10:21:09.194Z,legion_update_context,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,progress.completed: 分析现有 daily-git-report.yml 工作流结构、Claude Code 配置与依赖,success
 2026-01-16T10:21:16.152Z,legion_generate_dashboard,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,format: markdown,success
+2026-01-18T04:19:31.694Z,legion_get_status,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,,success
+2026-01-18T04:19:36.201Z,legion_list_tasks,git-opencode,替换 Git 报告工作流为 OpenCode,Claude,,success
+2026-01-18T04:19:40.708Z,legion_switch_task,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,taskId: node-unit-deployment-failover-rfc,success
+2026-01-18T04:19:44.504Z,legion_read_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,,success
+2026-01-18T04:20:11.958Z,legion_update_plan,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,,success
+2026-01-18T04:20:13.001Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,addDecision: 改为 Service-based 资源发现机制,success
+2026-01-18T04:33:46.871Z,legion_update_tasks,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,addDiscoveredTask: [Refactor] 移除 tags 中的资源上报，暴露 NodeUnit/InspectResourceUsage 服务,success
+2026-01-18T04:33:46.909Z,legion_update_tasks,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,addDiscoveredTask: [Refactor] Scheduler 改为主动轮询资源用量,success
+2026-01-18T04:33:47.050Z,legion_update_tasks,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,addDiscoveredTask: [Test] 更新单元测试适配 Service 调用的 Mock,success
+2026-01-18T04:36:33.936Z,legion_update_plan,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,,success
+2026-01-18T04:36:36.331Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,addDecision: 采用 Service-based Pull 模式替代 Tags-based Push 模式进行资源发现,success
+2026-01-18T04:36:53.483Z,legion_list_tasks,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,,success
+2026-01-18T04:36:53.527Z,legion_read_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,section: progress,success

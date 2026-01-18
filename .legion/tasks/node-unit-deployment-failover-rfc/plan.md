@@ -11,7 +11,7 @@
 
 ## 目标
 
-梳理 node-unit 与 deployment 的绑定/调度/失联处理机制，并产出可 review 的抢占与失联恢复 RFC 设计。
+NodeUnit Deployment 失联与抢占调度 (RFC v2: Service-based Resource Discovery)
 
 ## 背景与现状调研
 
@@ -133,66 +133,50 @@ export interface ClaimPolicy {
 - `deployment_count`：统计 `enabled=true && address != ''` 的数量。
 - 允许抢占的 node-unit：`deployment_count` 最小值的集合。
 
-### v2 设计：CPU/Memory 资源优先调度
+### v2 设计：CPU/Memory 资源优先调度 (Pull-based)
+
+#### 核心理念
+
+弃用 v1 中的 "Push-based (Tags)" 方案，改为 **"Pull-based (Service)"** 方案。
+Tags 适用于低频元数据（如版本号、名称），高频更新资源用量会导致 host 频繁广播 terminal 列表，造成无谓的流量压力。
+新方案中，Scheduler 主动通过 RPC 向在线 NodeUnit 轮询资源状态。
 
 #### 数据源
 
-采用 **node-unit 自报告** 方案：node-unit 定期更新 `terminalInfo.tags`，携带资源占用信息。
+NodeUnit 暴露 `NodeUnit/InspectResourceUsage` 服务，按需返回当前资源快照。
+
+#### 服务定义
 
 ```typescript
-// node-unit 启动时 & 定期更新 terminalInfo.tags
-terminal.terminalInfo.tags = {
-  ...existingTags,
-  node_unit: 'true',
-  node_unit_address: publicKey,
-  node_unit_cpu_percent: '45.2', // 新增：CPU 占用百分比
-  node_unit_memory_mb: '1024', // 新增：内存占用 MB
-};
+// Service: NodeUnit/InspectResourceUsage
+// Request: {}
+// Response:
+interface IInspectResourceUsageResponse {
+  cpu_percent: number; // 0-100+ (聚合值)
+  memory_mb: number; // MB (聚合值)
+}
 ```
 
-**上报周期**：与 scheduler loop 间隔对齐（默认 5s），或独立配置。
+#### 实现细节
 
-**采集方式**：**聚合 node-unit 主进程 + 所有子 deployment 进程的资源占用**。
+1. **NodeUnit 端（Server）**：
 
-具体实现：
+   - 启动时注册服务 `NodeUnit/InspectResourceUsage`。
+   - 内部维护 `ResourceCollector`，定期（如 1s）聚合主进程 + 所有子 Deployment 进程的 CPU/Memory。
+   - 服务被调用时，直接返回内存中的最新聚合值。
 
-1. **node-unit 主进程**：使用 `process.cpuUsage()` + `process.memoryUsage().rss`
-2. **子 deployment 进程**：遍历 `mapDeploymentIdToProcess`，使用 `pidusage` 获取每个子进程的 CPU/Memory
-3. **聚合**：将主进程和所有子进程的 CPU% 求和、Memory 求和，得到该 node-unit 的总资源占用
+2. **Scheduler 端（Client）**：
+   - 每次调度循环（Scheduler Loop）：
+     1. 从 `terminalInfos` 获取所有 `activeNodeUnits` 的 `terminal_id`。
+     2. 并发向所有 active node unit 发起 `NodeUnit/InspectResourceUsage` 请求（带超时）。
+     3. 收集响应，构建 `resourceUsage` Map。
+     4. 若请求超时或失败，该节点资源指标视为 0（或保留上一帧，视策略而定；当前简化为忽略或 0）。
 
-```typescript
-const collectTotalResourceUsage = async (
-  mapDeploymentIdToProcess: Map<string, { pid: number; ... }>,
-  lastCpuUsage: NodeJS.CpuUsage,
-  elapsedMs: number,
-  cores: number,
-): Promise<{ cpuPercent: number; memoryMb: number }> => {
-  // 1. node-unit 主进程
-  const currentUsage = process.cpuUsage();
-  const deltaMicros = (currentUsage.user + currentUsage.system) - (lastCpuUsage.user + lastCpuUsage.system);
-  const mainCpuPercent = Math.max((deltaMicros / 1000 / (elapsedMs * cores)) * 100, 0);
-  const mainMemoryMb = process.memoryUsage().rss / 1024 / 1024;
+#### 优势
 
-  // 2. 子 deployment 进程
-  let childCpuPercent = 0;
-  let childMemoryMb = 0;
-  for (const [, meta] of mapDeploymentIdToProcess) {
-    const stats = await pidusage(meta.pid).catch(() => null);
-    if (stats) {
-      childCpuPercent += stats.cpu;  // pidusage 返回的是百分比
-      childMemoryMb += stats.memory / 1024 / 1024;
-    }
-  }
-
-  // 3. 聚合
-  return {
-    cpuPercent: mainCpuPercent + childCpuPercent,
-    memoryMb: mainMemoryMb + childMemoryMb,
-  };
-};
-```
-
-> **注意**：`pidusage` 返回的 `cpu` 是该进程相对于单个 CPU 核心的百分比（可能 >100%），与主进程计算方式略有差异。实际实现时需统一口径，建议都采用"相对于总 CPU 容量"的百分比。
+- **降低网络噪音**：仅在 Scheduler 需要决策时产生流量，且是点对点流量，不再广播。
+- **解耦**：Host 无需感知资源字段，仅作为 RPC 路由器。
+- **实时性**：Scheduler 可根据需要调整轮询频率，不受 Tags 推送频率限制。
 
 #### Context 扩展
 
@@ -200,29 +184,29 @@ const collectTotalResourceUsage = async (
 export interface ClaimMetricContext {
   deployments: IDeployment[];
   deploymentCounts: Map<string, number>;
-  // v2 新增
   resourceUsage: Map<string, { cpuPercent: number; memoryMb: number }>;
 }
 ```
 
-从 `terminalInfos` 提取资源信息：
+#### 资源采集逻辑（保持聚合逻辑）
 
 ```typescript
-const loadResourceUsage = (
-  terminalInfos: ITerminalInfo[],
-): Map<string, { cpuPercent: number; memoryMb: number }> => {
-  const usage = new Map();
-  for (const info of terminalInfos) {
-    const tags = info.tags ?? {};
-    if (tags.node_unit === 'true' && tags.node_unit_address) {
-      usage.set(tags.node_unit_address, {
-        cpuPercent: parseFloat(tags.node_unit_cpu_percent ?? '0'),
-        memoryMb: parseFloat(tags.node_unit_memory_mb ?? '0'),
-      });
-    }
-  }
-  return usage;
+const collectTotalResourceUsage = async (...) => {
+  // 1. 主进程 usage
+  // 2. 遍历 mapDeploymentIdToProcess 获取子进程 usage (pidusage)
+  // 3. sum(main + children)
 };
+```
+
+#### Provider 实现
+
+```typescript
+const fetchResourceUsage = async (terminal, activeNodeUnits) => {
+  // Promise.all( request('NodeUnit/InspectResourceUsage') )
+  // return Map<address, usage>
+};
+
+// Scheduler 循环中调用 fetchResourceUsage 代替 loadResourceUsageFromTags
 ```
 
 #### 新增 Provider
@@ -282,15 +266,15 @@ const policy = policies[policyName] ?? defaultClaimPolicy;
 
 #### 需要修改的文件
 
-| 文件                              | 改动内容                                                                                                                    |
-| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `apps/node-unit/src/index.ts`     | 修改 `startNodeUnitResourceReporter`：聚合主进程 + 所有子 deployment 进程的 CPU/Memory，需要访问 `mapDeploymentIdToProcess` |
-| `apps/node-unit/src/scheduler.ts` | 扩展 `ClaimMetricContext`、新增 `resourceUsageProvider` 和 `resourceOnlyPolicy`、策略配置化（已实现）                       |
+| 文件                              | 改动内容                                                                                                                     |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `apps/node-unit/src/index.ts`     | 1. 移除 tags 更新循环<br>2. 注册 `NodeUnit/InspectResourceUsage` 服务<br>3. 启动内部 ResourceCollector                       |
+| `apps/node-unit/src/scheduler.ts` | 1. 移除 `loadResourceUsage` (from tags)<br>2. 新增 `fetchResourceUsage` (via RPC)<br>3. Scheduler Loop 增加并发 RPC 调用逻辑 |
 
 #### 边界条件
 
-- **tags 缺失**：若某 node-unit 未上报资源指标，`cpuPercent` 和 `memoryMb` 默认为 0，等同于"资源最空闲"，会被优先选中抢占。可考虑后续加入"tags 缺失则排除"的逻辑。
-- **采集延迟**：资源数据有 1~2 个调度周期的延迟，属于可接受范围。
+- **tags 缺失/RPC 失败**：若 RPC 调用失败或超时，默认该节点资源为 0（偏向于被选中，促进负载均衡尝试）。
+- **采集延迟**：ResourceCollector 定期更新内存快照，Service 调用返回最近一次快照，延迟可控（~1s）。
 - **权重调整**：当前硬编码 50/50，后续可通过环境变量 `NODE_UNIT_CPU_WEIGHT` / `NODE_UNIT_MEMORY_WEIGHT` 配置。
 - **子进程退出**：`pidusage` 对已退出进程会返回 null，已在代码中处理（`.catch(() => null)`）。
 - **CPU 口径统一**：`pidusage` 返回的 cpu 是相对单核的百分比，主进程采集是相对总核心数；实现时需统一为"相对总 CPU 容量"。
@@ -337,15 +321,15 @@ const policy = policies[policyName] ?? defaultClaimPolicy;
 
 验证 `apps/node-unit/src/scheduler.ts` 核心逻辑的正确性，覆盖以下关键行为：
 
-| 测试领域     | 验证要点                                               |
-| ------------ | ------------------------------------------------------ |
-| **失联检测** | 准确识别 `address` 不在 `activeNodeUnits` 中的部署     |
-| **部署统计** | 按地址计数，正确排除 `address=''` 的记录               |
-| **抢占资格** | 策略正确选出最小值集合（v1）或最低评分（v2）           |
-| **资源计算** | CPU/Memory 加权评分计算正确，缺失 tags 返回 `value: 0` |
-| **策略选择** | 环境变量 `NODE_UNIT_CLAIM_POLICY` 正确切换策略         |
-| **候选排序** | 遵循 `updated_at asc, created_at asc, id asc` 顺序     |
-| **并发安全** | 一次仅抢占一个，`WHERE address=''` 条件保证幂等        |
+| 测试领域     | 验证要点                                                 |
+| ------------ | -------------------------------------------------------- |
+| **失联检测** | 准确识别 `address` 不在 `activeNodeUnits` 中的部署       |
+| **部署统计** | 按地址计数，正确排除 `address=''` 的记录                 |
+| **抢占资格** | 策略正确选出最小值集合（v1）或最低评分（v2）             |
+| **资源计算** | CPU/Memory 加权评分计算正确，RPC 失败返回 0 (或处理异常) |
+| **策略选择** | 环境变量 `NODE_UNIT_CLAIM_POLICY` 正确切换策略           |
+| **候选排序** | 遵循 `updated_at asc, created_at asc, id asc` 顺序       |
+| **并发安全** | 一次仅抢占一个，`WHERE address=''` 条件保证幂等          |
 
 ### 2. 测试策略
 
@@ -468,16 +452,17 @@ it('uses environment variable to select policy', () => {
 
 ### 需要导出的函数（用于测试）
 
-| 函数                              | 作用                                 | 测试重点             |
-| --------------------------------- | ------------------------------------ | -------------------- |
-| `loadActiveNodeUnits`             | 从 terminalInfos 提取 node-unit 地址 | tag 解析正确性       |
-| `getLostAddresses`                | 识别失联地址                         | 集合差集计算         |
-| `buildDeploymentCounts`           | 统计各地址部署数                     | 空地址过滤、计数     |
-| `buildSnapshots`                  | 构建指标快照                         | Provider 评估调用    |
-| `pickCandidateDeployment`         | 选择待抢占部署                       | SQL 排序逻辑（mock） |
-| `claimDeployment`                 | 执行抢占                             | SQL 条件更新（mock） |
-| `defaultClaimPolicy.pickEligible` | v1 策略                              | 最小值集合           |
-| `resourceOnlyPolicy.pickEligible` | v2 策略                              | 加权评分比较         |
+| 函数                              | 作用                             | 测试重点             |
+| --------------------------------- | -------------------------------- | -------------------- |
+| `fetchResourceUsage`              | 并发 RPC 获取资源用量            | Mock Client Request  |
+| `resolveNodeUnitTerminalIds`      | 建立 address -> terminal_id 映射 | 正确解析 tags        |
+| `getLostAddresses`                | 识别失联地址                     | 集合差集计算         |
+| `buildDeploymentCounts`           | 统计各地址部署数                 | 空地址过滤、计数     |
+| `buildSnapshots`                  | 构建指标快照                     | Provider 评估调用    |
+| `pickCandidateDeployment`         | 选择待抢占部署                   | SQL 排序逻辑（mock） |
+| `claimDeployment`                 | 执行抢占                         | SQL 条件更新（mock） |
+| `defaultClaimPolicy.pickEligible` | v1 策略                          | 最小值集合           |
+| `resourceOnlyPolicy.pickEligible` | v2 策略                          | 加权评分比较         |
 
 ### 集成测试（可选）
 

@@ -2,8 +2,8 @@
 
 ## 快速恢复
 
-**当前阶段**: 阶段 3 - 实现（已完成）
-**当前任务**: 所有任务已完成
+**当前阶段**: 阶段 1 - 调研
+**当前任务**: (none)
 **进度**: 4/4 任务完成
 
 ---
@@ -21,7 +21,7 @@
 
 ---
 
-## 阶段 3: 实现 ✅ COMPLETE
+## 阶段 3: 实现 🟡 IN PROGRESS
 
 - [x] 根据审批后的 RFC 落地代码修改与最小验证。 | 验收: 实现符合 RFC，相关任务清单与 context.md 更新完成。
 
@@ -30,6 +30,10 @@
 ## 发现的新任务
 
 (暂无)
+
+- [ ] [Refactor] 移除 tags 中的资源上报，暴露 NodeUnit/InspectResourceUsage 服务 | 来源: RFC v2 Implementation
+- [ ] [Refactor] Scheduler 改为主动轮询资源用量 | 来源: RFC v2 Implementation
+- [ ] [Test] 更新单元测试适配 Service 调用的 Mock | 来源: RFC v2 Implementation
 
 ---
 

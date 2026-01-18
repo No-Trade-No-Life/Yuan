@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/node-unit",
+      "comment": "remove node unit resource from terminal tags",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/node-unit"
+}
