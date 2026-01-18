@@ -1,6 +1,13 @@
 # Change Log - @yuants/node-unit
 
-This log was last generated on Fri, 16 Jan 2026 10:16:55 GMT and should not be manually modified.
+This log was last generated on Sun, 18 Jan 2026 04:50:52 GMT and should not be manually modified.
+
+## 0.14.3
+Sun, 18 Jan 2026 04:50:52 GMT
+
+### Patches
+
+- remove node unit resource from terminal tags
 
 ## 0.14.2
 Fri, 16 Jan 2026 10:16:55 GMT
