@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "node-unit-deployment-failover-rfc",
+  "currentTask": "node-unit-deployment-metric-refactor",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -150,9 +150,9 @@
     {
       "id": "node-unit-deployment-failover-rfc",
       "name": "node-unit-deployment-failover-rfc",
-      "status": "active",
+      "status": "paused",
       "createdAt": "2026-01-14T15:05:41.801Z",
-      "updatedAt": "2026-01-18T04:36:36.329Z"
+      "updatedAt": "2026-01-18T04:47:23.091Z"
     },
     {
       "id": "git-opencode",
@@ -160,6 +160,13 @@
       "status": "paused",
       "createdAt": "2026-01-16T10:15:46.738Z",
       "updatedAt": "2026-01-18T04:19:40.707Z"
+    },
+    {
+      "id": "node-unit-deployment-metric-refactor",
+      "name": "node-unit-deployment-metric-refactor",
+      "status": "active",
+      "createdAt": "2026-01-18T04:47:23.091Z",
+      "updatedAt": "2026-01-19T12:32:11.597Z"
     }
   ],
   "pendingProposals": [
@@ -1683,6 +1690,53 @@
       "decidedAt": "2026-01-16T10:15:46.738Z",
       "decidedBy": "Claude",
       "createdTaskId": "git-opencode"
+    },
+    {
+      "id": "proposal-mkj98rcu-1a8c2f",
+      "name": "node-unit-deployment-metric-refactor",
+      "goal": "Refactor node-unit deployment metrics to use nodejs_process_resource_usage and a join metric.",
+      "rationale": "Reduce high cardinality metrics and leverage standard process metrics with a join. User request.",
+      "points": [
+        "Remove `node_unit_deployment_memory_rss_bytes` and `node_unit_deployment_cpu_usage_ratio`.",
+        "Add `node_unit_deployment_info` gauge (value 1) mapping `deployment_id` <-> `terminal_id`.",
+        "Rely on `nodejs_process_resource_usage` from child processes."
+      ],
+      "scope": ["apps/node-unit/src/index.ts"],
+      "phases": [
+        {
+          "name": "RFC & Design",
+          "tasks": [
+            {
+              "acceptance": "RFC plan detailed in plan.md and reviewed.",
+              "description": "Draft RFC in plan.md"
+            }
+          ]
+        },
+        {
+          "name": "Implementation",
+          "tasks": [
+            {
+              "description": "Modify apps/node-unit/src/index.ts",
+              "acceptance": "Old metrics removed, new metric added."
+            }
+          ]
+        },
+        {
+          "tasks": [
+            {
+              "description": "Build and verification",
+              "acceptance": "Code compiles."
+            }
+          ],
+          "name": "Verification"
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-01-18T04:47:19.423Z",
+      "status": "approved",
+      "decidedAt": "2026-01-18T04:47:23.091Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "node-unit-deployment-metric-refactor"
     }
   ]
 }

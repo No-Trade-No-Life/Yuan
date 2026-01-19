@@ -76,101 +76,58 @@ const NODE_UNIT_NAME = process.env.NODE_UNIT_NAME || hostname();
 let nodeUnitAddress = '';
 let currentResourceUsage = { cpuPercent: 0, memoryMb: 0 };
 
-const MetricDeploymentCpuSecondsTotal = GlobalPrometheusRegistry.counter(
-  'node_unit_deployment_cpu_seconds_total',
-  'Cumulative CPU seconds consumed by deployment process',
-);
-const MetricDeploymentCpuUsageRatio = GlobalPrometheusRegistry.gauge(
-  'node_unit_deployment_cpu_usage_ratio',
-  'Deployment CPU usage ratio compared to host total jiffies',
-);
-const MetricDeploymentMemoryRssBytes = GlobalPrometheusRegistry.gauge(
-  'node_unit_deployment_memory_rss_bytes',
-  'Deployment process RSS bytes from /proc/[pid]/status',
+const MetricDeploymentInfo = GlobalPrometheusRegistry.gauge(
+  'node_unit_deployment_info',
+  'Deployment info for joining with nodejs_process_resource_usage',
 );
 // NOTE: Socket-level network metrics are temporarily disabled
 
 const mapDeploymentIdToProcess = new Map<
   string,
-  { pid: number; package_name: string; package_version: string }
+  { pid: number; package_name: string; package_version: string; terminal_id: string }
 >();
-let lastPidusageAt = Date.now();
-
 // NOTE: Socket-level network metrics are temporarily disabled
 
-const makeDeploymentMetricLabels = (
+const makeDeploymentInfoMetricLabels = (
   deploymentId: string,
-  meta: { pid: number; package_name: string; package_version: string },
+  terminalId: string,
+  meta: { package_name: string; package_version: string },
 ) => ({
   deployment_id: deploymentId,
+  terminal_id: terminalId,
   package_name: meta.package_name,
   package_version: meta.package_version,
   node_unit_name: NODE_UNIT_NAME,
   node_unit_address: nodeUnitAddress,
 });
 
-const resetDeploymentGauges = (
-  deploymentId: string,
-  meta: { pid: number; package_name: string; package_version: string },
-) => {
-  const labels = makeDeploymentMetricLabels(deploymentId, meta);
-  MetricDeploymentCpuUsageRatio.labels(labels).set(0);
-  MetricDeploymentMemoryRssBytes.labels(labels).set(0);
-};
-
-const registerDeploymentProcess = (deployment: IDeployment, pid: number | undefined) => {
+const registerDeploymentProcess = (deployment: IDeployment, pid: number | undefined, terminalId: string) => {
   if (!pid) return;
   const prev = mapDeploymentIdToProcess.get(deployment.id);
-  if (prev && prev.pid !== pid) {
-    resetDeploymentGauges(deployment.id, prev);
+  if (prev) {
+    // 删除旧的 info 指标
+    const oldLabels = makeDeploymentInfoMetricLabels(deployment.id, prev.terminal_id, prev);
+    MetricDeploymentInfo.labels(oldLabels).delete();
   }
   const meta = {
     pid,
+    terminal_id: terminalId,
     package_name: deployment.package_name,
     package_version: deployment.package_version,
   };
   mapDeploymentIdToProcess.set(deployment.id, meta);
+  // 设置新的 info 指标为 1
+  const newLabels = makeDeploymentInfoMetricLabels(deployment.id, terminalId, meta);
+  MetricDeploymentInfo.labels(newLabels).set(1);
 };
 
 const unregisterDeploymentProcess = (deploymentId: string) => {
   const meta = mapDeploymentIdToProcess.get(deploymentId);
   if (!meta) return;
-  resetDeploymentGauges(deploymentId, meta);
+  // 删除 info 指标
+  const labels = makeDeploymentInfoMetricLabels(deploymentId, meta.terminal_id, meta);
+  MetricDeploymentInfo.labels(labels).delete();
   mapDeploymentIdToProcess.delete(deploymentId);
-};
-
-const collectDeploymentMetrics = async () => {
-  if (mapDeploymentIdToProcess.size === 0) return;
-  const now = Date.now();
-  const wallDeltaSec = Math.max((now - lastPidusageAt) / 1000, 0);
-  lastPidusageAt = now;
-  for (const [deploymentId, meta] of mapDeploymentIdToProcess) {
-    const labels = makeDeploymentMetricLabels(deploymentId, meta);
-    const stats = await pidusage(meta.pid).catch(() => null);
-    if (!stats) {
-      unregisterDeploymentProcess(deploymentId);
-      continue;
-    }
-    const cpuSeconds = Math.max((stats.cpu / 100) * wallDeltaSec, 0);
-    if (cpuSeconds > 0) {
-      MetricDeploymentCpuSecondsTotal.labels(labels).inc(cpuSeconds);
-    }
-    MetricDeploymentCpuUsageRatio.labels(labels).set(Math.max(stats.cpu / 100, 0));
-    MetricDeploymentMemoryRssBytes.labels(labels).set(Math.max(stats.memory ?? 0, 0));
-  }
-};
-
-const startDeploymentMetricsCollector = () => {
-  interval(5000)
-    .pipe(
-      takeUntil(kill$),
-      mergeMap(() => defer(() => collectDeploymentMetrics())),
-      catchError((err) => {
-        console.error(formatTime(Date.now()), 'DeploymentMetricsError', err);
-        return EMPTY;
-      }),
-    )
-    .subscribe();
 };
 
 const startResourceCollector = (intervalMs: number) => {
@@ -273,7 +230,7 @@ const runDeployment = (nodeUnitKeyPair: IEd25519KeyPair, deployment: IDeployment
           stdoutFilename: join(logHome, `${deployment.id}.log`),
           stderrFilename: join(logHome, `${deployment.id}.log`),
           streamFactory: (filename) => new RotatingLogStream(filename, LOG_ROTATE_OPTIONS),
-          onSpawn: (child) => registerDeploymentProcess(deployment, child.pid),
+          onSpawn: (child) => registerDeploymentProcess(deployment, child.pid, childKeyPair.public_key),
         }).pipe(
           tap({
             finalize: () => {
@@ -320,7 +277,6 @@ defer(async () => {
 
   console.info(formatTime(Date.now()), 'Node Unit Address:', nodeKeyPair.public_key);
   nodeUnitAddress = nodeKeyPair.public_key;
-  startDeploymentMetricsCollector();
 
   const localHostDeployment: IDeployment | null = !process.env.HOST_URL
     ? {
