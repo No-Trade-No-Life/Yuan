@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/node-unit",
+      "comment": "refactor metrics of node unit",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/node-unit"
+}

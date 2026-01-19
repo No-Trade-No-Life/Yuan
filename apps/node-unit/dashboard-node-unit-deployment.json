@@ -93,7 +93,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(node_unit_deployment_cpu_seconds_total{node_unit_name=~\"$node_unit_name\",package_name=~\"$package_name\",package_version=~\"$package_version\",deployment_id=~\"$deployment_id\"}[5m]))",
+          "expr": "sum(rate(nodejs_process_resource_usage{type=\"userCPUTime\"} * on(terminal_id) group_left(deployment_id, package_name, package_version, node_unit_name, node_unit_address) node_unit_deployment_info{node_unit_name=~\"$node_unit_name\",package_name=~\"$package_name\",package_version=~\"$package_version\",deployment_id=~\"$deployment_id\"}[5m]))",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "total",
@@ -180,7 +180,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum by (deployment_id, package_name, package_version, node_unit_name) (rate(node_unit_deployment_cpu_seconds_total{node_unit_name=~\"$node_unit_name\",package_name=~\"$package_name\",package_version=~\"$package_version\",deployment_id=~\"$deployment_id\"}[5m]))",
+          "expr": "sum by (deployment_id, package_name, package_version, node_unit_name) (rate(nodejs_process_resource_usage{type=\"userCPUTime\"} * on(terminal_id) group_left(deployment_id, package_name, package_version, node_unit_name, node_unit_address) node_unit_deployment_info{node_unit_name=~\"$node_unit_name\",package_name=~\"$package_name\",package_version=~\"$package_version\",deployment_id=~\"$deployment_id\"}[5m]))",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "{{deployment_id}} - {{package_name}}",
@@ -347,7 +347,7 @@
       ],
       "targets": [
         {
-          "expr": "topk(10, sum by (deployment_id, package_name, package_version, node_unit_name) (rate(node_unit_deployment_cpu_seconds_total{node_unit_name=~\"$node_unit_name\",package_name=~\"$package_name\",package_version=~\"$package_version\",deployment_id=~\"$deployment_id\"}[5m])))",
+          "expr": "topk(10, sum by (deployment_id, package_name, package_version, node_unit_name) (rate(nodejs_process_resource_usage{type=\"userCPUTime\"} * on(terminal_id) group_left(deployment_id, package_name, package_version, node_unit_name, node_unit_address) node_unit_deployment_info{node_unit_name=~\"$node_unit_name\",package_name=~\"$package_name\",package_version=~\"$package_version\",deployment_id=~\"$deployment_id\"}[5m])))",
           "format": "table",
           "instant": true,
           "intervalFactor": 2,
@@ -512,7 +512,7 @@
       ],
       "targets": [
         {
-          "expr": "topk(10, max_over_time((sum by (deployment_id, package_name, package_version, node_unit_name) (rate(node_unit_deployment_cpu_seconds_total{node_unit_name=~\"$node_unit_name\",package_name=~\"$package_name\",package_version=~\"$package_version\",deployment_id=~\"$deployment_id\"}[5m])))[1h:]))",
+          "expr": "topk(10, max_over_time((sum by (deployment_id, package_name, package_version, node_unit_name) (rate(nodejs_process_resource_usage{type=\"userCPUTime\"} * on(terminal_id) group_left(deployment_id, package_name, package_version, node_unit_name, node_unit_address) node_unit_deployment_info{node_unit_name=~\"$node_unit_name\",package_name=~\"$package_name\",package_version=~\"$package_version\",deployment_id=~\"$deployment_id\"}[5m])))[1h:]))",
           "format": "table",
           "instant": true,
           "intervalFactor": 2,
@@ -614,7 +614,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(node_unit_deployment_memory_rss_bytes{node_unit_name=~\"$node_unit_name\",package_name=~\"$package_name\",package_version=~\"$package_version\",deployment_id=~\"$deployment_id\"})",
+          "expr": "sum(nodejs_process_resource_usage{type=\"rss\"} * on(terminal_id) group_left(deployment_id, package_name, package_version, node_unit_name, node_unit_address) node_unit_deployment_info{node_unit_name=~\"$node_unit_name\",package_name=~\"$package_name\",package_version=~\"$package_version\",deployment_id=~\"$deployment_id\"})",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "total",
@@ -701,7 +701,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum by (deployment_id, package_name, package_version, node_unit_name) (node_unit_deployment_memory_rss_bytes{node_unit_name=~\"$node_unit_name\",package_name=~\"$package_name\",package_version=~\"$package_version\",deployment_id=~\"$deployment_id\"})",
+          "expr": "sum by (deployment_id, package_name, package_version, node_unit_name) (nodejs_process_resource_usage{type=\"rss\"} * on(terminal_id) group_left(deployment_id, package_name, package_version, node_unit_name, node_unit_address) node_unit_deployment_info{node_unit_name=~\"$node_unit_name\",package_name=~\"$package_name\",package_version=~\"$package_version\",deployment_id=~\"$deployment_id\"})",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "{{deployment_id}}",
@@ -868,7 +868,7 @@
       ],
       "targets": [
         {
-          "expr": "topk(10, sum by (deployment_id, package_name, package_version, node_unit_name) (node_unit_deployment_memory_rss_bytes{node_unit_name=~\"$node_unit_name\",package_name=~\"$package_name\",package_version=~\"$package_version\",deployment_id=~\"$deployment_id\"}))",
+          "expr": "topk(10, sum by (deployment_id, package_name, package_version, node_unit_name) (nodejs_process_resource_usage{type=\"rss\"} * on(terminal_id) group_left(deployment_id, package_name, package_version, node_unit_name, node_unit_address) node_unit_deployment_info{node_unit_name=~\"$node_unit_name\",package_name=~\"$package_name\",package_version=~\"$package_version\",deployment_id=~\"$deployment_id\"}))",
           "format": "table",
           "instant": true,
           "intervalFactor": 2,
@@ -1033,7 +1033,7 @@
       ],
       "targets": [
         {
-          "expr": "topk(10, max_over_time((sum by (deployment_id, package_name, package_version, node_unit_name) (node_unit_deployment_memory_rss_bytes{node_unit_name=~\"$node_unit_name\",package_name=~\"$package_name\",package_version=~\"$package_version\",deployment_id=~\"$deployment_id\"}))[1h:]))",
+          "expr": "topk(10, max_over_time((sum by (deployment_id, package_name, package_version, node_unit_name) (nodejs_process_resource_usage{type=\"rss\"} * on(terminal_id) group_left(deployment_id, package_name, package_version, node_unit_name, node_unit_address) node_unit_deployment_info{node_unit_name=~\"$node_unit_name\",package_name=~\"$package_name\",package_version=~\"$package_version\",deployment_id=~\"$deployment_id\"}))[1h:]))",
           "format": "table",
           "instant": true,
           "intervalFactor": 2,
@@ -1113,7 +1113,7 @@
         "name": "node_unit_name",
         "options": [],
         "query": {
-          "query": "label_values(node_unit_deployment_cpu_seconds_total, node_unit_name)",
+          "query": "label_values(node_unit_deployment_info, node_unit_name)",
           "refId": "prometheus-node-unit-name-Variable-Query"
         },
         "refresh": 2,
@@ -1143,7 +1143,7 @@
         "name": "package_name",
         "options": [],
         "query": {
-          "query": "label_values(node_unit_deployment_cpu_seconds_total, package_name)",
+          "query": "label_values(node_unit_deployment_info, package_name)",
           "refId": "prometheus-package-name-Variable-Query"
         },
         "refresh": 2,
@@ -1173,7 +1173,7 @@
         "name": "package_version",
         "options": [],
         "query": {
-          "query": "label_values(node_unit_deployment_cpu_seconds_total, package_version)",
+          "query": "label_values(node_unit_deployment_info, package_version)",
           "refId": "prometheus-package-version-Variable-Query"
         },
         "refresh": 2,
@@ -1203,7 +1203,7 @@
         "name": "deployment_id",
         "options": [],
         "query": {
-          "query": "label_values(node_unit_deployment_cpu_seconds_total, deployment_id)",
+          "query": "label_values(node_unit_deployment_info, deployment_id)",
           "refId": "prometheus-deployment-id-Variable-Query"
         },
         "refresh": 2,

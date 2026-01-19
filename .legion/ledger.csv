@@ -865,3 +865,38 @@
 2026-01-18T04:36:36.331Z,legion_update_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,addDecision: 采用 Service-based Pull 模式替代 Tags-based Push 模式进行资源发现,success
 2026-01-18T04:36:53.483Z,legion_list_tasks,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,,success
 2026-01-18T04:36:53.527Z,legion_read_context,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,section: progress,success
+2026-01-18T04:46:37.066Z,legion_get_status,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,,success
+2026-01-18T04:47:11.160Z,legion_create_task,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,goal: Refactor node-unit deployment metrics to use nodejs_process_resource_usage and a join metric.,failed
+2026-01-18T04:47:19.424Z,legion_propose_task,node-unit-deployment-failover-rfc,node-unit-deployment-failover-rfc,Claude,name: node-unit-deployment-metric-refactor,success
+2026-01-18T04:47:23.107Z,legion_approve_proposal,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,proposalId: proposal-mkj98rcu-1a8c2f,success
+2026-01-18T04:48:42.782Z,legion_update_plan,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,,success
+2026-01-18T04:48:42.998Z,legion_update_context,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,addDecision: Use `node_unit_deployment_info` as the join metric.,success
+2026-01-18T05:21:37.305Z,legion_update_plan,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,,success
+2026-01-18T05:21:37.335Z,legion_respond_review,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,"file: plan.md, reviewId: 1, status: resolved",failed
+2026-01-18T05:30:30.269Z,legion_update_plan,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,,success
+2026-01-18T05:37:34.906Z,legion_update_plan,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,,success
+2026-01-18T05:37:34.907Z,legion_respond_review,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,"file: plan.md, reviewId: 2, status: resolved",failed
+2026-01-18T06:54:59.637Z,legion_update_plan,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,,success
+2026-01-18T13:36:24.946Z,legion_update_tasks,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,setCurrentTask: 修改 apps/node-unit/src/index.ts：添加 node_unit_deployment_info 指标，移除旧的 Deployment 指标定义和上报逻辑,success
+2026-01-19T02:28:41.630Z,legion_update_tasks,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,completeTask: 修改 apps/node-unit/src/index.ts：添加 node_unit_deployment_info 指标，移除旧的 Deployment 指标定义和上报逻辑,success
+2026-01-19T02:31:03.476Z,legion_update_tasks,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,completeTask: 修改 apps/node-unit/src/index.ts：添加 node_unit_deployment_info 指标，移除旧的 Deployment 指标定义和上报逻辑,success
+2026-01-19T02:31:13.910Z,legion_update_tasks,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,setCurrentTask: Build and verification,success
+2026-01-19T02:31:55.082Z,legion_update_context,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,addFile: apps/node-unit/src/index.ts,success
+2026-01-19T02:32:03.210Z,legion_update_context,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,addDecision: 对 node_unit_deployment_info 指标采用 set(1)/set(0) 而非 remove()。,success
+2026-01-19T02:32:10.452Z,legion_update_tasks,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,completeTask: Build and verification,success
+2026-01-19T02:32:19.843Z,legion_update_context,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,handoff: 验证部署后 node_unit_deployment_info 指标是否按预期出现（值为 1）。,success
+2026-01-19T02:37:09.725Z,legion_update_context,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,addDecision: 对 node_unit_deployment_info 指标使用 labels().delete() 而非 set(0)。,success
+2026-01-19T02:37:38.125Z,legion_update_context,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,handoff: 验证部署后 node_unit_deployment_info 指标是否按预期出现（值为 1）。,success
+2026-01-19T12:30:12.490Z,legion_get_status,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,,success
+2026-01-19T12:30:17.825Z,legion_read_context,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,"section: all, includeReviews: true",success
+2026-01-19T12:30:51.456Z,legion_update_tasks,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,completeTask: Draft RFC in plan.md,success
+2026-01-19T12:30:56.291Z,legion_update_tasks,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,completeTask: Modify apps/node-unit/src/index.ts,success
+2026-01-19T12:31:24.206Z,legion_update_tasks,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,addTask: Update dashboard queries,success
+2026-01-19T12:31:29.524Z,legion_update_tasks,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,completeTask: Update dashboard queries,success
+2026-01-19T12:31:35.193Z,legion_update_tasks,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,addTask: Test deployment and verify metrics,success
+2026-01-19T12:31:40.290Z,legion_update_tasks,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,setCurrentTask: Test deployment and verify metrics,success
+2026-01-19T12:31:46.743Z,legion_update_context,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,addFile: apps/node-unit/src/index.ts,success
+2026-01-19T12:31:52.512Z,legion_update_context,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,addFile: apps/node-unit/dashboard-node-unit-deployment.json,success
+2026-01-19T12:32:01.911Z,legion_update_context,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,"progress.completed: Code modifications: removed old metrics, added node_unit_deployment_info join metric",success
+2026-01-19T12:32:11.600Z,legion_update_context,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,handoff: Test deployment: start a deployment and verify node_unit_deployment_info appears with value 1,success
+2026-01-19T12:32:49.220Z,legion_get_status,node-unit-deployment-metric-refactor,node-unit-deployment-metric-refactor,Claude,,success
