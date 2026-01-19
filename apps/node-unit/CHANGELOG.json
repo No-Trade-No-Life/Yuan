@@ -2,6 +2,23 @@
   "name": "@yuants/node-unit",
   "entries": [
     {
+      "version": "0.14.3",
+      "tag": "@yuants/node-unit_v0.14.3",
+      "date": "Sun, 18 Jan 2026 04:50:52 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove node unit resource from terminal tags"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.14.2",
       "tag": "@yuants/node-unit_v0.14.2",
       "date": "Fri, 16 Jan 2026 10:16:55 GMT",
