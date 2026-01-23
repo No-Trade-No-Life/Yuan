@@ -36,7 +36,7 @@ NodeUnit Deployment 失联与抢占调度 (RFC v2: Service-based Resource Discov
 ### 目标
 
 - 使用 host 的 terminal join/exit 事件识别 node-unit 是否失联。
-- 允许 node-unit 清理失联节点的 deployment（将 `address` 置空）。
+- 允许 node-unit 从失联节点逐个抢占 deployment（不批量置空 `address`）。
 - node-unit 发现未调度 deployment 时进行抢占，且**一次只能抢占一个**。
 - 抢占必须满足“deployment 最少的 node-unit 才可抢占”的约束；并允许并列最少时多方并发抢占，最终以 DB 状态为准。
 - 抽象抢占指标接口，v1 用 deployment 数量，后续可扩展 CPU/memory 等指标。
@@ -64,11 +64,15 @@ NodeUnit Deployment 失联与抢占调度 (RFC v2: Service-based Resource Discov
 
 1. **同步在线 node-unit 列表**：从 `terminalInfos$` 取当前在线 node-unit 地址集合。
 2. **识别失联节点**：对比 `deployment.address` 与在线 node-unit 地址集合，筛出“部署指向已失联节点”的 deployment。
-3. **释放失联部署**：将失联节点的 deployment 的 `address` 置空（仅更新 `enabled=true` 的记录）。
-4. **评估抢占资格**：计算所有在线 node-unit 的“抢占指标”，找出最小值。
-5. **抢占一个 deployment**：若当前 node-unit 指标==最小值，则从未调度 deployment 中挑一个并尝试抢占（一次仅一个）。
+3. **评估抢占资格**：计算所有在线 node-unit 的“抢占指标”，找出最小值。
+4. **抢占一个 deployment**：若当前 node-unit 指标==最小值，则优先从失联地址中挑一个 deployment 抢占，否则从未调度 deployment 中挑一个并抢占（一次仅一个）。
 
-> 说明：仅对 `address=''` 的 deployment 进行抢占，不会主动夺取仍在线 node-unit 的 deployment。多 node-unit 并发抢占时，以 `update ... where address=''` 的条件更新为准，失败则视为被其他节点抢占。
+> [REVIEW] 我认为一次性清除所有失联地址的 deployment 是不安全的，因为可能存在网络抖动或短暂失联的情况。因此我认为不应该有这个清除，而是每次直接从一个失联地址中抢占一个 deployment 即可。
+> 
+> [RESPONSE] 同意调整：不再批量清空失联地址。改为每轮仅从失联地址中挑一个 deployment 直接抢占（与未指派同级候选），避免短暂抖动导致全量释放。已更新设计与伪代码。
+> [STATUS:resolved]
+
+> 说明：仅对 `address=''` 或失联地址的 deployment 进行抢占，不会夺取仍在线 node-unit 的 deployment。多 node-unit 并发抢占时，以 `update ... where address=''` 或 `address in lostAddresses` 条件更新为准，失败则视为被其他节点抢占。
 
 ---
 
@@ -82,8 +86,6 @@ loop every SCHEDULER_INTERVAL_MS:
   assignedAddresses = unique(deployments.map(d => d.address).filter(notEmpty))
 
   lostAddresses = assignedAddresses - activeNodeUnits
-  if lostAddresses not empty:
-    update deployment set address='' where enabled=true and address in lostAddresses
 
   // metrics (v1: deployment count per address)
   counts = group deployments by address (address != '')
@@ -91,10 +93,11 @@ loop every SCHEDULER_INTERVAL_MS:
   minCount = min(counts[address] for address in activeNodeUnits)
 
   if myCount == minCount:
-    candidates = deployments.filter(d => d.address == '')
+    lostCandidates = deployments.filter(d => lostAddresses has d.address)
+    candidates = lostCandidates.length > 0 ? lostCandidates : deployments.filter(d => d.address == '')
     if candidates not empty:
       pick 1 deployment (deterministic order)
-      update deployment set address=myAddress where id=? and address=''
+      update deployment set address=myAddress where id=? and (address='' or address in lostAddresses)
 ```
 
 ---
@@ -285,8 +288,7 @@ const policy = policies[policyName] ?? defaultClaimPolicy;
 
 - **一次仅抢占一个**：单次循环最多执行一次 `update ... set address=myAddress`。
 - **候选顺序**：建议按 `updated_at asc, created_at asc` 选取，保证 deterministic 且偏向 오래未处理的 deployment。
-- **并发抢占**：允许并列最小的 node-unit 并发执行；由 `address=''` 条件避免冲突。
-- **清理失联地址**：同样允许多节点并发执行，`update` 结果幂等。
+- **并发抢占**：允许并列最小的 node-unit 并发执行；由 `address=''` 或 `address in lostAddresses` 条件避免冲突。
 
 ---
 
@@ -329,7 +331,7 @@ const policy = policies[policyName] ?? defaultClaimPolicy;
 | **资源计算** | CPU/Memory 加权评分计算正确，RPC 失败返回 0 (或处理异常) |
 | **策略选择** | 环境变量 `NODE_UNIT_CLAIM_POLICY` 正确切换策略           |
 | **候选排序** | 遵循 `updated_at asc, created_at asc, id asc` 顺序       |
-| **并发安全** | 一次仅抢占一个，`WHERE address=''` 条件保证幂等          |
+| **并发安全** | 一次仅抢占一个，`WHERE address='' or address in lost` 条件保证幂等 |
 
 ### 2. 测试策略
 
@@ -468,9 +470,9 @@ it('uses environment variable to select policy', () => {
 
 ```typescript
 describe('scheduler integration', () => {
-  it('releases lost deployments and claims one per cycle', async () => {
+  it('claims from lost address or unassigned per cycle', async () => {
     // 模拟 terminalInfos$ 变化
-    // 验证 releaseLostDeployments 和 claimDeployment 调用
+    // 验证失联地址候选优先与 claimDeployment 调用
   });
 
   it('respects NODE_UNIT_SCHEDULER_INTERVAL_MS', () => {

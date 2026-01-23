@@ -28,6 +28,7 @@ import {
   firstValueFrom,
   fromEvent,
   interval,
+  timer,
   map,
   merge,
   mergeMap,
@@ -135,7 +136,7 @@ const startResourceCollector = (intervalMs: number) => {
   let lastAt = Date.now();
   const cores = Math.max(cpus().length, 1);
 
-  interval(intervalMs)
+  timer(0, intervalMs)
     .pipe(
       takeUntil(kill$), // Use kill$ instead of terminal.dispose$ as it's global now
       concatMap(() =>
@@ -167,6 +168,15 @@ const startResourceCollector = (intervalMs: number) => {
             cpuPercent: totalCpuPercent,
             memoryMb: totalMemoryMb,
           };
+          console.info(formatTime(Date.now()), 'ResourceCollectorUpdate', {
+            mainCpuPercent,
+            childCpuPercent,
+            cores,
+            totalCpuPercent,
+            mainMemoryMb,
+            childMemoryMb,
+            totalMemoryMb,
+          });
         }),
       ),
       catchError((err) => {
@@ -356,6 +366,7 @@ defer(async () => {
   startDeploymentScheduler(terminal, nodeKeyPair.public_key);
 
   terminal.server.provideService('NodeUnit/InspectResourceUsage', {}, async () => {
+    console.info(formatTime(Date.now()), 'NodeUnit/InspectResourceUsage', currentResourceUsage);
     return {
       res: {
         code: 0,

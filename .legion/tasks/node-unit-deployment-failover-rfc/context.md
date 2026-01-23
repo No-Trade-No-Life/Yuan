@@ -35,10 +35,13 @@
 - [Refactor] apps/node-unit/src/scheduler.ts: 实现 fetchResourceUsage，使用 terminal.client.request 替代 loadResourceUsage 从 tags 读取
 - [Test] apps/node-unit/src/scheduler.test.ts: 更新单元测试，Mock 远程 Service 调用，验证异常处理与超时逻辑
 - [Build] pnpm build 通过，TypeScript 5.9.3 兼容性检查通过
+- 按最新 plan 改为逐个从失联地址抢占：移除批量清空，候选优先失联地址，claim SQL 同时允许失联地址与未指派。
+
 
 ### 🟡 进行中
 
-(暂无)
+- 可选：运行 node-unit 测试或 E2E 以验证新抢占策略。
+
 
 ### ⚠️ 阻塞/待定
 

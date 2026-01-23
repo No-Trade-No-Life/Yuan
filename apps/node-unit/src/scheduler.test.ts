@@ -85,31 +85,34 @@ describe('resolveNodeUnitTerminalIds', () => {
 
 describe('fetchResourceUsage', () => {
   it('requests resource usage from node units', async () => {
-    const mockRequest = jest.fn();
+    const mockRequestForResponse = jest.fn();
+    const mockResolveTargetService = jest.fn();
     const mockTerminal = {
       client: {
-        request: mockRequest,
+        request: jest.fn(),
+        requestForResponse: mockRequestForResponse,
+        resolveTargetServiceByMethodAndTargetTerminalIdSync: mockResolveTargetService,
       },
     } as any;
 
-    mockRequest.mockImplementation((method, terminalId) => {
-      if (terminalId === 't1') {
-        return of({
-          res: {
-            code: 0,
-            data: { cpu_percent: 30.5, memory_mb: 512 },
-          },
+    mockResolveTargetService.mockImplementation((method, terminalId, req) => {
+      return { service_id: `service-${terminalId}` };
+    });
+
+    mockRequestForResponse.mockImplementation((serviceId, req) => {
+      if (serviceId === 'service-t1') {
+        return Promise.resolve({
+          code: 0,
+          data: { cpu_percent: 30.5, memory_mb: 512 },
         });
       }
-      if (terminalId === 't2') {
-        return of({
-          res: {
-            code: 0,
-            data: { cpu_percent: 45.2, memory_mb: 1024 },
-          },
+      if (serviceId === 'service-t2') {
+        return Promise.resolve({
+          code: 0,
+          data: { cpu_percent: 45.2, memory_mb: 1024 },
         });
       }
-      return throwError(() => new Error('Unknown terminal'));
+      return Promise.reject(new Error('Unknown service'));
     });
 
     const activeNodeUnits = ['addr1', 'addr2', 'addr3'];
@@ -125,15 +128,20 @@ describe('fetchResourceUsage', () => {
     expect(usage.get('addr2')).toEqual({ cpuPercent: 45.2, memoryMb: 1024 });
     expect(usage.has('addr3')).toBe(false);
 
-    expect(mockRequest).toHaveBeenCalledWith('NodeUnit/InspectResourceUsage', 't1', {});
-    expect(mockRequest).toHaveBeenCalledWith('NodeUnit/InspectResourceUsage', 't2', {});
+    expect(mockResolveTargetService).toHaveBeenCalledWith('NodeUnit/InspectResourceUsage', 't1', {});
+    expect(mockRequestForResponse).toHaveBeenCalledWith('service-t1', {});
+    expect(mockResolveTargetService).toHaveBeenCalledWith('NodeUnit/InspectResourceUsage', 't2', {});
+    expect(mockRequestForResponse).toHaveBeenCalledWith('service-t2', {});
   });
 
   it('handles request errors/timeouts gracefully', async () => {
-    const mockRequest = jest.fn().mockReturnValue(throwError(() => new Error('Timeout')));
+    const mockRequestForResponse = jest.fn().mockReturnValue(Promise.reject(new Error('Timeout')));
+    const mockResolveTargetService = jest.fn().mockReturnValue({ service_id: 'service-t1' });
     const mockTerminal = {
       client: {
-        request: mockRequest,
+        request: jest.fn(),
+        requestForResponse: mockRequestForResponse,
+        resolveTargetServiceByMethodAndTargetTerminalIdSync: mockResolveTargetService,
       },
     } as any;
 
@@ -303,7 +311,7 @@ describe('pickCandidateDeployment', () => {
     mockRequestSQL.mockResolvedValue([deployments[1]]); // d2 在前，因为 updated_at 更早
 
     const mockTerminal = {} as any;
-    const candidate = await pickCandidateDeployment(mockTerminal);
+    const candidate = await pickCandidateDeployment(mockTerminal, []);
 
     expect(mockRequestSQL).toHaveBeenCalledWith(
       mockTerminal,
@@ -312,11 +320,44 @@ describe('pickCandidateDeployment', () => {
     expect(candidate?.id).toBe('d2'); // updated_at 更早的优先
   });
 
+  it('prefers lost addresses when provided', async () => {
+    mockEscapeSQL.mockImplementation((str) => `'${str}'`);
+    mockRequestSQL.mockResolvedValueOnce([createMockDeployment({ id: 'd3', address: 'addr_lost' })]);
+
+    const mockTerminal = {} as any;
+    const candidate = await pickCandidateDeployment(mockTerminal, ['addr_lost']);
+
+    expect(mockRequestSQL).toHaveBeenCalledWith(
+      mockTerminal,
+      "select * from deployment where enabled = true and address in ('addr_lost') order by updated_at asc, created_at asc, id asc limit 1",
+    );
+    expect(candidate?.id).toBe('d3');
+  });
+
+  it('falls back to unassigned when lost has no candidates', async () => {
+    mockRequestSQL
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([createMockDeployment({ id: 'd4', address: '' })]);
+
+    const mockTerminal = {} as any;
+    const candidate = await pickCandidateDeployment(mockTerminal, ['addr_lost']);
+
+    expect(mockRequestSQL).toHaveBeenCalledWith(
+      mockTerminal,
+      "select * from deployment where enabled = true and address in ('addr_lost') order by updated_at asc, created_at asc, id asc limit 1",
+    );
+    expect(mockRequestSQL).toHaveBeenCalledWith(
+      mockTerminal,
+      "select * from deployment where enabled = true and address = '' order by updated_at asc, created_at asc, id asc limit 1",
+    );
+    expect(candidate?.id).toBe('d4');
+  });
+
   it('returns undefined when no candidates available', async () => {
     mockRequestSQL.mockResolvedValue([]);
 
     const mockTerminal = {} as any;
-    const candidate = await pickCandidateDeployment(mockTerminal);
+    const candidate = await pickCandidateDeployment(mockTerminal, []);
 
     expect(candidate).toBeUndefined();
   });
@@ -334,13 +375,28 @@ describe('claimDeployment', () => {
 
     const mockTerminal = {} as any;
     const deployment = createMockDeployment({ id: 'd1' });
-    const claimed = await claimDeployment(mockTerminal, deployment, 'addr1');
+    const claimed = await claimDeployment(mockTerminal, deployment, 'addr1', []);
 
     expect(mockEscapeSQL).toHaveBeenCalledWith('addr1');
     expect(mockEscapeSQL).toHaveBeenCalledWith('d1');
     expect(mockRequestSQL).toHaveBeenCalledWith(
       mockTerminal,
-      "update deployment set address = 'addr1' where id = 'd1' and address = '' returning id",
+      "update deployment set address = 'addr1' where id = 'd1' and (address = '') returning id",
+    );
+    expect(claimed).toBe(true);
+  });
+
+  it('allows claim when address is in lost list', async () => {
+    mockEscapeSQL.mockImplementation((str) => `'${str}'`);
+    mockRequestSQL.mockResolvedValue([{ id: 'd1' }]);
+
+    const mockTerminal = {} as any;
+    const deployment = createMockDeployment({ id: 'd1', address: 'addr_lost' });
+    const claimed = await claimDeployment(mockTerminal, deployment, 'addr1', ['addr_lost']);
+
+    expect(mockRequestSQL).toHaveBeenCalledWith(
+      mockTerminal,
+      "update deployment set address = 'addr1' where id = 'd1' and (address = '' or address in ('addr_lost')) returning id",
     );
     expect(claimed).toBe(true);
   });
@@ -351,7 +407,7 @@ describe('claimDeployment', () => {
 
     const mockTerminal = {} as any;
     const deployment = createMockDeployment({ id: 'd1' });
-    const claimed = await claimDeployment(mockTerminal, deployment, 'addr1');
+    const claimed = await claimDeployment(mockTerminal, deployment, 'addr1', []);
 
     expect(claimed).toBe(false);
   });
