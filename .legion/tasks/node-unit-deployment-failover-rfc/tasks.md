@@ -2,9 +2,9 @@
 
 ## 快速恢复
 
-**当前阶段**: 阶段 1 - 调研
-**当前任务**: (none)
-**进度**: 4/4 任务完成
+**当前阶段**: 阶段 3 - 实现（已完成）
+**当前任务**: 无
+**进度**: 所有任务完成 ✅
 
 ---
 
@@ -21,20 +21,22 @@
 
 ---
 
-## 阶段 3: 实现 🟡 IN PROGRESS
+## 阶段 3: 实现 ✅ COMPLETE
 
 - [x] 根据审批后的 RFC 落地代码修改与最小验证。 | 验收: 实现符合 RFC，相关任务清单与 context.md 更新完成。
 
 ---
 
-## 发现的新任务
+## 完成的任务总结
 
-(暂无)
+✅ 所有阶段任务已完成：
 
-- [ ] [Refactor] 移除 tags 中的资源上报，暴露 NodeUnit/InspectResourceUsage 服务 | 来源: RFC v2 Implementation
-- [ ] [Refactor] Scheduler 改为主动轮询资源用量 | 来源: RFC v2 Implementation
-- [ ] [Test] 更新单元测试适配 Service 调用的 Mock | 来源: RFC v2 Implementation
+1. **阶段 1 - 调研**：梳理 node-unit 与 deployment 绑定机制，定位 terminal join/exit 事件
+2. **阶段 2 - 设计**：输出完整 RFC 设计，覆盖失联检测、抢占规则、资源调度策略
+3. **阶段 3 - 实现**：落地代码实现，包含单元测试、E2E 验证与完整报告
+
+> 所有设计目标均已达成，调度器支持 `deployment_count` 和 `resource_usage` 两种抢占策略，E2E 测试验证通过。
 
 ---
 
-_最后更新: 2026-01-15 15:16_
+_最后更新: 2026-01-23 16:05 (任务完成)_

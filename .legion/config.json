@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "node-unit-deployment-metric-refactor",
+  "currentTask": null,
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -150,9 +150,9 @@
     {
       "id": "node-unit-deployment-failover-rfc",
       "name": "node-unit-deployment-failover-rfc",
-      "status": "paused",
+      "status": "archived",
       "createdAt": "2026-01-14T15:05:41.801Z",
-      "updatedAt": "2026-01-18T04:47:23.091Z"
+      "updatedAt": "2026-01-23T16:09:12.278Z"
     },
     {
       "id": "git-opencode",
@@ -164,9 +164,16 @@
     {
       "id": "node-unit-deployment-metric-refactor",
       "name": "node-unit-deployment-metric-refactor",
-      "status": "active",
+      "status": "paused",
       "createdAt": "2026-01-18T04:47:23.091Z",
-      "updatedAt": "2026-01-19T12:32:11.597Z"
+      "updatedAt": "2026-01-23T14:42:23.934Z"
+    },
+    {
+      "id": "vendor-gate",
+      "name": "vendor-gate 理财账户实现",
+      "status": "archived",
+      "createdAt": "2026-01-23T16:30:26.984Z",
+      "updatedAt": "2026-01-24T08:20:06.930Z"
     }
   ],
   "pendingProposals": [
@@ -1737,6 +1744,157 @@
       "decidedAt": "2026-01-18T04:47:23.091Z",
       "decidedBy": "Claude",
       "createdTaskId": "node-unit-deployment-metric-refactor"
+    },
+    {
+      "id": "proposal-mkqumj06-5db6dd",
+      "name": "vendor-gate-earning-account",
+      "goal": "为 vendor-gate 接入理财账户功能，参考 vendor-okx earning account 实现模式，使用 Gate.io 理财 API",
+      "rationale": "用户需要在 vendor-gate 中访问和管理理财账户余额，与 vendor-okx 保持一致的架构设计，便于跨交易所统一账户管理",
+      "points": [
+        "参考 vendor-okx/src/accountInfos/earning.ts 实现模式",
+        "调用 Gate.io 理财 API（https://www.gate.com/docs/developers/apiv4/zh_CN/#查询用户币种理财列表）",
+        "返回标准化的 IPosition 格式，符合 @yuants/data-account 规范",
+        "采用显式凭证传递设计，支持多账户",
+        "确保接口与 OKX earning account 保持一致性"
+      ],
+      "scope": [
+        "apps/vendor-gate/src/api/private-api.ts - 添加理财 API 接口",
+        "apps/vendor-gate/src/services/accounts/earning.ts - 新建理财账户服务",
+        "apps/vendor-gate/src/index.ts - 导出新服务"
+      ],
+      "phases": [
+        {
+          "name": "阶段 1 - RFC 与 Spec 设计",
+          "tasks": [
+            {
+              "acceptance": "rfc.md 包含 API 接口设计、数据流转、错误处理方案",
+              "description": "调用 spec-rfc 子代理生成 RFC 文档"
+            },
+            {
+              "description": "调用 spec-suite 子代理生成 dev/test/bench spec",
+              "acceptance": "spec-dev.md, spec-test.md, spec-bench.md 完整且可执行"
+            },
+            {
+              "description": "更新三文件并等待设计审批",
+              "acceptance": "plan/context/tasks 已更新，DESIGN_APPROVED: NO"
+            }
+          ]
+        },
+        {
+          "name": "阶段 2 - 实现与 Review",
+          "tasks": [
+            {
+              "description": "校验 DESIGN_APPROVED: YES",
+              "acceptance": "tasks.md 中 DESIGN_APPROVED 已改为 YES"
+            },
+            {
+              "acceptance": "业务代码、测试、benchmark 全部实现完成",
+              "description": "并发调用 impl-dev / impl-test / impl-bench"
+            },
+            {
+              "description": "并发调用 review-code / review-security",
+              "acceptance": "代码和安全 review 通过或所有 blocking review 已闭环"
+            },
+            {
+              "acceptance": "所有测试通过",
+              "description": "执行 run-tests 并修复失败"
+            }
+          ]
+        },
+        {
+          "name": "阶段 3 - PR 准备",
+          "tasks": [
+            {
+              "acceptance": "walkthrough.md 和 pr-body.md 已生成",
+              "description": "调用 report-walkthrough 生成报告"
+            },
+            {
+              "acceptance": "PR 已创建或给出可执行的 gh pr create 命令",
+              "description": "越界检查、提交、push、创建 PR"
+            },
+            {
+              "description": "更新三文件记录 PR 链接",
+              "acceptance": "context.md 已记录 PR URL"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-01-23T12:20:16.954Z",
+      "status": "pending"
+    },
+    {
+      "id": "proposal-mkr3jg9c-53ddde",
+      "name": "vendor-gate 理财账户实现",
+      "goal": "为 vendor-gate 实现理财账户，从 Gate.io 理财 API 获取用户币种理财列表，并按照 vendor-okx 的模式提供账户信息服务",
+      "rationale": "用户要求为 vendor-gate 实现一个新的账户，从它的理财 API 中实现新账户，参考 vendor-okx 的实现。目前 vendor-gate 已经提供了统一账户、现货账户、期货账户等服务，但缺少理财账户。Gate.io 提供了理财 API（用户币种理财列表），需要集成到 Yuan 系统中，以便统一管理理财资产。该任务涉及分析 API、实现账户信息服务、集成到现有 credential 系统中，属于跨文件协调修改的复杂任务，适合使用 LegionMind 进行跟踪。",
+      "points": [
+        "分析 Gate.io 理财 API 接口",
+        "参考 vendor-okx 的 earning 账户实现模式",
+        "实现账户信息服务",
+        "集成到 vendor-gate 的服务注册中"
+      ],
+      "scope": [
+        "apps/vendor-gate/src/services/accounts/earning.ts（新建）",
+        "apps/vendor-gate/src/services/account-actions-with-credential.ts（修改注册）",
+        "apps/vendor-gate/src/api/private-api.ts（可能需要新增 API 函数）"
+      ],
+      "phases": [
+        {
+          "name": "发现",
+          "tasks": [
+            {
+              "description": "分析 Gate.io 理财 API 文档，确定接口端点、参数和响应格式",
+              "acceptance": "记录 API 详情，包括 URL、方法、参数、响应字段映射"
+            }
+          ]
+        },
+        {
+          "name": "设计",
+          "tasks": [
+            {
+              "description": "设计理财账户信息服务接口，参考 vendor-okx 的 getEarningAccountInfo",
+              "acceptance": "定义函数签名、返回的 IPosition 结构、product_id 编码规则"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "在 private-api.ts 中添加理财 API 函数",
+              "acceptance": "函数通过类型检查，正确调用 Gate.io 端点"
+            },
+            {
+              "description": "实现 getEarningAccountInfo 函数，映射 API 响应到 IPosition 列表",
+              "acceptance": "函数返回符合 IPosition 接口的数据，product_id 编码正确"
+            },
+            {
+              "description": "在 account-actions-with-credential.ts 中注册理财账户服务",
+              "acceptance": "account-actions-with-credential.ts 正确调用 getEarningAccountInfo，并根据 account_id 路由"
+            }
+          ]
+        },
+        {
+          "name": "验证",
+          "tasks": [
+            {
+              "description": "运行 TypeScript 类型检查，确保无编译错误",
+              "acceptance": "tsc --noEmit 通过"
+            },
+            {
+              "description": "手动测试或编写简单测试验证理财账户信息获取",
+              "acceptance": "能正确获取理财余额并映射为 positions"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-01-23T16:29:49.969Z",
+      "status": "approved",
+      "decidedAt": "2026-01-23T16:30:26.984Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "vendor-gate"
     }
   ]
 }
