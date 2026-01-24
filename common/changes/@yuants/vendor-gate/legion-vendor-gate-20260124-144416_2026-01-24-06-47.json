@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "vendor-gate 理财账户实现",
+      "type": "minor",
+      "packageName": "@yuants/vendor-gate"
+    }
+  ],
+  "packageName": "@yuants/vendor-gate",
+  "email": "c.one@thrimbda.com"
+}

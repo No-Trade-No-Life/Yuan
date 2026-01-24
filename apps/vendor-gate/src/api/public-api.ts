@@ -222,6 +222,27 @@ export const getSpotTickers = (params: {
 > => requestPublic('GET', `/spot/tickers`, params);
 
 /**
+ * 获取指定币种对 USDT 的现货价格
+ *
+ * @param currency 币种代码（如 BTC、ETH）
+ * @returns 该币种对 USDT 的最新价格，如果找不到则返回 1
+ */
+export const getSpotPrice = async (currency: string): Promise<number> => {
+  const tickers = await getSpotTickers({});
+  // 特殊币种映射（参考 unified.ts 和 earning.ts）
+  let currencyPair = `${currency}_USDT`;
+  if (currency === 'SOL2' || currency === 'GTSOL') {
+    currencyPair = 'SOL_USDT';
+  }
+  const ticker = tickers.find((t) => t.currency_pair === currencyPair);
+  if (!ticker) {
+    console.warn(`No spot ticker found for ${currencyPair}, using 1 as default`);
+    return 1;
+  }
+  return Number(ticker.last);
+};
+
+/**
  * 查询支持的所有现货交易对
  * https://www.gate.com/docs/developers/apiv4/zh_CN/#%E6%9F%A5%E8%AF%A2%E6%94%AF%E6%8C%81%E7%9A%84%E6%89%80%E6%9C%89%E4%BA%A4%E6%98%93%E5%AF%B9
  */

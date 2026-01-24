@@ -36,12 +36,19 @@
 - [Test] apps/node-unit/src/scheduler.test.ts: 更新单元测试，Mock 远程 Service 调用，验证异常处理与超时逻辑
 - [Build] pnpm build 通过，TypeScript 5.9.3 兼容性检查通过
 - 按最新 plan 改为逐个从失联地址抢占：移除批量清空，候选优先失联地址，claim SQL 同时允许失联地址与未指派。
-
+- 已用 apps/node-unit/scripts/e2e-node-unit-failover.sh 重新跑 21 portal E2E（隔离环境变量），更新报告并补充最新日志片段与分配结果。
+- 补充候选选择回退逻辑：失联地址无候选时继续从未指派 deployment 抢占，并新增单测覆盖。
+- 修复 fetchResourceUsage 函数使用 terminal.client.requestForResponse 获取资源使用数据
+- 更新单元测试 mock 以匹配新实现
+- 验证 E2E 测试中 resource_usage 指标非零且调度策略正常工作
+- 运行 21-portal E2E 测试（resource_usage 策略），资源数据非零（CPU ~0.2%，内存 ~150MB），所有部署成功分配（11/10）
+- 重新运行 21-portal E2E 测试，生成更新报告，分配结果 11/10，资源数据正常（CPU 0.23-1.73%，内存 142-286MB）
+- 根据反馈，在 E2E 报告中重新添加代表性抢占轮次资源快照表格（前 5 轮），显示修复后的实际资源数据与调度趋势
+- 在 E2E 报告中添加完整的 21 轮抢占记录表格，展示资源调度策略的完整执行过程
 
 ### 🟡 进行中
 
-- 可选：运行 node-unit 测试或 E2E 以验证新抢占策略。
-
+(暂无)
 
 ### ⚠️ 阻塞/待定
 
@@ -89,4 +96,4 @@
 
 ---
 
-_最后更新: 2026-01-15 15:16 by Claude_
+_最后更新: 2026-01-23 16:05 by Claude（任务完成）_
