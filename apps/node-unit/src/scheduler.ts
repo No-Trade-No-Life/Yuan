@@ -2,7 +2,18 @@ import { IDeployment } from '@yuants/deploy';
 import { ITerminalInfo, Terminal } from '@yuants/protocol';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
-import { catchError, concatMap, defer, EMPTY, interval, takeUntil, firstValueFrom, timeout } from 'rxjs';
+import {
+  catchError,
+  concatMap,
+  defer,
+  EMPTY,
+  interval,
+  takeUntil,
+  firstValueFrom,
+  timeout,
+  filter,
+  first,
+} from 'rxjs';
 
 const DEFAULT_SCHEDULER_INTERVAL_MS = 5_000;
 
@@ -44,12 +55,25 @@ const parseWeight = (value: string | undefined, fallback: number): number => {
 
 const resolveNodeUnitTerminalIds = (terminalInfos: ITerminalInfo[]): Map<string, string> => {
   const map = new Map<string, string>();
+  console.info(formatTime(Date.now()), 'resolveNodeUnitTerminalIds:input', {
+    terminalInfos: terminalInfos.map((info) => ({
+      terminal_id: info.terminal_id,
+      tags: info.tags,
+    })),
+  });
   for (const info of terminalInfos) {
     const tags = info.tags ?? {};
     if (tags.node_unit === 'true' && tags.node_unit_address && info.terminal_id) {
       map.set(tags.node_unit_address, info.terminal_id);
+      console.info(formatTime(Date.now()), 'resolveNodeUnitTerminalIds:mapping', {
+        node_unit_address: tags.node_unit_address,
+        terminal_id: info.terminal_id,
+      });
     }
   }
+  console.info(formatTime(Date.now()), 'resolveNodeUnitTerminalIds:result', {
+    mappings: Object.fromEntries(map.entries()),
+  });
   return map;
 };
 
@@ -58,27 +82,51 @@ const fetchResourceUsage = async (
   activeNodeUnits: string[],
   addressToTerminalId: Map<string, string>,
 ): Promise<Map<string, { cpuPercent: number; memoryMb: number }>> => {
+  console.info(formatTime(Date.now()), 'fetchResourceUsage', {
+    activeNodeUnits,
+    addressToTerminalId: Object.fromEntries(addressToTerminalId.entries()),
+  });
   const usage = new Map<string, { cpuPercent: number; memoryMb: number }>();
   await Promise.all(
     activeNodeUnits.map(async (address) => {
       const terminalId = addressToTerminalId.get(address);
-      if (!terminalId) return;
+      console.info(formatTime(Date.now()), 'fetchResourceUsage:processing', { address, terminalId });
+      if (!terminalId) {
+        console.info(formatTime(Date.now()), 'fetchResourceUsage:skip', {
+          address,
+          reason: 'no_terminal_id',
+        });
+        return;
+      }
       try {
-        const msg = await firstValueFrom(
-          terminal.client.request('NodeUnit/InspectResourceUsage', terminalId, {}).pipe(timeout(5000)),
+        console.info(formatTime(Date.now()), 'fetchResourceUsage:requesting', { address, terminalId });
+        const service = terminal.client.resolveTargetServiceByMethodAndTargetTerminalIdSync(
+          'NodeUnit/InspectResourceUsage',
+          terminalId,
+          {},
         );
-        if (msg.res?.code === 0 && msg.res.data) {
-          const data = msg.res.data as { cpu_percent: number; memory_mb: number };
+        const res = await terminal.client.requestForResponse<{}, { cpu_percent: number; memory_mb: number }>(
+          service.service_id,
+          {},
+        );
+        console.info(formatTime(Date.now()), 'fetchResourceUsage:response', { address, terminalId, res });
+        if (res.code === 0 && res.data) {
           usage.set(address, {
-            cpuPercent: data.cpu_percent,
-            memoryMb: data.memory_mb,
+            cpuPercent: res.data.cpu_percent,
+            memoryMb: res.data.memory_mb,
           });
+          console.info(formatTime(Date.now()), 'ResourceUsageFetched', { address, data: res.data });
+        } else {
+          console.info(formatTime(Date.now()), 'fetchResourceUsage:error', { address, terminalId, res });
         }
       } catch (e) {
-        // ignore
+        console.info(formatTime(Date.now()), 'ResourceUsageFetchFailed', { address, error: String(e) });
       }
     }),
   );
+  console.info(formatTime(Date.now()), 'fetchResourceUsage:result', {
+    usage: Object.fromEntries(usage.entries()),
+  });
   return usage;
 };
 
@@ -164,14 +212,6 @@ const getLostAddresses = (deployments: IDeployment[], activeNodeUnits: string[])
   return [...lost];
 };
 
-const releaseLostDeployments = async (terminal: Terminal, addresses: string[]): Promise<number> => {
-  if (addresses.length === 0) return 0;
-  const addressSql = addresses.map((address) => escapeSQL(address)).join(',');
-  const sql = `update deployment set address = '' where enabled = true and address in (${addressSql}) returning id`;
-  const result = await requestSQL<Array<{ id: string }>>(terminal, sql);
-  return result.length;
-};
-
 const buildDeploymentCounts = (
   deployments: IDeployment[],
   activeNodeUnits: string[],
@@ -246,21 +286,36 @@ const buildNotEligibleReasons = (
   return reasons;
 };
 
-const pickCandidateDeployment = async (terminal: Terminal): Promise<IDeployment | undefined> => {
-  const sql =
+const pickCandidateDeployment = async (
+  terminal: Terminal,
+  lostAddresses: string[],
+): Promise<IDeployment | undefined> => {
+  if (lostAddresses.length > 0) {
+    const lostFilter = `address in (${lostAddresses.map((address) => escapeSQL(address)).join(',')})`;
+    const lostSql = `select * from deployment where enabled = true and ${lostFilter} order by updated_at asc, created_at asc, id asc limit 1`;
+    const lostResult = await requestSQL<IDeployment[]>(terminal, lostSql);
+    if (lostResult[0]) return lostResult[0];
+  }
+
+  const fallbackSql =
     "select * from deployment where enabled = true and address = '' order by updated_at asc, created_at asc, id asc limit 1";
-  const result = await requestSQL<IDeployment[]>(terminal, sql);
-  return result[0];
+  const fallbackResult = await requestSQL<IDeployment[]>(terminal, fallbackSql);
+  return fallbackResult[0];
 };
 
 const claimDeployment = async (
   terminal: Terminal,
   deployment: IDeployment,
   nodeUnitAddress: string,
+  lostAddresses: string[],
 ): Promise<boolean> => {
+  const addressFilter =
+    lostAddresses.length > 0
+      ? `address = '' or address in (${lostAddresses.map((address) => escapeSQL(address)).join(',')})`
+      : "address = ''";
   const sql = `update deployment set address = ${escapeSQL(nodeUnitAddress)} where id = ${escapeSQL(
     deployment.id,
-  )} and address = '' returning id`;
+  )} and (${addressFilter}) returning id`;
   const result = await requestSQL<Array<{ id: string }>>(terminal, sql);
   return result.length > 0;
 };
@@ -276,14 +331,6 @@ const runSchedulerCycle = async (
 
   let deployments = await listDeployments(terminal);
   const lostAddresses = getLostAddresses(deployments, activeNodeUnits);
-
-  if (lostAddresses.length > 0) {
-    const released = await releaseLostDeployments(terminal, lostAddresses);
-    if (released > 0) {
-      console.info(formatTime(Date.now()), 'DeploymentRelease', { count: released });
-      deployments = await listDeployments(terminal);
-    }
-  }
 
   const addressToTerminalId = resolveNodeUnitTerminalIds(terminalInfos);
   const resourceUsage = await fetchResourceUsage(terminal, activeNodeUnits, addressToTerminalId);
@@ -318,7 +365,7 @@ const runSchedulerCycle = async (
     return;
   }
 
-  const candidate = await pickCandidateDeployment(terminal);
+  const candidate = await pickCandidateDeployment(terminal, lostAddresses);
   if (!candidate) {
     console.info(formatTime(Date.now()), 'DeploymentClaimSkipped', {
       reason: 'no_candidate',
@@ -333,7 +380,7 @@ const runSchedulerCycle = async (
     usage: usageSnapshot,
   });
 
-  const claimed = await claimDeployment(terminal, candidate, nodeUnitAddress);
+  const claimed = await claimDeployment(terminal, candidate, nodeUnitAddress, lostAddresses);
   if (claimed) {
     console.info(formatTime(Date.now()), 'DeploymentClaimed', {
       deployment_id: candidate.id,

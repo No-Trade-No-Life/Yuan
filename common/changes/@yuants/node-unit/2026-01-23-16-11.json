@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/node-unit",
+      "comment": "refine and bugfix",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/node-unit"
+}

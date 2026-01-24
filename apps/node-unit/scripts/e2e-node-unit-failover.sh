@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-WORK_DIR="${ROOT_DIR}/.tmp/node-unit-e2e"
+NODE_UNIT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+REPO_DIR="$(cd "${NODE_UNIT_DIR}/../.." && pwd)"
+WORK_DIR="${REPO_DIR}/.tmp/node-unit-e2e"
 CONTAINER_NAME="yuan-postgres-e2e"
 POSTGRES_URI="postgres://postgres:postgres@localhost:5432/yuan"
 HOST_URL="ws://localhost:8888"
@@ -60,33 +61,33 @@ fi
 
 echo "[e2e] Starting host..."
 env -i PATH="$PATH" PORT=8888 HOST_TOKEN= \
-  node "${ROOT_DIR}/apps/host/lib/cli.js" > "${WORK_DIR}/host.log" 2>&1 &
+  node "${REPO_DIR}/apps/host/lib/cli.js" > "${WORK_DIR}/host.log" 2>&1 &
 HOST_PID=$!
 
 sleep 2
 
 echo "[e2e] Starting postgres-storage..."
 env -i PATH="$PATH" HOST_URL="${HOST_URL}" POSTGRES_URI="${POSTGRES_URI}" TERMINAL_ID="postgres-storage" \
-  node "${ROOT_DIR}/apps/postgres-storage/lib/cli.js" > "${WORK_DIR}/postgres-storage.log" 2>&1 &
+  node "${REPO_DIR}/apps/postgres-storage/lib/cli.js" > "${WORK_DIR}/postgres-storage.log" 2>&1 &
 PG_STORAGE_PID=$!
 
 sleep 2
 
 echo "[e2e] Running SQL migrations..."
 env -i PATH="$PATH" HOST_URL="${HOST_URL}" TERMINAL_ID="sql-migration" \
-  node "${ROOT_DIR}/tools/sql-migration/lib/cli.js"
+  node "${REPO_DIR}/tools/sql-migration/lib/cli.js"
 
 sleep 2
 
 echo "[e2e] Starting node-unit instances..."
 env -i PATH="$PATH" HOST_URL="${HOST_URL}" NODE_UNIT_NAME="node-unit-1" NODE_UNIT_PASSWORD="node-unit-1" POSTGRES_URI="" \
   NODE_UNIT_CLAIM_POLICY="${CLAIM_POLICY}" NODE_UNIT_CPU_WEIGHT="${CPU_WEIGHT}" NODE_UNIT_MEMORY_WEIGHT="${MEMORY_WEIGHT}" \
-  node "${ROOT_DIR}/apps/node-unit/lib/cli.js" > "${WORK_DIR}/node-unit-1.log" 2>&1 &
+  node "${NODE_UNIT_DIR}/lib/cli.js" > "${WORK_DIR}/node-unit-1.log" 2>&1 &
 NODE_UNIT_1_PID=$!
 
 env -i PATH="$PATH" HOST_URL="${HOST_URL}" NODE_UNIT_NAME="node-unit-2" NODE_UNIT_PASSWORD="node-unit-2" POSTGRES_URI="" \
   NODE_UNIT_CLAIM_POLICY="${CLAIM_POLICY}" NODE_UNIT_CPU_WEIGHT="${CPU_WEIGHT}" NODE_UNIT_MEMORY_WEIGHT="${MEMORY_WEIGHT}" \
-  node "${ROOT_DIR}/apps/node-unit/lib/cli.js" > "${WORK_DIR}/node-unit-2.log" 2>&1 &
+  node "${NODE_UNIT_DIR}/lib/cli.js" > "${WORK_DIR}/node-unit-2.log" 2>&1 &
 NODE_UNIT_2_PID=$!
 
 sleep 6
