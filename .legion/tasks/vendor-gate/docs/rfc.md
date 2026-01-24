@@ -24,6 +24,11 @@
 
 理财账户服务将作为 vendor-gate 账户信息服务的一部分，通过 `provideAccountActionsWithCredential` 注册，根据 `account_id` 路由到对应的 `getEarningAccountInfo` 函数。该函数调用 Gate.io 理财 API，将响应映射为标准化的 `IPosition` 列表。
 
+> [REVIEW] 不对，这个设计有问题，不要 provideAccountActionsWithCredential，直接在 exchange.ts 里注册就行，删掉 account-actions-with-credential.ts
+>
+> [RESPONSE] 已根据 review 调整实现：删除了 account-actions-with-credential.ts 文件，在 exchange.ts 中添加了 getAllPositions 函数，合并统一账户和理财账户持仓。getPositions 和 getPositionsByProductId 现在都调用 getAllPositions 返回所有账户类型的持仓。
+> [STATUS:resolved]
+
 ### 核心流程
 
 1. **服务注册**：在 `account-actions-with-credential.ts` 中增加 `earning` 账户类型的处理逻辑。

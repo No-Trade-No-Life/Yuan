@@ -45,6 +45,8 @@ _创建于: 2026-01-24 | 最后更新: 2026-01-24_
 > [STATUS:resolved] > [REVIEW:suggestion] `getSpotPrice` 可能需要扩展特殊币种映射，但当前已处理 SOL2 和 GTSOL。
 >
 > [RESPONSE] 已处理。在 `earning.ts` 的 `getSpotPrice` 中实现了特殊币种映射：SOL2 和 GTSOL 都映射到 SOL_USDT 对。
+>
+> [RESPONSE] 确认收到 RFC 中的 review，需要调整实现：不在 account-actions-with-credential.ts 中注册，而是直接集成到 exchange.ts 的 getPositions 函数中。将启动 impl-dev agent 进行实现调整。
 > [STATUS:resolved]
 
 > [REVIEW:security]
