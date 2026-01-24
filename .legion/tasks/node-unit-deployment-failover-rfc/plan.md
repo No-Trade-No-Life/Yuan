@@ -68,7 +68,7 @@ NodeUnit Deployment 失联与抢占调度 (RFC v2: Service-based Resource Discov
 4. **抢占一个 deployment**：若当前 node-unit 指标==最小值，则优先从失联地址中挑一个 deployment 抢占，否则从未调度 deployment 中挑一个并抢占（一次仅一个）。
 
 > [REVIEW] 我认为一次性清除所有失联地址的 deployment 是不安全的，因为可能存在网络抖动或短暂失联的情况。因此我认为不应该有这个清除，而是每次直接从一个失联地址中抢占一个 deployment 即可。
-> 
+>
 > [RESPONSE] 同意调整：不再批量清空失联地址。改为每轮仅从失联地址中挑一个 deployment 直接抢占（与未指派同级候选），避免短暂抖动导致全量释放。已更新设计与伪代码。
 > [STATUS:resolved]
 
@@ -297,6 +297,7 @@ const policy = policies[policyName] ?? defaultClaimPolicy;
 - 以 HostEvent / terminalInfos$ 为单一信号源。
 - node-unit 视角：若某 `address` 对应的 node-unit 不在 `terminalInfos$` 列表中，则视为失联。
 - Host 侧会在连接关闭或 Ping 失败时发出 LEAVE 事件，终端列表会自动剔除。
+- **不批量清空失联地址**：调度器不会将失联 node-unit 的 deployment address 字段置空，而是维护失联地址列表，每轮调度时直接抢占一个属于失联地址的 deployment。
 
 ---
 
@@ -323,14 +324,14 @@ const policy = policies[policyName] ?? defaultClaimPolicy;
 
 验证 `apps/node-unit/src/scheduler.ts` 核心逻辑的正确性，覆盖以下关键行为：
 
-| 测试领域     | 验证要点                                                 |
-| ------------ | -------------------------------------------------------- |
-| **失联检测** | 准确识别 `address` 不在 `activeNodeUnits` 中的部署       |
-| **部署统计** | 按地址计数，正确排除 `address=''` 的记录                 |
-| **抢占资格** | 策略正确选出最小值集合（v1）或最低评分（v2）             |
-| **资源计算** | CPU/Memory 加权评分计算正确，RPC 失败返回 0 (或处理异常) |
-| **策略选择** | 环境变量 `NODE_UNIT_CLAIM_POLICY` 正确切换策略           |
-| **候选排序** | 遵循 `updated_at asc, created_at asc, id asc` 顺序       |
+| 测试领域     | 验证要点                                                           |
+| ------------ | ------------------------------------------------------------------ |
+| **失联检测** | 准确识别 `address` 不在 `activeNodeUnits` 中的部署                 |
+| **部署统计** | 按地址计数，正确排除 `address=''` 的记录                           |
+| **抢占资格** | 策略正确选出最小值集合（v1）或最低评分（v2）                       |
+| **资源计算** | CPU/Memory 加权评分计算正确，RPC 失败返回 0 (或处理异常)           |
+| **策略选择** | 环境变量 `NODE_UNIT_CLAIM_POLICY` 正确切换策略                     |
+| **候选排序** | 遵循 `updated_at asc, created_at asc, id asc` 顺序                 |
 | **并发安全** | 一次仅抢占一个，`WHERE address='' or address in lost` 条件保证幂等 |
 
 ### 2. 测试策略

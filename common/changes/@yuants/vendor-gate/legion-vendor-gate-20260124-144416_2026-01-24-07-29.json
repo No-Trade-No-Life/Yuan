@@ -1,0 +1,16 @@
+{
+  "changes": [
+    {
+      "comment": "修复单元测试 mock 配置问题",
+      "type": "patch",
+      "packageName": "@yuants/vendor-gate"
+    },
+    {
+      "comment": "架构调整：将理财账户持仓集成到 exchange.ts，删除独立账户服务注册",
+      "type": "minor",
+      "packageName": "@yuants/vendor-gate"
+    }
+  ],
+  "packageName": "@yuants/vendor-gate",
+  "email": "c.one@thrimbda.com"
+}
