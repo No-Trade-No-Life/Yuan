@@ -356,7 +356,9 @@ defer(async () => {
     },
   );
 
-  setupSecretProxyService(terminal, childPublicKeys);
+  childPublicKeys.add(terminal.keyPair.public_key);
+
+  setupSecretProxyService(terminal, (publicKey: string) => childPublicKeys.has(publicKey));
   const schedulerIntervalFromEnv = Number(process.env.NODE_UNIT_SCHEDULER_INTERVAL_MS);
   const resourceIntervalMs =
     Number.isFinite(schedulerIntervalFromEnv) && schedulerIntervalFromEnv > 0
