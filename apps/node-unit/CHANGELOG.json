@@ -2,6 +2,28 @@
   "name": "@yuants/node-unit",
   "entries": [
     {
+      "version": "0.14.6",
+      "tag": "@yuants/node-unit_v0.14.6",
+      "date": "Sun, 25 Jan 2026 15:45:23 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/secret\" to `0.5.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.14.5",
       "tag": "@yuants/node-unit_v0.14.5",
       "date": "Sat, 24 Jan 2026 07:29:36 GMT",
