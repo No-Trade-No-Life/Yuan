@@ -1,6 +1,11 @@
 # Change Log - @yuants/data-interest-rate
 
-This log was last generated on Mon, 12 Jan 2026 05:15:55 GMT and should not be manually modified.
+This log was last generated on Mon, 26 Jan 2026 19:55:09 GMT and should not be manually modified.
+
+## 0.2.10
+Mon, 26 Jan 2026 19:55:09 GMT
+
+_Version update only_
 
 ## 0.2.9
 Mon, 12 Jan 2026 05:15:55 GMT

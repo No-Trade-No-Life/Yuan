@@ -2,6 +2,47 @@
   "name": "@yuants/kernel",
   "entries": [
     {
+      "version": "0.16.6",
+      "tag": "@yuants/kernel_v0.16.6",
+      "date": "Mon, 26 Jan 2026 19:55:09 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.54.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.19.5`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.40`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-series\" to `0.3.62`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.5.10`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.11.9`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-order\" to `0.7.10`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-ohlc\" to `0.6.5`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-quote\" to `0.4.9`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.16.5",
       "tag": "@yuants/kernel_v0.16.5",
       "date": "Wed, 07 Jan 2026 12:14:06 GMT",
