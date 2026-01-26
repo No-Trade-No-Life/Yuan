@@ -5,6 +5,15 @@
 ```ts
 
 // @public (undocumented)
+export const decodeTradeHistorySeriesId: (series_id: string) => {
+    account_id: string;
+    ledger_type: string;
+};
+
+// @public (undocumented)
+export const encodeTradeHistorySeriesId: (account_id: string, ledger_type: string) => string;
+
+// @public (undocumented)
 export interface ITrade {
     account_id: string;
     created_at?: string;
@@ -30,6 +39,7 @@ export interface ITradeHistory {
     fee_currency: string;
     // (undocumented)
     id: string;
+    origin: Record<string, any>;
     pnl?: string;
     price: string;
     product_id: string;

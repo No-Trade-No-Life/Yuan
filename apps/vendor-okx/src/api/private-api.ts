@@ -1315,6 +1315,9 @@ export function getAccountBillsArchive(
     subType?: string;
     after?: string; //请求此id之前（更旧的数据）的分页内容，传的值为对应接口的billId
     before?: string; //请求此id之后（更新的数据）的分页内容，传的值为对应接口的billId
+    /**
+     * 接口使用返回值的ts字段进行时间判断
+     */
     begin?: string; //筛选的开始时间戳 ts，Unix 时间戳为毫秒数格式，如 1597026383085
     end?: string;
     limit?: string; //分页返回的结果集数量，最大为100，不填默认返回100条
