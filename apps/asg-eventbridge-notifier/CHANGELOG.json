@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/app-asg-eventbridge-notifier",
+  "entries": [
+    {
+      "version": "0.2.0",
+      "tag": "@yuants/app-asg-eventbridge-notifier_v0.2.0",
+      "date": "Thu, 15 Jan 2026 05:08:12 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add new package"
+          }
+        ]
+      }
+    }
+  ]
+}

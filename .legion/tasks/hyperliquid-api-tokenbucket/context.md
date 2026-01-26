@@ -24,6 +24,8 @@
 - 为 REST/IP 限流增加 weight 合法性校验：非有限值/非正数/超阈值直接报错（防止错误参数导致长时间阻塞）
 - 扩展 `apps/vendor-hyperliquid/src/api/rate-limit.test.ts` 覆盖：exchange batch 边界、unknown/info/explorer/other 默认权重、candleSnapshot 异常入参、beforeRestRequest 异常 weight、afterRestResponse delta 计算
 - 已运行 `apps/vendor-hyperliquid` 的 `./apps/vendor-hyperliquid/node_modules/.bin/tsc --noEmit --project apps/vendor-hyperliquid/tsconfig.json` 与 `./node_modules/.bin/heft test --clean` 验证通过
+- 移除 `afterRestResponse` 的 tokenBucket 追加扣减逻辑与调用点，仅保留请求前限流；同步调整单测与 Session Notes。
+- 恢复响应后限流实现与单测，但在 `client.ts` 注释调用，保持请求前限流行为。
 
 ### 🟡 进行中
 
@@ -63,13 +65,11 @@
 
 **下次继续从这里开始：**
 
-1. 如需继续扩充 Hyperliquid API 封装：沿用本次模式先加 `build*RequestBody`/`build*Action` 再补离线单测，避免引入网络或 mock
-2. 如要排查 Jest "failed to exit gracefully"：可在 `apps/vendor-hyperliquid` 下用 `./node_modules/.bin/heft test --clean -- --detectOpenHandles` 定位未释放的 handle（当前不影响通过）
+1. 如需重新启用响应后扣减，取消 `apps/vendor-hyperliquid/src/api/client.ts` 的注释调用。
 
 **注意事项：**
 
-- 本次新增 public/private API 单测均为离线纯函数/签名验证，不会触发真实 HTTP 请求
-- `buildUserFillsRequestBody` 已修复 startTime/endTime=0 时构造丢字段的问题（由 `if (params?.startTime)` 改为 `!= null` 判断）
+- 当前 response-based extra weight 逻辑保留且覆盖单测，但在运行时不执行。
 
 ---
 

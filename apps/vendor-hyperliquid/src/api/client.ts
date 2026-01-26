@@ -2,6 +2,8 @@ import { UUID, formatTime, newError } from '@yuants/utils';
 import { Subject, filter, firstValueFrom, mergeMap, of, shareReplay, throwError, timeout, timer } from 'rxjs';
 import { afterRestResponse, beforeRestRequest, getRestRequestContext } from './rate-limit';
 
+void afterRestResponse;
+
 type HttpMethod = 'GET' | 'POST';
 
 const BASE_URL = 'https://api.hyperliquid.xyz';
@@ -34,7 +36,7 @@ const callApi = async (method: HttpMethod, path: string, params?: any) => {
   const requestContext = getRestRequestContext(method, path, params);
   const requestKey = getRequestKey(requestContext);
 
-  const { estimatedExtraWeight } = beforeRestRequest(
+  beforeRestRequest(
     { method, url: url.href, path, kind: requestContext.kind, infoType: requestContext.infoType, requestKey },
     requestContext,
   );
@@ -68,19 +70,19 @@ const callApi = async (method: HttpMethod, path: string, params?: any) => {
       console.debug(formatTime(Date.now()), 'HyperliquidResponse', path, JSON.stringify(params), retStr);
     }
     const response = JSON.parse(retStr);
-    await afterRestResponse(
-      {
-        method,
-        url: url.href,
-        path,
-        kind: requestContext.kind,
-        infoType: requestContext.infoType,
-        requestKey,
-      },
-      requestContext,
-      response,
-      estimatedExtraWeight,
-    );
+    // await afterRestResponse(
+    //   {
+    //     method,
+    //     url: url.href,
+    //     path,
+    //     kind: requestContext.kind,
+    //     infoType: requestContext.infoType,
+    //     requestKey,
+    //   },
+    //   requestContext,
+    //   response,
+    //   estimatedExtraWeight,
+    // );
     return response;
   } catch (err) {
     console.error(
