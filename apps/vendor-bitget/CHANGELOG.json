@@ -2,6 +2,31 @@
   "name": "@yuants/vendor-bitget",
   "entries": [
     {
+      "version": "0.14.6",
+      "tag": "@yuants/vendor-bitget_v0.14.6",
+      "date": "Mon, 26 Jan 2026 18:40:09 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add trade history"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-trade\" to `0.1.32`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.17`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.14.5",
       "tag": "@yuants/vendor-bitget_v0.14.5",
       "date": "Fri, 16 Jan 2026 09:43:32 GMT",

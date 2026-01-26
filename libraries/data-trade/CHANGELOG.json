@@ -2,6 +2,23 @@
   "name": "@yuants/data-trade",
   "entries": [
     {
+      "version": "0.1.32",
+      "tag": "@yuants/data-trade_v0.1.32",
+      "date": "Mon, 26 Jan 2026 18:40:09 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add trade history"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.31",
       "tag": "@yuants/data-trade_v0.1.31",
       "date": "Mon, 12 Jan 2026 03:30:04 GMT",
