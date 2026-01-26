@@ -10,16 +10,16 @@ export const labelsToString = (labels: [string, string][]): string => {
 };
 
 export const createConstNode = (node: TreeNode, key: string, value: string) => {
-  const constNode = node.getChild(key);
+  const constNode = node.getChild(key, true);
   constNode.setValue(value);
   return constNode;
 };
 
 export const createLabelKeyNode = (node: TreeNode, name: string, labels: [string, string][]) => {
   const label = `${name}${labelsToString(labels)} `;
-  const theNode = node.getChild(label);
+  const theNode = node.getChild(label, true);
   createConstNode(theNode, 'label', label);
-  const valueNode = theNode.getChild<number>('value');
+  const valueNode = theNode.getChild<number>('value', true);
   if (valueNode.getValue() === null) {
     valueNode.setValue(0);
   }

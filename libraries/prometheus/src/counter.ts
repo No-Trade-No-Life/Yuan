@@ -13,7 +13,7 @@ export const createCounter = (registry: TreeNode, name: string, baseLabels: Labe
   // 预计算 dataKey - 性能优化关键！
   const sortedLabels = sortLabels(baseLabels);
   const dataKey = labelsToString(sortedLabels);
-  const node = registry.getChild(dataKey);
+  const node = registry.getChild(dataKey, false);
   const valueNode = createLabelKeyNode(node, name, sortedLabels);
 
   const labels = (additionalLabels: Labels): Counter => {
@@ -23,6 +23,7 @@ export const createCounter = (registry: TreeNode, name: string, baseLabels: Labe
 
   return {
     inc: (value = 1) => {
+      node.visible = true;
       valueNode.setValue((valueNode.getValue() || 0) + value);
     },
 
@@ -31,10 +32,12 @@ export const createCounter = (registry: TreeNode, name: string, baseLabels: Labe
         throw new Error('Expected increment amount to be greater than -1');
       }
 
+      node.visible = true;
       valueNode.setValue((valueNode.getValue() || 0) + value);
     },
 
     set: (value: number) => {
+      node.visible = true;
       valueNode.setValue(value);
     },
 
@@ -43,6 +46,7 @@ export const createCounter = (registry: TreeNode, name: string, baseLabels: Labe
     },
 
     delete: () => {
+      node.visible = false;
       node.remove();
     },
 

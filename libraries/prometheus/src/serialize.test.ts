@@ -163,7 +163,6 @@ describe('Serialization', () => {
     const result = registry.serialize();
 
     // 无标签和空标签应该产生相同的结果
-    console.info(result);
     expect(result).toContain('test_metric 15');
     expect(result.match(/test_metric/g)?.length).toBe(3); // 应该只有3行
   });

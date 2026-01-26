@@ -19,7 +19,7 @@ export const createHistogram = (
   // 预计算 dataKey - 性能优化关键！
   const sortedLabels = sortLabels(baseLabels);
   const dataKey = labelsToString(sortedLabels);
-  const node = metric.getChild(dataKey);
+  const node = metric.getChild(dataKey, false);
   const sumNode = createLabelKeyNode(node, `${name}_sum`, sortedLabels);
   const countNode = createLabelKeyNode(node, `${name}_count`, sortedLabels);
 
@@ -35,6 +35,7 @@ export const createHistogram = (
 
   return {
     observe: (value: number) => {
+      node.visible = true;
       sumNode.setValue((sumNode.getValue() || 0) + value);
       countNode.setValue((countNode.getValue() || 0) + 1);
       infNode.setValue((infNode.getValue() || 0) + 1);
@@ -64,6 +65,7 @@ export const createHistogram = (
     },
 
     delete: () => {
+      node.visible = false;
       node.remove();
     },
 
