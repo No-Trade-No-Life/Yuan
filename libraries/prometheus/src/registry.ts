@@ -12,13 +12,14 @@ import { createConstNode } from './utils';
  */
 export const createRegistry = (): IRegistry => {
   const root = new TreeNode();
+  root.visible = true;
 
   return {
     /**
      * 创建并注册 Counter
      */
     counter: (name: string, help: string): Counter => {
-      const metricNode = root.getChild(name);
+      const metricNode = root.getChild(name, true);
 
       if (help) {
         createConstNode(metricNode, 'help', `# HELP ${name} ${help}\n`);
@@ -26,7 +27,7 @@ export const createRegistry = (): IRegistry => {
 
       createConstNode(metricNode, 'type', `# TYPE ${name} counter\n`);
 
-      const dataNode = metricNode.getChild('data');
+      const dataNode = metricNode.getChild('data', true);
 
       return createCounter(dataNode, name);
     },
@@ -35,7 +36,7 @@ export const createRegistry = (): IRegistry => {
      * 创建并注册 Gauge
      */
     gauge: (name: string, help: string): Gauge => {
-      const metricNode = root.getChild(name);
+      const metricNode = root.getChild(name, true);
 
       if (help) {
         createConstNode(metricNode, 'help', `# HELP ${name} ${help}\n`);
@@ -43,7 +44,7 @@ export const createRegistry = (): IRegistry => {
 
       createConstNode(metricNode, 'type', `# TYPE ${name} gauge\n`);
 
-      const dataNode = metricNode.getChild('data');
+      const dataNode = metricNode.getChild('data', true);
       return createGauge(dataNode, name);
     },
 
@@ -51,7 +52,7 @@ export const createRegistry = (): IRegistry => {
      * 创建并注册 Histogram
      */
     histogram: (name: string, help: string, buckets: number[]): Histogram => {
-      const metricNode = root.getChild(name);
+      const metricNode = root.getChild(name, true);
 
       if (help) {
         createConstNode(metricNode, 'help', `# HELP ${name} ${help}\n`);
@@ -59,7 +60,7 @@ export const createRegistry = (): IRegistry => {
 
       createConstNode(metricNode, 'type', `# TYPE ${name} histogram\n`);
 
-      const dataNode = metricNode.getChild('data');
+      const dataNode = metricNode.getChild('data', true);
 
       if (buckets) {
         buckets.sort((a, b) => a - b);

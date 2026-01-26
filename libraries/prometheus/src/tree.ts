@@ -2,6 +2,11 @@ export class TreeNode<T = any> {
   mapKeyToChild = new Map<string, TreeNode>();
   children: TreeNode[] = [];
   parent: TreeNode | null = null;
+
+  /**
+   * 该节点是否对外可见，如果不可见，则不会被序列化输出
+   */
+  visible = false;
   /**
    * 父节点中对应自己的键
    */
@@ -15,6 +20,7 @@ export class TreeNode<T = any> {
   private _cached: string | null = null;
 
   serialize(): string {
+    if (!this.visible) return '';
     return (this._cached ??=
       this.children.length === 0
         ? this.value !== null
@@ -23,12 +29,13 @@ export class TreeNode<T = any> {
         : this.children.map((x) => x.serialize()).join(''));
   }
 
-  getChild<T>(key: string): TreeNode<T> {
+  getChild<T>(key: string, initVisible: boolean): TreeNode<T> {
     let child = this.mapKeyToChild.get(key);
     if (!child) {
       child = new TreeNode<T>();
       child.parent = this;
       child.key = key;
+      child.visible = initVisible;
       this.mapKeyToChild.set(key, child);
       this.children.push(child);
 
