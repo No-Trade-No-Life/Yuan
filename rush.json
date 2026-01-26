@@ -739,11 +739,11 @@
       "packageName": "@yuants/exchange",
       "projectFolder": "libraries/exchange",
       "shouldPublish": true
-    },
-    {
-      "packageName": "@yuants/http-services",
-      "projectFolder": "libraries/http-services",
-      "shouldPublish": true
     }
+    // {
+    //   "packageName": "@yuants/http-services",
+    //   "projectFolder": "libraries/http-services",
+    //   "shouldPublish": true
+    // }
   ]
 }
