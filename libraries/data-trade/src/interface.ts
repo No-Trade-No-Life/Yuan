@@ -128,8 +128,8 @@ export interface ITradeHistory {
 /**
  * @public
  */
-export const encodeTradeHistorySeriesId = (account_id: string, ledger_type: string) =>
-  encodePath(...decodePath(account_id), ledger_type);
+export const encodeTradeHistorySeriesId = (account_id: string, trade_type: string) =>
+  encodePath(...decodePath(account_id), trade_type);
 
 /**
  * @public
@@ -137,6 +137,6 @@ export const encodeTradeHistorySeriesId = (account_id: string, ledger_type: stri
 export const decodeTradeHistorySeriesId = (series_id: string) => {
   const parts = decodePath(series_id);
   const account_id = encodePath(...parts.slice(0, -1));
-  const ledger_type = parts[parts.length - 1];
-  return { account_id, ledger_type };
+  const trade_type = parts[parts.length - 1];
+  return { account_id, trade_type };
 };
