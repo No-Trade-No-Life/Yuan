@@ -1,6 +1,30 @@
 # Change Log - @yuants/vendor-gate
 
-This log was last generated on Mon, 12 Jan 2026 05:15:55 GMT and should not be manually modified.
+This log was last generated on Sat, 24 Jan 2026 14:09:09 GMT and should not be manually modified.
+
+## 0.8.0
+Sat, 24 Jan 2026 14:09:09 GMT
+
+### Minor changes
+
+- vendor-gate 理财账户实现
+- 架构调整：将理财账户持仓集成到 exchange.ts，删除独立账户服务注册
+
+### Patches
+
+- 修复单元测试 mock 配置问题
+
+## 0.7.5
+Fri, 16 Jan 2026 09:43:32 GMT
+
+_Version update only_
+
+## 0.7.4
+Tue, 13 Jan 2026 10:53:40 GMT
+
+### Patches
+
+- fix 
 
 ## 0.7.3
 Mon, 12 Jan 2026 05:15:55 GMT

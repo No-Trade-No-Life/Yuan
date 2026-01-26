@@ -11,8 +11,7 @@ interface IExchangeCredential {
 
 const terminal = Terminal.fromNodeEnv();
 
-const WINDOW_MS = 2 * 24 * 3600_000;
-
+const WINDOW_MS = 48 * 3600_000;
 const fetchInterestRateLedgerBackward = async (req: {
   credential: IExchangeCredential;
   account_id: string;
@@ -20,13 +19,18 @@ const fetchInterestRateLedgerBackward = async (req: {
   ledger_type: string;
 }): Promise<IInterestLedger[]> => {
   if (req.ledger_type === 'FUNDING_FEE') {
+    const time = Math.max(req.time, Date.now() - 3600_000 * 89);
     const params = {
-      end_time: req.time,
-      start_time: req.time - WINDOW_MS,
+      end_time: time,
+      start_time: time - WINDOW_MS,
       direct: 'prev',
       limit: 100,
     };
     const res = await getAccountBills(req.credential.payload, params);
+    if (res.code !== 200) {
+      throw new Error(res.message);
+    }
+    // console.log({ where: 'Here', res: res, params, credential: req.credential.payload });
     return (res.data ?? [])
       .filter((x) => x.type === '30' || x.type === '31')
       .map((v): IInterestLedger => {
@@ -40,7 +44,7 @@ const fetchInterestRateLedgerBackward = async (req: {
           created_at: formatTime(ms),
         } as IInterestLedger;
       })
-      .filter((x) => Date.parse(x.created_at!) <= req.time);
+      .filter((x) => Date.parse(x.created_at!) <= time);
   }
   return [];
 };
@@ -52,13 +56,17 @@ const fetchInterestRateLedgerForward = async (req: {
   ledger_type: string;
 }): Promise<IInterestLedger[]> => {
   if (req.ledger_type === 'FUNDING_FEE') {
+    const time = Math.max(req.time, Date.now() - 3600_000 * 88);
     const params = {
-      start_time: req.time,
-      end_time: req.time + WINDOW_MS,
+      start_time: time,
+      end_time: time + WINDOW_MS,
       direct: 'prev', //  next 返回数据按照时间从小到大排列，且先返回小的 prev 则相反 从大到小排列，先返回小的
       limit: 100,
     };
     const res = await getAccountBills(req.credential.payload, params);
+    if (res.code !== 200) {
+      throw new Error(res.message);
+    }
     return (res.data ?? [])
       .filter((x) => x.type === '30' || x.type === '31')
       .map((v): IInterestLedger => {
@@ -72,7 +80,7 @@ const fetchInterestRateLedgerForward = async (req: {
           created_at: formatTime(ms),
         } as IInterestLedger;
       })
-      .filter((x) => Date.parse(x.created_at!) >= req.time);
+      .filter((x) => Date.parse(x.created_at!) >= time);
   }
   return [];
 };
