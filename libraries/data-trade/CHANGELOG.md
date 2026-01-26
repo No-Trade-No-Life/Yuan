@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-trade
 
-This log was last generated on Mon, 26 Jan 2026 20:32:36 GMT and should not be manually modified.
+This log was last generated on Mon, 26 Jan 2026 21:10:03 GMT and should not be manually modified.
+
+## 0.1.35
+Mon, 26 Jan 2026 21:10:03 GMT
+
+### Patches
+
+- fix name
 
 ## 0.1.34
 Mon, 26 Jan 2026 20:32:36 GMT

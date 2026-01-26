@@ -2,6 +2,23 @@
   "name": "@yuants/exchange",
   "entries": [
     {
+      "version": "0.8.20",
+      "tag": "@yuants/exchange_v0.8.20",
+      "date": "Mon, 26 Jan 2026 21:10:03 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-trade\" to `0.1.35`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.8.19",
       "tag": "@yuants/exchange_v0.8.19",
       "date": "Mon, 26 Jan 2026 20:32:36 GMT",
