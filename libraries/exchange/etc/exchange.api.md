@@ -13,6 +13,7 @@ import { IProduct } from '@yuants/data-product';
 import { IQuote } from '@yuants/data-quote';
 import { IResponse } from '@yuants/protocol';
 import { IServiceOptions } from '@yuants/protocol';
+import { ITradeHistory } from '@yuants/data-trade';
 import { JSONSchema7 } from 'json-schema';
 import { Terminal } from '@yuants/protocol';
 
@@ -159,6 +160,7 @@ export const provideExchangeServices: <T>(terminal: Terminal, exchange: IExchang
 export const provideInterestLedgerService: (terminal: Terminal, metadata: {
     direction: string;
     type: string;
+    ledger_type: string[];
 }, fetchPage: (request: IIngestInterestLedgerRequest) => Promise<IInterestLedger[]>, serviceOptions?: IServiceOptions) => {
     dispose: () => void;
 };
@@ -182,6 +184,17 @@ export const provideQuoteService: <K extends IQuoteField>(terminal: Terminal, me
     product_id: string;
     updated_at: number;
 }>>, serviceOptions?: IServiceOptions) => {
+    dispose: () => void;
+};
+
+// Warning: (ae-forgotten-export) The symbol "IIngestInterestLedgerRequest_2" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export const provideTradeHistoryService: (terminal: Terminal, metadata: {
+    direction: string;
+    type: string;
+    trade_type: string[];
+}, fetchPage: (request: IIngestInterestLedgerRequest_2) => Promise<ITradeHistory[]>, serviceOptions?: IServiceOptions) => {
     dispose: () => void;
 };
 

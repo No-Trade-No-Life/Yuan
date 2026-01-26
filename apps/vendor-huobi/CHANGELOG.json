@@ -2,6 +2,117 @@
   "name": "@yuants/vendor-huobi",
   "entries": [
     {
+      "version": "0.19.5",
+      "tag": "@yuants/vendor-huobi_v0.19.5",
+      "date": "Fri, 16 Jan 2026 09:43:32 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "1"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.16`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.19.4",
+      "tag": "@yuants/vendor-huobi_v0.19.4",
+      "date": "Tue, 13 Jan 2026 10:53:40 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix "
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.15`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.19.3",
+      "tag": "@yuants/vendor-huobi_v0.19.3",
+      "date": "Mon, 12 Jan 2026 05:15:55 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-interest-rate\" to `0.2.9`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.14`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.19.2",
+      "tag": "@yuants/vendor-huobi_v0.19.2",
+      "date": "Mon, 12 Jan 2026 03:30:04 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add trade history"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-trade\" to `0.1.31`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.13`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.19.1",
+      "tag": "@yuants/vendor-huobi_v0.19.1",
+      "date": "Sun, 11 Jan 2026 00:09:15 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add ledger type"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.12`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.19.0",
       "tag": "@yuants/vendor-huobi_v0.19.0",
       "date": "Wed, 07 Jan 2026 12:14:06 GMT",

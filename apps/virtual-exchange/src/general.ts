@@ -2,8 +2,9 @@ import { IPosition } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { cancelOrder, getOrders, getPositions, modifyOrder, submitOrder } from '@yuants/exchange';
 import { Terminal } from '@yuants/protocol';
-import { getCredentialBySecretId, IExchangeCredential } from './credential';
+import { getCredentialBySecretId } from './credential';
 import { polyfillOrders, polyfillPosition } from './position';
+import { IExchangeCredential } from './types';
 
 const terminal = Terminal.fromNodeEnv();
 

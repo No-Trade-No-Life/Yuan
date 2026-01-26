@@ -64,3 +64,57 @@ export interface ITrade {
    */
   updated_at?: string;
 }
+
+/**
+ *
+ * @public
+ */
+export interface ITradeHistory {
+  id: string;
+  /**
+   * Account ID
+   */
+  account_id: string;
+  /**
+   * product id
+   */
+  product_id: string;
+  /**
+   * Trade Direction
+   *
+   * - `OPEN_LONG`: Open long position
+   * - `CLOSE_LONG`: Close long position
+   * - `OPEN_SHORT`: Open short position
+   * - `CLOSE_SHORT`: Close short position
+   */
+  direction: string;
+  /**
+   * size
+   */
+  size: string;
+  /**
+   * price
+   */
+  price: string;
+  /**
+   * fee
+   */
+  fee: string;
+  /**
+   * fee currency
+   */
+  fee_currency: string;
+  /**
+   * PnL
+   */
+  pnl?: string;
+  /**
+   * Traded At
+   */
+  created_at: string;
+  /**
+   * Last updated timestamp.
+   * 最后更新时间戳，使用 RFC-3339 格式，包含时区信息
+   */
+  updated_at: string;
+}

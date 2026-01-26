@@ -553,6 +553,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/app-asg-eventbridge-notifier",
+      "projectFolder": "apps/asg-eventbridge-notifier",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/node-unit",
       "projectFolder": "apps/node-unit",
       "shouldPublish": true
@@ -733,6 +738,11 @@
     {
       "packageName": "@yuants/exchange",
       "projectFolder": "libraries/exchange",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/http-services",
+      "projectFolder": "libraries/http-services",
       "shouldPublish": true
     }
   ]

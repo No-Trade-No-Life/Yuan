@@ -58,10 +58,27 @@ const parseJSON = async <TResponse>(
   try {
     return JSON.parse(text) as TResponse;
   } catch (error) {
-    console.info(formatTime(Date.now()), 'GateRequestFailed', path, JSON.stringify(params ?? {}), text, {
-      status: response.status,
-      headers: toHeaderObject(response.headers),
-    });
+    // 只在 DEBUG 模式下打印完整响应文本，避免泄露敏感信息
+    if (process.env.LOG_LEVEL === 'DEBUG') {
+      console.debug(formatTime(Date.now()), 'GateRequestFailed', path, JSON.stringify(params ?? {}), text, {
+        status: response.status,
+        headers: toHeaderObject(response.headers),
+      });
+    } else {
+      // 非 DEBUG 模式下只打印摘要
+      const textPreview = text.length > 100 ? text.substring(0, 100) + '...' : text;
+      console.info(
+        formatTime(Date.now()),
+        'GateRequestFailed',
+        path,
+        JSON.stringify(params ?? {}),
+        textPreview,
+        {
+          status: response.status,
+          headers: toHeaderObject(response.headers),
+        },
+      );
+    }
     throw error;
   }
 };
@@ -79,12 +96,25 @@ export const requestPublic = async <TResponse>(
     headers['Content-Type'] = 'application/json';
   }
   console.info(formatTime(Date.now()), method, url.href);
-  const response = await fetch(url.href, {
-    method,
-    headers,
-    body: body || undefined,
-  });
-  return parseJSON<TResponse>(response, path, params);
+
+  // 添加请求超时控制（30秒）
+  const timeoutMs = 30_000;
+  const abortController = new AbortController();
+  const timeoutId = setTimeout(() => {
+    abortController.abort(new Error(`Request timeout after ${timeoutMs}ms`));
+  }, timeoutMs);
+
+  try {
+    const response = await fetch(url.href, {
+      method,
+      headers,
+      body: body || undefined,
+      signal: abortController.signal,
+    });
+    return await parseJSON<TResponse>(response, path, params);
+  } finally {
+    clearTimeout(timeoutId);
+  }
 };
 
 export const requestPrivate = async <TResponse>(
@@ -115,12 +145,28 @@ export const requestPrivate = async <TResponse>(
     headers['X-Gate-Channel-Id'] = process.env.CHANNEL_ID;
   }
 
-  console.info(formatTime(Date.now()), method, url.href, JSON.stringify(headers), body);
+  // 安全日志：过滤敏感头信息
+  const safeHeaders = { ...headers };
+  if (safeHeaders.KEY) safeHeaders.KEY = '***';
+  if (safeHeaders.SIGN) safeHeaders.SIGN = '***';
+  console.info(formatTime(Date.now()), method, url.href, JSON.stringify(safeHeaders), body);
 
-  const response = await fetch(url.href, {
-    method,
-    headers,
-    body: body || undefined,
-  });
-  return parseJSON<TResponse>(response, path, params);
+  // 添加请求超时控制（30秒）
+  const timeoutMs = 30_000;
+  const abortController = new AbortController();
+  const timeoutId = setTimeout(() => {
+    abortController.abort(new Error(`Request timeout after ${timeoutMs}ms`));
+  }, timeoutMs);
+
+  try {
+    const response = await fetch(url.href, {
+      method,
+      headers,
+      body: body || undefined,
+      signal: abortController.signal,
+    });
+    return await parseJSON<TResponse>(response, path, params);
+  } finally {
+    clearTimeout(timeoutId);
+  }
 };

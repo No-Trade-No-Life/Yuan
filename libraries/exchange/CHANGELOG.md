@@ -1,6 +1,42 @@
 # Change Log - @yuants/exchange
 
-This log was last generated on Tue, 06 Jan 2026 17:23:41 GMT and should not be manually modified.
+This log was last generated on Fri, 16 Jan 2026 09:43:32 GMT and should not be manually modified.
+
+## 0.8.16
+Fri, 16 Jan 2026 09:43:32 GMT
+
+### Patches
+
+- change ledger time range
+
+## 0.8.15
+Tue, 13 Jan 2026 10:53:40 GMT
+
+### Patches
+
+- fix
+
+## 0.8.14
+Mon, 12 Jan 2026 05:15:55 GMT
+
+### Patches
+
+- change series name 
+- add is parse
+
+## 0.8.13
+Mon, 12 Jan 2026 03:30:04 GMT
+
+### Patches
+
+- add trade history
+
+## 0.8.12
+Sun, 11 Jan 2026 00:09:14 GMT
+
+### Patches
+
+- add ledger type
 
 ## 0.8.11
 Tue, 06 Jan 2026 17:23:41 GMT

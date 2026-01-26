@@ -19,25 +19,29 @@ const fetchInterestRateLedgerBackward = async (req: {
   time: number;
   ledger_type: string;
 }): Promise<IInterestLedger[]> => {
-  const params: Record<string, string | number> = {};
-  params.end = req.time.toString();
-  params.begin = (req.time - WINDOW_MS).toString();
-  params.limit = 100;
-  params.type = req.ledger_type;
-  const res = await getAccountBillsArchive(req.credential.payload, params);
-  return (res.data ?? [])
-    .map((v): IInterestLedger => {
-      const ms = Number(v.ts);
-      return {
-        id: v.billId,
-        product_id: encodePath('OKX', v.instType, v.instId),
-        amount: v.balChg,
-        account_id: req.account_id,
-        currency: v.ccy,
-        created_at: formatTime(ms),
-      } as IInterestLedger;
-    })
-    .filter((x) => Date.parse(x.created_at!) <= req.time);
+  if (req.ledger_type === 'FUNDING_FEE') {
+    const params: Record<string, string | number> = {};
+    params.end = req.time.toString();
+    params.begin = (req.time - WINDOW_MS).toString();
+    params.limit = 100;
+    params.type = '8';
+    const res = await getAccountBillsArchive(req.credential.payload, params);
+    // console.log({ where: 'Here', res: res.data, params, credential: req.credential.payload });
+    return (res.data ?? [])
+      .map((v): IInterestLedger => {
+        const ms = Number(v.ts);
+        return {
+          id: v.billId,
+          product_id: encodePath('OKX', v.instType, v.instId),
+          amount: v.balChg,
+          account_id: req.account_id,
+          currency: v.ccy,
+          created_at: formatTime(ms),
+        } as IInterestLedger;
+      })
+      .filter((x) => Date.parse(x.created_at!) <= req.time);
+  }
+  return [];
 };
 
 provideInterestLedgerService(
@@ -45,6 +49,7 @@ provideInterestLedgerService(
   {
     direction: 'backward',
     type: 'OKX',
+    ledger_type: ['FUNDING_FEE'],
   },
   fetchInterestRateLedgerBackward,
 );
