@@ -29,7 +29,9 @@ export const makeSecret: (secret: Uint8Array, tags: Record<string, string>, read
 export const readSecret: (terminal: Terminal, secret: ISecret, reader_private_key?: string) => Promise<Uint8Array>;
 
 // @public
-export const setupSecretProxyService: (terminal: Terminal, trusted_public_keys?: Set<string>) => Set<string>;
+export const setupSecretProxyService: (terminal: Terminal, isPublicKeyTrusted: (publicKey: string) => boolean) => {
+    dispose: () => void;
+};
 
 // @public
 export const verifySecretSigner: (secret: ISecret) => boolean;

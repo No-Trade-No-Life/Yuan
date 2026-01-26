@@ -8,15 +8,15 @@ import { ISecret } from './types';
  * Setup secret proxy service on the terminal
  *
  * @param terminal - The terminal instance
- * @param trusted_public_keys - Set of trusted public keys allowed to read secrets
- * @returns Set of trusted public keys
+ * @param isPublicKeyTrusted - Function to determine if a public key is trusted
  *
  * @public
  */
-export const setupSecretProxyService = (terminal: Terminal, trusted_public_keys = new Set<string>()) => {
-  trusted_public_keys.add(terminal.keyPair.public_key);
-
-  terminal.server.provideService<
+export const setupSecretProxyService = (
+  terminal: Terminal,
+  isPublicKeyTrusted: (publicKey: string) => boolean,
+) => {
+  return terminal.server.provideService<
     {
       secret_sign: string;
       public_key: string;
@@ -33,7 +33,7 @@ export const setupSecretProxyService = (terminal: Terminal, trusted_public_keys 
       },
     },
     async ({ req }) => {
-      if (!trusted_public_keys.has(req.public_key))
+      if (!isPublicKeyTrusted(req.public_key))
         throw newError('PublicKeyNotTrusted', { public_key: req.public_key });
 
       const [secret] = await requestSQL<ISecret[]>(
@@ -52,6 +52,4 @@ export const setupSecretProxyService = (terminal: Terminal, trusted_public_keys 
       return { res: { code: 0, message: 'OK', data: data_base64 } };
     },
   );
-
-  return trusted_public_keys;
 };

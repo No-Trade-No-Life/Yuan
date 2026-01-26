@@ -1,6 +1,59 @@
 # Change Log - @yuants/node-unit
 
-This log was last generated on Wed, 14 Jan 2026 09:10:04 GMT and should not be manually modified.
+This log was last generated on Sun, 25 Jan 2026 15:45:23 GMT and should not be manually modified.
+
+## 0.14.6
+Sun, 25 Jan 2026 15:45:23 GMT
+
+### Patches
+
+- refactor
+
+## 0.14.5
+Sat, 24 Jan 2026 07:29:36 GMT
+
+### Patches
+
+- refine and bugfix
+
+## 0.14.4
+Mon, 19 Jan 2026 12:43:37 GMT
+
+### Patches
+
+- refactor metrics of node unit
+
+## 0.14.3
+Sun, 18 Jan 2026 04:50:52 GMT
+
+### Patches
+
+- remove node unit resource from terminal tags
+
+## 0.14.2
+Fri, 16 Jan 2026 10:16:55 GMT
+
+### Patches
+
+- add logs
+
+## 0.14.1
+Fri, 16 Jan 2026 09:43:32 GMT
+
+### Patches
+
+- add unit test
+
+## 0.14.0
+Thu, 15 Jan 2026 05:08:12 GMT
+
+### Minor changes
+
+- add deployment schedule
+
+### Patches
+
+- use resource usage as scheduler key
 
 ## 0.13.11
 Wed, 14 Jan 2026 09:10:04 GMT
