@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-turboflow",
-  "version": "1.2.30",
+  "version": "1.2.34",
   "main": "lib/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",

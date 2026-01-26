@@ -1,6 +1,6 @@
 {
   "name": "@yuants/data-interest-rate",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [
@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@yuants/tool-kit": "workspace:*",
+    "@yuants/utils": "workspace:*",
     "@microsoft/api-extractor": "~7.55.2",
     "@rushstack/heft": "~1.1.7",
     "@rushstack/heft-jest-plugin": "~1.1.7",

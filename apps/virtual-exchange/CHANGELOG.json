@@ -2,6 +2,99 @@
   "name": "@yuants/app-virtual-exchange",
   "entries": [
     {
+      "version": "0.19.2",
+      "tag": "@yuants/app-virtual-exchange_v0.19.2",
+      "date": "Sun, 25 Jan 2026 15:45:23 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/secret\" to `0.5.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.19.1",
+      "tag": "@yuants/app-virtual-exchange_v0.19.1",
+      "date": "Fri, 16 Jan 2026 09:43:32 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.16`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.19.0",
+      "tag": "@yuants/app-virtual-exchange_v0.19.0",
+      "date": "Tue, 13 Jan 2026 10:53:40 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add interest-ledger scheduler"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.15`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.18.11",
+      "tag": "@yuants/app-virtual-exchange_v0.18.11",
+      "date": "Mon, 12 Jan 2026 05:15:55 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-interest-rate\" to `0.2.9`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.14`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.18.10",
+      "tag": "@yuants/app-virtual-exchange_v0.18.10",
+      "date": "Mon, 12 Jan 2026 03:30:04 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.13`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.18.9",
       "tag": "@yuants/app-virtual-exchange_v0.18.9",
       "date": "Sun, 11 Jan 2026 00:09:14 GMT",

@@ -7,8 +7,8 @@
 ## 0. 元信息（Meta）
 
 - **项目名称**：@yuants/vendor-hyperliquid
-- **最近更新时间**：2025-12-26 15:30（由 Codex Agent 更新，接入 REST/IP tokenBucket 主动限流）
-- **当前状态标签**：已接入 REST/IP 主动限流（等待线上验证与观测增强）
+- **最近更新时间**：2026-01-14 10:45（由 Codex Agent 更新，暂时注释响应后 tokenBucket 调用）
+- **当前状态标签**：REST/IP 主动限流已接入（响应后扣减注释）
 
 ---
 
@@ -48,6 +48,7 @@
 - 所有调用端需要确认 `provideOrderActionsWithCredential` 新 schema（`credential.type/payload`）；在完成验证前，暂不再调整请求字段，防止多次破坏兼容。
 - 下一轮若要继续推进 transfer/E2E，请依据 7.1 TODO 拆分计划，先更新本文件再开工。
 - 若需要引用其它仓库/文档，仅在此记录摘要并提供路径。
+- 2026-01-14：暂时注释 REST 请求响应后的 tokenBucket 调用（`afterRestResponse` 调用被注释），仅保留请求前限流。
 
 ### 2.4 指令冲突与变更记录
 
@@ -159,12 +160,13 @@
   - 决策：所有服务模块中的 console.log 替换为 console.info，保持错误信息仍使用 console.error。
   - 影响：统一日志输出格式，便于日志分析和系统监控。
 
-- **[D8] 接入 Hyperliquid REST/IP 主动限流（2025-12-26）**
+- **[D8] 接入 Hyperliquid REST/IP 主动限流（2025-12-26，2026-01-14 调整）**
+
   - 背景：官方说明 REST 请求按 IP 聚合限额 `1200 weight / minute`，且 `info/exchange` 不同 type/action 有不同 weight；当前 vendor 存在高频轮询（quote/ohlc）容易触发 429。
   - 决策：
     - 在 `src/api/client.ts` 的 `fetch` 前执行 `tokenBucket(...).acquireSync(weight)`，不足时直接抛错（不捕获），交给上层 retry/backoff。
     - weight 计算与额外加权策略集中在 `src/api/rate-limit.ts`，以 rule registry 的方式保持开闭原则（新增 type 只加规则，不改核心流程）。
-    - `candleSnapshot` 的额外 weight 按官方“最多 5000 根 candles”做有界估算；响应后按返回条数计算 `deltaWeight` 并用 `await tokenBucket(...).acquire(deltaWeight)` 阻塞等待（不使用 acquireSync，避免响应后因令牌不足报错）。
+    - `candleSnapshot` 的额外 weight 按官方“最多 5000 根 candles”做有界估算；响应后的 tokenBucket 追加扣减逻辑仍保留，但调用暂时注释（2026-01-14 起仅请求前限流）。
     - 若收到 429：先打印日志并抛错（不做 client 内主动退避；等待官方文档明确后再补）。
     - WebSocket 限流本轮不实现；address-based 动态 action budget 本轮不实现，仅保留扩展点。
   - 影响：上层调用链需要能承接 `HYPERLIQUID_API_RATE_LIMIT` 抛错（scopeError 包装）并做重试/退避。
@@ -196,6 +198,19 @@
 ## 6. 最近几轮工作记录（Recent Sessions）
 
 > 约定：仅记录已经结束的会话；进行中的内容放在第 11 节，收尾后再搬运；按时间倒序追加。
+
+### 2026-01-14 — Codex
+
+- **本轮摘要**：
+  - 暂时注释 REST 响应后的 tokenBucket 调用，仅保留请求前主动限流。
+- **修改的文件**：
+  - `apps/vendor-hyperliquid/src/api/rate-limit.ts`
+  - `apps/vendor-hyperliquid/src/api/client.ts`
+  - `apps/vendor-hyperliquid/src/api/rate-limit.test.ts`
+  - `apps/vendor-hyperliquid/SESSION_NOTES.md`
+- **运行的测试 / 检查**：
+  - 命令：`npx tsc --noEmit --project apps/vendor-hyperliquid/tsconfig.json`
+  - 结果：失败（提示未安装 TypeScript，可改用 `./node_modules/.bin/tsc` 或先安装依赖）
 
 ### 2026-01-07 — Codex
 

@@ -73,6 +73,54 @@ export const getUnifiedAccounts = (
 }> => callPrivate(credential, 'GET', '/unified/accounts', params);
 
 /**
+ * 获取用户理财余额（Gate.io EarnUni 余币宝理财）
+ *
+ * https://www.gate.com/docs/developers/apiv4/zh_CN/#查询用户币种理财列表
+ * 端点：GET /earn/uni/lends（需要鉴权）
+ */
+export const getEarnBalance = (
+  credential: ICredential,
+  params?: { currency?: string; page?: number; limit?: number },
+): Promise<
+  Array<{
+    currency: string;
+    amount: string;
+    lent_amount: string;
+    frozen_amount: string;
+    current_amount: string;
+    min_rate?: string;
+    interest_status?: string;
+    reinvest_left_amount?: string;
+    create_time?: number;
+    update_time?: number;
+  }>
+> => {
+  // 输入参数校验
+  const validatedParams = { ...params };
+  if (validatedParams.currency !== undefined) {
+    if (typeof validatedParams.currency !== 'string' || !/^[A-Za-z0-9]+$/.test(validatedParams.currency)) {
+      throw new Error(`Invalid currency format: ${validatedParams.currency}`);
+    }
+  }
+  if (validatedParams.page !== undefined) {
+    if (!Number.isInteger(validatedParams.page) || validatedParams.page < 1) {
+      throw new Error(`Invalid page: must be positive integer, got ${validatedParams.page}`);
+    }
+  }
+  if (validatedParams.limit !== undefined) {
+    if (
+      !Number.isInteger(validatedParams.limit) ||
+      validatedParams.limit < 1 ||
+      validatedParams.limit > 1000
+    ) {
+      throw new Error(`Invalid limit: must be between 1 and 1000, got ${validatedParams.limit}`);
+    }
+  }
+
+  return callPrivate(credential, 'GET', '/earn/uni/lends', validatedParams);
+};
+
+/**
  * 获取用户仓位列表
  *
  * https://www.gate.io/docs/developers/apiv4/zh_CN/#%E8%8E%B7%E5%8F%96%E7%94%A8%E6%88%B7%E4%BB%93%E4%BD%8D%E5%88%97%E8%A1%A8
@@ -454,3 +502,35 @@ export const getFutureAccountsBook = (
     id: string;
   }[]
 > => callPrivate(credential, 'GET', `/futures/${params.settle}/account_book`, params);
+
+/**
+ * 查询个人成交记录(时间区间)
+ *
+ * https://www.gate.com/docs/developers/apiv4/zh_CN/#%E6%9F%A5%E8%AF%A2%E4%B8%AA%E4%BA%BA%E6%88%90%E4%BA%A4%E8%AE%B0%E5%BD%95-%E6%97%B6%E9%97%B4%E5%8C%BA%E9%97%B4
+ */
+export const getFutureAccountsTrades = (
+  credential: ICredential,
+  params: {
+    settle: string;
+    contract?: string;
+    limit?: number;
+    offset?: number;
+    from?: number;
+    to?: number;
+    role?: string;
+  },
+): Promise<
+  {
+    trade_id: string;
+    create_time: number;
+    contract: string;
+    order_id: string;
+    size: string;
+    price: string;
+    text: string;
+    fee: string;
+    point_fee: string;
+    role: string;
+    close_size: string;
+  }[]
+> => callPrivate(credential, 'GET', `/futures/${params.settle}/my_trades_timerange`, params);

@@ -2,6 +2,74 @@
   "name": "@yuants/vendor-trading-view",
   "entries": [
     {
+      "version": "0.4.7",
+      "tag": "@yuants/vendor-trading-view_v0.4.7",
+      "date": "Fri, 16 Jan 2026 09:43:32 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.16`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.4.6",
+      "tag": "@yuants/vendor-trading-view_v0.4.6",
+      "date": "Tue, 13 Jan 2026 10:53:40 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.15`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.4.5",
+      "tag": "@yuants/vendor-trading-view_v0.4.5",
+      "date": "Mon, 12 Jan 2026 05:15:55 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.14`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.4.4",
+      "tag": "@yuants/vendor-trading-view_v0.4.4",
+      "date": "Mon, 12 Jan 2026 03:30:04 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.13`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.3",
       "tag": "@yuants/vendor-trading-view_v0.4.3",
       "date": "Sun, 11 Jan 2026 00:09:15 GMT",

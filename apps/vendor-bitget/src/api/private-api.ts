@@ -523,3 +523,53 @@ export const getAccountFinancialRecords = (
       cursor: string;
     }>
   >(credential, 'GET', '/api/v3/account/financial-records', params);
+
+/**
+ * 获取成交明细
+ *获取用户最近90天内委托单成交明细
+ * 限频规则: 20次/秒/UID
+ * 需要统一账户交易只读/读写权限
+ *
+ * https://www.bitget.com/zh-CN/api-doc/uta/trade/Get-Order-Fills
+ */
+export const getAccountTradeFills = (
+  credential: ICredential,
+  params: {
+    category: string;
+    orderId?: string;
+    startTime?: string;
+    endTime?: string;
+    limit?: string;
+    cursor?: string;
+  },
+) =>
+  requestPrivate<
+    ApiResponse<{
+      list: ITradeHistoryRecord[];
+      cursor: string;
+    }>
+  >(credential, 'GET', '/api/v3/trade/fills', params);
+
+interface FeeDetail {
+  feeCoin: string;
+  fee: string;
+}
+export interface ITradeHistoryRecord {
+  execId: string;
+  execLinkId: string;
+  orderId: string;
+  clientOid: string;
+  category: string;
+  symbol: string;
+  orderType: string;
+  side: string;
+  tradeSide: string;
+  execPrice: string;
+  execQty: string;
+  execValue: string;
+  tradeScope: string;
+  feeDetail: FeeDetail[];
+  createdTime: string;
+  updatedTime: string;
+  execPnl: string;
+}

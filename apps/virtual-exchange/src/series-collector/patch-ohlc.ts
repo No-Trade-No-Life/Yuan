@@ -1,8 +1,8 @@
 import { decodeOHLCSeriesId } from '@yuants/data-ohlc';
 import { IIngestOHLCRequest, ISeriesIngestResult } from '@yuants/exchange';
 import { Terminal } from '@yuants/protocol';
-import { escapeSQL, requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
+import { findPatchGap } from './sql-helpers';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -16,31 +16,7 @@ export const handleIngestOHLCPatch = async (
   direction: 'forward' | 'backward',
   signal: AbortSignal,
 ) => {
-  const [record] = await requestSQL<{ gap_start_time: string; gap_end_time: string }[]>(
-    terminal,
-    `
-WITH reversed_ranges AS (
-    SELECT 
-        start_time,
-        end_time,
-        LEAD(end_time) OVER (
-            PARTITION BY table_name, series_id 
-            ORDER BY start_time DESC
-        ) AS next_end_time  -- 注意：倒序时 LEAD 是前一个区间
-    FROM series_data_range
-    WHERE table_name = 'ohlc_v2' 
-      AND series_id = ${escapeSQL(series_id)}
-)
-SELECT 
-    next_end_time AS gap_start_time,  -- 前一个区间的结束时间
-    start_time AS gap_end_time        -- 当前区间的开始时间
-FROM reversed_ranges
-WHERE next_end_time IS NOT NULL 
-  AND start_time > next_end_time      -- 有空缺
-ORDER BY start_time DESC              -- 从最新开始
-LIMIT 1;
-    `,
-  );
+  const record = await findPatchGap(terminal, 'ohlc_v2', series_id);
 
   // no gap
   if (!record) return;

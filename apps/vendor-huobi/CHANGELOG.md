@@ -1,6 +1,32 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Sun, 11 Jan 2026 00:09:15 GMT and should not be manually modified.
+This log was last generated on Fri, 16 Jan 2026 09:43:32 GMT and should not be manually modified.
+
+## 0.19.5
+Fri, 16 Jan 2026 09:43:32 GMT
+
+### Patches
+
+- 1
+
+## 0.19.4
+Tue, 13 Jan 2026 10:53:40 GMT
+
+### Patches
+
+- fix 
+
+## 0.19.3
+Mon, 12 Jan 2026 05:15:55 GMT
+
+_Version update only_
+
+## 0.19.2
+Mon, 12 Jan 2026 03:30:04 GMT
+
+### Patches
+
+- add trade history
 
 ## 0.19.1
 Sun, 11 Jan 2026 00:09:15 GMT

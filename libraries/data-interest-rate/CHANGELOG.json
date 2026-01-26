@@ -2,6 +2,23 @@
   "name": "@yuants/data-interest-rate",
   "entries": [
     {
+      "version": "0.2.9",
+      "tag": "@yuants/data-interest-rate_v0.2.9",
+      "date": "Mon, 12 Jan 2026 05:15:55 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add series id parser"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.8",
       "tag": "@yuants/data-interest-rate_v0.2.8",
       "date": "Tue, 06 Jan 2026 17:23:41 GMT",

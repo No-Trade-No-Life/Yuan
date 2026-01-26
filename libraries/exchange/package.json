@@ -1,6 +1,6 @@
 {
   "name": "@yuants/exchange",
-  "version": "0.8.12",
+  "version": "0.8.16",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [
@@ -29,6 +29,7 @@
   "dependencies": {
     "@yuants/protocol": "workspace:*",
     "@yuants/data-account": "workspace:*",
+    "@yuants/data-trade": "workspace:*",
     "@yuants/data-order": "workspace:*",
     "@yuants/data-product": "workspace:*",
     "@yuants/data-quote": "workspace:*",
