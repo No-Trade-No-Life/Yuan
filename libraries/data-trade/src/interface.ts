@@ -1,4 +1,4 @@
-import { decodePath, encodePath } from '../../utils/lib';
+import { decodePath, encodePath } from '@yuants/utils';
 
 /**
  *
