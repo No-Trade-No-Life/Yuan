@@ -1,7 +1,8 @@
 import { IServiceOptions, Terminal } from '@yuants/protocol';
-import { ITradeHistory } from '@yuants/data-trade';
+import { ITradeHistory, encodeTradeHistorySeriesId } from '@yuants/data-trade';
 import { ISeriesIngestResult } from './types';
 import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
+import { formatTime } from '@yuants/utils';
 
 interface IExchangeCredential {
   type: string;
@@ -51,6 +52,7 @@ const TRADE_HISTORY_INSERT_COLUMNS: Array<keyof ITradeHistory> = [
   'fee_currency',
   'pnl',
   'created_at',
+  'origin',
 ];
 
 /**
@@ -88,7 +90,7 @@ export const provideTradeHistoryService = (
         const range = computeInterestRatePageRange(tradeHistory);
         // Atomic write: data rows + series_data_range in the same statement.
         if (tradeHistory.length > 0 && range) {
-          const writeInterestRate = `${buildInsertManyIntoTableSQL(tradeHistory, 'trade_history', {
+          const writeTradeHistory = `${buildInsertManyIntoTableSQL(tradeHistory, 'trade_history', {
             columns: TRADE_HISTORY_INSERT_COLUMNS,
             conflictKeys: ['id', 'account_id'],
           })} RETURNING 1`;
@@ -96,7 +98,7 @@ export const provideTradeHistoryService = (
           const writeRange = `${buildInsertManyIntoTableSQL(
             [
               {
-                series_id: msg.req.account_id,
+                series_id: encodeTradeHistorySeriesId(msg.req.account_id, msg.req.trade_type),
                 table_name: 'trade_history',
                 start_time: range.start_time,
                 end_time: range.end_time,
@@ -114,7 +116,7 @@ export const provideTradeHistoryService = (
             `
             WITH
               write_trade_history AS (
-                ${writeInterestRate}
+                ${writeTradeHistory}
               ),
               write_range AS (
                 ${writeRange}
@@ -130,6 +132,42 @@ export const provideTradeHistoryService = (
               conflictKeys: ['id', 'account_id'],
             }),
           );
+        } else {
+          if (
+            (metadata.type === 'HTX' ||
+              metadata.type === 'BITGET' ||
+              metadata.type === 'ASTER' ||
+              metadata.type === 'BINANCE') &&
+            tradeHistory.length === 0
+          ) {
+            if (msg.req.time >= Date.now() - 3600_000 * 24 * 88 || msg.req.time === 0) {
+              msg.req.time = Math.max(msg.req.time, Date.now() - 3600_000 * 24 * 88);
+              await requestSQL(
+                terminal,
+                buildInsertManyIntoTableSQL(
+                  [
+                    {
+                      series_id: encodeTradeHistorySeriesId(msg.req.account_id, msg.req.trade_type),
+                      table_name: 'trade_history',
+                      start_time:
+                        metadata.direction === 'backward'
+                          ? formatTime(msg.req.time - 48 * 3600_000)
+                          : formatTime(msg.req.time),
+                      end_time:
+                        metadata.direction === 'backward'
+                          ? formatTime(msg.req.time)
+                          : formatTime(msg.req.time + 48 * 3600_000),
+                    },
+                  ],
+                  'series_data_range',
+                  {
+                    columns: ['series_id', 'table_name', 'start_time', 'end_time'],
+                    ignoreConflict: true,
+                  },
+                ),
+              );
+            }
+          }
         }
 
         return {

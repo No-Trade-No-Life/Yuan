@@ -1,3 +1,5 @@
+import { decodePath, encodePath } from '../../utils/lib';
+
 /**
  *
  * @public
@@ -117,4 +119,24 @@ export interface ITradeHistory {
    * 最后更新时间戳，使用 RFC-3339 格式，包含时区信息
    */
   updated_at: string;
+  /**
+   * origin data
+   */
+  origin: Record<string, any>;
 }
+
+/**
+ * @public
+ */
+export const encodeTradeHistorySeriesId = (account_id: string, ledger_type: string) =>
+  encodePath(...decodePath(account_id), ledger_type);
+
+/**
+ * @public
+ */
+export const decodeTradeHistorySeriesId = (series_id: string) => {
+  const parts = decodePath(series_id);
+  const account_id = encodePath(...parts.slice(0, -1));
+  const ledger_type = parts[parts.length - 1];
+  return { account_id, ledger_type };
+};

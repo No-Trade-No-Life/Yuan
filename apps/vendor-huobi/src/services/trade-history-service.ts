@@ -12,7 +12,7 @@ interface IExchangeCredential {
 const terminal = Terminal.fromNodeEnv();
 const productsCache = createClientProductCache(terminal, { expire: 7200_000 });
 
-const WINDOW_MS = 24 * 3600_000;
+const WINDOW_MS = 48 * 3600_000;
 const fetchTradeHistoryBackward = async (req: {
   credential: IExchangeCredential;
   account_id: string;
@@ -20,13 +20,17 @@ const fetchTradeHistoryBackward = async (req: {
   trade_type: string;
 }): Promise<ITradeHistory[]> => {
   if (req.trade_type === 'USDT_SWAP') {
+    const time = Math.max(req.time, Date.now() - 3600_000 * 88);
     const params = {
       limit: 100,
-      end_time: req.time,
-      start_time: req.time - WINDOW_MS,
+      end_time: time,
+      start_time: time - WINDOW_MS,
       direct: 'next', // 这里和 interest-ledger-service 不一样，prev 和 next 返回的数据都是闪照时间从大到小排列，但是 prev 返回的数据是 靠近start， next 靠近end
     };
     const res = await getAccountTradeOrderDetail(req.credential.payload, params);
+    if (res.code !== 200) {
+      throw new Error(res.message);
+    }
     return (
       await Promise.all(
         (res.data ?? []).map(async (v): Promise<ITradeHistory | undefined> => {
@@ -60,7 +64,7 @@ const fetchTradeHistoryBackward = async (req: {
           } as ITradeHistory;
         }),
       )
-    ).filter((x): x is Exclude<typeof x, undefined> => !!x && Date.parse(x.created_at!) <= req.time);
+    ).filter((x): x is Exclude<typeof x, undefined> => !!x && Date.parse(x.created_at!) <= time);
   }
   return [];
 };
@@ -72,13 +76,17 @@ const fetchTradeHistoryForward = async (req: {
   trade_type: string;
 }): Promise<ITradeHistory[]> => {
   if (req.trade_type === 'USDT_SWAP') {
+    const time = Math.max(req.time, Date.now() - 3600_000 * 88);
     const params = {
       limit: 100,
-      start_time: req.time,
-      end_time: req.time + WINDOW_MS,
+      start_time: time,
+      end_time: time + WINDOW_MS,
       direct: 'prev', // 这里和 interest-ledger-service 不一样，prev 和 next 返回的数据都是闪照时间从大到小排列，但是 prev 返回的数据是 靠近start， next 靠近end
     };
     const res = await getAccountTradeOrderDetail(req.credential.payload, params);
+    if (res.code !== 200) {
+      throw new Error(res.message);
+    }
     return (
       await Promise.all(
         (res.data ?? []).map(async (v): Promise<ITradeHistory | undefined> => {
@@ -109,10 +117,11 @@ const fetchTradeHistoryForward = async (req: {
             fee_currency: v.fee_currency,
             pnl: v.profit.toString(),
             created_at: formatTime(ms),
+            origin: v as any,
           } as ITradeHistory;
         }),
       )
-    ).filter((x): x is Exclude<typeof x, undefined> => !!x && Date.parse(x.created_at!) >= req.time);
+    ).filter((x): x is Exclude<typeof x, undefined> => !!x && Date.parse(x.created_at!) >= time);
   }
   return [];
 };

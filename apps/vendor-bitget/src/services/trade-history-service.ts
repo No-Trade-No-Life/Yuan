@@ -18,12 +18,16 @@ const fetchTradeHistoryBackward = async (req: {
   trade_type: string;
 }): Promise<ITradeHistory[]> => {
   if (req.trade_type === 'USDT_SWAP') {
+    const time = Math.max(req.time, Date.now() - 3600_000 * 24 * 88);
     const params = {
       category: 'USDT-FUTURES',
-      endTime: req.time.toString(),
-      startTime: (req.time - WINDOW_MS).toString(),
+      endTime: time.toString(),
+      startTime: (time - WINDOW_MS).toString(),
     };
     const res = await getAccountTradeFills(req.credential.payload, params);
+    if (res.code !== '00000') {
+      throw new Error(`${res.msg}`);
+    }
     return (res.data.list ?? [])
       .map((v): ITradeHistory => {
         const ms = Number(v.createdTime);
@@ -50,9 +54,10 @@ const fetchTradeHistoryBackward = async (req: {
           fee_currency: v.feeDetail?.[0]?.feeCoin,
           pnl: v.execPnl,
           created_at: formatTime(ms),
+          origin: v as any,
         } as ITradeHistory;
       })
-      .filter((x) => Date.parse(x.created_at!) <= req.time);
+      .filter((x) => Date.parse(x.created_at!) <= time);
   }
   return [];
 };

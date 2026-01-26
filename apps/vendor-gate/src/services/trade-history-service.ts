@@ -12,7 +12,7 @@ interface IExchangeCredential {
 const terminal = Terminal.fromNodeEnv();
 const productsCache = createClientProductCache(terminal, { expire: 7200_000 });
 
-const WINDOW_MS = 1 * 24 * 3600_000;
+const WINDOW_MS = 2 * 24 * 3600_000;
 const fetchTradeHistoryBackward = async (req: {
   credential: IExchangeCredential;
   account_id: string;
@@ -20,13 +20,17 @@ const fetchTradeHistoryBackward = async (req: {
   trade_type: string;
 }): Promise<ITradeHistory[]> => {
   if (req.trade_type === 'USDT_SWAP') {
+    const time = Math.max(req.time, Date.now() - 3600_000 * 24 * 365);
     const params = {
       settle: 'usdt',
-      to: ~~(req.time / 1000),
-      from: ~~((req.time - WINDOW_MS) / 1000),
-      limit: 100,
+      to: ~~(time / 1000) + 10,
+      from: ~~((time - WINDOW_MS) / 1000),
+      limit: 500,
     };
     const res = await getFutureAccountsTrades(req.credential.payload, params);
+    if (!Array.isArray(res)) {
+      throw new Error('getAccountIncome failed');
+    }
     return (
       await Promise.all(
         (res ?? []).map(async (v): Promise<ITradeHistory | undefined> => {
@@ -61,12 +65,13 @@ const fetchTradeHistoryBackward = async (req: {
             fee: v.fee,
             fee_currency: 'USDT',
             created_at: formatTime(ms),
+            origin: v as any,
           } as ITradeHistory;
         }),
       )
     ).filter(
       (x): x is Exclude<typeof x, undefined> =>
-        !!x && Date.parse(x.created_at!) <= ~~(req.time / 1000) * 1000,
+        !!x && Date.parse(x.created_at!) <= ~~(time / 1000 + 10) * 1000,
     );
   }
   return [];

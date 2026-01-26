@@ -27,9 +27,15 @@ const fetchTradeHistoryBackward = async (req: {
       end: req.time.toString(),
       begin: (req.time - WINDOW_MS).toString(),
     });
+    if (res.code !== '0') {
+      throw new Error(res.msg);
+    }
     return (
       await Promise.all(
         (res.data ?? []).map(async (v): Promise<ITradeHistory | undefined> => {
+          /**
+           * 接口使用v.ts进行时间判断
+           */
           const ms = Number(v.ts);
           let direction = 'OPEN_LONG';
           if (v.subType === '1') direction = 'OPEN_LONG';
@@ -53,6 +59,7 @@ const fetchTradeHistoryBackward = async (req: {
             fee_currency: v.ccy,
             pnl: v.pnl,
             created_at: formatTime(ms),
+            origin: v as any,
           } as ITradeHistory;
         }),
       )
