@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": null,
+  "currentTask": "http-proxy-service",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -174,6 +174,13 @@
       "status": "archived",
       "createdAt": "2026-01-23T16:30:26.984Z",
       "updatedAt": "2026-01-24T08:20:06.930Z"
+    },
+    {
+      "id": "http-proxy-service",
+      "name": "HTTP Proxy Service 实现",
+      "status": "active",
+      "createdAt": "2026-01-26T09:28:42.592Z",
+      "updatedAt": "2026-01-26T15:12:01.711Z"
     }
   ],
   "pendingProposals": [
@@ -1895,6 +1902,118 @@
       "decidedAt": "2026-01-23T16:30:26.984Z",
       "decidedBy": "Claude",
       "createdTaskId": "vendor-gate"
+    },
+    {
+      "id": "proposal-mkuysytt-65bf3e",
+      "name": "HTTP Proxy Service 实现",
+      "goal": "创建 @yuants/http-services 包，提供基于 Yuan Terminal 协议的 HTTP 代理服务，支持标签选择和完整的 fetch 参数传递",
+      "rationale": "用户需要在 Yuan 生态系统中提供通用的 HTTP 代理能力，使得任何 Terminal 都可以通过 Yuan 协议进行 HTTP 请求，而不是直接使用 fetch。这样做的好处包括：1) 统一的服务发现机制（通过 labels 选择最合适的代理节点）；2) 可观测性和监控（利用 Terminal 的 metrics）；3) 访问控制和限流（利用 Terminal 的 serviceOptions）；4) 网络隔离环境下的请求代理。此包遵循已有的 provideQuoteService、provideExchangeServices 模式，保持 API 风格一致性。",
+      "points": [
+        "提供 provideHTTPProxyService helper 函数，包装 terminal.server.provideService",
+        "支持完整的 fetch 参数（url, method, headers, body 等）",
+        "支持 label (Record<string, string>) 用于服务选择（如 ip、hostname）",
+        "提供 requestHTTPProxy client 函数，支持按 label 选择 terminal",
+        "返回原始 HTTP 响应（status, headers, body）",
+        "参考 provideQuoteService 和 provideExchangeServices 的实现风格"
+      ],
+      "scope": [
+        "libraries/http-services/ (新建包)",
+        "libraries/http-services/package.json",
+        "libraries/http-services/src/index.ts",
+        "libraries/http-services/src/types.ts",
+        "libraries/http-services/config/api-extractor.json",
+        "libraries/http-services/.heft/",
+        "libraries/http-services/tsconfig.json"
+      ],
+      "phases": [
+        {
+          "name": "阶段 1: 包基础设施搭建",
+          "tasks": [
+            {
+              "acceptance": "目录存在且包含 src/, config/, .heft/ 子目录",
+              "description": "创建 libraries/http-services 目录结构"
+            },
+            {
+              "acceptance": "package.json 包含正确的依赖（@yuants/protocol, @yuants/utils）和 build 脚本",
+              "description": "创建 package.json，配置依赖和构建脚本"
+            },
+            {
+              "acceptance": "tsconfig.json 符合 Yuan 仓库规范，extends 正确的 base config",
+              "description": "创建 TypeScript 配置文件（tsconfig.json）"
+            },
+            {
+              "acceptance": "config/api-extractor.json 存在且配置正确",
+              "description": "创建 API Extractor 配置"
+            }
+          ]
+        },
+        {
+          "name": "阶段 2: 类型定义",
+          "tasks": [
+            {
+              "acceptance": "types.ts 中定义了完整的 HTTP 请求参数类型",
+              "description": "定义 IHTTPProxyRequest 接口（包含 url, method, headers, body 等 fetch 参数）"
+            },
+            {
+              "acceptance": "types.ts 中定义了 HTTP 响应类型，包含原始响应数据",
+              "description": "定义 IHTTPProxyResponse 接口（包含 status, statusText, headers, body）"
+            },
+            {
+              "description": "定义 IHTTPProxyServiceOptions 接口（包含 labels）",
+              "acceptance": "types.ts 中定义了服务选项类型，包含 labels: Record<string, string>"
+            }
+          ]
+        },
+        {
+          "name": "阶段 3: Server 端实现",
+          "tasks": [
+            {
+              "acceptance": "函数接受 terminal, labels, serviceOptions 参数，返回 dispose 函数",
+              "description": "实现 provideHTTPProxyService 函数"
+            },
+            {
+              "acceptance": "能够根据 IHTTPProxyRequest 发起真实 HTTP 请求并返回 IHTTPProxyResponse",
+              "description": "实现 HTTP 请求处理逻辑（使用 fetch）"
+            },
+            {
+              "description": "实现 labels 注入到 serviceOptions",
+              "acceptance": "labels 被正确注入到 terminal.terminalInfo.tags 或 serviceInfo 中"
+            }
+          ]
+        },
+        {
+          "name": "阶段 4: Client 端实现",
+          "tasks": [
+            {
+              "acceptance": "函数接受 terminal, request, labelSelector 参数，返回 Promise<IResponse<IHTTPProxyResponse>>",
+              "description": "实现 requestHTTPProxy 函数"
+            },
+            {
+              "description": "实现基于 labels 的 terminal 选择逻辑",
+              "acceptance": "能够根据 labelSelector 过滤并选择合适的 terminal"
+            }
+          ]
+        },
+        {
+          "name": "阶段 5: 测试与文档",
+          "tasks": [
+            {
+              "acceptance": "测试覆盖 provideHTTPProxyService 和 requestHTTPProxy 核心逻辑",
+              "description": "编写单元测试"
+            },
+            {
+              "description": "生成 API 文档",
+              "acceptance": "执行 build 后生成 etc/http-services.api.md"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-01-26T09:28:20.564Z",
+      "status": "approved",
+      "decidedAt": "2026-01-26T09:28:42.592Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "http-proxy-service"
     }
   ]
 }
