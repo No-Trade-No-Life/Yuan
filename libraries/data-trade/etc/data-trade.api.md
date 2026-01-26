@@ -7,11 +7,11 @@
 // @public (undocumented)
 export const decodeTradeHistorySeriesId: (series_id: string) => {
     account_id: string;
-    ledger_type: string;
+    trade_type: string;
 };
 
 // @public (undocumented)
-export const encodeTradeHistorySeriesId: (account_id: string, ledger_type: string) => string;
+export const encodeTradeHistorySeriesId: (account_id: string, trade_type: string) => string;
 
 // @public (undocumented)
 export interface ITrade {
