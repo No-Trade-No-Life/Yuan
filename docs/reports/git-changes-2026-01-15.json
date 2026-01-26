@@ -1,0 +1,848 @@
+{
+  "range": {
+    "old": "4f7fdb73f2c7e712e1c0630db286e6b287f3bc99",
+    "new": "0098f6b84ab80aaefa53a97d418588c70759176a",
+    "label": "4f7fdb73f..0098f6b84",
+    "startDate": "2026-01-14",
+    "endDate": "2026-01-14",
+    "commitCount": 3,
+    "generatedAt": "2026-01-15T00:06:20.787Z"
+  },
+  "contributors": [
+    {
+      "name": "Siyuan Wang",
+      "email": "c.one@thrimbda.com",
+      "commits": 2
+    },
+    {
+      "name": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "commits": 1
+    }
+  ],
+  "directoryAnalysis": {
+    "topLevel": [
+      {
+        "dir": "apps",
+        "fileCount": 19
+      },
+      {
+        "dir": ".legion",
+        "fileCount": 9
+      },
+      {
+        "dir": "common",
+        "fileCount": 4
+      },
+      {
+        "dir": "rush.json",
+        "fileCount": 1
+      }
+    ],
+    "projects": [
+      {
+        "project": "apps/asg-eventbridge-notifier",
+        "fileCount": 10,
+        "marker": "package.json"
+      },
+      {
+        "project": ".legion",
+        "fileCount": 9,
+        "marker": null
+      },
+      {
+        "project": "apps/vendor-hyperliquid",
+        "fileCount": 5,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/node-unit",
+        "fileCount": 4,
+        "marker": "package.json"
+      },
+      {
+        "project": "common",
+        "fileCount": 4,
+        "marker": null
+      },
+      {
+        "project": "rush.json",
+        "fileCount": 1,
+        "marker": null
+      }
+    ],
+    "markersUsed": [
+      "package.json",
+      "Cargo.toml",
+      "go.mod",
+      "requirements.txt",
+      "pyproject.toml",
+      "setup.py",
+      "pom.xml",
+      "build.gradle",
+      "build.gradle.kts",
+      "CMakeLists.txt",
+      "Makefile",
+      "pubspec.yaml",
+      "mix.exs",
+      "Gemfile",
+      "composer.json"
+    ]
+  },
+  "commits": [
+    {
+      "hash": "83608ad3ae66da7d65a4e0cf71b13322a6f06680",
+      "short": "83608ad3a",
+      "author": "Siyuan Wang",
+      "email": "c.one@thrimbda.com",
+      "authoredAt": "2026-01-14 17:09:01 +0800",
+      "subject": "feat(node-unit): add grafana dashboard for monitoring node unit resources (#2502)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": "node-unit",
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 4,
+          "deletions": 4,
+          "path": ".legion/tasks/hyperliquid-api-tokenbucket/context.md",
+          "changeType": "modified",
+          "patch": "commit 83608ad3ae66da7d65a4e0cf71b13322a6f06680\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 17:09:01 2026 +0800\n\n    feat(node-unit): add grafana dashboard for monitoring node unit resources (#2502)\n    \n    fix(vendor-hyperliquid): disable token limit after response to improve API handling\n    \n    chore: update session notes for vendor-hyperliquid changes and testing results\n\ndiff --git a/.legion/tasks/hyperliquid-api-tokenbucket/context.md b/.legion/tasks/hyperliquid-api-tokenbucket/context.md\nindex 6c573d4ca..422a68ce8 100644\n--- a/.legion/tasks/hyperliquid-api-tokenbucket/context.md\n+++ b/.legion/tasks/hyperliquid-api-tokenbucket/context.md\n@@ -26,0 +27,2 @@\n+- 移除 `afterRestResponse` 的 tokenBucket 追加扣减逻辑与调用点，仅保留请求前限流；同步调整单测与 Session Notes。\n+- 恢复响应后限流实现与单测，但在 `client.ts` 注释调用，保持请求前限流行为。\n@@ -66,2 +68 @@\n-1. 如需继续扩充 Hyperliquid API 封装：沿用本次模式先加 `build*RequestBody`/`build*Action` 再补离线单测，避免引入网络或 mock\n-2. 如要排查 Jest \"failed to exit gracefully\"：可在 `apps/vendor-hyperliquid` 下用 `./node_modules/.bin/heft test --clean -- --detectOpenHandles` 定位未释放的 handle（当前不影响通过）\n+1. 如需重新启用响应后扣减，取消 `apps/vendor-hyperliquid/src/api/client.ts` 的注释调用。\n@@ -71,2 +72 @@\n-- 本次新增 public/private API 单测均为离线纯函数/签名验证，不会触发真实 HTTP 请求\n-- `buildUserFillsRequestBody` 已修复 startTime/endTime=0 时构造丢字段的问题（由 `if (params?.startTime)` 改为 `!= null` 判断）\n+- 当前 response-based extra weight 逻辑保留且覆盖单测，但在运行时不执行。\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 48,
+          "deletions": 0,
+          "path": ".legion/tasks/node-unit-deployment-grafana-dashboard/context.md",
+          "changeType": "added",
+          "patch": "commit 83608ad3ae66da7d65a4e0cf71b13322a6f06680\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 17:09:01 2026 +0800\n\n    feat(node-unit): add grafana dashboard for monitoring node unit resources (#2502)\n    \n    fix(vendor-hyperliquid): disable token limit after response to improve API handling\n    \n    chore: update session notes for vendor-hyperliquid changes and testing results\n\ndiff --git a/.legion/tasks/node-unit-deployment-grafana-dashboard/context.md b/.legion/tasks/node-unit-deployment-grafana-dashboard/context.md\nnew file mode 100644\nindex 000000000..5d311c8f5\n--- /dev/null\n+++ b/.legion/tasks/node-unit-deployment-grafana-dashboard/context.md\n@@ -0,0 +1,48 @@\n+# node-unit-deployment-grafana-dashboard - 上下文\n+\n+## 会话进展 (2026-01-12)\n+\n+### ✅ 已完成\n+\n+- 已阅读 `.c1-cellar/dashboard.json`：datasource 变量为 `datasource`（prometheus），默认 refresh=10s、time=now-5m、UTC、dark 风格，面板主要为 `graph` + `table-old`。\n+- 确认 node-unit 指标 label：deployment_id、package_name、package_version、node_unit_name、node_unit_address、pid（来源：`apps/node-unit/src/index.ts` 与 `apps/node-unit/monitoring.md`）。\n+- 已生成新的 Grafana dashboard：`.c1-cellar/dashboard-node-unit-deployment.json`，包含 CPU/Memory 总量、按 deployment 维度趋势、TopN 与 1h 峰值面板，并接入 node_unit 相关变量。\n+- 调整 CPU Rate by Deployment 面板的 legend，追加 package_name 以便识别来源。\n+\n+### 🟡 进行中\n+\n+(暂无)\n+\n+### ⚠️ 阻塞/待定\n+\n+(暂无)\n+\n+---\n+\n+## 关键文件\n+\n+(暂无)\n+\n+---\n+\n+## 关键决策\n+\n+| 决策 | 原因 | 替代方案 | 日期 |\n+| ---- | ---- | -------- | ---- |\n+\n+---\n+\n+## 快速交接\n+\n+**下次继续从这里开始：**\n+\n+1. 在 Grafana 中导入 `.c1-cellar/dashboard-node-unit-deployment.json` 并确认数据源名称与变量能正常解析。\n+2. 若数据量较大，考虑把 `max_over_time` 的窗口从 1h 调整为更短或改用录制规则。\n+\n+**注意事项：**\n+\n+- 仅用 `python -m json.tool` 校验了 JSON 语法，未在 Grafana 实际导入验证。\n+\n+---\n+\n+_最后更新: 2026-01-13 14:01 by Claude_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 65,
+          "deletions": 0,
+          "path": ".legion/tasks/node-unit-deployment-grafana-dashboard/plan.md",
+          "changeType": "added",
+          "patch": "commit 83608ad3ae66da7d65a4e0cf71b13322a6f06680\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 17:09:01 2026 +0800\n\n    feat(node-unit): add grafana dashboard for monitoring node unit resources (#2502)\n    \n    fix(vendor-hyperliquid): disable token limit after response to improve API handling\n    \n    chore: update session notes for vendor-hyperliquid changes and testing results\n\ndiff --git a/.legion/tasks/node-unit-deployment-grafana-dashboard/plan.md b/.legion/tasks/node-unit-deployment-grafana-dashboard/plan.md\nnew file mode 100644\nindex 000000000..a798d4e6d\n--- /dev/null\n+++ b/.legion/tasks/node-unit-deployment-grafana-dashboard/plan.md\n@@ -0,0 +1,65 @@\n+# node-unit-deployment-grafana-dashboard\n+\n+## 目标\n+\n+基于 node_unit_deployment_cpu_seconds_total 与 node_unit_deployment_memory_rss_bytes 新建 Grafana dashboard，并沿用现有 dashboard.json 的风格与变量配置。\n+\n+## 要点\n+\n+- 复用 `.c1-cellar/dashboard.json` 的变量、样式与全局设置，保持一致的展示语言\n+- 围绕 CPU/Memory 指标设计关键视图：总量、按 deployment/instance 的 TopN、趋势与分位/极值\n+- 明确指标标签选择（如 deployment、instance、namespace 等）并给出统一过滤变量\n+- 输出新的 dashboard JSON 文件，注明导入方式与依赖的数据源名\n+\n+## 范围\n+\n+- .c1-cellar/dashboard.json（仅参考）\n+- .c1-cellar/dashboard-node-unit-deployment.json（新文件）\n+\n+## 阶段概览\n+\n+1. **调研** - 1 个任务\n+2. **设计** - 1 个任务\n+3. **实现** - 1 个任务\n+\n+---\n+\n+## 面板设计（PromQL）\n+\n+### 变量\n+\n+- `datasource`: `prometheus`\n+- `node_unit_name`: `label_values(node_unit_deployment_cpu_seconds_total, node_unit_name)`\n+- `package_name`: `label_values(node_unit_deployment_cpu_seconds_total, package_name)`\n+- `package_version`: `label_values(node_unit_deployment_cpu_seconds_total, package_version)`\n+- `deployment_id`: `label_values(node_unit_deployment_cpu_seconds_total, deployment_id)`\n+\n+查询统一过滤：\n+\n+```\n+{node_unit_name=~\"$node_unit_name\",package_name=~\"$package_name\",package_version=~\"$package_version\",deployment_id=~\"$deployment_id\"}\n+```\n+\n+### CPU\n+\n+- CPU Rate Total（graph，unit=short）\n+  - `sum(rate(node_unit_deployment_cpu_seconds_total{...}[5m]))`\n+- CPU Rate by Deployment（graph，stack=true，unit=short）\n+  - `sum by (deployment_id, package_name, package_version, node_unit_name) (rate(node_unit_deployment_cpu_seconds_total{...}[5m]))`\n+- CPU Top 10（table，instant，unit=short）\n+  - `topk(10, sum by (deployment_id, package_name, package_version, node_unit_name) (rate(node_unit_deployment_cpu_seconds_total{...}[5m])))`\n+- CPU Peak 1h（table，instant，unit=short）\n+  - `topk(10, max_over_time((sum by (deployment_id, package_name, package_version, node_unit_name) (rate(node_unit_deployment_cpu_seconds_total{...}[5m])))[1h:]))`\n+\n+### Memory\n+\n+- Memory RSS Total（graph，unit=bytes）\n+  - `sum(node_unit_deployment_memory_rss_bytes{...})`\n+- Memory RSS by Deployment（graph，stack=true，unit=bytes）\n+  - `sum by (deployment_id, package_name, package_version, node_unit_name) (node_unit_deployment_memory_rss_bytes{...})`\n+- Memory Top 10（table，instant，unit=bytes）\n+  - `topk(10, sum by (deployment_id, package_name, package_version, node_unit_name) (node_unit_deployment_memory_rss_bytes{...}))`\n+- Memory Peak 1h（table，instant，unit=bytes）\n+  - `topk(10, max_over_time((sum by (deployment_id, package_name, package_version, node_unit_name) (node_unit_deployment_memory_rss_bytes{...}))[1h:]))`\n+\n+_创建于: 2026-01-12 | 最后更新: 2026-01-12_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 35,
+          "deletions": 0,
+          "path": ".legion/tasks/node-unit-deployment-grafana-dashboard/tasks.md",
+          "changeType": "added",
+          "patch": "commit 83608ad3ae66da7d65a4e0cf71b13322a6f06680\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 17:09:01 2026 +0800\n\n    feat(node-unit): add grafana dashboard for monitoring node unit resources (#2502)\n    \n    fix(vendor-hyperliquid): disable token limit after response to improve API handling\n    \n    chore: update session notes for vendor-hyperliquid changes and testing results\n\ndiff --git a/.legion/tasks/node-unit-deployment-grafana-dashboard/tasks.md b/.legion/tasks/node-unit-deployment-grafana-dashboard/tasks.md\nnew file mode 100644\nindex 000000000..f630887cc\n--- /dev/null\n+++ b/.legion/tasks/node-unit-deployment-grafana-dashboard/tasks.md\n@@ -0,0 +1,35 @@\n+# node-unit-deployment-grafana-dashboard - 任务清单\n+\n+## 快速恢复\n+\n+**当前阶段**: 阶段 3 - 实现\n+**当前任务**: (none)\n+**进度**: 3/3 任务完成\n+\n+---\n+\n+## 阶段 1: 调研 ✅ COMPLETE\n+\n+- [x] 阅读 `.c1-cellar/dashboard.json`，整理现有变量、面板风格与数据源命名规则；同时确认两条指标的 label 结构（通过仓库配置或已有查询规则推断）。 | 验收: context.md 记录变量列表、datasource 名称、时间范围/刷新设置，以及 node_unit 指标的 label 假设与不确定点。\n+\n+---\n+\n+## 阶段 2: 设计 ✅ COMPLETE\n+\n+- [x] 设计面板列表与查询：CPU rate/利用率、memory RSS、按 deployment/instance TopN、趋势与统计（如 avg/max）。 | 验收: plan.md 明确每个面板的标题、PromQL、legend 与单位/阈值。\n+\n+---\n+\n+## 阶段 3: 实现 ✅ COMPLETE\n+\n+- [x] 基于现有 dashboard.json 复制并生成新的 dashboard JSON，替换为 node_unit_deployment 指标面板。 | 验收: 新 JSON 可导入 Grafana；变量与面板可正常渲染（PromQL/单位/legend 合理）。\n+\n+---\n+\n+## 发现的新任务\n+\n+(暂无)\n+\n+---\n+\n+_最后更新: 2026-01-12 14:05_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1233,
+          "deletions": 0,
+          "path": "apps/node-unit/dashboard-node-unit-deployment.json",
+          "changeType": "added",
+          "patch": "commit 83608ad3ae66da7d65a4e0cf71b13322a6f06680\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 17:09:01 2026 +0800\n\n    feat(node-unit): add grafana dashboard for monitoring node unit resources (#2502)\n    \n    fix(vendor-hyperliquid): disable token limit after response to improve API handling\n    \n    chore: update session notes for vendor-hyperliquid changes and testing results\n\ndiff --git a/apps/node-unit/dashboard-node-unit-deployment.json b/apps/node-unit/dashboard-node-unit-deployment.json\nnew file mode 100644\nindex 000000000..70fb7ceee\n--- /dev/null\n+++ b/apps/node-unit/dashboard-node-unit-deployment.json\n@@ -0,0 +1,1233 @@\n+{\n+  \"annotations\": {\n+    \"list\": [\n+      {\n+        \"builtIn\": 1,\n+        \"datasource\": {\n+          \"type\": \"grafana\",\n+          \"uid\": \"-- Grafana --\"\n+        },\n+        \"enable\": true,\n+        \"hide\": true,\n+        \"iconColor\": \"rgba(0, 211, 255, 1)\",\n+        \"name\": \"Annotations & Alerts\",\n+        \"target\": {\n+          \"limit\": 100,\n+          \"matchAny\": false,\n+          \"tags\": [],\n+          \"type\": \"dashboard\"\n+        },\n+        \"type\": \"dashboard\"\n+      }\n+    ]\n+  },\n+  \"editable\": true,\n+  \"fiscalYearStartMonth\": 0,\n+  \"graphTooltip\": 0,\n+  \"id\": null,\n+  \"links\": [],\n+  \"liveNow\": false,\n+  \"panels\": [\n+    {\n+      \"collapsed\": false,\n+      \"datasource\": {\n+        \"type\": \"datasource\",\n+        \"uid\": \"grafana\"\n+      },\n+      \"gridPos\": {\n+        \"h\": 1,\n+        \"w\": 24,\n+        \"x\": 0,\n+        \"y\": 0\n+      },\n+      \"id\": 1,\n+      \"panels\": [],\n+      \"title\": \"CPU\",\n+      \"type\": \"row\"\n+    },\n+    {\n+      \"aliasColors\": {},\n+      \"bars\": false,\n+      \"dashLength\": 10,\n+      \"dashes\": false,\n+      \"datasource\": {\n+        \"uid\": \"$datasource\"\n+      },\n+      \"fill\": 10,\n+      \"fillGradient\": 0,\n+      \"gridPos\": {\n+        \"h\": 7,\n+        \"w\": 12,\n+        \"x\": 0,\n+        \"y\": 1\n+      },\n+      \"hiddenSeries\": false,\n+      \"id\": 2,\n+      \"interval\": \"1m\",\n+      \"legend\": {\n+        \"alignAsTable\": true,\n+        \"avg\": false,\n+        \"current\": false,\n+        \"max\": false,\n+        \"min\": false,\n+        \"rightSide\": true,\n+        \"show\": true,\n+        \"total\": false,\n+        \"values\": false\n+      },\n+      \"lines\": true,\n+      \"linewidth\": 0,\n+      \"links\": [],\n+      \"nullPointMode\": \"null as zero\",\n+      \"options\": {\n+        \"alertThreshold\": true\n+      },\n+      \"percentage\": false,\n+      \"pluginVersion\": \"10.0.9\",\n+      \"pointradius\": 5,\n+      \"points\": false,\n+      \"renderer\": \"flot\",\n+      \"seriesOverrides\": [],\n+      \"spaceLength\": 10,\n+      \"stack\": false,\n+      \"steppedLine\": false,\n+      \"targets\": [\n+        {\n+          \"expr\": \"sum(rate(node_unit_deployment_cpu_seconds_total{node_unit_name=~\\\"$node_unit_name\\\",package_name=~\\\"$package_name\\\",package_version=~\\\"$package_version\\\",deployment_id=~\\\"$deployment_id\\\"}[5m]))\",\n+          \"format\": \"time_series\",\n+          \"intervalFactor\": 2,\n+          \"legendFormat\": \"total\",\n+          \"refId\": \"A\",\n+          \"step\": 10\n+        }\n+      ],\n+      \"thresholds\": [],\n+      \"timeRegions\": [],\n+      \"title\": \"CPU Rate (Total)\",\n+      \"tooltip\": {\n+        \"shared\": false,\n+        \"sort\": 2,\n+        \"value_type\": \"individual\"\n+      },\n+      \"type\": \"graph\",\n+      \"xaxis\": {\n+        \"mode\": \"time\",\n+        \"show\": true,\n+        \"values\": []\n+      },\n+      \"yaxes\": [\n+        {\n+          \"format\": \"short\",\n+          \"logBase\": 1,\n+          \"min\": 0,\n+          \"show\": true\n+        },\n+        {\n+          \"format\": \"short\",\n+          \"logBase\": 1,\n+          \"show\": false\n+        }\n+      ],\n+      \"yaxis\": {\n+        \"align\": false\n+      }\n+    },\n+    {\n+      \"aliasColors\": {},\n+      \"bars\": false,\n+      \"dashLength\": 10,\n+      \"dashes\": false,\n+      \"datasource\": {\n+        \"uid\": \"$datasource\"\n+      },\n+      \"fill\": 10,\n+      \"fillGradient\": 0,\n+      \"gridPos\": {\n+        \"h\": 7,\n+        \"w\": 12,\n+        \"x\": 12,\n+        \"y\": 1\n+      },\n+      \"hiddenSeries\": false,\n+      \"id\": 3,\n+      \"interval\": \"1m\",\n+      \"legend\": {\n+        \"alignAsTable\": true,\n+        \"avg\": false,\n+        \"current\": false,\n+        \"max\": false,\n+        \"min\": false,\n+        \"rightSide\": true,\n+        \"show\": true,\n+        \"total\": false,\n+        \"values\": false\n+      },\n+      \"lines\": true,\n+      \"linewidth\": 0,\n+      \"links\": [],\n+      \"nullPointMode\": \"null as zero\",\n+      \"options\": {\n+        \"alertThreshold\": true\n+      },\n+      \"percentage\": false,\n+      \"pluginVersion\": \"10.0.9\",\n+      \"pointradius\": 5,\n+      \"points\": false,\n+      \"renderer\": \"flot\",\n+      \"seriesOverrides\": [],\n+      \"spaceLength\": 10,\n+      \"stack\": true,\n+      \"steppedLine\": false,\n+      \"targets\": [\n+        {\n+          \"expr\": \"sum by (deployment_id, package_name, package_version, node_unit_name) (rate(node_unit_deployment_cpu_seconds_total{node_unit_name=~\\\"$node_unit_name\\\",package_name=~\\\"$package_name\\\",package_version=~\\\"$package_version\\\",deployment_id=~\\\"$deployment_id\\\"}[5m]))\",\n+          \"format\": \"time_series\",\n+          \"intervalFactor\": 2,\n+          \"legendFormat\": \"{{deployment_id}} - {{package_name}}\",\n+          \"refId\": \"A\",\n+          \"step\": 10\n+        }\n+      ],\n+      \"thresholds\": [],\n+      \"timeRegions\": [],\n+      \"title\": \"CPU Rate by Deployment\",\n+      \"tooltip\": {\n+        \"shared\": false,\n+        \"sort\": 2,\n+        \"value_type\": \"individual\"\n+      },\n+      \"type\": \"graph\",\n+      \"xaxis\": {\n+        \"mode\": \"time\",\n+        \"show\": true,\n+        \"values\": []\n+      },\n+      \"yaxes\": [\n+        {\n+          \"format\": \"short\",\n+          \"logBase\": 1,\n+          \"min\": 0,\n+          \"show\": true\n+        },\n+        {\n+          \"format\": \"short\",\n+          \"logBase\": 1,\n+          \"show\": false\n+        }\n+      ],\n+      \"yaxis\": {\n+        \"align\": false\n+      }\n+    },\n+    {\n+      \"aliasColors\": {},\n+      \"bars\": false,\n+      \"columns\": [],\n+      \"dashLength\": 10,\n+      \"dashes\": false,\n+      \"datasource\": {\n+        \"uid\": \"$datasource\"\n+      },\n+      \"fill\": 1,\n+      \"fontSize\": \"100%\",\n+      \"gridPos\": {\n+        \"h\": 7,\n+        \"w\": 12,\n+        \"x\": 0,\n+        \"y\": 8\n+      },\n+      \"id\": 4,\n+      \"interval\": \"1m\",\n+      \"legend\": {\n+        \"alignAsTable\": true,\n+        \"avg\": false,\n+        \"current\": false,\n+        \"max\": false,\n+        \"min\": false,\n+        \"rightSide\": true,\n+        \"show\": true,\n+        \"total\": false,\n+        \"values\": false\n+      },\n+      \"lines\": true,\n+      \"linewidth\": 1,\n+      \"links\": [],\n+      \"nullPointMode\": \"null as zero\",\n+      \"percentage\": false,\n+      \"pointradius\": 5,\n+      \"points\": false,\n+      \"renderer\": \"flot\",\n+      \"seriesOverrides\": [],\n+      \"showHeader\": true,\n+      \"sort\": {\n+        \"col\": 1,\n+        \"desc\": true\n+      },\n+      \"spaceLength\": 10,\n+      \"stack\": false,\n+      \"steppedLine\": false,\n+      \"styles\": [\n+        {\n+          \"alias\": \"Time\",\n+          \"align\": \"auto\",\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"pattern\": \"Time\",\n+          \"type\": \"hidden\"\n+        },\n+        {\n+          \"alias\": \"CPU Rate\",\n+          \"align\": \"auto\",\n+          \"colors\": [],\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"decimals\": 3,\n+          \"link\": false,\n+          \"linkTargetBlank\": false,\n+          \"linkTooltip\": \"Drill down\",\n+          \"linkUrl\": \"\",\n+          \"pattern\": \"Value #A\",\n+          \"thresholds\": [],\n+          \"type\": \"number\",\n+          \"unit\": \"short\"\n+        },\n+        {\n+          \"alias\": \"Deployment\",\n+          \"align\": \"auto\",\n+          \"colors\": [],\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"decimals\": 2,\n+          \"pattern\": \"deployment_id\",\n+          \"thresholds\": [],\n+          \"type\": \"string\",\n+          \"unit\": \"short\"\n+        },\n+        {\n+          \"alias\": \"Package\",\n+          \"align\": \"auto\",\n+          \"colors\": [],\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"decimals\": 2,\n+          \"pattern\": \"package_name\",\n+          \"thresholds\": [],\n+          \"type\": \"string\",\n+          \"unit\": \"short\"\n+        },\n+        {\n+          \"alias\": \"Version\",\n+          \"align\": \"auto\",\n+          \"colors\": [],\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"decimals\": 2,\n+          \"pattern\": \"package_version\",\n+          \"thresholds\": [],\n+          \"type\": \"string\",\n+          \"unit\": \"short\"\n+        },\n+        {\n+          \"alias\": \"Node Unit\",\n+          \"align\": \"auto\",\n+          \"colors\": [],\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"decimals\": 2,\n+          \"pattern\": \"node_unit_name\",\n+          \"thresholds\": [],\n+          \"type\": \"string\",\n+          \"unit\": \"short\"\n+        },\n+        {\n+          \"alias\": \"\",\n+          \"align\": \"auto\",\n+          \"colors\": [],\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"decimals\": 2,\n+          \"pattern\": \"/.*/\",\n+          \"thresholds\": [],\n+          \"type\": \"string\",\n+          \"unit\": \"short\"\n+        }\n+      ],\n+      \"targets\": [\n+        {\n+          \"expr\": \"topk(10, sum by (deployment_id, package_name, package_version, node_unit_name) (rate(node_unit_deployment_cpu_seconds_total{node_unit_name=~\\\"$node_unit_name\\\",package_name=~\\\"$package_name\\\",package_version=~\\\"$package_version\\\",deployment_id=~\\\"$deployment_id\\\"}[5m])))\",\n+          \"format\": \"table\",\n+          \"instant\": true,\n+          \"intervalFactor\": 2,\n+          \"legendFormat\": \"\",\n+          \"refId\": \"A\",\n+          \"step\": 10\n+        }\n+      ],\n+      \"thresholds\": [],\n+      \"title\": \"CPU Top 10 (Current)\",\n+      \"tooltip\": {\n+        \"shared\": false,\n+        \"sort\": 2,\n+        \"value_type\": \"individual\"\n+      },\n+      \"transform\": \"table\",\n+      \"type\": \"table-old\",\n+      \"xaxis\": {\n+        \"mode\": \"time\",\n+        \"show\": true,\n+        \"values\": []\n+      },\n+      \"yaxes\": [\n+        {\n+          \"format\": \"short\",\n+          \"logBase\": 1,\n+          \"min\": 0,\n+          \"show\": true\n+        },\n+        {\n+          \"format\": \"short\",\n+          \"logBase\": 1,\n+          \"show\": false\n+        }\n+      ]\n+    },\n+    {\n+      \"aliasColors\": {},\n+      \"bars\": false,\n+      \"columns\": [],\n+      \"dashLength\": 10,\n+      \"dashes\": false,\n+      \"datasource\": {\n+        \"uid\": \"$datasource\"\n+      },\n+      \"fill\": 1,\n+      \"fontSize\": \"100%\",\n+      \"gridPos\": {\n+        \"h\": 7,\n+        \"w\": 12,\n+        \"x\": 12,\n+        \"y\": 8\n+      },\n+      \"id\": 5,\n+      \"interval\": \"1m\",\n+      \"legend\": {\n+        \"alignAsTable\": true,\n+        \"avg\": false,\n+        \"current\": false,\n+        \"max\": false,\n+        \"min\": false,\n+        \"rightSide\": true,\n+        \"show\": true,\n+        \"total\": false,\n+        \"values\": false\n+      },\n+      \"lines\": true,\n+      \"linewidth\": 1,\n+      \"links\": [],\n+      \"nullPointMode\": \"null as zero\",\n+      \"percentage\": false,\n+      \"pointradius\": 5,\n+      \"points\": false,\n+      \"renderer\": \"flot\",\n+      \"seriesOverrides\": [],\n+      \"showHeader\": true,\n+      \"sort\": {\n+        \"col\": 1,\n+        \"desc\": true\n+      },\n+      \"spaceLength\": 10,\n+      \"stack\": false,\n+      \"steppedLine\": false,\n+      \"styles\": [\n+        {\n+          \"alias\": \"Time\",\n+          \"align\": \"auto\",\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"pattern\": \"Time\",\n+          \"type\": \"hidden\"\n+        },\n+        {\n+          \"alias\": \"CPU Peak (1h)\",\n+          \"align\": \"auto\",\n+          \"colors\": [],\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"decimals\": 3,\n+          \"link\": false,\n+          \"linkTargetBlank\": false,\n+          \"linkTooltip\": \"Drill down\",\n+          \"linkUrl\": \"\",\n+          \"pattern\": \"Value #A\",\n+          \"thresholds\": [],\n+          \"type\": \"number\",\n+          \"unit\": \"short\"\n+        },\n+        {\n+          \"alias\": \"Deployment\",\n+          \"align\": \"auto\",\n+          \"colors\": [],\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"decimals\": 2,\n+          \"pattern\": \"deployment_id\",\n+          \"thresholds\": [],\n+          \"type\": \"string\",\n+          \"unit\": \"short\"\n+        },\n+        {\n+          \"alias\": \"Package\",\n+          \"align\": \"auto\",\n+          \"colors\": [],\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"decimals\": 2,\n+          \"pattern\": \"package_name\",\n+          \"thresholds\": [],\n+          \"type\": \"string\",\n+          \"unit\": \"short\"\n+        },\n+        {\n+          \"alias\": \"Version\",\n+          \"align\": \"auto\",\n+          \"colors\": [],\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"decimals\": 2,\n+          \"pattern\": \"package_version\",\n+          \"thresholds\": [],\n+          \"type\": \"string\",\n+          \"unit\": \"short\"\n+        },\n+        {\n+          \"alias\": \"Node Unit\",\n+          \"align\": \"auto\",\n+          \"colors\": [],\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"decimals\": 2,\n+          \"pattern\": \"node_unit_name\",\n+          \"thresholds\": [],\n+          \"type\": \"string\",\n+          \"unit\": \"short\"\n+        },\n+        {\n+          \"alias\": \"\",\n+          \"align\": \"auto\",\n+          \"colors\": [],\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"decimals\": 2,\n+          \"pattern\": \"/.*/\",\n+          \"thresholds\": [],\n+          \"type\": \"string\",\n+          \"unit\": \"short\"\n+        }\n+      ],\n+      \"targets\": [\n+        {\n+          \"expr\": \"topk(10, max_over_time((sum by (deployment_id, package_name, package_version, node_unit_name) (rate(node_unit_deployment_cpu_seconds_total{node_unit_name=~\\\"$node_unit_name\\\",package_name=~\\\"$package_name\\\",package_version=~\\\"$package_version\\\",deployment_id=~\\\"$deployment_id\\\"}[5m])))[1h:]))\",\n+          \"format\": \"table\",\n+          \"instant\": true,\n+          \"intervalFactor\": 2,\n+          \"legendFormat\": \"\",\n+          \"refId\": \"A\",\n+          \"step\": 10\n+        }\n+      ],\n+      \"thresholds\": [],\n+      \"title\": \"CPU Peak 1h (Max)\",\n+      \"tooltip\": {\n+        \"shared\": false,\n+        \"sort\": 2,\n+        \"value_type\": \"individual\"\n+      },\n+      \"transform\": \"table\",\n+      \"type\": \"table-old\",\n+      \"xaxis\": {\n+        \"mode\": \"time\",\n+        \"show\": true,\n+        \"values\": []\n+      },\n+      \"yaxes\": [\n+        {\n+          \"format\": \"short\",\n+          \"logBase\": 1,\n+          \"min\": 0,\n+          \"show\": true\n+        },\n+        {\n+          \"format\": \"short\",\n+          \"logBase\": 1,\n+          \"show\": false\n+        }\n+      ]\n+    },\n+    {\n+      \"collapsed\": false,\n+      \"datasource\": {\n+        \"type\": \"datasource\",\n+        \"uid\": \"grafana\"\n+      },\n+      \"gridPos\": {\n+        \"h\": 1,\n+        \"w\": 24,\n+        \"x\": 0,\n+        \"y\": 15\n+      },\n+      \"id\": 6,\n+      \"panels\": [],\n+      \"title\": \"Memory\",\n+      \"type\": \"row\"\n+    },\n+    {\n+      \"aliasColors\": {},\n+      \"bars\": false,\n+      \"dashLength\": 10,\n+      \"dashes\": false,\n+      \"datasource\": {\n+        \"uid\": \"$datasource\"\n+      },\n+      \"fill\": 10,\n+      \"fillGradient\": 0,\n+      \"gridPos\": {\n+        \"h\": 7,\n+        \"w\": 12,\n+        \"x\": 0,\n+        \"y\": 16\n+      },\n+      \"hiddenSeries\": false,\n+      \"id\": 7,\n+      \"interval\": \"1m\",\n+      \"legend\": {\n+        \"alignAsTable\": true,\n+        \"avg\": false,\n+        \"current\": false,\n+        \"max\": false,\n+        \"min\": false,\n+        \"rightSide\": true,\n+        \"show\": true,\n+        \"total\": false,\n+        \"values\": false\n+      },\n+      \"lines\": true,\n+      \"linewidth\": 0,\n+      \"links\": [],\n+      \"nullPointMode\": \"null as zero\",\n+      \"options\": {\n+        \"alertThreshold\": true\n+      },\n+      \"percentage\": false,\n+      \"pluginVersion\": \"10.0.9\",\n+      \"pointradius\": 5,\n+      \"points\": false,\n+      \"renderer\": \"flot\",\n+      \"seriesOverrides\": [],\n+      \"spaceLength\": 10,\n+      \"stack\": false,\n+      \"steppedLine\": false,\n+      \"targets\": [\n+        {\n+          \"expr\": \"sum(node_unit_deployment_memory_rss_bytes{node_unit_name=~\\\"$node_unit_name\\\",package_name=~\\\"$package_name\\\",package_version=~\\\"$package_version\\\",deployment_id=~\\\"$deployment_id\\\"})\",\n+          \"format\": \"time_series\",\n+          \"intervalFactor\": 2,\n+          \"legendFormat\": \"total\",\n+          \"refId\": \"A\",\n+          \"step\": 10\n+        }\n+      ],\n+      \"thresholds\": [],\n+      \"timeRegions\": [],\n+      \"title\": \"Memory RSS (Total)\",\n+      \"tooltip\": {\n+        \"shared\": false,\n+        \"sort\": 2,\n+        \"value_type\": \"individual\"\n+      },\n+      \"type\": \"graph\",\n+      \"xaxis\": {\n+        \"mode\": \"time\",\n+        \"show\": true,\n+        \"values\": []\n+      },\n+      \"yaxes\": [\n+        {\n+          \"format\": \"bytes\",\n+          \"logBase\": 1,\n+          \"min\": 0,\n+          \"show\": true\n+        },\n+        {\n+          \"format\": \"short\",\n+          \"logBase\": 1,\n+          \"show\": false\n+        }\n+      ],\n+      \"yaxis\": {\n+        \"align\": false\n+      }\n+    },\n+    {\n+      \"aliasColors\": {},\n+      \"bars\": false,\n+      \"dashLength\": 10,\n+      \"dashes\": false,\n+      \"datasource\": {\n+        \"uid\": \"$datasource\"\n+      },\n+      \"fill\": 10,\n+      \"fillGradient\": 0,\n+      \"gridPos\": {\n+        \"h\": 7,\n+        \"w\": 12,\n+        \"x\": 12,\n+        \"y\": 16\n+      },\n+      \"hiddenSeries\": false,\n+      \"id\": 8,\n+      \"interval\": \"1m\",\n+      \"legend\": {\n+        \"alignAsTable\": true,\n+        \"avg\": false,\n+        \"current\": false,\n+        \"max\": false,\n+        \"min\": false,\n+        \"rightSide\": true,\n+        \"show\": true,\n+        \"total\": false,\n+        \"values\": false\n+      },\n+      \"lines\": true,\n+      \"linewidth\": 0,\n+      \"links\": [],\n+      \"nullPointMode\": \"null as zero\",\n+      \"options\": {\n+        \"alertThreshold\": true\n+      },\n+      \"percentage\": false,\n+      \"pluginVersion\": \"10.0.9\",\n+      \"pointradius\": 5,\n+      \"points\": false,\n+      \"renderer\": \"flot\",\n+      \"seriesOverrides\": [],\n+      \"spaceLength\": 10,\n+      \"stack\": true,\n+      \"steppedLine\": false,\n+      \"targets\": [\n+        {\n+          \"expr\": \"sum by (deployment_id, package_name, package_version, node_unit_name) (node_unit_deployment_memory_rss_bytes{node_unit_name=~\\\"$node_unit_name\\\",package_name=~\\\"$package_name\\\",package_version=~\\\"$package_version\\\",deployment_id=~\\\"$deployment_id\\\"})\",\n+          \"format\": \"time_series\",\n+          \"intervalFactor\": 2,\n+          \"legendFormat\": \"{{deployment_id}}\",\n+          \"refId\": \"A\",\n+          \"step\": 10\n+        }\n+      ],\n+      \"thresholds\": [],\n+      \"timeRegions\": [],\n+      \"title\": \"Memory RSS by Deployment\",\n+      \"tooltip\": {\n+        \"shared\": false,\n+        \"sort\": 2,\n+        \"value_type\": \"individual\"\n+      },\n+      \"type\": \"graph\",\n+      \"xaxis\": {\n+        \"mode\": \"time\",\n+        \"show\": true,\n+        \"values\": []\n+      },\n+      \"yaxes\": [\n+        {\n+          \"format\": \"bytes\",\n+          \"logBase\": 1,\n+          \"min\": 0,\n+          \"show\": true\n+        },\n+        {\n+          \"format\": \"short\",\n+          \"logBase\": 1,\n+          \"show\": false\n+        }\n+      ],\n+      \"yaxis\": {\n+        \"align\": false\n+      }\n+    },\n+    {\n+      \"aliasColors\": {},\n+      \"bars\": false,\n+      \"columns\": [],\n+      \"dashLength\": 10,\n+      \"dashes\": false,\n+      \"datasource\": {\n+        \"uid\": \"$datasource\"\n+      },\n+      \"fill\": 1,\n+      \"fontSize\": \"100%\",\n+      \"gridPos\": {\n+        \"h\": 7,\n+        \"w\": 12,\n+        \"x\": 0,\n+        \"y\": 23\n+      },\n+      \"id\": 9,\n+      \"interval\": \"1m\",\n+      \"legend\": {\n+        \"alignAsTable\": true,\n+        \"avg\": false,\n+        \"current\": false,\n+        \"max\": false,\n+        \"min\": false,\n+        \"rightSide\": true,\n+        \"show\": true,\n+        \"total\": false,\n+        \"values\": false\n+      },\n+      \"lines\": true,\n+      \"linewidth\": 1,\n+      \"links\": [],\n+      \"nullPointMode\": \"null as zero\",\n+      \"percentage\": false,\n+      \"pointradius\": 5,\n+      \"points\": false,\n+      \"renderer\": \"flot\",\n+      \"seriesOverrides\": [],\n+      \"showHeader\": true,\n+      \"sort\": {\n+        \"col\": 1,\n+        \"desc\": true\n+      },\n+      \"spaceLength\": 10,\n+      \"stack\": false,\n+      \"steppedLine\": false,\n+      \"styles\": [\n+        {\n+          \"alias\": \"Time\",\n+          \"align\": \"auto\",\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"pattern\": \"Time\",\n+          \"type\": \"hidden\"\n+        },\n+        {\n+          \"alias\": \"Memory RSS\",\n+          \"align\": \"auto\",\n+          \"colors\": [],\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"decimals\": 2,\n+          \"link\": false,\n+          \"linkTargetBlank\": false,\n+          \"linkTooltip\": \"Drill down\",\n+          \"linkUrl\": \"\",\n+          \"pattern\": \"Value #A\",\n+          \"thresholds\": [],\n+          \"type\": \"number\",\n+          \"unit\": \"bytes\"\n+        },\n+        {\n+          \"alias\": \"Deployment\",\n+          \"align\": \"auto\",\n+          \"colors\": [],\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"decimals\": 2,\n+          \"pattern\": \"deployment_id\",\n+          \"thresholds\": [],\n+          \"type\": \"string\",\n+          \"unit\": \"short\"\n+        },\n+        {\n+          \"alias\": \"Package\",\n+          \"align\": \"auto\",\n+          \"colors\": [],\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"decimals\": 2,\n+          \"pattern\": \"package_name\",\n+          \"thresholds\": [],\n+          \"type\": \"string\",\n+          \"unit\": \"short\"\n+        },\n+        {\n+          \"alias\": \"Version\",\n+          \"align\": \"auto\",\n+          \"colors\": [],\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"decimals\": 2,\n+          \"pattern\": \"package_version\",\n+          \"thresholds\": [],\n+          \"type\": \"string\",\n+          \"unit\": \"short\"\n+        },\n+        {\n+          \"alias\": \"Node Unit\",\n+          \"align\": \"auto\",\n+          \"colors\": [],\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"decimals\": 2,\n+          \"pattern\": \"node_unit_name\",\n+          \"thresholds\": [],\n+          \"type\": \"string\",\n+          \"unit\": \"short\"\n+        },\n+        {\n+          \"alias\": \"\",\n+          \"align\": \"auto\",\n+          \"colors\": [],\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"decimals\": 2,\n+          \"pattern\": \"/.*/\",\n+          \"thresholds\": [],\n+          \"type\": \"string\",\n+          \"unit\": \"short\"\n+        }\n+      ],\n+      \"targets\": [\n+        {\n+          \"expr\": \"topk(10, sum by (deployment_id, package_name, package_version, node_unit_name) (node_unit_deployment_memory_rss_bytes{node_unit_name=~\\\"$node_unit_name\\\",package_name=~\\\"$package_name\\\",package_version=~\\\"$package_version\\\",deployment_id=~\\\"$deployment_id\\\"}))\",\n+          \"format\": \"table\",\n+          \"instant\": true,\n+          \"intervalFactor\": 2,\n+          \"legendFormat\": \"\",\n+          \"refId\": \"A\",\n+          \"step\": 10\n+        }\n+      ],\n+      \"thresholds\": [],\n+      \"title\": \"Memory Top 10 (Current)\",\n+      \"tooltip\": {\n+        \"shared\": false,\n+        \"sort\": 2,\n+        \"value_type\": \"individual\"\n+      },\n+      \"transform\": \"table\",\n+      \"type\": \"table-old\",\n+      \"xaxis\": {\n+        \"mode\": \"time\",\n+        \"show\": true,\n+        \"values\": []\n+      },\n+      \"yaxes\": [\n+        {\n+          \"format\": \"short\",\n+          \"logBase\": 1,\n+          \"min\": 0,\n+          \"show\": true\n+        },\n+        {\n+          \"format\": \"short\",\n+          \"logBase\": 1,\n+          \"show\": false\n+        }\n+      ]\n+    },\n+    {\n+      \"aliasColors\": {},\n+      \"bars\": false,\n+      \"columns\": [],\n+      \"dashLength\": 10,\n+      \"dashes\": false,\n+      \"datasource\": {\n+        \"uid\": \"$datasource\"\n+      },\n+      \"fill\": 1,\n+      \"fontSize\": \"100%\",\n+      \"gridPos\": {\n+        \"h\": 7,\n+        \"w\": 12,\n+        \"x\": 12,\n+        \"y\": 23\n+      },\n+      \"id\": 10,\n+      \"interval\": \"1m\",\n+      \"legend\": {\n+        \"alignAsTable\": true,\n+        \"avg\": false,\n+        \"current\": false,\n+        \"max\": false,\n+        \"min\": false,\n+        \"rightSide\": true,\n+        \"show\": true,\n+        \"total\": false,\n+        \"values\": false\n+      },\n+      \"lines\": true,\n+      \"linewidth\": 1,\n+      \"links\": [],\n+      \"nullPointMode\": \"null as zero\",\n+      \"percentage\": false,\n+      \"pointradius\": 5,\n+      \"points\": false,\n+      \"renderer\": \"flot\",\n+      \"seriesOverrides\": [],\n+      \"showHeader\": true,\n+      \"sort\": {\n+        \"col\": 1,\n+        \"desc\": true\n+      },\n+      \"spaceLength\": 10,\n+      \"stack\": false,\n+      \"steppedLine\": false,\n+      \"styles\": [\n+        {\n+          \"alias\": \"Time\",\n+          \"align\": \"auto\",\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"pattern\": \"Time\",\n+          \"type\": \"hidden\"\n+        },\n+        {\n+          \"alias\": \"Memory Peak (1h)\",\n+          \"align\": \"auto\",\n+          \"colors\": [],\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"decimals\": 2,\n+          \"link\": false,\n+          \"linkTargetBlank\": false,\n+          \"linkTooltip\": \"Drill down\",\n+          \"linkUrl\": \"\",\n+          \"pattern\": \"Value #A\",\n+          \"thresholds\": [],\n+          \"type\": \"number\",\n+          \"unit\": \"bytes\"\n+        },\n+        {\n+          \"alias\": \"Deployment\",\n+          \"align\": \"auto\",\n+          \"colors\": [],\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"decimals\": 2,\n+          \"pattern\": \"deployment_id\",\n+          \"thresholds\": [],\n+          \"type\": \"string\",\n+          \"unit\": \"short\"\n+        },\n+        {\n+          \"alias\": \"Package\",\n+          \"align\": \"auto\",\n+          \"colors\": [],\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"decimals\": 2,\n+          \"pattern\": \"package_name\",\n+          \"thresholds\": [],\n+          \"type\": \"string\",\n+          \"unit\": \"short\"\n+        },\n+        {\n+          \"alias\": \"Version\",\n+          \"align\": \"auto\",\n+          \"colors\": [],\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"decimals\": 2,\n+          \"pattern\": \"package_version\",\n+          \"thresholds\": [],\n+          \"type\": \"string\",\n+          \"unit\": \"short\"\n+        },\n+        {\n+          \"alias\": \"Node Unit\",\n+          \"align\": \"auto\",\n+          \"colors\": [],\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"decimals\": 2,\n+          \"pattern\": \"node_unit_name\",\n+          \"thresholds\": [],\n+          \"type\": \"string\",\n+          \"unit\": \"short\"\n+        },\n+        {\n+          \"alias\": \"\",\n+          \"align\": \"auto\",\n+          \"colors\": [],\n+          \"dateFormat\": \"YYYY-MM-DD HH:mm:ss\",\n+          \"decimals\": 2,\n+          \"pattern\": \"/.*/\",\n+          \"thresholds\": [],\n+          \"type\": \"string\",\n+          \"unit\": \"short\"\n+        }\n+      ],\n+      \"targets\": [\n+        {\n+          \"expr\": \"topk(10, max_over_time((sum by (deployment_id, package_name, package_version, node_unit_name) (node_unit_deployment_memory_rss_bytes{node_unit_name=~\\\"$node_unit_name\\\",package_name=~\\\"$package_name\\\",package_version=~\\\"$package_version\\\",deployment_id=~\\\"$deployment_id\\\"}))[1h:]))\",\n+          \"format\": \"table\",\n+          \"instant\": true,\n+          \"intervalFactor\": 2,\n+          \"legendFormat\": \"\",\n+          \"refId\": \"A\",\n+          \"step\": 10\n+        }\n+      ],\n+      \"thresholds\": [],\n+      \"title\": \"Memory Peak 1h (Max)\",\n+      \"tooltip\": {\n+        \"shared\": false,\n+        \"sort\": 2,\n+        \"value_type\": \"individual\"\n+      },\n+      \"transform\": \"table\",\n+      \"type\": \"table-old\",\n+      \"xaxis\": {\n+        \"mode\": \"time\",\n+        \"show\": true,\n+        \"values\": []\n+      },\n+      \"yaxes\": [\n+        {\n+          \"format\": \"short\",\n+          \"logBase\": 1,\n+          \"min\": 0,\n+          \"show\": true\n+        },\n+        {\n+          \"format\": \"short\",\n+          \"logBase\": 1,\n+          \"show\": false\n+        }\n+      ]\n+    }\n+  ],\n+  \"refresh\": \"10s\",\n+  \"schemaVersion\": 38,\n+  \"style\": \"dark\",\n+  \"tags\": [\"node-unit\"],\n+  \"templating\": {\n+    \"list\": [\n+      {\n+        \"current\": {\n+          \"selected\": false,\n+          \"text\": \"Prometheus\",\n+          \"value\": \"Prometheus\"\n+        },\n+        \"hide\": 0,\n+        \"includeAll\": false,\n+        \"label\": \"Data Source\",\n+        \"multi\": false,\n+        \"name\": \"datasource\",\n+        \"options\": [],\n+        \"query\": \"prometheus\",\n+        \"refresh\": 1,\n+        \"regex\": \"\",\n+        \"skipUrlSync\": false,\n+        \"type\": \"datasource\"\n+      },\n+      {\n+        \"allValue\": \".*\",\n+        \"current\": {\n+          \"selected\": true,\n+          \"text\": \"All\",\n+          \"value\": \".*\"\n+        },\n+        \"datasource\": {\n+          \"type\": \"datasource\",\n+          \"uid\": \"$datasource\"\n+        },\n+        \"definition\": \"\",\n+        \"hide\": 0,\n+        \"includeAll\": true,\n+        \"multi\": true,\n+        \"name\": \"node_unit_name\",\n+        \"options\": [],\n+        \"query\": {\n+          \"query\": \"label_values(node_unit_deployment_cpu_seconds_total, node_unit_name)\",\n+          \"refId\": \"prometheus-node-unit-name-Variable-Query\"\n+        },\n+        \"refresh\": 2,\n+        \"regex\": \"\",\n+        \"skipUrlSync\": false,\n+        \"sort\": 1,\n+        \"tagValuesQuery\": \"\",\n+        \"tagsQuery\": \"\",\n+        \"type\": \"query\",\n+        \"useTags\": false\n+      },\n+      {\n+        \"allValue\": \".*\",\n+        \"current\": {\n+          \"selected\": true,\n+          \"text\": \"All\",\n+          \"value\": \".*\"\n+        },\n+        \"datasource\": {\n+          \"type\": \"datasource\",\n+          \"uid\": \"$datasource\"\n+        },\n+        \"definition\": \"\",\n+        \"hide\": 0,\n+        \"includeAll\": true,\n+        \"multi\": true,\n+        \"name\": \"package_name\",\n+        \"options\": [],\n+        \"query\": {\n+          \"query\": \"label_values(node_unit_deployment_cpu_seconds_total, package_name)\",\n+          \"refId\": \"prometheus-package-name-Variable-Query\"\n+        },\n+        \"refresh\": 2,\n+        \"regex\": \"\",\n+        \"skipUrlSync\": false,\n+        \"sort\": 1,\n+        \"tagValuesQuery\": \"\",\n+        \"tagsQuery\": \"\",\n+        \"type\": \"query\",\n+        \"useTags\": false\n+      },\n+      {\n+        \"allValue\": \".*\",\n+        \"current\": {\n+          \"selected\": true,\n+          \"text\": \"All\",\n+          \"value\": \".*\"\n+        },\n+        \"datasource\": {\n+          \"type\": \"datasource\",\n+          \"uid\": \"$datasource\"\n+        },\n+        \"definition\": \"\",\n+        \"hide\": 0,\n+        \"includeAll\": true,\n+        \"multi\": true,\n+        \"name\": \"package_version\",\n+        \"options\": [],\n+        \"query\": {\n+          \"query\": \"label_values(node_unit_deployment_cpu_seconds_total, package_version)\",\n+          \"refId\": \"prometheus-package-version-Variable-Query\"\n+        },\n+        \"refresh\": 2,\n+        \"regex\": \"\",\n+        \"skipUrlSync\": false,\n+        \"sort\": 1,\n+        \"tagValuesQuery\": \"\",\n+        \"tagsQuery\": \"\",\n+        \"type\": \"query\",\n+        \"useTags\": false\n+      },\n+      {\n+        \"allValue\": \".*\",\n+        \"current\": {\n+          \"selected\": true,\n+          \"text\": \"All\",\n+          \"value\": \".*\"\n+        },\n+        \"datasource\": {\n+          \"type\": \"datasource\",\n+          \"uid\": \"$datasource\"\n+        },\n+        \"definition\": \"\",\n+        \"hide\": 0,\n+        \"includeAll\": true,\n+        \"multi\": true,\n+        \"name\": \"deployment_id\",\n+        \"options\": [],\n+        \"query\": {\n+          \"query\": \"label_values(node_unit_deployment_cpu_seconds_total, deployment_id)\",\n+          \"refId\": \"prometheus-deployment-id-Variable-Query\"\n+        },\n+        \"refresh\": 2,\n+        \"regex\": \"\",\n+        \"skipUrlSync\": false,\n+        \"sort\": 1,\n+        \"tagValuesQuery\": \"\",\n+        \"tagsQuery\": \"\",\n+        \"type\": \"query\",\n+        \"useTags\": false\n+      }\n+    ]\n+  },\n+  \"time\": {\n+    \"from\": \"now-5m\",\n+    \"to\": \"now\"\n+  },\n+  \"timepicker\": {\n+    \"refresh_intervals\": [\"5s\", \"10s\", \"30s\", \"1m\", \"5m\", \"15m\", \"30m\", \"1h\", \"2h\", \"1d\"],\n+    \"time_options\": [\"5m\", \"15m\", \"1h\", \"6h\", \"12h\", \"24h\", \"2d\", \"7d\", \"30d\"]\n+  },\n+  \"timezone\": \"UTC\",\n+  \"title\": \"Node Unit / Deployment Resources\",\n+  \"uid\": \"nodeunit-deployment-resources\",\n+  \"version\": 1,\n+  \"weekStart\": \"\"\n+}\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 19,
+          "deletions": 4,
+          "path": "apps/vendor-hyperliquid/SESSION_NOTES.md",
+          "changeType": "modified",
+          "patch": "commit 83608ad3ae66da7d65a4e0cf71b13322a6f06680\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 17:09:01 2026 +0800\n\n    feat(node-unit): add grafana dashboard for monitoring node unit resources (#2502)\n    \n    fix(vendor-hyperliquid): disable token limit after response to improve API handling\n    \n    chore: update session notes for vendor-hyperliquid changes and testing results\n\ndiff --git a/apps/vendor-hyperliquid/SESSION_NOTES.md b/apps/vendor-hyperliquid/SESSION_NOTES.md\nindex bc090edd4..e49c271c8 100644\n--- a/apps/vendor-hyperliquid/SESSION_NOTES.md\n+++ b/apps/vendor-hyperliquid/SESSION_NOTES.md\n@@ -10,2 +10,2 @@\n-- **最近更新时间**：2025-12-26 15:30（由 Codex Agent 更新，接入 REST/IP tokenBucket 主动限流）\n-- **当前状态标签**：已接入 REST/IP 主动限流（等待线上验证与观测增强）\n+- **最近更新时间**：2026-01-14 10:45（由 Codex Agent 更新，暂时注释响应后 tokenBucket 调用）\n+- **当前状态标签**：REST/IP 主动限流已接入（响应后扣减注释）\n@@ -50,0 +51 @@\n+- 2026-01-14：暂时注释 REST 请求响应后的 tokenBucket 调用（`afterRestResponse` 调用被注释），仅保留请求前限流。\n@@ -162 +163,2 @@\n-- **[D8] 接入 Hyperliquid REST/IP 主动限流（2025-12-26）**\n+- **[D8] 接入 Hyperliquid REST/IP 主动限流（2025-12-26，2026-01-14 调整）**\n+\n@@ -167 +169 @@\n-    - `candleSnapshot` 的额外 weight 按官方“最多 5000 根 candles”做有界估算；响应后按返回条数计算 `deltaWeight` 并用 `await tokenBucket(...).acquire(deltaWeight)` 阻塞等待（不使用 acquireSync，避免响应后因令牌不足报错）。\n+    - `candleSnapshot` 的额外 weight 按官方“最多 5000 根 candles”做有界估算；响应后的 tokenBucket 追加扣减逻辑仍保留，但调用暂时注释（2026-01-14 起仅请求前限流）。\n@@ -199,0 +202,13 @@\n+### 2026-01-14 — Codex\n+\n+- **本轮摘要**：\n+  - 暂时注释 REST 响应后的 tokenBucket 调用，仅保留请求前主动限流。\n+- **修改的文件**：\n+  - `apps/vendor-hyperliquid/src/api/rate-limit.ts`\n+  - `apps/vendor-hyperliquid/src/api/client.ts`\n+  - `apps/vendor-hyperliquid/src/api/rate-limit.test.ts`\n+  - `apps/vendor-hyperliquid/SESSION_NOTES.md`\n+- **运行的测试 / 检查**：\n+  - 命令：`npx tsc --noEmit --project apps/vendor-hyperliquid/tsconfig.json`\n+  - 结果：失败（提示未安装 TypeScript，可改用 `./node_modules/.bin/tsc` 或先安装依赖）\n+\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 16,
+          "deletions": 14,
+          "path": "apps/vendor-hyperliquid/src/api/client.ts",
+          "changeType": "modified",
+          "patch": "commit 83608ad3ae66da7d65a4e0cf71b13322a6f06680\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 17:09:01 2026 +0800\n\n    feat(node-unit): add grafana dashboard for monitoring node unit resources (#2502)\n    \n    fix(vendor-hyperliquid): disable token limit after response to improve API handling\n    \n    chore: update session notes for vendor-hyperliquid changes and testing results\n\ndiff --git a/apps/vendor-hyperliquid/src/api/client.ts b/apps/vendor-hyperliquid/src/api/client.ts\nindex bf895e6ce..24086349d 100644\n--- a/apps/vendor-hyperliquid/src/api/client.ts\n+++ b/apps/vendor-hyperliquid/src/api/client.ts\n@@ -4,0 +5,2 @@ import { afterRestResponse, beforeRestRequest, getRestRequestContext } from './r\n+void afterRestResponse;\n+\n@@ -37 +39 @@ const callApi = async (method: HttpMethod, path: string, params?: any) => {\n-  const { estimatedExtraWeight } = beforeRestRequest(\n+  beforeRestRequest(\n@@ -71,13 +73,13 @@ const callApi = async (method: HttpMethod, path: string, params?: any) => {\n-    await afterRestResponse(\n-      {\n-        method,\n-        url: url.href,\n-        path,\n-        kind: requestContext.kind,\n-        infoType: requestContext.infoType,\n-        requestKey,\n-      },\n-      requestContext,\n-      response,\n-      estimatedExtraWeight,\n-    );\n+    // await afterRestResponse(\n+    //   {\n+    //     method,\n+    //     url: url.href,\n+    //     path,\n+    //     kind: requestContext.kind,\n+    //     infoType: requestContext.infoType,\n+    //     requestKey,\n+    //   },\n+    //   requestContext,\n+    //   response,\n+    //   estimatedExtraWeight,\n+    // );\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/node-unit/2026-01-14-09-03.json",
+          "changeType": "added",
+          "patch": "commit 83608ad3ae66da7d65a4e0cf71b13322a6f06680\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 17:09:01 2026 +0800\n\n    feat(node-unit): add grafana dashboard for monitoring node unit resources (#2502)\n    \n    fix(vendor-hyperliquid): disable token limit after response to improve API handling\n    \n    chore: update session notes for vendor-hyperliquid changes and testing results\n\ndiff --git a/common/changes/@yuants/node-unit/2026-01-14-09-03.json b/common/changes/@yuants/node-unit/2026-01-14-09-03.json\nnew file mode 100644\nindex 000000000..dea001304\n--- /dev/null\n+++ b/common/changes/@yuants/node-unit/2026-01-14-09-03.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/node-unit\",\n+      \"comment\": \"add grafana dashboard\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/node-unit\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-hyperliquid/2026-01-14-09-03.json",
+          "changeType": "added",
+          "patch": "commit 83608ad3ae66da7d65a4e0cf71b13322a6f06680\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 17:09:01 2026 +0800\n\n    feat(node-unit): add grafana dashboard for monitoring node unit resources (#2502)\n    \n    fix(vendor-hyperliquid): disable token limit after response to improve API handling\n    \n    chore: update session notes for vendor-hyperliquid changes and testing results\n\ndiff --git a/common/changes/@yuants/vendor-hyperliquid/2026-01-14-09-03.json b/common/changes/@yuants/vendor-hyperliquid/2026-01-14-09-03.json\nnew file mode 100644\nindex 000000000..5153cc145\n--- /dev/null\n+++ b/common/changes/@yuants/vendor-hyperliquid/2026-01-14-09-03.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/vendor-hyperliquid\",\n+      \"comment\": \"disable token limit after response\",\n+      \"type\": \"patch\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/vendor-hyperliquid\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "1fa5442e1820450f54887fbdeae8f8b3e5ee0ad7",
+      "short": "1fa5442e1",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2026-01-14 17:10:56 +0800",
+      "subject": "chore: bump version (#2503)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/node-unit/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 1fa5442e1820450f54887fbdeae8f8b3e5ee0ad7\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Wed Jan 14 17:10:56 2026 +0800\n\n    chore: bump version (#2503)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/node-unit/CHANGELOG.json b/apps/node-unit/CHANGELOG.json\nindex 92b112720..98e42d59f 100644\n--- a/apps/node-unit/CHANGELOG.json\n+++ b/apps/node-unit/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.13.11\",\n+      \"tag\": \"@yuants/node-unit_v0.13.11\",\n+      \"date\": \"Wed, 14 Jan 2026 09:10:04 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"add grafana dashboard\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/node-unit/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 1fa5442e1820450f54887fbdeae8f8b3e5ee0ad7\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Wed Jan 14 17:10:56 2026 +0800\n\n    chore: bump version (#2503)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/node-unit/CHANGELOG.md b/apps/node-unit/CHANGELOG.md\nindex 7bd35ad19..b2a825cf8 100644\n--- a/apps/node-unit/CHANGELOG.md\n+++ b/apps/node-unit/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Tue, 06 Jan 2026 17:23:41 GMT and should not be manually modified.\n+This log was last generated on Wed, 14 Jan 2026 09:10:04 GMT and should not be manually modified.\n+\n+## 0.13.11\n+Wed, 14 Jan 2026 09:10:04 GMT\n+\n+### Patches\n+\n+- add grafana dashboard\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/node-unit/package.json",
+          "changeType": "modified",
+          "patch": "commit 1fa5442e1820450f54887fbdeae8f8b3e5ee0ad7\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Wed Jan 14 17:10:56 2026 +0800\n\n    chore: bump version (#2503)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/node-unit/package.json b/apps/node-unit/package.json\nindex 874f77ae8..1cf0ae1c3 100644\n--- a/apps/node-unit/package.json\n+++ b/apps/node-unit/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.13.10\",\n+  \"version\": \"0.13.11\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-hyperliquid/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 1fa5442e1820450f54887fbdeae8f8b3e5ee0ad7\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Wed Jan 14 17:10:56 2026 +0800\n\n    chore: bump version (#2503)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-hyperliquid/CHANGELOG.json b/apps/vendor-hyperliquid/CHANGELOG.json\nindex 697a8b45d..77b18806c 100644\n--- a/apps/vendor-hyperliquid/CHANGELOG.json\n+++ b/apps/vendor-hyperliquid/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.10.5\",\n+      \"tag\": \"@yuants/vendor-hyperliquid_v0.10.5\",\n+      \"date\": \"Wed, 14 Jan 2026 09:10:04 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"disable token limit after response\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-hyperliquid/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 1fa5442e1820450f54887fbdeae8f8b3e5ee0ad7\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Wed Jan 14 17:10:56 2026 +0800\n\n    chore: bump version (#2503)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-hyperliquid/CHANGELOG.md b/apps/vendor-hyperliquid/CHANGELOG.md\nindex 66aa38362..c87333756 100644\n--- a/apps/vendor-hyperliquid/CHANGELOG.md\n+++ b/apps/vendor-hyperliquid/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Tue, 13 Jan 2026 10:53:40 GMT and should not be manually modified.\n+This log was last generated on Wed, 14 Jan 2026 09:10:04 GMT and should not be manually modified.\n+\n+## 0.10.5\n+Wed, 14 Jan 2026 09:10:04 GMT\n+\n+### Patches\n+\n+- disable token limit after response\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-hyperliquid/package.json",
+          "changeType": "modified",
+          "patch": "commit 1fa5442e1820450f54887fbdeae8f8b3e5ee0ad7\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Wed Jan 14 17:10:56 2026 +0800\n\n    chore: bump version (#2503)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-hyperliquid/package.json b/apps/vendor-hyperliquid/package.json\nindex b5e4e819f..0ecf6ecb3 100644\n--- a/apps/vendor-hyperliquid/package.json\n+++ b/apps/vendor-hyperliquid/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.10.4\",\n+  \"version\": \"0.10.5\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/node-unit/2026-01-14-09-03.json",
+          "changeType": "deleted",
+          "patch": "commit 1fa5442e1820450f54887fbdeae8f8b3e5ee0ad7\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Wed Jan 14 17:10:56 2026 +0800\n\n    chore: bump version (#2503)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/node-unit/2026-01-14-09-03.json b/common/changes/@yuants/node-unit/2026-01-14-09-03.json\ndeleted file mode 100644\nindex dea001304..000000000\n--- a/common/changes/@yuants/node-unit/2026-01-14-09-03.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/node-unit\",\n-      \"comment\": \"add grafana dashboard\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/node-unit\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/node-unit/{main_2026-01-06-17-24.json => main_2026-01-14-09-10.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-hyperliquid/2026-01-14-09-03.json",
+          "changeType": "deleted",
+          "patch": "commit 1fa5442e1820450f54887fbdeae8f8b3e5ee0ad7\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Wed Jan 14 17:10:56 2026 +0800\n\n    chore: bump version (#2503)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-hyperliquid/2026-01-14-09-03.json b/common/changes/@yuants/vendor-hyperliquid/2026-01-14-09-03.json\ndeleted file mode 100644\nindex 5153cc145..000000000\n--- a/common/changes/@yuants/vendor-hyperliquid/2026-01-14-09-03.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-hyperliquid\",\n-      \"comment\": \"disable token limit after response\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-hyperliquid\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-hyperliquid/{main_2026-01-13-10-53.json => main_2026-01-14-09-10.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        }
+      ]
+    },
+    {
+      "hash": "0098f6b84ab80aaefa53a97d418588c70759176a",
+      "short": "0098f6b84",
+      "author": "Siyuan Wang",
+      "email": "c.one@thrimbda.com",
+      "authoredAt": "2026-01-14 22:53:05 +0800",
+      "subject": "feat(app-asg-eventbridge-notifier): add new application for ASG termination event notifications (#2504)",
+      "conventionalCommit": {
+        "type": "feat",
+        "scope": "app-asg-eventbridge-notifier",
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 68,
+          "deletions": 3,
+          "path": ".legion/config.json",
+          "changeType": "modified",
+          "patch": "commit 0098f6b84ab80aaefa53a97d418588c70759176a\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 22:53:05 2026 +0800\n\n    feat(app-asg-eventbridge-notifier): add new application for ASG termination event notifications (#2504)\n    \n    - Created the app-asg-eventbridge-notifier application to handle Auto Scaling termination events and send notifications to Feishu.\n    - Implemented event handling logic, including filtering based on ASG names and status checks.\n    - Developed message formatting for notifications, including details such as ASG name, instance ID, and termination cause.\n    - Added necessary configuration files for TypeScript, Jest, and API Extractor.\n    - Registered the new application in rush.json and updated pnpm-lock.yaml for dependency management.\n\ndiff --git a/.legion/config.json b/.legion/config.json\nindex 91db46994..8a6e40efe 100644\n--- a/.legion/config.json\n+++ b/.legion/config.json\n@@ -113 +113 @@\n-      \"updatedAt\": \"2026-01-07T11:03:38.061Z\"\n+      \"updatedAt\": \"2026-01-14T08:47:24.074Z\"\n@@ -132 +132 @@\n-      \"status\": \"active\",\n+      \"status\": \"paused\",\n@@ -134 +134,15 @@\n-      \"updatedAt\": \"2026-01-07T09:35:13.640Z\"\n+      \"updatedAt\": \"2026-01-12T06:01:13.507Z\"\n+    },\n+    {\n+      \"id\": \"node-unit-deployment-grafana-dashboard\",\n+      \"name\": \"node-unit-deployment-grafana-dashboard\",\n+      \"status\": \"paused\",\n+      \"createdAt\": \"2026-01-12T06:01:13.507Z\",\n+      \"updatedAt\": \"2026-01-13T06:01:55.209Z\"\n+    },\n+    {\n+      \"id\": \"app-asg-eventbridge-notifier\",\n+      \"name\": \"app-asg-eventbridge-notifier\",\n+      \"status\": \"paused\",\n+      \"createdAt\": \"2026-01-13T02:19:46.029Z\",\n+      \"updatedAt\": \"2026-01-14T08:39:20.222Z\"\n@@ -1469,0 +1484,51 @@\n+    },\n+    {\n+      \"id\": \"proposal-mkar337v-aba685\",\n+      \"name\": \"node-unit-deployment-grafana-dashboard\",\n+      \"goal\": \"基于 node_unit_deployment_cpu_seconds_total 与 node_unit_deployment_memory_rss_bytes 新建 Grafana dashboard，并沿用现有 dashboard.json 的风格与变量配置。\",\n+      \"rationale\": \"用户要求参考现有 dashboard.json 为 node-unit 部署指标新增 Grafana dashboard，需要调研现有面板结构与指标 label，并输出可直接导入的 JSON 文件。\",\n+      \"points\": [\n+        \"复用 `.c1-cellar/dashboard.json` 的变量、样式与全局设置，保持一致的展示语言\",\n+        \"围绕 CPU/Memory 指标设计关键视图：总量、按 deployment/instance 的 TopN、趋势与分位/极值\",\n+        \"明确指标标签选择（如 deployment、instance、namespace 等）并给出统一过滤变量\",\n+        \"输出新的 dashboard JSON 文件，注明导入方式与依赖的数据源名\"\n+      ],\n+      \"scope\": [\n+        \".c1-cellar/dashboard.json（仅参考）\",\n+        \".c1-cellar/dashboard-node-unit-deployment.json（新文件）\"\n+      ],\n+      \"phases\": [\n+        {\n+          \"name\": \"调研\",\n+          \"tasks\": [\n+            {\n+              \"description\": \"阅读 `.c1-cellar/dashboard.json`，整理现有变量、面板风格与数据源命名规则；同时确认两条指标的 label 结构（通过仓库配置或已有查询规则推断）。\",\n+              \"acceptance\": \"context.md 记录变量列表、datasource 名称、时间范围/刷新设置，以及 node_unit 指标的 label 假设与不确定点。\"\n+            }\n+          ]\n+        },\n+        {\n+          \"name\": \"设计\",\n+          \"tasks\": [\n+            {\n+              \"description\": \"设计面板列表与查询：CPU rate/利用率、memory RSS、按 deployment/instance TopN、趋势与统计（如 avg/max）。\",\n+              \"acceptance\": \"plan.md 明确每个面板的标题、PromQL、legend 与单位/阈值。\"\n+            }\n+          ]\n+        },\n+        {\n+          \"name\": \"实现\",\n+          \"tasks\": [\n+            {\n+              \"description\": \"基于现有 dashboard.json 复制并生成新的 dashboard JSON，替换为 node_unit_deployment 指标面板。\",\n+              \"acceptance\": \"新 JSON 可导入 Grafana；变量与面板可正常渲染（PromQL/单位/legend 合理）。\"\n+            }\n+          ]\n+        }\n+      ],\n+      \"proposedBy\": \"Claude\",\n+      \"proposedAt\": \"2026-01-12T05:56:52.364Z\",\n+      \"status\": \"approved\",\n+      \"decidedAt\": \"2026-01-12T06:01:13.507Z\",\n+      \"decidedBy\": \"Claude\",\n+      \"createdTaskId\": \"node-unit-deployment-grafana-dashboard\"\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 39,
+          "deletions": 0,
+          "path": ".legion/ledger.csv",
+          "changeType": "added",
+          "patch": "commit 0098f6b84ab80aaefa53a97d418588c70759176a\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 22:53:05 2026 +0800\n\n    feat(app-asg-eventbridge-notifier): add new application for ASG termination event notifications (#2504)\n    \n    - Created the app-asg-eventbridge-notifier application to handle Auto Scaling termination events and send notifications to Feishu.\n    - Implemented event handling logic, including filtering based on ASG names and status checks.\n    - Developed message formatting for notifications, including details such as ASG name, instance ID, and termination cause.\n    - Added necessary configuration files for TypeScript, Jest, and API Extractor.\n    - Registered the new application in rush.json and updated pnpm-lock.yaml for dependency management.\n\ndiff --git a/.legion/ledger.csv b/.legion/ledger.csv\nindex 37651ee6a..55a68500b 100644\n--- a/.legion/ledger.csv\n+++ b/.legion/ledger.csv\n@@ -731,0 +732,39 @@\n+2026-01-11T05:50:57.582Z,legion_init,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,workingDirectory: /Users/c1/Work/Yuan,success\n+2026-01-11T05:51:00.576Z,legion_get_status,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,,success\n+2026-01-11T05:51:05.560Z,legion_switch_task,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,taskId: ohlc-ohlc-v2,success\n+2026-01-11T05:51:09.272Z,legion_read_context,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,\"section: all, includeReviews: true\",success\n+2026-01-11T05:52:15.278Z,legion_update_context,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,addFile: .c1-cellar/migrate-ohlc-myquant.js,success\n+2026-01-11T05:54:27.406Z,legion_update_context,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,progress.completed: 优化 .c1-cellar/migrate-ohlc-myquant.js：改为单条 CTE SQL 批处理，避免拉取 5000 行到 JS 再拼接插入。,success\n+2026-01-11T06:07:19.032Z,legion_update_context,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,progress.completed: 迁移脚本改用 postgresjs（postgreSQL.js）连接方式，替换 pg/pg-connection-string。,success\n+2026-01-12T05:56:20.522Z,legion_init,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,workingDirectory: /Users/c1/Work/Yuan,success\n+2026-01-12T05:56:24.294Z,legion_get_status,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,,success\n+2026-01-12T05:56:29.184Z,legion_read_context,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,\"section: all, includeReviews: true\",success\n+2026-01-12T05:56:52.366Z,legion_propose_task,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,name: node-unit-deployment-grafana-dashboard,success\n+2026-01-12T06:01:13.545Z,legion_approve_proposal,node-unit-deployment-grafana-dashboard,node-unit-deployment-grafana-dashboard,Claude,proposalId: proposal-mkar337v-aba685,success\n+2026-01-12T06:01:17.073Z,legion_switch_task,node-unit-deployment-grafana-dashboard,node-unit-deployment-grafana-dashboard,Claude,taskId: node-unit-deployment-grafana-dashboard,success\n+2026-01-12T06:01:21.178Z,legion_read_context,node-unit-deployment-grafana-dashboard,node-unit-deployment-grafana-dashboard,Claude,\"section: all, includeReviews: true\",success\n+2026-01-12T06:04:26.441Z,legion_update_tasks,node-unit-deployment-grafana-dashboard,node-unit-deployment-grafana-dashboard,Claude,completeTask: phase 1,success\n+2026-01-12T06:05:00.852Z,legion_update_context,node-unit-deployment-grafana-dashboard,node-unit-deployment-grafana-dashboard,Claude,addFile: .c1-cellar/dashboard.json,success\n+2026-01-12T06:05:04.614Z,legion_update_context,node-unit-deployment-grafana-dashboard,node-unit-deployment-grafana-dashboard,Claude,addFile: apps/node-unit/monitoring.md,success\n+2026-01-12T06:05:09.414Z,legion_update_context,node-unit-deployment-grafana-dashboard,node-unit-deployment-grafana-dashboard,Claude,addFile: apps/node-unit/src/index.ts,success\n+2026-01-12T06:05:38.472Z,legion_update_tasks,node-unit-deployment-grafana-dashboard,node-unit-deployment-grafana-dashboard,Claude,completeTask: phase 2,success\n+2026-01-12T06:09:47.905Z,legion_update_context,node-unit-deployment-grafana-dashboard,node-unit-deployment-grafana-dashboard,Claude,addFile: .c1-cellar/dashboard-node-unit-deployment.json,success\n+2026-01-12T06:10:09.480Z,legion_update_context,node-unit-deployment-grafana-dashboard,node-unit-deployment-grafana-dashboard,Claude,handoff: 在 Grafana 中导入 `.c1-cellar/dashboard-node-unit-deployment.json` 并确认数据源名称与变量能正常解析。,success\n+2026-01-13T06:01:55.237Z,legion_update_context,node-unit-deployment-grafana-dashboard,node-unit-deployment-grafana-dashboard,Claude,progress.completed: 调整 CPU Rate by Deployment 面板的 legend，追加 package_name 以便识别来源。,success\n+2026-01-13T06:54:04.904Z,legion_list_reviews,app-asg-eventbridge-notifier,app-asg-eventbridge-notifier,Claude,,success\n+2026-01-13T06:55:16.105Z,legion_respond_review,app-asg-eventbridge-notifier,app-asg-eventbridge-notifier,Claude,\"file: plan.md, reviewId: R1, status: resolved\",success\n+2026-01-13T06:55:17.585Z,legion_respond_review,app-asg-eventbridge-notifier,app-asg-eventbridge-notifier,Claude,\"file: plan.md, reviewId: R2, status: resolved\",success\n+2026-01-13T06:55:21.881Z,legion_update_context,app-asg-eventbridge-notifier,app-asg-eventbridge-notifier,Claude,addDecision: 告警目标固定为 Feishu，通过 `apps/feishu-notifier` 的 `Feishu/SendMessage` 发送，消息卡片参考 `apps/alert-receiver`，不新增配置项。,success\n+2026-01-13T07:33:00.650Z,legion_update_tasks,app-asg-eventbridge-notifier,app-asg-eventbridge-notifier,Claude,completeTask: phase 1,success\n+2026-01-13T07:33:31.171Z,legion_update_context,app-asg-eventbridge-notifier,app-asg-eventbridge-notifier,Claude,progress.completed: 完成设计 review 并修订 plan：固定 Feishu 目标、长期运行模式、补充 detail-type 与消息字段。,success\n+2026-01-13T07:39:50.089Z,legion_update_tasks,app-asg-eventbridge-notifier,app-asg-eventbridge-notifier,Claude,setCurrentTask: phase 3,success\n+2026-01-13T07:40:14.613Z,legion_update_tasks,app-asg-eventbridge-notifier,app-asg-eventbridge-notifier,Claude,completeTask: phase 3,success\n+2026-01-13T07:40:50.564Z,legion_update_context,app-asg-eventbridge-notifier,app-asg-eventbridge-notifier,Claude,addFile: apps/asg-eventbridge-notifier/src/index.ts,success\n+2026-01-13T07:41:17.579Z,legion_update_context,app-asg-eventbridge-notifier,app-asg-eventbridge-notifier,Claude,handoff: 确认依赖安装后重试 `rushx build`（apps/asg-eventbridge-notifier）,success\n+2026-01-14T08:39:14.593Z,legion_get_status,app-asg-eventbridge-notifier,app-asg-eventbridge-notifier,Claude,,success\n+2026-01-14T08:39:18.038Z,legion_list_tasks,app-asg-eventbridge-notifier,app-asg-eventbridge-notifier,Claude,,success\n+2026-01-14T08:39:20.225Z,legion_switch_task,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,taskId: hyperliquid-api-tokenbucket,success\n+2026-01-14T08:39:22.070Z,legion_read_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,\"section: all, includeReviews: true\",success\n+2026-01-14T08:42:29.821Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,addDecision: 暂时移除 REST 响应后 tokenBucket 扣减（`afterRestResponse` 不再触发 acquire）,success\n+2026-01-14T08:42:55.444Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,handoff: 确保依赖安装后再运行 `npx tsc --noEmit --project apps/vendor-hyperliquid/tsconfig.json`。,success\n+2026-01-14T08:47:24.076Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,addDecision: 暂时注释 `afterRestResponse` 调用，保留响应后限流实现但不启用,success\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 51,
+          "deletions": 0,
+          "path": ".legion/tasks/app-asg-eventbridge-notifier/context.md",
+          "changeType": "added",
+          "patch": "commit 0098f6b84ab80aaefa53a97d418588c70759176a\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 22:53:05 2026 +0800\n\n    feat(app-asg-eventbridge-notifier): add new application for ASG termination event notifications (#2504)\n    \n    - Created the app-asg-eventbridge-notifier application to handle Auto Scaling termination events and send notifications to Feishu.\n    - Implemented event handling logic, including filtering based on ASG names and status checks.\n    - Developed message formatting for notifications, including details such as ASG name, instance ID, and termination cause.\n    - Added necessary configuration files for TypeScript, Jest, and API Extractor.\n    - Registered the new application in rush.json and updated pnpm-lock.yaml for dependency management.\n\ndiff --git a/.legion/tasks/app-asg-eventbridge-notifier/context.md b/.legion/tasks/app-asg-eventbridge-notifier/context.md\nnew file mode 100644\nindex 000000000..ca24b72df\n--- /dev/null\n+++ b/.legion/tasks/app-asg-eventbridge-notifier/context.md\n@@ -0,0 +1,51 @@\n+# app-asg-eventbridge-notifier - 上下文\n+\n+## 会话进展 (2026-01-13)\n+\n+### ✅ 已完成\n+\n+- 创建任务 `app-asg-eventbridge-notifier` 并落盘 plan/tasks/context，尚未开始实现。\n+- 完成设计 review 并修订 plan：固定 Feishu 目标、长期运行模式、补充 detail-type 与消息字段。\n+- 创建 `apps/asg-eventbridge-notifier` 基础工程（package/config/tsconfig）。\n+- 实现 EventBridge 事件处理与飞书卡片格式化，并通过 `Feishu/SendMessage` 路由到 feishu-notifier。\n+- 在 `rush.json` 注册新 app。\n+\n+### 🟡 进行中\n+\n+- 待执行最小构建/类型检查验证。\n+\n+### ⚠️ 阻塞/待定\n+\n+- 构建失败：`heft` 命令未找到（可能未安装依赖或未执行 rush/pnpm 安装）。\n+\n+---\n+\n+## 关键文件\n+\n+- `.legion/tasks/app-asg-eventbridge-notifier/plan.md`\n+- `.legion/tasks/app-asg-eventbridge-notifier/tasks.md`\n+\n+---\n+\n+## 关键决策\n+\n+| 决策                                                                                                                                | 原因                                                             | 替代方案                             | 日期       |\n+| ----------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------ | ---------- |\n+| 告警目标固定为 Feishu，通过 `apps/feishu-notifier` 的 `Feishu/SendMessage` 发送，消息卡片参考 `apps/alert-receiver`，不新增配置项。 | 用户 review 明确要求固定 Feishu 且复用 alert-receiver 卡片结构。 | 支持 SNS/Chatbot/Lambda 作为可选目标 | 2026-01-13 |\n+\n+---\n+\n+## 快速交接\n+\n+**下次继续从这里开始：**\n+\n+1. 确认依赖安装后重试 `rushx build`（apps/asg-eventbridge-notifier）\n+2. 补充 EventBridge 事件样本，确认 Cause 字段格式\n+\n+**注意事项：**\n+\n+- 当前 build 失败原因：heft command not found。\n+\n+---\n+\n+_最后更新: 2026-01-13 15:41 by Claude_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 94,
+          "deletions": 0,
+          "path": ".legion/tasks/app-asg-eventbridge-notifier/plan.md",
+          "changeType": "added",
+          "patch": "commit 0098f6b84ab80aaefa53a97d418588c70759176a\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 22:53:05 2026 +0800\n\n    feat(app-asg-eventbridge-notifier): add new application for ASG termination event notifications (#2504)\n    \n    - Created the app-asg-eventbridge-notifier application to handle Auto Scaling termination events and send notifications to Feishu.\n    - Implemented event handling logic, including filtering based on ASG names and status checks.\n    - Developed message formatting for notifications, including details such as ASG name, instance ID, and termination cause.\n    - Added necessary configuration files for TypeScript, Jest, and API Extractor.\n    - Registered the new application in rush.json and updated pnpm-lock.yaml for dependency management.\n\ndiff --git a/.legion/tasks/app-asg-eventbridge-notifier/plan.md b/.legion/tasks/app-asg-eventbridge-notifier/plan.md\nnew file mode 100644\nindex 000000000..37633c2ed\n--- /dev/null\n+++ b/.legion/tasks/app-asg-eventbridge-notifier/plan.md\n@@ -0,0 +1,94 @@\n+# app-asg-eventbridge-notifier\n+\n+## 目标\n+\n+新增一个用于 ASG 终止事件告警的应用（参考 `apps/feishu-notifier` 的工程结构），以长期运行的 Node app 方式接收 EventBridge 的 Auto Scaling 事件并按规则推送到 Feishu，支持仅在 `status checks failure` 场景触发。\n+\n+## 要点\n+\n+- 新增应用目录 `apps/asg-eventbridge-notifier`，遵循现有 app 的 package/tsconfig/rig 结构。\n+- 解析 EventBridge 事件（`source=aws.autoscaling`、终止类 `detail-type`），过滤 ASG 名称并可选基于 `detail.Cause` 进行二次过滤。\n+- 告警消息包含 ASG 名称、实例 ID、终止结果、Cause、Region、AccountId、LifecycleHook，并显示 UTC 与 JST 时间（参考用户时区提示）。\n+- 告警目标固定为 Feishu：通过 `Feishu/SendMessage` 服务发送，消息卡片结构参考 `apps/alert-receiver`，不新增额外配置项。\n+\n+## 范围\n+\n+- `apps/asg-eventbridge-notifier/**`（新增）\n+- `rush.json`（注册新 app）\n+- 其他必要的配置文件（`tsconfig.json` / `config/*`）\n+\n+## 阶段概览\n+\n+1. **调研** - 1 个任务\n+2. **设计** - 1 个任务\n+3. **实现** - 1 个任务\n+4. **验证** - 1 个任务\n+\n+---\n+\n+## 设计方案\n+\n+### 核心流程\n+\n+1. 接收 EventBridge 事件（JSON）：`source`、`detail-type`、`detail`。\n+2. 校验事件类型与 ASG 名称：仅处理 `EC2 Instance Terminate Successful/Unsuccessful` + 指定 `AutoScalingGroupName`。\n+3. 可选过滤：若开启 `STATUS_CHECKS_ONLY`，要求 `detail.Cause` 含 `status checks failure`。\n+4. 格式化告警消息：展示 ASG/实例/状态/Cause，时间字段同时输出 UTC 与 JST。\n+5. 通过 `Terminal` 调用 `Feishu/SendMessage` 推送到 `apps/feishu-notifier`。\n+\n+> [REVIEW] 这个设计最后输出要直接发到 feishu-notifier，配置飞书卡片参考 alert-receiver，不要配置。\n+>\n+> [RESPONSE] 已修改设计：目标固定通过 `Feishu/SendMessage` 发往 `apps/feishu-notifier`，并注明消息卡片结构参考 `apps/alert-receiver`，不新增额外配置项。核心流程与要点同步调整。\n+> [STATUS:resolved]\n+\n+### 支持的 detail-type\n+\n+- `EC2 Instance Terminate Successful`\n+- `EC2 Instance Terminate Unsuccessful`\n+\n+### 接口与配置草案\n+\n+- 运行模式：长期运行的 Node app（不提供 Lambda handler）。\n+- 事件处理入口：`handleAsgEvent(event)`，返回 `{ notified: boolean; reason?: string }`。\n+- 环境变量（拟）：\n+  - `ASG_NAMES`（分号分隔）\n+  - `STATUS_CHECKS_ONLY`（true/false）\n+  - `FEISHU_RECEIVER_ID`（发送对象，用户/群组 id）\n+\n+### 消息格式草案\n+\n+- 标题：`ASG Terminate {Successful|Unsuccessful}`\n+- 内容字段：\n+  - `AutoScalingGroupName`\n+  - `EC2InstanceId`\n+  - `Cause`（原文保留）\n+  - `Region`\n+  - `AccountId`\n+  - `LifecycleHookName`\n+  - `EventTime`（UTC + JST）\n+\n+### 文件变更明细（预期）\n+\n+- `apps/asg-eventbridge-notifier/package.json`\n+- `apps/asg-eventbridge-notifier/src/index.ts`\n+- `apps/asg-eventbridge-notifier/src/handler.ts`（事件解析 + 过滤 + 路由）\n+- `apps/asg-eventbridge-notifier/src/format.ts`（消息模板 + 时区转换）\n+- `apps/asg-eventbridge-notifier/tsconfig.json` / `config/*`\n+- `rush.json`\n+\n+### 待确认/不确定点\n+\n+- 过滤策略：默认是否仅 `status checks failure`，还是允许 `detail-type` 即全部告警？\n+- `detail.Cause` 字段是否稳定包含 `status checks failure` 字样，需要事件样本确认。\n+\n+> [REVIEW]\n+>\n+> 1. feishu\n+> 2. 长期运行\n+> 3. 全部 type 要补充到这个 plan 里让我 review\n+> 4. 消息里补充 region accountid lifecyclehook\n+>\n+> [RESPONSE] 已按要求更新：明确目标为 Feishu、长期运行 Node app；补充支持的 detail-type 列表；消息字段新增 Region/AccountId/LifecycleHook；待确认项收敛到过滤策略与 Cause 样本。\n+> [STATUS:resolved]\n+\n+_创建于: 2026-01-13 | 最后更新: 2026-01-13_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 43,
+          "deletions": 0,
+          "path": ".legion/tasks/app-asg-eventbridge-notifier/tasks.md",
+          "changeType": "added",
+          "patch": "commit 0098f6b84ab80aaefa53a97d418588c70759176a\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 22:53:05 2026 +0800\n\n    feat(app-asg-eventbridge-notifier): add new application for ASG termination event notifications (#2504)\n    \n    - Created the app-asg-eventbridge-notifier application to handle Auto Scaling termination events and send notifications to Feishu.\n    - Implemented event handling logic, including filtering based on ASG names and status checks.\n    - Developed message formatting for notifications, including details such as ASG name, instance ID, and termination cause.\n    - Added necessary configuration files for TypeScript, Jest, and API Extractor.\n    - Registered the new application in rush.json and updated pnpm-lock.yaml for dependency management.\n\ndiff --git a/.legion/tasks/app-asg-eventbridge-notifier/tasks.md b/.legion/tasks/app-asg-eventbridge-notifier/tasks.md\nnew file mode 100644\nindex 000000000..01b65f7e2\n--- /dev/null\n+++ b/.legion/tasks/app-asg-eventbridge-notifier/tasks.md\n@@ -0,0 +1,43 @@\n+# app-asg-eventbridge-notifier - 任务清单\n+\n+## 快速恢复\n+\n+**当前阶段**: 阶段 4 - 验证\n+**当前任务**: 执行最小构建/类型检查\n+**进度**: 4/6 任务完成\n+\n+---\n+\n+## 阶段 1: 调研\n+\n+- [x] 阅读 `apps/feishu-notifier` 与现有 notifier 应用结构，整理脚手架与依赖模式。 | 验收: context.md 记录工程结构、依赖与初始化入口。\n+- [ ] 收集 EventBridge ASG 终止事件样本（字段列表、detail.Cause 文本）。 | 验收: context.md 记录可用字段与消息示例。\n+\n+---\n+\n+## 阶段 2: 设计\n+\n+- [x] 明确事件过滤与告警路由策略（含 `status checks failure` 筛选逻辑与 TARGET_MODE 决策）。 | 验收: plan.md 更新过滤规则与目标路由选型。\n+- [x] 产出接口与配置清单（handler 入口、环境变量、消息模板）。 | 验收: plan.md 补充接口/配置与消息字段表。\n+\n+---\n+\n+## 阶段 3: 实现\n+\n+- [x] 创建 `apps/asg-eventbridge-notifier` 并实现事件处理、消息格式化与目标推送。 | 验收: 代码可编译，示例事件可触发目标通知。\n+\n+---\n+\n+## 阶段 4: 验证\n+\n+- [ ] 执行最小构建/类型检查并记录验证步骤。 | 验收: 记录验证命令与结果，无新增构建错误。\n+\n+---\n+\n+## 发现的新任务\n+\n+(暂无)\n+\n+---\n+\n+_最后更新: 2026-01-13 15:40_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 411,
+          "deletions": 0,
+          "path": "apps/asg-eventbridge-notifier/config/api-extractor.json",
+          "changeType": "added",
+          "patch": "commit 0098f6b84ab80aaefa53a97d418588c70759176a\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 22:53:05 2026 +0800\n\n    feat(app-asg-eventbridge-notifier): add new application for ASG termination event notifications (#2504)\n    \n    - Created the app-asg-eventbridge-notifier application to handle Auto Scaling termination events and send notifications to Feishu.\n    - Implemented event handling logic, including filtering based on ASG names and status checks.\n    - Developed message formatting for notifications, including details such as ASG name, instance ID, and termination cause.\n    - Added necessary configuration files for TypeScript, Jest, and API Extractor.\n    - Registered the new application in rush.json and updated pnpm-lock.yaml for dependency management.\n\ndiff --git a/apps/asg-eventbridge-notifier/config/api-extractor.json b/apps/asg-eventbridge-notifier/config/api-extractor.json\nnew file mode 100644\nindex 000000000..62f4fd324\n--- /dev/null\n+++ b/apps/asg-eventbridge-notifier/config/api-extractor.json\n@@ -0,0 +1,411 @@\n+/**\n+ * Config file for API Extractor.  For more info, please visit: https://api-extractor.com\n+ */\n+{\n+  \"$schema\": \"https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json\",\n+\n+  /**\n+   * Optionally specifies another JSON config file that this file extends from.  This provides a way for\n+   * standard settings to be shared across multiple projects.\n+   *\n+   * If the path starts with \"./\" or \"../\", the path is resolved relative to the folder of the file that contains\n+   * the \"extends\" field.  Otherwise, the first path segment is interpreted as an NPM package name, and will be\n+   * resolved using NodeJS require().\n+   *\n+   * SUPPORTED TOKENS: none\n+   * DEFAULT VALUE: \"\"\n+   */\n+  // \"extends\": \"./shared/api-extractor-base.json\"\n+  // \"extends\": \"my-package/include/api-extractor-base.json\"\n+\n+  /**\n+   * Determines the \"<projectFolder>\" token that can be used with other config file settings.  The project folder\n+   * typically contains the tsconfig.json and package.json config files, but the path is user-defined.\n+   *\n+   * The path is resolved relative to the folder of the config file that contains the setting.\n+   *\n+   * The default value for \"projectFolder\" is the token \"<lookup>\", which means the folder is determined by traversing\n+   * parent folders, starting from the folder containing api-extractor.json, and stopping at the first folder\n+   * that contains a tsconfig.json file.  If a tsconfig.json file cannot be found in this way, then an error\n+   * will be reported.\n+   *\n+   * SUPPORTED TOKENS: <lookup>\n+   * DEFAULT VALUE: \"<lookup>\"\n+   */\n+  // \"projectFolder\": \"..\",\n+\n+  /**\n+   * (REQUIRED) Specifies the .d.ts file to be used as the starting point for analysis.  API Extractor\n+   * analyzes the symbols exported by this module.\n+   *\n+   * The file extension must be \".d.ts\" and not \".ts\".\n+   *\n+   * The path is resolved relative to the folder of the config file that contains the setting; to change this,\n+   * prepend a folder token such as \"<projectFolder>\".\n+   *\n+   * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>\n+   */\n+  \"mainEntryPointFilePath\": \"<projectFolder>/lib/index.d.ts\",\n+\n+  /**\n+   * A list of NPM package names whose exports should be treated as part of this package.\n+   *\n+   * For example, suppose that Webpack is used to generate a distributed bundle for the project \"library1\",\n+   * and another NPM package \"library2\" is embedded in this bundle.  Some types from library2 may become part\n+   * of the exported API for library1, but by default API Extractor would generate a .d.ts rollup that explicitly\n+   * imports library2.  To avoid this, we can specify:\n+   *\n+   *   \"bundledPackages\": [ \"library2\" ],\n+   *\n+   * This would direct API Extractor to embed those types directly in the .d.ts rollup, as if they had been\n+   * local files for library1.\n+   */\n+  \"bundledPackages\": [],\n+\n+  /**\n+   * Specifies what type of newlines API Extractor should use when writing output files.  By default, the output files\n+   * will be written with Windows-style newlines.  To use POSIX-style newlines, specify \"lf\" instead.\n+   * To use the OS's default newline kind, specify \"os\".\n+   *\n+   * DEFAULT VALUE: \"crlf\"\n+   */\n+  // \"newlineKind\": \"crlf\",\n+\n+  /**\n+   * Set to true when invoking API Extractor's test harness. When `testMode` is true, the `toolVersion` field in the\n+   * .api.json file is assigned an empty string to prevent spurious diffs in output files tracked for tests.\n+   *\n+   * DEFAULT VALUE: \"false\"\n+   */\n+  // \"testMode\": false,\n+\n+  /**\n+   * Specifies how API Extractor sorts members of an enum when generating the .api.json file. By default, the output\n+   * files will be sorted alphabetically, which is \"by-name\". To keep the ordering in the source code, specify\n+   * \"preserve\".\n+   *\n+   * DEFAULT VALUE: \"by-name\"\n+   */\n+  // \"enumMemberOrder\": \"by-name\",\n+\n+  /**\n+   * Determines how the TypeScript compiler engine will be invoked by API Extractor.\n+   */\n+  \"compiler\": {\n+    /**\n+     * Specifies the path to the tsconfig.json file to be used by API Extractor when analyzing the project.\n+     *\n+     * The path is resolved relative to the folder of the config file that contains the setting; to change this,\n+     * prepend a folder token such as \"<projectFolder>\".\n+     *\n+     * Note: This setting will be ignored if \"overrideTsconfig\" is used.\n+     *\n+     * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>\n+     * DEFAULT VALUE: \"<projectFolder>/tsconfig.json\"\n+     */\n+    // \"tsconfigFilePath\": \"<projectFolder>/tsconfig.json\",\n+    /**\n+     * Provides a compiler configuration that will be used instead of reading the tsconfig.json file from disk.\n+     * The object must conform to the TypeScript tsconfig schema:\n+     *\n+     * http://json.schemastore.org/tsconfig\n+     *\n+     * If omitted, then the tsconfig.json file will be read from the \"projectFolder\".\n+     *\n+     * DEFAULT VALUE: no overrideTsconfig section\n+     */\n+    // \"overrideTsconfig\": {\n+    //   . . .\n+    // }\n+    /**\n+     * This option causes the compiler to be invoked with the --skipLibCheck option. This option is not recommended\n+     * and may cause API Extractor to produce incomplete or incorrect declarations, but it may be required when\n+     * dependencies contain declarations that are incompatible with the TypeScript engine that API Extractor uses\n+     * for its analysis.  Where possible, the underlying issue should be fixed rather than relying on skipLibCheck.\n+     *\n+     * DEFAULT VALUE: false\n+     */\n+    // \"skipLibCheck\": true,\n+  },\n+\n+  /**\n+   * Configures how the API report file (*.api.md) will be generated.\n+   */\n+  \"apiReport\": {\n+    /**\n+     * (REQUIRED) Whether to generate an API report.\n+     */\n+    \"enabled\": true\n+\n+    /**\n+     * The filename for the API report files.  It will be combined with \"reportFolder\" or \"reportTempFolder\" to produce\n+     * a full file path.\n+     *\n+     * The file extension should be \".api.md\", and the string should not contain a path separator such as \"\\\" or \"/\".\n+     *\n+     * SUPPORTED TOKENS: <packageName>, <unscopedPackageName>\n+     * DEFAULT VALUE: \"<unscopedPackageName>.api.md\"\n+     */\n+    // \"reportFileName\": \"<unscopedPackageName>.api.md\",\n+\n+    /**\n+     * Specifies the folder where the API report file is written.  The file name portion is determined by\n+     * the \"reportFileName\" setting.\n+     *\n+     * The API report file is normally tracked by Git.  Changes to it can be used to trigger a branch policy,\n+     * e.g. for an API review.\n+     *\n+     * The path is resolved relative to the folder of the config file that contains the setting; to change this,\n+     * prepend a folder token such as \"<projectFolder>\".\n+     *\n+     * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>\n+     * DEFAULT VALUE: \"<projectFolder>/temp/\"\n+     */\n+    // \"reportFolder\": \"<projectFolder>/temp/\",\n+\n+    /**\n+     * Specifies the folder where the temporary report file is written.  The file name portion is determined by\n+     * the \"reportFileName\" setting.\n+     *\n+     * After the temporary file is written to disk, it is compared with the file in the \"reportFolder\".\n+     * If they are different, a production build will fail.\n+     *\n+     * The path is resolved relative to the folder of the config file that contains the setting; to change this,\n+     * prepend a folder token such as \"<projectFolder>\".\n+     *\n+     * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>\n+     * DEFAULT VALUE: \"<projectFolder>/temp/\"\n+     */\n+    // \"reportTempFolder\": \"<projectFolder>/temp/\",\n+\n+    /**\n+     * Whether \"forgotten exports\" should be included in the API report file. Forgotten exports are declarations\n+     * flagged with `ae-forgotten-export` warnings. See https://api-extractor.com/pages/messages/ae-forgotten-export/ to\n+     * learn more.\n+     *\n+     * DEFAULT VALUE: \"false\"\n+     */\n+    // \"includeForgottenExports\": false\n+  },\n+\n+  /**\n+   * Configures how the doc model file (*.api.json) will be generated.\n+   */\n+  \"docModel\": {\n+    /**\n+     * (REQUIRED) Whether to generate a doc model file.\n+     */\n+    \"enabled\": true\n+\n+    /**\n+     * The output path for the doc model file.  The file extension should be \".api.json\".\n+     *\n+     * The path is resolved relative to the folder of the config file that contains the setting; to change this,\n+     * prepend a folder token such as \"<projectFolder>\".\n+     *\n+     * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>\n+     * DEFAULT VALUE: \"<projectFolder>/temp/<unscopedPackageName>.api.json\"\n+     */\n+    // \"apiJsonFilePath\": \"<projectFolder>/temp/<unscopedPackageName>.api.json\",\n+\n+    /**\n+     * Whether \"forgotten exports\" should be included in the doc model file. Forgotten exports are declarations\n+     * flagged with `ae-forgotten-export` warnings. See https://api-extractor.com/pages/messages/ae-forgotten-export/ to\n+     * learn more.\n+     *\n+     * DEFAULT VALUE: \"false\"\n+     */\n+    // \"includeForgottenExports\": false\n+  },\n+\n+  /**\n+   * Configures how the .d.ts rollup file will be generated.\n+   */\n+  \"dtsRollup\": {\n+    /**\n+     * (REQUIRED) Whether to generate the .d.ts rollup file.\n+     */\n+    \"enabled\": true\n+\n+    /**\n+     * Specifies the output path for a .d.ts rollup file to be generated without any trimming.\n+     * This file will include all declarations that are exported by the main entry point.\n+     *\n+     * If the path is an empty string, then this file will not be written.\n+     *\n+     * The path is resolved relative to the folder of the config file that contains the setting; to change this,\n+     * prepend a folder token such as \"<projectFolder>\".\n+     *\n+     * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>\n+     * DEFAULT VALUE: \"<projectFolder>/dist/<unscopedPackageName>.d.ts\"\n+     */\n+    // \"untrimmedFilePath\": \"<projectFolder>/dist/<unscopedPackageName>.d.ts\",\n+\n+    /**\n+     * Specifies the output path for a .d.ts rollup file to be generated with trimming for an \"alpha\" release.\n+     * This file will include only declarations that are marked as \"@public\", \"@beta\", or \"@alpha\".\n+     *\n+     * The path is resolved relative to the folder of the config file that contains the setting; to change this,\n+     * prepend a folder token such as \"<projectFolder>\".\n+     *\n+     * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>\n+     * DEFAULT VALUE: \"\"\n+     */\n+    // \"alphaTrimmedFilePath\": \"<projectFolder>/dist/<unscopedPackageName>-alpha.d.ts\",\n+\n+    /**\n+     * Specifies the output path for a .d.ts rollup file to be generated with trimming for a \"beta\" release.\n+     * This file will include only declarations that are marked as \"@public\" or \"@beta\".\n+     *\n+     * The path is resolved relative to the folder of the config file that contains the setting; to change this,\n+     * prepend a folder token such as \"<projectFolder>\".\n+     *\n+     * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>\n+     * DEFAULT VALUE: \"\"\n+     */\n+    // \"betaTrimmedFilePath\": \"<projectFolder>/dist/<unscopedPackageName>-beta.d.ts\",\n+\n+    /**\n+     * Specifies the output path for a .d.ts rollup file to be generated with trimming for a \"public\" release.\n+     * This file will include only declarations that are marked as \"@public\".\n+     *\n+     * If the path is an empty string, then this file will not be written.\n+     *\n+     * The path is resolved relative to the folder of the config file that contains the setting; to change this,\n+     * prepend a folder token such as \"<projectFolder>\".\n+     *\n+     * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>\n+     * DEFAULT VALUE: \"\"\n+     */\n+    // \"publicTrimmedFilePath\": \"<projectFolder>/dist/<unscopedPackageName>-public.d.ts\",\n+\n+    /**\n+     * When a declaration is trimmed, by default it will be replaced by a code comment such as\n+     * \"Excluded from this release type: exampleMember\".  Set \"omitTrimmingComments\" to true to remove the\n+     * declaration completely.\n+     *\n+     * DEFAULT VALUE: false\n+     */\n+    // \"omitTrimmingComments\": true\n+  },\n+\n+  /**\n+   * Configures how the tsdoc-metadata.json file will be generated.\n+   */\n+  \"tsdocMetadata\": {\n+    /**\n+     * Whether to generate the tsdoc-metadata.json file.\n+     *\n+     * DEFAULT VALUE: true\n+     */\n+    // \"enabled\": true,\n+    /**\n+     * Specifies where the TSDoc metadata file should be written.\n+     *\n+     * The path is resolved relative to the folder of the config file that contains the setting; to change this,\n+     * prepend a folder token such as \"<projectFolder>\".\n+     *\n+     * The default value is \"<lookup>\", which causes the path to be automatically inferred from the \"tsdocMetadata\",\n+     * \"typings\" or \"main\" fields of the project's package.json.  If none of these fields are set, the lookup\n+     * falls back to \"tsdoc-metadata.json\" in the package folder.\n+     *\n+     * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>\n+     * DEFAULT VALUE: \"<lookup>\"\n+     */\n+    // \"tsdocMetadataFilePath\": \"<projectFolder>/dist/tsdoc-metadata.json\"\n+  },\n+\n+  /**\n+   * Configures how API Extractor reports error and warning messages produced during analysis.\n+   *\n+   * There are three sources of messages:  compiler messages, API Extractor messages, and TSDoc messages.\n+   */\n+  \"messages\": {\n+    /**\n+     * Configures handling of diagnostic messages reported by the TypeScript compiler engine while analyzing\n+     * the input .d.ts files.\n+     *\n+     * TypeScript message identifiers start with \"TS\" followed by an integer.  For example: \"TS2551\"\n+     *\n+     * DEFAULT VALUE:  A single \"default\" entry with logLevel=warning.\n+     */\n+    \"compilerMessageReporting\": {\n+      /**\n+       * Configures the default routing for messages that don't match an explicit rule in this table.\n+       */\n+      \"default\": {\n+        /**\n+         * Specifies whether the message should be written to the the tool's output log.  Note that\n+         * the \"addToApiReportFile\" property may supersede this option.\n+         *\n+         * Possible values: \"error\", \"warning\", \"none\"\n+         *\n+         * Errors cause the build to fail and return a nonzero exit code.  Warnings cause a production build fail\n+         * and return a nonzero exit code.  For a non-production build (e.g. when \"api-extractor run\" includes\n+         * the \"--local\" option), the warning is displayed but the build will not fail.\n+         *\n+         * DEFAULT VALUE: \"warning\"\n+         */\n+        \"logLevel\": \"warning\"\n+\n+        /**\n+         * When addToApiReportFile is true:  If API Extractor is configured to write an API report file (.api.md),\n+         * then the message will be written inside that file; otherwise, the message is instead logged according to\n+         * the \"logLevel\" option.\n+         *\n+         * DEFAULT VALUE: false\n+         */\n+        // \"addToApiReportFile\": false\n+      }\n+\n+      // \"TS2551\": {\n+      //   \"logLevel\": \"warning\",\n+      //   \"addToApiReportFile\": true\n+      // },\n+      //\n+      // . . .\n+    },\n+\n+    /**\n+     * Configures handling of messages reported by API Extractor during its analysis.\n+     *\n+     * API Extractor message identifiers start with \"ae-\".  For example: \"ae-extra-release-tag\"\n+     *\n+     * DEFAULT VALUE: See api-extractor-defaults.json for the complete table of extractorMessageReporting mappings\n+     */\n+    \"extractorMessageReporting\": {\n+      \"default\": {\n+        \"logLevel\": \"warning\"\n+        // \"addToApiReportFile\": false\n+      }\n+\n+      // \"ae-extra-release-tag\": {\n+      //   \"logLevel\": \"warning\",\n+      //   \"addToApiReportFile\": true\n+      // },\n+      //\n+      // . . .\n+    },\n+\n+    /**\n+     * Configures handling of messages reported by the TSDoc parser when analyzing code comments.\n+     *\n+     * TSDoc message identifiers start with \"tsdoc-\".  For example: \"tsdoc-link-tag-unescaped-text\"\n+     *\n+     * DEFAULT VALUE:  A single \"default\" entry with logLevel=warning.\n+     */\n+    \"tsdocMessageReporting\": {\n+      \"default\": {\n+        \"logLevel\": \"warning\"\n+        // \"addToApiReportFile\": false\n+      }\n+\n+      // \"tsdoc-link-tag-unescaped-text\": {\n+      //   \"logLevel\": \"warning\",\n+      //   \"addToApiReportFile\": true\n+      // },\n+      //\n+      // . . .\n+    }\n+  }\n+}\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 3,
+          "deletions": 0,
+          "path": "apps/asg-eventbridge-notifier/config/jest.config.json",
+          "changeType": "added",
+          "patch": "commit 0098f6b84ab80aaefa53a97d418588c70759176a\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 22:53:05 2026 +0800\n\n    feat(app-asg-eventbridge-notifier): add new application for ASG termination event notifications (#2504)\n    \n    - Created the app-asg-eventbridge-notifier application to handle Auto Scaling termination events and send notifications to Feishu.\n    - Implemented event handling logic, including filtering based on ASG names and status checks.\n    - Developed message formatting for notifications, including details such as ASG name, instance ID, and termination cause.\n    - Added necessary configuration files for TypeScript, Jest, and API Extractor.\n    - Registered the new application in rush.json and updated pnpm-lock.yaml for dependency management.\n\ndiff --git a/apps/asg-eventbridge-notifier/config/jest.config.json b/apps/asg-eventbridge-notifier/config/jest.config.json\nnew file mode 100644\nindex 000000000..4bb17bde3\n--- /dev/null\n+++ b/apps/asg-eventbridge-notifier/config/jest.config.json\n@@ -0,0 +1,3 @@\n+{\n+  \"extends\": \"@rushstack/heft-node-rig/profiles/default/config/jest.config.json\"\n+}\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 18,
+          "deletions": 0,
+          "path": "apps/asg-eventbridge-notifier/config/rig.json",
+          "changeType": "added",
+          "patch": "commit 0098f6b84ab80aaefa53a97d418588c70759176a\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 22:53:05 2026 +0800\n\n    feat(app-asg-eventbridge-notifier): add new application for ASG termination event notifications (#2504)\n    \n    - Created the app-asg-eventbridge-notifier application to handle Auto Scaling termination events and send notifications to Feishu.\n    - Implemented event handling logic, including filtering based on ASG names and status checks.\n    - Developed message formatting for notifications, including details such as ASG name, instance ID, and termination cause.\n    - Added necessary configuration files for TypeScript, Jest, and API Extractor.\n    - Registered the new application in rush.json and updated pnpm-lock.yaml for dependency management.\n\ndiff --git a/apps/asg-eventbridge-notifier/config/rig.json b/apps/asg-eventbridge-notifier/config/rig.json\nnew file mode 100644\nindex 000000000..f6c7b5537\n--- /dev/null\n+++ b/apps/asg-eventbridge-notifier/config/rig.json\n@@ -0,0 +1,18 @@\n+// The \"rig.json\" file directs tools to look for their config files in an external package.\n+// Documentation for this system: https://www.npmjs.com/package/@rushstack/rig-package\n+{\n+  \"$schema\": \"https://developer.microsoft.com/json-schemas/rig-package/rig.schema.json\",\n+\n+  /**\n+   * (Required) The name of the rig package to inherit from.\n+   * It should be an NPM package name with the \"-rig\" suffix.\n+   */\n+  \"rigPackageName\": \"@rushstack/heft-node-rig\"\n+\n+  /**\n+   * (Optional) Selects a config profile from the rig package.  The name must consist of\n+   * lowercase alphanumeric words separated by hyphens, for example \"sample-profile\".\n+   * If omitted, then the \"default\" profile will be used.\"\n+   */\n+  // \"rigProfile\": \"your-profile-name\"\n+}\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 87,
+          "deletions": 0,
+          "path": "apps/asg-eventbridge-notifier/config/typescript.json",
+          "changeType": "added",
+          "patch": "commit 0098f6b84ab80aaefa53a97d418588c70759176a\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 22:53:05 2026 +0800\n\n    feat(app-asg-eventbridge-notifier): add new application for ASG termination event notifications (#2504)\n    \n    - Created the app-asg-eventbridge-notifier application to handle Auto Scaling termination events and send notifications to Feishu.\n    - Implemented event handling logic, including filtering based on ASG names and status checks.\n    - Developed message formatting for notifications, including details such as ASG name, instance ID, and termination cause.\n    - Added necessary configuration files for TypeScript, Jest, and API Extractor.\n    - Registered the new application in rush.json and updated pnpm-lock.yaml for dependency management.\n\ndiff --git a/apps/asg-eventbridge-notifier/config/typescript.json b/apps/asg-eventbridge-notifier/config/typescript.json\nnew file mode 100644\nindex 000000000..854907e8a\n--- /dev/null\n+++ b/apps/asg-eventbridge-notifier/config/typescript.json\n@@ -0,0 +1,87 @@\n+/**\n+ * Configures the TypeScript plugin for Heft.  This plugin also manages linting.\n+ */\n+{\n+  \"$schema\": \"https://developer.microsoft.com/json-schemas/heft/typescript.schema.json\",\n+\n+  /**\n+   * Optionally specifies another JSON config file that this file extends from. This provides a way for standard\n+   * settings to be shared across multiple projects.\n+   */\n+  // \"extends\": \"base-project/config/typescript.json\",\n+\n+  /**\n+   * Can be set to \"copy\" or \"hardlink\". If set to \"copy\", copy files from cache.\n+   * If set to \"hardlink\", files will be hardlinked to the cache location.\n+   * This option is useful when producing a tarball of build output as TAR files don't\n+   * handle these hardlinks correctly. \"hardlink\" is the default behavior.\n+   */\n+  // \"copyFromCacheMode\": \"copy\",\n+\n+  /**\n+   * If provided, emit these module kinds in addition to the modules specified in the tsconfig.\n+   * Note that this option only applies to the main tsconfig.json configuration.\n+   */\n+  \"additionalModuleKindsToEmit\": [\n+    {\n+      \"moduleKind\": \"esnext\",\n+      \"outFolderName\": \"dist\"\n+    }\n+    // {\n+    //   /**\n+    //    * (Required) Must be one of \"commonjs\", \"amd\", \"umd\", \"system\", \"es2015\", \"esnext\"\n+    //    */\n+    //  \"moduleKind\": \"amd\",\n+    //\n+    //   /**\n+    //    * (Required) The name of the folder where the output will be written.\n+    //    */\n+    //    \"outFolderName\": \"lib-amd\"\n+    // }\n+  ],\n+\n+  /**\n+   * Specifies the intermediary folder that tests will use.  Because Jest uses the\n+   * Node.js runtime to execute tests, the module format must be CommonJS.\n+   *\n+   * The default value is \"lib\".\n+   */\n+  // \"emitFolderNameForTests\": \"lib-commonjs\",\n+\n+  /**\n+   * If set to \"true\", the TSlint task will not be invoked.\n+   */\n+  // \"disableTslint\": true,\n+\n+  /**\n+   * Set this to change the maximum number of file handles that will be opened concurrently for writing.\n+   * The default is 50.\n+   */\n+  // \"maxWriteParallelism\": 50,\n+\n+  /**\n+   * Configures additional file types that should be copied into the TypeScript compiler's emit folders, for example\n+   * so that these files can be resolved by import statements.\n+   */\n+  \"staticAssetsToCopy\": {\n+    /**\n+     * File extensions that should be copied from the src folder to the destination folder(s).\n+     */\n+    // \"fileExtensions\": [\n+    //   \".json\", \".css\"\n+    // ],\n+    /**\n+     * Glob patterns that should be explicitly included.\n+     */\n+    // \"includeGlobs\": [\n+    //   \"some/path/*.js\"\n+    // ],\n+    /**\n+     * Glob patterns that should be explicitly excluded. This takes precedence over globs listed\n+     * in \"includeGlobs\" and files that match the file extensions provided in \"fileExtensions\".\n+     */\n+    // \"excludeGlobs\": [\n+    //   \"some/path/*.css\"\n+    // ]\n+  }\n+}\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 9,
+          "deletions": 0,
+          "path": "apps/asg-eventbridge-notifier/etc/app-asg-eventbridge-notifier.api.md",
+          "changeType": "added",
+          "patch": "commit 0098f6b84ab80aaefa53a97d418588c70759176a\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 22:53:05 2026 +0800\n\n    feat(app-asg-eventbridge-notifier): add new application for ASG termination event notifications (#2504)\n    \n    - Created the app-asg-eventbridge-notifier application to handle Auto Scaling termination events and send notifications to Feishu.\n    - Implemented event handling logic, including filtering based on ASG names and status checks.\n    - Developed message formatting for notifications, including details such as ASG name, instance ID, and termination cause.\n    - Added necessary configuration files for TypeScript, Jest, and API Extractor.\n    - Registered the new application in rush.json and updated pnpm-lock.yaml for dependency management.\n\ndiff --git a/apps/asg-eventbridge-notifier/etc/app-asg-eventbridge-notifier.api.md b/apps/asg-eventbridge-notifier/etc/app-asg-eventbridge-notifier.api.md\nnew file mode 100644\nindex 000000000..91bf77f65\n--- /dev/null\n+++ b/apps/asg-eventbridge-notifier/etc/app-asg-eventbridge-notifier.api.md\n@@ -0,0 +1,9 @@\n+## API Report File for \"@yuants/app-asg-eventbridge-notifier\"\r\n+\r\n+> Do not edit this file. It is a report generated by [API Extractor](https://api-extractor.com/).\r\n+\r\n+```ts\r\n+\r\n+// (No @packageDocumentation comment for this package)\r\n+\r\n+```\r\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 34,
+          "deletions": 0,
+          "path": "apps/asg-eventbridge-notifier/package.json",
+          "changeType": "added",
+          "patch": "commit 0098f6b84ab80aaefa53a97d418588c70759176a\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 22:53:05 2026 +0800\n\n    feat(app-asg-eventbridge-notifier): add new application for ASG termination event notifications (#2504)\n    \n    - Created the app-asg-eventbridge-notifier application to handle Auto Scaling termination events and send notifications to Feishu.\n    - Implemented event handling logic, including filtering based on ASG names and status checks.\n    - Developed message formatting for notifications, including details such as ASG name, instance ID, and termination cause.\n    - Added necessary configuration files for TypeScript, Jest, and API Extractor.\n    - Registered the new application in rush.json and updated pnpm-lock.yaml for dependency management.\n\ndiff --git a/apps/asg-eventbridge-notifier/package.json b/apps/asg-eventbridge-notifier/package.json\nnew file mode 100644\nindex 000000000..8ff556894\n--- /dev/null\n+++ b/apps/asg-eventbridge-notifier/package.json\n@@ -0,0 +1,34 @@\n+{\n+  \"name\": \"@yuants/app-asg-eventbridge-notifier\",\n+  \"version\": \"0.1.0\",\n+  \"main\": \"lib/index.js\",\n+  \"files\": [\n+    \"dist\",\n+    \"lib\",\n+    \"temp\"\n+  ],\n+  \"scripts\": {\n+    \"build\": \"heft test --clean && api-extractor run --local --config ./config/api-extractor.json && yuan-toolkit post-build\"\n+  },\n+  \"dependencies\": {\n+    \"@yuants/protocol\": \"workspace:*\",\n+    \"@yuants/utils\": \"workspace:*\"\n+  },\n+  \"devDependencies\": {\n+    \"@microsoft/api-extractor\": \"~7.55.2\",\n+    \"@rushstack/heft\": \"~1.1.7\",\n+    \"@rushstack/heft-jest-plugin\": \"~1.1.7\",\n+    \"@rushstack/heft-node-rig\": \"~2.11.12\",\n+    \"@types/heft-jest\": \"1.0.6\",\n+    \"@types/json-schema\": \"~7.0.11\",\n+    \"@types/node\": \"24\",\n+    \"@yuants/extension\": \"workspace:*\",\n+    \"@yuants/tool-kit\": \"workspace:*\",\n+    \"json-schema\": \"~0.4.0\",\n+    \"typescript\": \"~5.9.3\"\n+  },\n+  \"publishConfig\": {\n+    \"access\": \"public\",\n+    \"registry\": \"https://registry.npmjs.org\"\n+  }\n+}\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 111,
+          "deletions": 0,
+          "path": "apps/asg-eventbridge-notifier/src/format.ts",
+          "changeType": "added",
+          "patch": "commit 0098f6b84ab80aaefa53a97d418588c70759176a\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 22:53:05 2026 +0800\n\n    feat(app-asg-eventbridge-notifier): add new application for ASG termination event notifications (#2504)\n    \n    - Created the app-asg-eventbridge-notifier application to handle Auto Scaling termination events and send notifications to Feishu.\n    - Implemented event handling logic, including filtering based on ASG names and status checks.\n    - Developed message formatting for notifications, including details such as ASG name, instance ID, and termination cause.\n    - Added necessary configuration files for TypeScript, Jest, and API Extractor.\n    - Registered the new application in rush.json and updated pnpm-lock.yaml for dependency management.\n\ndiff --git a/apps/asg-eventbridge-notifier/src/format.ts b/apps/asg-eventbridge-notifier/src/format.ts\nnew file mode 100644\nindex 000000000..a721c8fbf\n--- /dev/null\n+++ b/apps/asg-eventbridge-notifier/src/format.ts\n@@ -0,0 +1,111 @@\n+import { formatTime } from '@yuants/utils';\n+import type { AutoScalingTerminationEvent } from './handler';\n+\n+const DEFAULT_MARGIN = '0px 0px 0px 0px';\n+\n+const buildField = (label: string, value: string) => ({\n+  tag: 'markdown',\n+  content: `<font color=\"grey\">${label}</font>\\n${value}`,\n+  text_align: 'left',\n+  text_size: 'normal_v2',\n+  margin: DEFAULT_MARGIN,\n+});\n+\n+const buildColumnSet = (left: ReturnType<typeof buildField>, right: ReturnType<typeof buildField>) => ({\n+  tag: 'column_set',\n+  horizontal_spacing: '8px',\n+  horizontal_align: 'left',\n+  columns: [\n+    {\n+      tag: 'column',\n+      width: 'weighted',\n+      elements: [left],\n+      vertical_spacing: '8px',\n+      horizontal_align: 'left',\n+      vertical_align: 'top',\n+      weight: 1,\n+    },\n+    {\n+      tag: 'column',\n+      width: 'weighted',\n+      elements: [right],\n+      vertical_spacing: '8px',\n+      horizontal_align: 'left',\n+      vertical_align: 'top',\n+      weight: 1,\n+    },\n+  ],\n+  margin: DEFAULT_MARGIN,\n+});\n+\n+export const buildAsgTerminationCard = (event: AutoScalingTerminationEvent) => {\n+  const detail = event.detail ?? {};\n+  const detailType = event['detail-type'];\n+  const isUnsuccessful = detailType === 'EC2 Instance Terminate Unsuccessful';\n+  const statusLabel = isUnsuccessful ? '终止失败' : '终止成功';\n+  const eventTime = event.time ?? Date.now();\n+  const utcTime = formatTime(eventTime, 'UTC');\n+  const jstTime = formatTime(eventTime, 'Asia/Tokyo');\n+\n+  const asgName = detail.AutoScalingGroupName ?? 'unknown';\n+  const instanceId = detail.EC2InstanceId ?? 'unknown';\n+  const lifecycleHook = detail.LifecycleHookName ?? 'None';\n+  const cause = detail.Cause ?? 'None';\n+  const region = event.region ?? 'unknown';\n+  const accountId = event.account ?? 'unknown';\n+\n+  return {\n+    schema: '2.0',\n+    config: {\n+      update_multi: true,\n+      style: {\n+        text_size: {\n+          normal_v2: {\n+            default: 'normal',\n+            pc: 'normal',\n+            mobile: 'heading',\n+          },\n+        },\n+      },\n+    },\n+    header: {\n+      title: {\n+        tag: 'plain_text',\n+        content: `${statusLabel} - ASG Terminate`,\n+      },\n+      subtitle: {\n+        tag: 'plain_text',\n+        content: detailType,\n+      },\n+      template: isUnsuccessful ? 'red' : 'blue',\n+      icon: {\n+        tag: 'standard_icon',\n+        token: isUnsuccessful ? 'warning-hollow_filled' : 'success-hollow_filled',\n+      },\n+      padding: '12px 12px 12px 12px',\n+    },\n+    body: {\n+      direction: 'vertical',\n+      horizontal_spacing: '8px',\n+      vertical_spacing: '8px',\n+      horizontal_align: 'left',\n+      vertical_align: 'top',\n+      padding: '12px 12px 12px 12px',\n+      elements: [\n+        buildColumnSet(buildField('AutoScalingGroupName', asgName), buildField('EC2InstanceId', instanceId)),\n+        buildColumnSet(buildField('LifecycleHookName', lifecycleHook), buildField('Region', region)),\n+        buildColumnSet(\n+          buildField('AccountId', accountId),\n+          buildField('EventTime', `${utcTime} / ${jstTime}`),\n+        ),\n+        {\n+          tag: 'markdown',\n+          content: `**Cause**\\n${cause}`,\n+          text_align: 'left',\n+          text_size: 'normal_v2',\n+          margin: DEFAULT_MARGIN,\n+        },\n+      ],\n+    },\n+  } as const;\n+};\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "DEFAULT_MARGIN",
+              "code": "const DEFAULT_MARGIN = '0px 0px 0px 0px';\n",
+              "lineStart": 4,
+              "lineEnd": 5
+            },
+            {
+              "type": "function",
+              "name": "buildField",
+              "code": "const buildField = (label: string, value: string) => ({\n  tag: 'markdown',\n  content: `<font color=\"grey\">${label}</font>\\n${value}`,\n  text_align: 'left',\n  text_size: 'normal_v2',\n  margin: DEFAULT_MARGIN,\n});\n",
+              "lineStart": 6,
+              "lineEnd": 13
+            },
+            {
+              "type": "function",
+              "name": "buildColumnSet",
+              "code": "const buildColumnSet = (left: ReturnType<typeof buildField>, right: ReturnType<typeof buildField>) => ({\n  tag: 'column_set',\n  horizontal_spacing: '8px',\n  horizontal_align: 'left',\n  columns: [\n    {\n      tag: 'column',\n      width: 'weighted',\n      elements: [left],\n      vertical_spacing: '8px',\n      horizontal_align: 'left',\n      vertical_align: 'top',\n      weight: 1,\n    },\n    {",
+              "lineStart": 14,
+              "lineEnd": 40
+            },
+            {
+              "type": "function",
+              "name": "buildAsgTerminationCard",
+              "code": "export const buildAsgTerminationCard = (event: AutoScalingTerminationEvent) => {",
+              "lineStart": 41,
+              "lineEnd": 41
+            },
+            {
+              "type": "function",
+              "name": "detail",
+              "code": "const detail = event.detail ?? {};",
+              "lineStart": 42,
+              "lineEnd": 42
+            },
+            {
+              "type": "function",
+              "name": "detailType",
+              "code": "const detailType = event['detail-type'];",
+              "lineStart": 43,
+              "lineEnd": 43
+            },
+            {
+              "type": "function",
+              "name": "isUnsuccessful",
+              "code": "const isUnsuccessful = detailType === 'EC2 Instance Terminate Unsuccessful';",
+              "lineStart": 44,
+              "lineEnd": 44
+            },
+            {
+              "type": "function",
+              "name": "statusLabel",
+              "code": "const statusLabel = isUnsuccessful ? '终止失败' : '终止成功';",
+              "lineStart": 45,
+              "lineEnd": 45
+            },
+            {
+              "type": "function",
+              "name": "eventTime",
+              "code": "const eventTime = event.time ?? Date.now();",
+              "lineStart": 46,
+              "lineEnd": 46
+            },
+            {
+              "type": "function",
+              "name": "utcTime",
+              "code": "const utcTime = formatTime(eventTime, 'UTC');",
+              "lineStart": 47,
+              "lineEnd": 47
+            },
+            {
+              "type": "function",
+              "name": "jstTime",
+              "code": "const jstTime = formatTime(eventTime, 'Asia/Tokyo');\n",
+              "lineStart": 48,
+              "lineEnd": 49
+            },
+            {
+              "type": "function",
+              "name": "asgName",
+              "code": "const asgName = detail.AutoScalingGroupName ?? 'unknown';",
+              "lineStart": 50,
+              "lineEnd": 50
+            },
+            {
+              "type": "function",
+              "name": "instanceId",
+              "code": "const instanceId = detail.EC2InstanceId ?? 'unknown';",
+              "lineStart": 51,
+              "lineEnd": 51
+            },
+            {
+              "type": "function",
+              "name": "lifecycleHook",
+              "code": "const lifecycleHook = detail.LifecycleHookName ?? 'None';",
+              "lineStart": 52,
+              "lineEnd": 52
+            },
+            {
+              "type": "function",
+              "name": "cause",
+              "code": "const cause = detail.Cause ?? 'None';",
+              "lineStart": 53,
+              "lineEnd": 53
+            },
+            {
+              "type": "function",
+              "name": "region",
+              "code": "const region = event.region ?? 'unknown';",
+              "lineStart": 54,
+              "lineEnd": 54
+            },
+            {
+              "type": "function",
+              "name": "accountId",
+              "code": "const accountId = event.account ?? 'unknown';\n\nreturn {\n  schema: '2.0',\n  config: {\n    update_multi: true,\n    style: {\n      text_size: {\n        normal_v2: {\n          default: 'normal',\n          pc: 'normal',\n          mobile: 'heading',\n        },\n      },\n    },",
+              "lineStart": 55,
+              "lineEnd": 112
+            }
+          ]
+        },
+        {
+          "additions": 88,
+          "deletions": 0,
+          "path": "apps/asg-eventbridge-notifier/src/handler.ts",
+          "changeType": "added",
+          "patch": "commit 0098f6b84ab80aaefa53a97d418588c70759176a\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 22:53:05 2026 +0800\n\n    feat(app-asg-eventbridge-notifier): add new application for ASG termination event notifications (#2504)\n    \n    - Created the app-asg-eventbridge-notifier application to handle Auto Scaling termination events and send notifications to Feishu.\n    - Implemented event handling logic, including filtering based on ASG names and status checks.\n    - Developed message formatting for notifications, including details such as ASG name, instance ID, and termination cause.\n    - Added necessary configuration files for TypeScript, Jest, and API Extractor.\n    - Registered the new application in rush.json and updated pnpm-lock.yaml for dependency management.\n\ndiff --git a/apps/asg-eventbridge-notifier/src/handler.ts b/apps/asg-eventbridge-notifier/src/handler.ts\nnew file mode 100644\nindex 000000000..474c6bea7\n--- /dev/null\n+++ b/apps/asg-eventbridge-notifier/src/handler.ts\n@@ -0,0 +1,88 @@\n+import type { Terminal } from '@yuants/protocol';\n+import { formatTime } from '@yuants/utils';\n+import { buildAsgTerminationCard } from './format';\n+\n+export type AutoScalingTerminationEvent = {\n+  source: string;\n+  'detail-type': string;\n+  account?: string;\n+  region?: string;\n+  time?: string;\n+  detail?: {\n+    AutoScalingGroupName?: string;\n+    EC2InstanceId?: string;\n+    Cause?: string;\n+    LifecycleHookName?: string;\n+  };\n+};\n+\n+const SUPPORTED_DETAIL_TYPES = new Set([\n+  'EC2 Instance Terminate Successful',\n+  'EC2 Instance Terminate Unsuccessful',\n+]);\n+\n+const parseBooleanEnv = (value: string | undefined) => value === 'true' || value === '1';\n+\n+const parseAsgNames = (value: string | undefined) =>\n+  new Set(\n+    (value ?? '')\n+      .split(';')\n+      .map((name) => name.trim())\n+      .filter(Boolean),\n+  );\n+\n+const isStatusChecksFailure = (cause: string | undefined) =>\n+  (cause ?? '').toLowerCase().includes('status checks failure');\n+\n+const shouldProcessEvent = (event: AutoScalingTerminationEvent) => {\n+  if (event.source !== 'aws.autoscaling') {\n+    return { ok: false, reason: 'source-mismatch' };\n+  }\n+  if (!SUPPORTED_DETAIL_TYPES.has(event['detail-type'])) {\n+    return { ok: false, reason: 'detail-type-mismatch' };\n+  }\n+\n+  const allowedAsgNames = parseAsgNames(process.env.ASG_NAMES);\n+  const asgName = event.detail?.AutoScalingGroupName;\n+  if (allowedAsgNames.size > 0 && (!asgName || !allowedAsgNames.has(asgName))) {\n+    return { ok: false, reason: 'asg-name-mismatch' };\n+  }\n+\n+  if (parseBooleanEnv(process.env.STATUS_CHECKS_ONLY) && !isStatusChecksFailure(event.detail?.Cause)) {\n+    return { ok: false, reason: 'status-checks-only' };\n+  }\n+\n+  return { ok: true };\n+};\n+\n+export const handleAsgEvent = async (terminal: Terminal, event: AutoScalingTerminationEvent) => {\n+  const check = shouldProcessEvent(event);\n+  if (!check.ok) {\n+    console.info(formatTime(Date.now()), 'ASGEventSkipped', check.reason, event['detail-type']);\n+    return { notified: false, reason: check.reason };\n+  }\n+\n+  const receiverId = process.env.FEISHU_RECEIVER_ID;\n+  if (!receiverId) {\n+    return { notified: false, reason: 'feishu-receiver-missing' };\n+  }\n+\n+  const card = buildAsgTerminationCard(event);\n+  const payload = {\n+    receive_id: receiverId,\n+    receive_id_type: 'chat_id',\n+    msg_type: 'interactive',\n+    content: JSON.stringify(card),\n+  };\n+\n+  const result = await terminal.client.requestForResponse<typeof payload, { message_id: string }>(\n+    'Feishu/SendMessage',\n+    payload,\n+  );\n+\n+  if (result.code !== 0) {\n+    throw new Error(`SendFeishuCardFailed: ${result.message}`);\n+  }\n+\n+  return { notified: true };\n+};\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "SUPPORTED_DETAIL_TYPES",
+              "code": "const SUPPORTED_DETAIL_TYPES = new Set([\n  'EC2 Instance Terminate Successful',\n  'EC2 Instance Terminate Unsuccessful',\n]);\n",
+              "lineStart": 19,
+              "lineEnd": 23
+            },
+            {
+              "type": "function",
+              "name": "parseBooleanEnv",
+              "code": "const parseBooleanEnv = (value: string | undefined) => value === 'true' || value === '1';\n",
+              "lineStart": 24,
+              "lineEnd": 25
+            },
+            {
+              "type": "function",
+              "name": "parseAsgNames",
+              "code": "const parseAsgNames = (value: string | undefined) =>\n  new Set(\n    (value ?? '')\n      .split(';')\n      .map((name) => name.trim())\n      .filter(Boolean),\n  );\n",
+              "lineStart": 26,
+              "lineEnd": 33
+            },
+            {
+              "type": "function",
+              "name": "isStatusChecksFailure",
+              "code": "const isStatusChecksFailure = (cause: string | undefined) =>\n  (cause ?? '').toLowerCase().includes('status checks failure');\n",
+              "lineStart": 34,
+              "lineEnd": 36
+            },
+            {
+              "type": "function",
+              "name": "shouldProcessEvent",
+              "code": "const shouldProcessEvent = (event: AutoScalingTerminationEvent) => {\n  if (event.source !== 'aws.autoscaling') {\n    return { ok: false, reason: 'source-mismatch' };\n  }\n  if (!SUPPORTED_DETAIL_TYPES.has(event['detail-type'])) {\n    return { ok: false, reason: 'detail-type-mismatch' };\n  }\n",
+              "lineStart": 37,
+              "lineEnd": 44
+            },
+            {
+              "type": "function",
+              "name": "allowedAsgNames",
+              "code": "const allowedAsgNames = parseAsgNames(process.env.ASG_NAMES);",
+              "lineStart": 45,
+              "lineEnd": 45
+            },
+            {
+              "type": "function",
+              "name": "asgName",
+              "code": "  const asgName = event.detail?.AutoScalingGroupName;\n  if (allowedAsgNames.size > 0 && (!asgName || !allowedAsgNames.has(asgName))) {\n    return { ok: false, reason: 'asg-name-mismatch' };\n  }\n\n  if (parseBooleanEnv(process.env.STATUS_CHECKS_ONLY) && !isStatusChecksFailure(event.detail?.Cause)) {\n    return { ok: false, reason: 'status-checks-only' };\n  }\n\n  return { ok: true };\n};\n",
+              "lineStart": 46,
+              "lineEnd": 57
+            },
+            {
+              "type": "function",
+              "name": "handleAsgEvent",
+              "code": "export const handleAsgEvent = async (terminal: Terminal, event: AutoScalingTerminationEvent) => {",
+              "lineStart": 58,
+              "lineEnd": 58
+            },
+            {
+              "type": "function",
+              "name": "check",
+              "code": "const check = shouldProcessEvent(event);\nif (!check.ok) {\n  console.info(formatTime(Date.now()), 'ASGEventSkipped', check.reason, event['detail-type']);\n  return { notified: false, reason: check.reason };\n}\n",
+              "lineStart": 59,
+              "lineEnd": 64
+            },
+            {
+              "type": "function",
+              "name": "receiverId",
+              "code": "const receiverId = process.env.FEISHU_RECEIVER_ID;\nif (!receiverId) {\n  return { notified: false, reason: 'feishu-receiver-missing' };\n}\n",
+              "lineStart": 65,
+              "lineEnd": 69
+            },
+            {
+              "type": "function",
+              "name": "card",
+              "code": "const card = buildAsgTerminationCard(event);",
+              "lineStart": 70,
+              "lineEnd": 70
+            },
+            {
+              "type": "function",
+              "name": "payload",
+              "code": "const payload = {\n  receive_id: receiverId,\n  receive_id_type: 'chat_id',\n  msg_type: 'interactive',\n  content: JSON.stringify(card),\n};\n",
+              "lineStart": 71,
+              "lineEnd": 77
+            },
+            {
+              "type": "function",
+              "name": "result",
+              "code": "  const result = await terminal.client.requestForResponse<typeof payload, { message_id: string }>(\n    'Feishu/SendMessage',\n    payload,\n  );\n\n  if (result.code !== 0) {\n    throw new Error(`SendFeishuCardFailed: ${result.message}`);\n  }\n\n  return { notified: true };\n};",
+              "lineStart": 78,
+              "lineEnd": 89
+            }
+          ]
+        },
+        {
+          "additions": 45,
+          "deletions": 0,
+          "path": "apps/asg-eventbridge-notifier/src/index.ts",
+          "changeType": "added",
+          "patch": "commit 0098f6b84ab80aaefa53a97d418588c70759176a\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 22:53:05 2026 +0800\n\n    feat(app-asg-eventbridge-notifier): add new application for ASG termination event notifications (#2504)\n    \n    - Created the app-asg-eventbridge-notifier application to handle Auto Scaling termination events and send notifications to Feishu.\n    - Implemented event handling logic, including filtering based on ASG names and status checks.\n    - Developed message formatting for notifications, including details such as ASG name, instance ID, and termination cause.\n    - Added necessary configuration files for TypeScript, Jest, and API Extractor.\n    - Registered the new application in rush.json and updated pnpm-lock.yaml for dependency management.\n\ndiff --git a/apps/asg-eventbridge-notifier/src/index.ts b/apps/asg-eventbridge-notifier/src/index.ts\nnew file mode 100644\nindex 000000000..67ec7ca7d\n--- /dev/null\n+++ b/apps/asg-eventbridge-notifier/src/index.ts\n@@ -0,0 +1,45 @@\n+import { Terminal } from '@yuants/protocol';\n+import type { AutoScalingTerminationEvent } from './handler';\n+import { handleAsgEvent } from './handler';\n+import { JSONSchema7 } from 'json-schema';\n+\n+const terminal = Terminal.fromNodeEnv();\n+\n+const schema: JSONSchema7 = {\n+  type: 'object',\n+  required: ['source', 'detail-type', 'detail'],\n+  properties: {\n+    source: { type: 'string', const: 'aws.autoscaling' },\n+    'detail-type': {\n+      type: 'string',\n+      enum: ['EC2 Instance Terminate Successful', 'EC2 Instance Terminate Unsuccessful'],\n+    },\n+    account: { type: 'string' },\n+    region: { type: 'string' },\n+    time: { type: 'string' },\n+    detail: {\n+      type: 'object',\n+      required: ['AutoScalingGroupName'],\n+      properties: {\n+        AutoScalingGroupName: { type: 'string' },\n+        EC2InstanceId: { type: 'string' },\n+        Cause: { type: 'string' },\n+        LifecycleHookName: { type: 'string' },\n+      },\n+    },\n+  },\n+};\n+\n+type AutoScalingEventResponse = {\n+  notified: boolean;\n+  reason?: string;\n+};\n+\n+terminal.server.provideService<AutoScalingTerminationEvent, AutoScalingEventResponse>(\n+  'AWS/AutoScalingEvent',\n+  schema,\n+  async (msg) => {\n+    const data = await handleAsgEvent(terminal, msg.req);\n+    return { res: { code: 0, message: 'OK', data } };\n+  },\n+);\n",
+          "codeSnippets": [
+            {
+              "type": "function",
+              "name": "terminal",
+              "code": "const terminal = Terminal.fromNodeEnv();\n",
+              "lineStart": 6,
+              "lineEnd": 7
+            },
+            {
+              "type": "function",
+              "name": "schema",
+              "code": "const schema: JSONSchema7 = {\n  type: 'object',\n  required: ['source', 'detail-type', 'detail'],\n  properties: {\n    source: { type: 'string', const: 'aws.autoscaling' },\n    'detail-type': {\n      type: 'string',\n      enum: ['EC2 Instance Terminate Successful', 'EC2 Instance Terminate Unsuccessful'],\n    },\n    account: { type: 'string' },\n    region: { type: 'string' },\n    time: { type: 'string' },\n    detail: {\n      type: 'object',\n      required: ['AutoScalingGroupName'],",
+              "lineStart": 8,
+              "lineEnd": 41
+            },
+            {
+              "type": "function",
+              "name": "data",
+              "code": "    const data = await handleAsgEvent(terminal, msg.req);\n    return { res: { code: 0, message: 'OK', data } };\n  },\n);",
+              "lineStart": 42,
+              "lineEnd": 46
+            }
+          ]
+        },
+        {
+          "additions": 8,
+          "deletions": 0,
+          "path": "apps/asg-eventbridge-notifier/tsconfig.json",
+          "changeType": "added",
+          "patch": "commit 0098f6b84ab80aaefa53a97d418588c70759176a\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 22:53:05 2026 +0800\n\n    feat(app-asg-eventbridge-notifier): add new application for ASG termination event notifications (#2504)\n    \n    - Created the app-asg-eventbridge-notifier application to handle Auto Scaling termination events and send notifications to Feishu.\n    - Implemented event handling logic, including filtering based on ASG names and status checks.\n    - Developed message formatting for notifications, including details such as ASG name, instance ID, and termination cause.\n    - Added necessary configuration files for TypeScript, Jest, and API Extractor.\n    - Registered the new application in rush.json and updated pnpm-lock.yaml for dependency management.\n\ndiff --git a/apps/asg-eventbridge-notifier/tsconfig.json b/apps/asg-eventbridge-notifier/tsconfig.json\nnew file mode 100644\nindex 000000000..1fd2b07a2\n--- /dev/null\n+++ b/apps/asg-eventbridge-notifier/tsconfig.json\n@@ -0,0 +1,8 @@\n+{\n+  \"extends\": \"./node_modules/@rushstack/heft-node-rig/profiles/default/tsconfig-base.json\",\n+  \"compilerOptions\": {\n+    \"lib\": [\"ESNext\"],\n+    \"types\": [\"heft-jest\", \"node\"],\n+    \"skipLibCheck\": true\n+  }\n+}\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 10,
+          "deletions": 0,
+          "path": "common/changes/@yuants/app-asg-eventbridge-notifier/2026-01-14-14-50.json",
+          "changeType": "added",
+          "patch": "commit 0098f6b84ab80aaefa53a97d418588c70759176a\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 22:53:05 2026 +0800\n\n    feat(app-asg-eventbridge-notifier): add new application for ASG termination event notifications (#2504)\n    \n    - Created the app-asg-eventbridge-notifier application to handle Auto Scaling termination events and send notifications to Feishu.\n    - Implemented event handling logic, including filtering based on ASG names and status checks.\n    - Developed message formatting for notifications, including details such as ASG name, instance ID, and termination cause.\n    - Added necessary configuration files for TypeScript, Jest, and API Extractor.\n    - Registered the new application in rush.json and updated pnpm-lock.yaml for dependency management.\n\ndiff --git a/common/changes/@yuants/app-asg-eventbridge-notifier/2026-01-14-14-50.json b/common/changes/@yuants/app-asg-eventbridge-notifier/2026-01-14-14-50.json\nnew file mode 100644\nindex 000000000..b21c7307d\n--- /dev/null\n+++ b/common/changes/@yuants/app-asg-eventbridge-notifier/2026-01-14-14-50.json\n@@ -0,0 +1,10 @@\n+{\n+  \"changes\": [\n+    {\n+      \"packageName\": \"@yuants/app-asg-eventbridge-notifier\",\n+      \"comment\": \"add new package\",\n+      \"type\": \"minor\"\n+    }\n+  ],\n+  \"packageName\": \"@yuants/app-asg-eventbridge-notifier\"\n+}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 43,
+          "deletions": 0,
+          "path": "common/config/rush/pnpm-lock.yaml",
+          "changeType": "added",
+          "patch": "commit 0098f6b84ab80aaefa53a97d418588c70759176a\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 22:53:05 2026 +0800\n\n    feat(app-asg-eventbridge-notifier): add new application for ASG termination event notifications (#2504)\n    \n    - Created the app-asg-eventbridge-notifier application to handle Auto Scaling termination events and send notifications to Feishu.\n    - Implemented event handling logic, including filtering based on ASG names and status checks.\n    - Developed message formatting for notifications, including details such as ASG name, instance ID, and termination cause.\n    - Added necessary configuration files for TypeScript, Jest, and API Extractor.\n    - Registered the new application in rush.json and updated pnpm-lock.yaml for dependency management.\n\ndiff --git a/common/config/rush/pnpm-lock.yaml b/common/config/rush/pnpm-lock.yaml\nindex 0c8cdf2d4..f305b547b 100644\n--- a/common/config/rush/pnpm-lock.yaml\n+++ b/common/config/rush/pnpm-lock.yaml\n@@ -253,0 +254,43 @@ importers:\n+  ../../apps/asg-eventbridge-notifier:\n+    dependencies:\n+      '@yuants/protocol':\n+        specifier: workspace:*\n+        version: link:../../libraries/protocol\n+      '@yuants/utils':\n+        specifier: workspace:*\n+        version: link:../../libraries/utils\n+    devDependencies:\n+      '@microsoft/api-extractor':\n+        specifier: ~7.55.2\n+        version: 7.55.2(@types/node@24.10.4)\n+      '@rushstack/heft':\n+        specifier: ~1.1.7\n+        version: 1.1.7(@types/node@24.10.4)\n+      '@rushstack/heft-jest-plugin':\n+        specifier: ~1.1.7\n+        version: 1.1.7(@rushstack/heft@1.1.7(@types/node@24.10.4))(@types/node@24.10.4)(jest-environment-node@29.7.0)(ts-node@10.9.2(@types/node@24.10.4)(typescript@5.9.3))\n+      '@rushstack/heft-node-rig':\n+        specifier: ~2.11.12\n+        version: 2.11.12(@rushstack/heft@1.1.7(@types/node@24.10.4))(@types/node@24.10.4)(jiti@2.6.1)(ts-node@10.9.2(@types/node@24.10.4)(typescript@5.9.3))\n+      '@types/heft-jest':\n+        specifier: 1.0.6\n+        version: 1.0.6\n+      '@types/json-schema':\n+        specifier: ~7.0.11\n+        version: 7.0.15\n+      '@types/node':\n+        specifier: '24'\n+        version: 24.10.4\n+      '@yuants/extension':\n+        specifier: workspace:*\n+        version: link:../../libraries/extension\n+      '@yuants/tool-kit':\n+        specifier: workspace:*\n+        version: link:../../tools/toolkit\n+      json-schema:\n+        specifier: ~0.4.0\n+        version: 0.4.0\n+      typescript:\n+        specifier: ~5.9.3\n+        version: 5.9.3\n+\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 5,
+          "deletions": 0,
+          "path": "rush.json",
+          "changeType": "added",
+          "patch": "commit 0098f6b84ab80aaefa53a97d418588c70759176a\nAuthor: Siyuan Wang <c.one@thrimbda.com>\nDate:   Wed Jan 14 22:53:05 2026 +0800\n\n    feat(app-asg-eventbridge-notifier): add new application for ASG termination event notifications (#2504)\n    \n    - Created the app-asg-eventbridge-notifier application to handle Auto Scaling termination events and send notifications to Feishu.\n    - Implemented event handling logic, including filtering based on ASG names and status checks.\n    - Developed message formatting for notifications, including details such as ASG name, instance ID, and termination cause.\n    - Added necessary configuration files for TypeScript, Jest, and API Extractor.\n    - Registered the new application in rush.json and updated pnpm-lock.yaml for dependency management.\n\ndiff --git a/rush.json b/rush.json\nindex 0c720c3b2..6cf1f6cbf 100644\n--- a/rush.json\n+++ b/rush.json\n@@ -554,0 +555,5 @@\n+    {\n+      \"packageName\": \"@yuants/app-asg-eventbridge-notifier\",\n+      \"projectFolder\": \"apps/asg-eventbridge-notifier\",\n+      \"shouldPublish\": true\n+    },\n",
+          "codeSnippets": []
+        }
+      ]
+    }
+  ],
+  "analysis": {
+    "domains": [
+      {
+        "name": "API请求优化与限速",
+        "commits": [
+          "83608ad3a",
+          "0098f6b84"
+        ],
+        "files": [
+          ".legion/tasks/hyperliquid-api-tokenbucket/context.md",
+          ".legion/tasks/node-unit-deployment-grafana-dashboard/context.md",
+          ".legion/tasks/node-unit-deployment-grafana-dashboard/plan.md",
+          ".legion/tasks/node-unit-deployment-grafana-dashboard/tasks.md",
+          "apps/node-unit/dashboard-node-unit-deployment.json",
+          "apps/vendor-hyperliquid/SESSION_NOTES.md",
+          "apps/vendor-hyperliquid/src/api/client.ts",
+          "common/changes/@yuants/node-unit/2026-01-14-09-03.json",
+          "common/changes/@yuants/vendor-hyperliquid/2026-01-14-09-03.json",
+          ".legion/config.json"
+        ]
+      },
+      {
+        "name": "安全与鉴权",
+        "commits": [
+          "83608ad3a",
+          "0098f6b84"
+        ],
+        "files": [
+          ".legion/tasks/hyperliquid-api-tokenbucket/context.md",
+          ".legion/tasks/node-unit-deployment-grafana-dashboard/context.md",
+          ".legion/tasks/node-unit-deployment-grafana-dashboard/plan.md",
+          ".legion/tasks/node-unit-deployment-grafana-dashboard/tasks.md",
+          "apps/node-unit/dashboard-node-unit-deployment.json",
+          "apps/vendor-hyperliquid/SESSION_NOTES.md",
+          "apps/vendor-hyperliquid/src/api/client.ts",
+          "common/changes/@yuants/node-unit/2026-01-14-09-03.json",
+          "common/changes/@yuants/vendor-hyperliquid/2026-01-14-09-03.json",
+          ".legion/config.json"
+        ]
+      },
+      {
+        "name": "订单与交易",
+        "commits": [
+          "83608ad3a",
+          "0098f6b84"
+        ],
+        "files": [
+          ".legion/tasks/hyperliquid-api-tokenbucket/context.md",
+          ".legion/tasks/node-unit-deployment-grafana-dashboard/context.md",
+          ".legion/tasks/node-unit-deployment-grafana-dashboard/plan.md",
+          ".legion/tasks/node-unit-deployment-grafana-dashboard/tasks.md",
+          "apps/node-unit/dashboard-node-unit-deployment.json",
+          "apps/vendor-hyperliquid/SESSION_NOTES.md",
+          "apps/vendor-hyperliquid/src/api/client.ts",
+          "common/changes/@yuants/node-unit/2026-01-14-09-03.json",
+          "common/changes/@yuants/vendor-hyperliquid/2026-01-14-09-03.json",
+          ".legion/config.json"
+        ]
+      },
+      {
+        "name": "账户管理",
+        "commits": [
+          "83608ad3a",
+          "0098f6b84"
+        ],
+        "files": [
+          ".legion/tasks/hyperliquid-api-tokenbucket/context.md",
+          ".legion/tasks/node-unit-deployment-grafana-dashboard/context.md",
+          ".legion/tasks/node-unit-deployment-grafana-dashboard/plan.md",
+          ".legion/tasks/node-unit-deployment-grafana-dashboard/tasks.md",
+          "apps/node-unit/dashboard-node-unit-deployment.json",
+          "apps/vendor-hyperliquid/SESSION_NOTES.md",
+          "apps/vendor-hyperliquid/src/api/client.ts",
+          "common/changes/@yuants/node-unit/2026-01-14-09-03.json",
+          "common/changes/@yuants/vendor-hyperliquid/2026-01-14-09-03.json",
+          ".legion/config.json"
+        ]
+      },
+      {
+        "name": "市场数据",
+        "commits": [
+          "83608ad3a",
+          "0098f6b84"
+        ],
+        "files": [
+          ".legion/tasks/hyperliquid-api-tokenbucket/context.md",
+          ".legion/tasks/node-unit-deployment-grafana-dashboard/context.md",
+          ".legion/tasks/node-unit-deployment-grafana-dashboard/plan.md",
+          ".legion/tasks/node-unit-deployment-grafana-dashboard/tasks.md",
+          "apps/node-unit/dashboard-node-unit-deployment.json",
+          "apps/vendor-hyperliquid/SESSION_NOTES.md",
+          "apps/vendor-hyperliquid/src/api/client.ts",
+          "common/changes/@yuants/node-unit/2026-01-14-09-03.json",
+          "common/changes/@yuants/vendor-hyperliquid/2026-01-14-09-03.json",
+          ".legion/config.json"
+        ]
+      },
+      {
+        "name": "接口重构",
+        "commits": [
+          "83608ad3a",
+          "0098f6b84"
+        ],
+        "files": [
+          ".legion/tasks/hyperliquid-api-tokenbucket/context.md",
+          ".legion/tasks/node-unit-deployment-grafana-dashboard/context.md",
+          ".legion/tasks/node-unit-deployment-grafana-dashboard/plan.md",
+          ".legion/tasks/node-unit-deployment-grafana-dashboard/tasks.md",
+          "apps/node-unit/dashboard-node-unit-deployment.json",
+          "apps/vendor-hyperliquid/SESSION_NOTES.md",
+          "apps/vendor-hyperliquid/src/api/client.ts",
+          "common/changes/@yuants/node-unit/2026-01-14-09-03.json",
+          "common/changes/@yuants/vendor-hyperliquid/2026-01-14-09-03.json",
+          ".legion/config.json"
+        ]
+      },
+      {
+        "name": "配置与环境",
+        "commits": [
+          "83608ad3a",
+          "1fa5442e1",
+          "0098f6b84"
+        ],
+        "files": [
+          ".legion/tasks/hyperliquid-api-tokenbucket/context.md",
+          ".legion/tasks/node-unit-deployment-grafana-dashboard/context.md",
+          ".legion/tasks/node-unit-deployment-grafana-dashboard/plan.md",
+          ".legion/tasks/node-unit-deployment-grafana-dashboard/tasks.md",
+          "apps/node-unit/dashboard-node-unit-deployment.json",
+          "apps/vendor-hyperliquid/SESSION_NOTES.md",
+          "apps/vendor-hyperliquid/src/api/client.ts",
+          "common/changes/@yuants/node-unit/2026-01-14-09-03.json",
+          "common/changes/@yuants/vendor-hyperliquid/2026-01-14-09-03.json",
+          "apps/node-unit/CHANGELOG.json"
+        ]
+      },
+      {
+        "name": "文档",
+        "commits": [
+          "83608ad3a",
+          "1fa5442e1",
+          "0098f6b84"
+        ],
+        "files": [
+          ".legion/tasks/hyperliquid-api-tokenbucket/context.md",
+          ".legion/tasks/node-unit-deployment-grafana-dashboard/context.md",
+          ".legion/tasks/node-unit-deployment-grafana-dashboard/plan.md",
+          ".legion/tasks/node-unit-deployment-grafana-dashboard/tasks.md",
+          "apps/node-unit/dashboard-node-unit-deployment.json",
+          "apps/vendor-hyperliquid/SESSION_NOTES.md",
+          "apps/vendor-hyperliquid/src/api/client.ts",
+          "common/changes/@yuants/node-unit/2026-01-14-09-03.json",
+          "common/changes/@yuants/vendor-hyperliquid/2026-01-14-09-03.json",
+          "apps/node-unit/CHANGELOG.json"
+        ]
+      }
+    ],
+    "riskIndicators": [
+      {
+        "type": "no_tests",
+        "severity": "medium",
+        "details": "包含功能或修复提交但未见测试文件更新",
+        "commits": []
+      },
+      {
+        "type": "api_change",
+        "severity": "high",
+        "details": "1 个提交修改了API或接口定义",
+        "commits": [
+          "83608ad3a"
+        ]
+      }
+    ]
+  },
+  "metadata": {
+    "tool": "git-changes-reporter",
+    "version": "3.0.0",
+    "repository": "/home/runner/work/Yuan/Yuan"
+  }
+}
