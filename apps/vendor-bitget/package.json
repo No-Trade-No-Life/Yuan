@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-bitget",
-  "version": "0.14.7",
+  "version": "0.14.8",
   "main": "lib/index.js",
   "files": [
     "dist",
