@@ -2,6 +2,31 @@
   "name": "@yuants/vendor-gate",
   "entries": [
     {
+      "version": "0.8.1",
+      "tag": "@yuants/vendor-gate_v0.8.1",
+      "date": "Mon, 26 Jan 2026 18:40:09 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add trade history"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-trade\" to `0.1.32`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.17`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.8.0",
       "tag": "@yuants/vendor-gate_v0.8.0",
       "date": "Sat, 24 Jan 2026 14:09:09 GMT",

@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/http-services",
+  "entries": [
+    {
+      "version": "0.2.0",
+      "tag": "@yuants/http-services_v0.2.0",
+      "date": "Mon, 26 Jan 2026 18:40:09 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "implement http proxy services"
+          }
+        ]
+      }
+    }
+  ]
+}

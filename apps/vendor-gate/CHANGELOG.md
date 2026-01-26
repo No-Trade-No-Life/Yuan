@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-gate
 
-This log was last generated on Sat, 24 Jan 2026 14:09:09 GMT and should not be manually modified.
+This log was last generated on Mon, 26 Jan 2026 18:40:09 GMT and should not be manually modified.
+
+## 0.8.1
+Mon, 26 Jan 2026 18:40:09 GMT
+
+### Patches
+
+- add trade history
 
 ## 0.8.0
 Sat, 24 Jan 2026 14:09:09 GMT

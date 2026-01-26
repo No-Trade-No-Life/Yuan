@@ -1,6 +1,6 @@
 {
   "name": "@yuants/tool-sql-migration",
-  "version": "0.3.30",
+  "version": "0.3.31",
   "main": "lib/index.js",
   "bin": "lib/cli.js",
   "files": [
