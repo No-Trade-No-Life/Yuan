@@ -1,0 +1,42 @@
+{
+  "name": "@yuants/http-services",
+  "version": "0.1.0",
+  "description": "HTTP proxy service for Yuan Terminal",
+  "main": "lib/index.js",
+  "module": "dist/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "dist",
+    "lib",
+    "temp"
+  ],
+  "scripts": {
+    "build": "heft test --clean && api-extractor run --local --config ./config/api-extractor.json && yuan-toolkit post-build",
+    "bench": "ts-node benchmarks/index.ts",
+    "bench:profile": "clinic doctor -- ts-node benchmarks/index.ts",
+    "bench:flame": "0x -- ts-node benchmarks/index.ts"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
+  },
+  "devDependencies": {
+    "@yuants/tool-kit": "workspace:*",
+    "@microsoft/api-extractor": "~7.55.2",
+    "@rushstack/heft": "~1.1.7",
+    "@rushstack/heft-jest-plugin": "~1.1.7",
+    "@rushstack/heft-node-rig": "~2.11.12",
+    "@types/heft-jest": "1.0.6",
+    "@types/node": "24",
+    "typescript": "~5.9.3",
+    "autocannon": "^7.15.0",
+    "clinic": "^13.0.0",
+    "0x": "^5.7.0",
+    "ts-node": "^10.9.2",
+    "rxjs": "~7.5.6"
+  },
+  "dependencies": {
+    "@yuants/protocol": "workspace:*",
+    "@yuants/utils": "workspace:*"
+  }
+}

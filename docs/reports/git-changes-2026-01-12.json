@@ -1,0 +1,584 @@
+{
+  "range": {
+    "old": "6d44b32d268805f72dc6af004841497cddac25d3",
+    "new": "685763533577267f3ef7a95958a711ffa8282401",
+    "label": "6d44b32d2..685763533",
+    "startDate": "2026-01-11",
+    "endDate": "2026-01-11",
+    "commitCount": 1,
+    "generatedAt": "2026-01-12T00:06:23.735Z"
+  },
+  "contributors": [
+    {
+      "name": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "commits": 1
+    }
+  ],
+  "directoryAnalysis": {
+    "topLevel": [
+      {
+        "dir": "apps",
+        "fileCount": 30
+      },
+      {
+        "dir": "common",
+        "fileCount": 18
+      },
+      {
+        "dir": "libraries",
+        "fileCount": 3
+      }
+    ],
+    "projects": [
+      {
+        "project": "common",
+        "fileCount": 18,
+        "marker": null
+      },
+      {
+        "project": "apps/vendor-aster",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-binance",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-bitget",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-gate",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-huobi",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-hyperliquid",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-okx",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-trading-view",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/vendor-turboflow",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "apps/virtual-exchange",
+        "fileCount": 3,
+        "marker": "package.json"
+      },
+      {
+        "project": "libraries/exchange",
+        "fileCount": 3,
+        "marker": "package.json"
+      }
+    ],
+    "markersUsed": [
+      "package.json",
+      "Cargo.toml",
+      "go.mod",
+      "requirements.txt",
+      "pyproject.toml",
+      "setup.py",
+      "pom.xml",
+      "build.gradle",
+      "build.gradle.kts",
+      "CMakeLists.txt",
+      "Makefile",
+      "pubspec.yaml",
+      "mix.exs",
+      "Gemfile",
+      "composer.json"
+    ]
+  },
+  "commits": [
+    {
+      "hash": "685763533577267f3ef7a95958a711ffa8282401",
+      "short": "685763533",
+      "author": "humblelittlec1[bot]",
+      "email": "208195530+humblelittlec1[bot]@users.noreply.github.com",
+      "authoredAt": "2026-01-11 08:09:56 +0800",
+      "subject": "chore: bump version (#2489)",
+      "conventionalCommit": {
+        "type": "chore",
+        "scope": null,
+        "breaking": false
+      },
+      "files": [
+        {
+          "additions": 22,
+          "deletions": 0,
+          "path": "apps/vendor-aster/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/CHANGELOG.json b/apps/vendor-aster/CHANGELOG.json\nindex 1243cb7e5..07d526919 100644\n--- a/apps/vendor-aster/CHANGELOG.json\n+++ b/apps/vendor-aster/CHANGELOG.json\n@@ -3,0 +4,22 @@\n+    {\n+      \"version\": \"0.10.1\",\n+      \"tag\": \"@yuants/vendor-aster_v0.10.1\",\n+      \"date\": \"Sun, 11 Jan 2026 00:09:14 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"add ledger type\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.8.12`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-aster/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/CHANGELOG.md b/apps/vendor-aster/CHANGELOG.md\nindex 97a96bdb4..f4ca97fad 100644\n--- a/apps/vendor-aster/CHANGELOG.md\n+++ b/apps/vendor-aster/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Wed, 07 Jan 2026 12:14:06 GMT and should not be manually modified.\n+This log was last generated on Sun, 11 Jan 2026 00:09:15 GMT and should not be manually modified.\n+\n+## 0.10.1\n+Sun, 11 Jan 2026 00:09:14 GMT\n+\n+### Patches\n+\n+- add ledger type\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-aster/package.json",
+          "changeType": "modified",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-aster/package.json b/apps/vendor-aster/package.json\nindex 485800a92..9b130ec34 100644\n--- a/apps/vendor-aster/package.json\n+++ b/apps/vendor-aster/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.10.0\",\n+  \"version\": \"0.10.1\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 22,
+          "deletions": 0,
+          "path": "apps/vendor-binance/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-binance/CHANGELOG.json b/apps/vendor-binance/CHANGELOG.json\nindex 045ecfa4e..5e39e1493 100644\n--- a/apps/vendor-binance/CHANGELOG.json\n+++ b/apps/vendor-binance/CHANGELOG.json\n@@ -3,0 +4,22 @@\n+    {\n+      \"version\": \"0.13.1\",\n+      \"tag\": \"@yuants/vendor-binance_v0.13.1\",\n+      \"date\": \"Sun, 11 Jan 2026 00:09:15 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"add ledger type\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.8.12`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-binance/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-binance/CHANGELOG.md b/apps/vendor-binance/CHANGELOG.md\nindex 6bffe75a0..25b190d46 100644\n--- a/apps/vendor-binance/CHANGELOG.md\n+++ b/apps/vendor-binance/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Wed, 07 Jan 2026 12:14:06 GMT and should not be manually modified.\n+This log was last generated on Sun, 11 Jan 2026 00:09:15 GMT and should not be manually modified.\n+\n+## 0.13.1\n+Sun, 11 Jan 2026 00:09:15 GMT\n+\n+### Patches\n+\n+- add ledger type\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-binance/package.json",
+          "changeType": "modified",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-binance/package.json b/apps/vendor-binance/package.json\nindex 9b0c5441c..f39a3bd1d 100644\n--- a/apps/vendor-binance/package.json\n+++ b/apps/vendor-binance/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.13.0\",\n+  \"version\": \"0.13.1\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 22,
+          "deletions": 0,
+          "path": "apps/vendor-bitget/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-bitget/CHANGELOG.json b/apps/vendor-bitget/CHANGELOG.json\nindex 3d704210f..8f9dfe0cd 100644\n--- a/apps/vendor-bitget/CHANGELOG.json\n+++ b/apps/vendor-bitget/CHANGELOG.json\n@@ -3,0 +4,22 @@\n+    {\n+      \"version\": \"0.14.1\",\n+      \"tag\": \"@yuants/vendor-bitget_v0.14.1\",\n+      \"date\": \"Sun, 11 Jan 2026 00:09:15 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"add ledger type\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.8.12`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-bitget/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-bitget/CHANGELOG.md b/apps/vendor-bitget/CHANGELOG.md\nindex ac6a383ad..3730d8ec5 100644\n--- a/apps/vendor-bitget/CHANGELOG.md\n+++ b/apps/vendor-bitget/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Wed, 07 Jan 2026 12:14:06 GMT and should not be manually modified.\n+This log was last generated on Sun, 11 Jan 2026 00:09:15 GMT and should not be manually modified.\n+\n+## 0.14.1\n+Sun, 11 Jan 2026 00:09:15 GMT\n+\n+### Patches\n+\n+- add ledger type\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-bitget/package.json",
+          "changeType": "modified",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-bitget/package.json b/apps/vendor-bitget/package.json\nindex d85e3696b..2fcde6463 100644\n--- a/apps/vendor-bitget/package.json\n+++ b/apps/vendor-bitget/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.14.0\",\n+  \"version\": \"0.14.1\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 22,
+          "deletions": 0,
+          "path": "apps/vendor-gate/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-gate/CHANGELOG.json b/apps/vendor-gate/CHANGELOG.json\nindex de72c2106..ca693b03c 100644\n--- a/apps/vendor-gate/CHANGELOG.json\n+++ b/apps/vendor-gate/CHANGELOG.json\n@@ -3,0 +4,22 @@\n+    {\n+      \"version\": \"0.7.1\",\n+      \"tag\": \"@yuants/vendor-gate_v0.7.1\",\n+      \"date\": \"Sun, 11 Jan 2026 00:09:15 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"add ledger type\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.8.12`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-gate/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-gate/CHANGELOG.md b/apps/vendor-gate/CHANGELOG.md\nindex 77ab0062b..00f0610d1 100644\n--- a/apps/vendor-gate/CHANGELOG.md\n+++ b/apps/vendor-gate/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Wed, 07 Jan 2026 12:14:06 GMT and should not be manually modified.\n+This log was last generated on Sun, 11 Jan 2026 00:09:15 GMT and should not be manually modified.\n+\n+## 0.7.1\n+Sun, 11 Jan 2026 00:09:15 GMT\n+\n+### Patches\n+\n+- add ledger type\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-gate/package.json",
+          "changeType": "modified",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-gate/package.json b/apps/vendor-gate/package.json\nindex da0f7abaf..f46c3f37e 100644\n--- a/apps/vendor-gate/package.json\n+++ b/apps/vendor-gate/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.7.0\",\n+  \"version\": \"0.7.1\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 22,
+          "deletions": 0,
+          "path": "apps/vendor-huobi/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-huobi/CHANGELOG.json b/apps/vendor-huobi/CHANGELOG.json\nindex 3b74de93a..88faba64d 100644\n--- a/apps/vendor-huobi/CHANGELOG.json\n+++ b/apps/vendor-huobi/CHANGELOG.json\n@@ -3,0 +4,22 @@\n+    {\n+      \"version\": \"0.19.1\",\n+      \"tag\": \"@yuants/vendor-huobi_v0.19.1\",\n+      \"date\": \"Sun, 11 Jan 2026 00:09:15 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"add ledger type\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.8.12`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-huobi/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-huobi/CHANGELOG.md b/apps/vendor-huobi/CHANGELOG.md\nindex f73eb0a60..0e1a2489f 100644\n--- a/apps/vendor-huobi/CHANGELOG.md\n+++ b/apps/vendor-huobi/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Wed, 07 Jan 2026 12:14:06 GMT and should not be manually modified.\n+This log was last generated on Sun, 11 Jan 2026 00:09:15 GMT and should not be manually modified.\n+\n+## 0.19.1\n+Sun, 11 Jan 2026 00:09:15 GMT\n+\n+### Patches\n+\n+- add ledger type\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-huobi/package.json",
+          "changeType": "modified",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-huobi/package.json b/apps/vendor-huobi/package.json\nindex 6de43cd3f..1f9979943 100644\n--- a/apps/vendor-huobi/package.json\n+++ b/apps/vendor-huobi/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.19.0\",\n+  \"version\": \"0.19.1\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-hyperliquid/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-hyperliquid/CHANGELOG.json b/apps/vendor-hyperliquid/CHANGELOG.json\nindex cc033904e..f308988a4 100644\n--- a/apps/vendor-hyperliquid/CHANGELOG.json\n+++ b/apps/vendor-hyperliquid/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.10.1\",\n+      \"tag\": \"@yuants/vendor-hyperliquid_v0.10.1\",\n+      \"date\": \"Sun, 11 Jan 2026 00:09:15 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.8.12`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "apps/vendor-hyperliquid/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-hyperliquid/CHANGELOG.md b/apps/vendor-hyperliquid/CHANGELOG.md\nindex 9208e31e8..59a1f2c2e 100644\n--- a/apps/vendor-hyperliquid/CHANGELOG.md\n+++ b/apps/vendor-hyperliquid/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Wed, 07 Jan 2026 12:14:06 GMT and should not be manually modified.\n+This log was last generated on Sun, 11 Jan 2026 00:09:15 GMT and should not be manually modified.\n+\n+## 0.10.1\n+Sun, 11 Jan 2026 00:09:15 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-hyperliquid/package.json",
+          "changeType": "modified",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-hyperliquid/package.json b/apps/vendor-hyperliquid/package.json\nindex b9314a1a3..23ffee400 100644\n--- a/apps/vendor-hyperliquid/package.json\n+++ b/apps/vendor-hyperliquid/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.10.0\",\n+  \"version\": \"0.10.1\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 22,
+          "deletions": 0,
+          "path": "apps/vendor-okx/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.json b/apps/vendor-okx/CHANGELOG.json\nindex ebd0cc367..74882a828 100644\n--- a/apps/vendor-okx/CHANGELOG.json\n+++ b/apps/vendor-okx/CHANGELOG.json\n@@ -3,0 +4,22 @@\n+    {\n+      \"version\": \"0.32.1\",\n+      \"tag\": \"@yuants/vendor-okx_v0.32.1\",\n+      \"date\": \"Sun, 11 Jan 2026 00:09:15 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"add ledger type\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.8.12`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "apps/vendor-okx/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/CHANGELOG.md b/apps/vendor-okx/CHANGELOG.md\nindex 84e5e4fec..45b3f2ec8 100644\n--- a/apps/vendor-okx/CHANGELOG.md\n+++ b/apps/vendor-okx/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Wed, 07 Jan 2026 12:14:06 GMT and should not be manually modified.\n+This log was last generated on Sun, 11 Jan 2026 00:09:15 GMT and should not be manually modified.\n+\n+## 0.32.1\n+Sun, 11 Jan 2026 00:09:15 GMT\n+\n+### Patches\n+\n+- add ledger type\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-okx/package.json",
+          "changeType": "modified",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-okx/package.json b/apps/vendor-okx/package.json\nindex 62f871886..a424baaca 100644\n--- a/apps/vendor-okx/package.json\n+++ b/apps/vendor-okx/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.32.0\",\n+  \"version\": \"0.32.1\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-trading-view/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-trading-view/CHANGELOG.json b/apps/vendor-trading-view/CHANGELOG.json\nindex 1e1d73791..c52f6f5c9 100644\n--- a/apps/vendor-trading-view/CHANGELOG.json\n+++ b/apps/vendor-trading-view/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.4.3\",\n+      \"tag\": \"@yuants/vendor-trading-view_v0.4.3\",\n+      \"date\": \"Sun, 11 Jan 2026 00:09:15 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.8.12`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "apps/vendor-trading-view/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-trading-view/CHANGELOG.md b/apps/vendor-trading-view/CHANGELOG.md\nindex 091f025e3..d07d8431a 100644\n--- a/apps/vendor-trading-view/CHANGELOG.md\n+++ b/apps/vendor-trading-view/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Tue, 06 Jan 2026 17:23:41 GMT and should not be manually modified.\n+This log was last generated on Sun, 11 Jan 2026 00:09:15 GMT and should not be manually modified.\n+\n+## 0.4.3\n+Sun, 11 Jan 2026 00:09:15 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-trading-view/package.json",
+          "changeType": "modified",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-trading-view/package.json b/apps/vendor-trading-view/package.json\nindex 1fc6ed88b..5e2e3518b 100644\n--- a/apps/vendor-trading-view/package.json\n+++ b/apps/vendor-trading-view/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.4.2\",\n+  \"version\": \"0.4.3\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/vendor-turboflow/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-turboflow/CHANGELOG.json b/apps/vendor-turboflow/CHANGELOG.json\nindex f79264a89..d14d2f570 100644\n--- a/apps/vendor-turboflow/CHANGELOG.json\n+++ b/apps/vendor-turboflow/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"1.2.30\",\n+      \"tag\": \"@yuants/vendor-turboflow_v1.2.30\",\n+      \"date\": \"Sun, 11 Jan 2026 00:09:15 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.8.12`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "apps/vendor-turboflow/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-turboflow/CHANGELOG.md b/apps/vendor-turboflow/CHANGELOG.md\nindex e93b7836f..fa04cb715 100644\n--- a/apps/vendor-turboflow/CHANGELOG.md\n+++ b/apps/vendor-turboflow/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Tue, 06 Jan 2026 17:23:41 GMT and should not be manually modified.\n+This log was last generated on Sun, 11 Jan 2026 00:09:15 GMT and should not be manually modified.\n+\n+## 1.2.30\n+Sun, 11 Jan 2026 00:09:15 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/vendor-turboflow/package.json",
+          "changeType": "modified",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/vendor-turboflow/package.json b/apps/vendor-turboflow/package.json\nindex 0dc1b7b1b..f3b8c83b0 100644\n--- a/apps/vendor-turboflow/package.json\n+++ b/apps/vendor-turboflow/package.json\n@@ -3 +3 @@\n-  \"version\": \"1.2.29\",\n+  \"version\": \"1.2.30\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "apps/virtual-exchange/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/virtual-exchange/CHANGELOG.json b/apps/virtual-exchange/CHANGELOG.json\nindex 289255a87..7b5787237 100644\n--- a/apps/virtual-exchange/CHANGELOG.json\n+++ b/apps/virtual-exchange/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.18.9\",\n+      \"tag\": \"@yuants/app-virtual-exchange_v0.18.9\",\n+      \"date\": \"Sun, 11 Jan 2026 00:09:14 GMT\",\n+      \"comments\": {\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ],\n+        \"dependency\": [\n+          {\n+            \"comment\": \"Updating dependency \\\"@yuants/exchange\\\" to `0.8.12`\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 6,
+          "deletions": 1,
+          "path": "apps/virtual-exchange/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/virtual-exchange/CHANGELOG.md b/apps/virtual-exchange/CHANGELOG.md\nindex a607b8fb9..1423305f6 100644\n--- a/apps/virtual-exchange/CHANGELOG.md\n+++ b/apps/virtual-exchange/CHANGELOG.md\n@@ -3 +3,6 @@\n-This log was last generated on Thu, 08 Jan 2026 06:07:44 GMT and should not be manually modified.\n+This log was last generated on Sun, 11 Jan 2026 00:09:14 GMT and should not be manually modified.\n+\n+## 0.18.9\n+Sun, 11 Jan 2026 00:09:14 GMT\n+\n+_Version update only_\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "apps/virtual-exchange/package.json",
+          "changeType": "modified",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/apps/virtual-exchange/package.json b/apps/virtual-exchange/package.json\nindex e58b4b6c6..acd0bad33 100644\n--- a/apps/virtual-exchange/package.json\n+++ b/apps/virtual-exchange/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.18.8\",\n+  \"version\": \"0.18.9\",\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/app-virtual-exchange/{main_2026-01-08-06-07.json => main_2026-01-11-00-09.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/exchange/2026-01-10-23-01.json",
+          "changeType": "deleted",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/exchange/2026-01-10-23-01.json b/common/changes/@yuants/exchange/2026-01-10-23-01.json\ndeleted file mode 100644\nindex 5d95ad49e..000000000\n--- a/common/changes/@yuants/exchange/2026-01-10-23-01.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/exchange\",\n-      \"comment\": \"add ledger type\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/exchange\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/exchange/{main_2026-01-06-17-24.json => main_2026-01-11-00-09.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-aster/2026-01-10-23-01.json",
+          "changeType": "deleted",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-aster/2026-01-10-23-01.json b/common/changes/@yuants/vendor-aster/2026-01-10-23-01.json\ndeleted file mode 100644\nindex c2ce4cbe8..000000000\n--- a/common/changes/@yuants/vendor-aster/2026-01-10-23-01.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-aster\",\n-      \"comment\": \"add ledger type\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-aster\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-aster/{main_2026-01-07-12-14.json => main_2026-01-11-00-09.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-binance/2026-01-10-23-01.json",
+          "changeType": "deleted",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-binance/2026-01-10-23-01.json b/common/changes/@yuants/vendor-binance/2026-01-10-23-01.json\ndeleted file mode 100644\nindex 459370621..000000000\n--- a/common/changes/@yuants/vendor-binance/2026-01-10-23-01.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-binance\",\n-      \"comment\": \"add ledger type\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-binance\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-binance/{main_2026-01-07-12-14.json => main_2026-01-11-00-09.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-bitget/2026-01-10-23-01.json",
+          "changeType": "deleted",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-bitget/2026-01-10-23-01.json b/common/changes/@yuants/vendor-bitget/2026-01-10-23-01.json\ndeleted file mode 100644\nindex 141c752ab..000000000\n--- a/common/changes/@yuants/vendor-bitget/2026-01-10-23-01.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-bitget\",\n-      \"comment\": \"add ledger type\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-bitget\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-bitget/{main_2026-01-07-12-14.json => main_2026-01-11-00-09.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-gate/2026-01-10-23-01.json",
+          "changeType": "deleted",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-gate/2026-01-10-23-01.json b/common/changes/@yuants/vendor-gate/2026-01-10-23-01.json\ndeleted file mode 100644\nindex cbccde04d..000000000\n--- a/common/changes/@yuants/vendor-gate/2026-01-10-23-01.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-gate\",\n-      \"comment\": \"add ledger type\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-gate\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-gate/{main_2026-01-07-12-14.json => main_2026-01-11-00-09.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-huobi/2026-01-10-23-01.json",
+          "changeType": "deleted",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-huobi/2026-01-10-23-01.json b/common/changes/@yuants/vendor-huobi/2026-01-10-23-01.json\ndeleted file mode 100644\nindex fd2496de1..000000000\n--- a/common/changes/@yuants/vendor-huobi/2026-01-10-23-01.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-huobi\",\n-      \"comment\": \"add ledger type\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-huobi\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-huobi/{main_2026-01-07-12-14.json => main_2026-01-11-00-09.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-hyperliquid/{main_2026-01-07-12-14.json => main_2026-01-11-00-09.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 10,
+          "path": "common/changes/@yuants/vendor-okx/2026-01-10-23-01.json",
+          "changeType": "deleted",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/common/changes/@yuants/vendor-okx/2026-01-10-23-01.json b/common/changes/@yuants/vendor-okx/2026-01-10-23-01.json\ndeleted file mode 100644\nindex a14f86b48..000000000\n--- a/common/changes/@yuants/vendor-okx/2026-01-10-23-01.json\n+++ /dev/null\n@@ -1,10 +0,0 @@\n-{\n-  \"changes\": [\n-    {\n-      \"packageName\": \"@yuants/vendor-okx\",\n-      \"comment\": \"add ledger type\",\n-      \"type\": \"patch\"\n-    }\n-  ],\n-  \"packageName\": \"@yuants/vendor-okx\"\n-}\n\\ No newline at end of file\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-okx/{main_2026-01-07-12-14.json => main_2026-01-11-00-09.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-trading-view/{main_2026-01-06-17-24.json => main_2026-01-11-00-09.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 0,
+          "deletions": 0,
+          "path": "common/changes/@yuants/vendor-turboflow/{main_2026-01-06-17-24.json => main_2026-01-11-00-09.json}",
+          "changeType": "renamed",
+          "patch": "",
+          "codeSnippets": []
+        },
+        {
+          "additions": 17,
+          "deletions": 0,
+          "path": "libraries/exchange/CHANGELOG.json",
+          "changeType": "added",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/libraries/exchange/CHANGELOG.json b/libraries/exchange/CHANGELOG.json\nindex c3036c487..d7f64f9dc 100644\n--- a/libraries/exchange/CHANGELOG.json\n+++ b/libraries/exchange/CHANGELOG.json\n@@ -3,0 +4,17 @@\n+    {\n+      \"version\": \"0.8.12\",\n+      \"tag\": \"@yuants/exchange_v0.8.12\",\n+      \"date\": \"Sun, 11 Jan 2026 00:09:14 GMT\",\n+      \"comments\": {\n+        \"patch\": [\n+          {\n+            \"comment\": \"add ledger type\"\n+          }\n+        ],\n+        \"none\": [\n+          {\n+            \"comment\": \"Bump Version\"\n+          }\n+        ]\n+      }\n+    },\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 8,
+          "deletions": 1,
+          "path": "libraries/exchange/CHANGELOG.md",
+          "changeType": "modified",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/libraries/exchange/CHANGELOG.md b/libraries/exchange/CHANGELOG.md\nindex 9ab3dbe16..05aa495ae 100644\n--- a/libraries/exchange/CHANGELOG.md\n+++ b/libraries/exchange/CHANGELOG.md\n@@ -3 +3,8 @@\n-This log was last generated on Tue, 06 Jan 2026 17:23:41 GMT and should not be manually modified.\n+This log was last generated on Sun, 11 Jan 2026 00:09:14 GMT and should not be manually modified.\n+\n+## 0.8.12\n+Sun, 11 Jan 2026 00:09:14 GMT\n+\n+### Patches\n+\n+- add ledger type\n",
+          "codeSnippets": []
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "libraries/exchange/package.json",
+          "changeType": "modified",
+          "patch": "commit 685763533577267f3ef7a95958a711ffa8282401\nAuthor: humblelittlec1[bot] <208195530+humblelittlec1[bot]@users.noreply.github.com>\nDate:   Sun Jan 11 08:09:56 2026 +0800\n\n    chore: bump version (#2489)\n    \n    Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>\n\ndiff --git a/libraries/exchange/package.json b/libraries/exchange/package.json\nindex a3033a2b5..bf1f8092b 100644\n--- a/libraries/exchange/package.json\n+++ b/libraries/exchange/package.json\n@@ -3 +3 @@\n-  \"version\": \"0.8.11\",\n+  \"version\": \"0.8.12\",\n",
+          "codeSnippets": []
+        }
+      ]
+    }
+  ],
+  "analysis": {
+    "domains": [
+      {
+        "name": "配置与环境",
+        "commits": [
+          "685763533"
+        ],
+        "files": [
+          "apps/vendor-aster/CHANGELOG.json",
+          "apps/vendor-aster/CHANGELOG.md",
+          "apps/vendor-aster/package.json",
+          "apps/vendor-binance/CHANGELOG.json",
+          "apps/vendor-binance/CHANGELOG.md",
+          "apps/vendor-binance/package.json",
+          "apps/vendor-bitget/CHANGELOG.json",
+          "apps/vendor-bitget/CHANGELOG.md",
+          "apps/vendor-bitget/package.json",
+          "apps/vendor-gate/CHANGELOG.json"
+        ]
+      },
+      {
+        "name": "文档",
+        "commits": [
+          "685763533"
+        ],
+        "files": [
+          "apps/vendor-aster/CHANGELOG.json",
+          "apps/vendor-aster/CHANGELOG.md",
+          "apps/vendor-aster/package.json",
+          "apps/vendor-binance/CHANGELOG.json",
+          "apps/vendor-binance/CHANGELOG.md",
+          "apps/vendor-binance/package.json",
+          "apps/vendor-bitget/CHANGELOG.json",
+          "apps/vendor-bitget/CHANGELOG.md",
+          "apps/vendor-bitget/package.json",
+          "apps/vendor-gate/CHANGELOG.json"
+        ]
+      }
+    ],
+    "riskIndicators": []
+  },
+  "metadata": {
+    "tool": "git-changes-reporter",
+    "version": "3.0.0",
+    "repository": "/home/runner/work/Yuan/Yuan"
+  }
+}
