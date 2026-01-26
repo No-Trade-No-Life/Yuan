@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-gate",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "main": "lib/index.js",
   "files": [
     "lib",
@@ -17,6 +17,7 @@
     "@yuants/data-account": "workspace:*",
     "@yuants/data-order": "workspace:*",
     "@yuants/data-ohlc": "workspace:*",
+    "@yuants/data-trade": "workspace:*",
     "@yuants/sql": "workspace:*",
     "@yuants/data-product": "workspace:*",
     "@yuants/utils": "workspace:*",

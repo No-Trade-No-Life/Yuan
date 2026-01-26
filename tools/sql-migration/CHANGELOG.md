@@ -1,6 +1,13 @@
 # Change Log - @yuants/tool-sql-migration
 
-This log was last generated on Tue, 06 Jan 2026 17:23:41 GMT and should not be manually modified.
+This log was last generated on Mon, 12 Jan 2026 03:30:04 GMT and should not be manually modified.
+
+## 0.3.30
+Mon, 12 Jan 2026 03:30:04 GMT
+
+### Patches
+
+- add trade history
 
 ## 0.3.29
 Tue, 06 Jan 2026 17:23:41 GMT

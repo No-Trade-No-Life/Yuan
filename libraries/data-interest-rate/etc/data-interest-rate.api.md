@@ -5,9 +5,18 @@
 ```ts
 
 // @public (undocumented)
+export const decodeInterestLedgerSeriesId: (series_id: string) => {
+    account_id: string;
+    ledger_type: string;
+};
+
+// @public (undocumented)
 export const decodeInterestRateSeriesId: (series_id: string) => {
     product_id: string;
 };
+
+// @public (undocumented)
+export const encodeInterestLedgerSeriesId: (account_id: string, ledger_type: string) => string;
 
 // @public (undocumented)
 export const encodeInterestRateSeriesId: (product_id: string) => string;

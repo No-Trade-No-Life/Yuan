@@ -2,6 +2,91 @@
   "name": "@yuants/vendor-turboflow",
   "entries": [
     {
+      "version": "1.2.34",
+      "tag": "@yuants/vendor-turboflow_v1.2.34",
+      "date": "Fri, 16 Jan 2026 09:43:32 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.16`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "1.2.33",
+      "tag": "@yuants/vendor-turboflow_v1.2.33",
+      "date": "Tue, 13 Jan 2026 10:53:40 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.15`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "1.2.32",
+      "tag": "@yuants/vendor-turboflow_v1.2.32",
+      "date": "Mon, 12 Jan 2026 05:15:55 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.14`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "1.2.31",
+      "tag": "@yuants/vendor-turboflow_v1.2.31",
+      "date": "Mon, 12 Jan 2026 03:30:04 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.13`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "1.2.30",
+      "tag": "@yuants/vendor-turboflow_v1.2.30",
+      "date": "Sun, 11 Jan 2026 00:09:15 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.12`"
+          }
+        ]
+      }
+    },
+    {
       "version": "1.2.29",
       "tag": "@yuants/vendor-turboflow_v1.2.29",
       "date": "Tue, 06 Jan 2026 17:23:41 GMT",

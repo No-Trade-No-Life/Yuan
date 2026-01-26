@@ -11,7 +11,7 @@ interface IExchangeCredential {
 
 const terminal = Terminal.fromNodeEnv();
 
-const WINDOW_MS = 10 * 24 * 3600_000;
+const WINDOW_MS = 48 * 3600_000;
 
 const fetchInterestRateLedgerForward = async (req: {
   credential: IExchangeCredential;
@@ -20,13 +20,18 @@ const fetchInterestRateLedgerForward = async (req: {
   ledger_type: string;
 }): Promise<IInterestLedger[]> => {
   if (req.ledger_type === 'FUNDING_FEE') {
+    const time = Math.max(req.time, Date.now() - 3600_000 * 24 * 88);
     const params = {
-      startTime: req.time,
-      endTime: req.time + WINDOW_MS,
+      startTime: time,
+      endTime: time + WINDOW_MS,
       incomeType: 'FUNDING_FEE',
       timestamp: Date.now(),
+      limit: 500,
     };
     const res = await getAccountIncome(req.credential.payload, params);
+    if (!Array.isArray(res)) {
+      throw new Error('getAccountIncome failed');
+    }
     return (res ?? [])
       .map((v): IInterestLedger => {
         const ms = Number(v.time);
@@ -39,7 +44,7 @@ const fetchInterestRateLedgerForward = async (req: {
           created_at: formatTime(ms),
         } as IInterestLedger;
       })
-      .filter((x) => Date.parse(x.created_at!) >= req.time);
+      .filter((x) => Date.parse(x.created_at!) >= time);
   }
   return [];
 };

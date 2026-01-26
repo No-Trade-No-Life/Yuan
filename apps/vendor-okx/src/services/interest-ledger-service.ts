@@ -26,6 +26,7 @@ const fetchInterestRateLedgerBackward = async (req: {
     params.limit = 100;
     params.type = '8';
     const res = await getAccountBillsArchive(req.credential.payload, params);
+    // console.log({ where: 'Here', res: res.data, params, credential: req.credential.payload });
     return (res.data ?? [])
       .map((v): IInterestLedger => {
         const ms = Number(v.ts);

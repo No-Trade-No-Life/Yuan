@@ -2,6 +2,111 @@
   "name": "@yuants/vendor-hyperliquid",
   "entries": [
     {
+      "version": "0.10.6",
+      "tag": "@yuants/vendor-hyperliquid_v0.10.6",
+      "date": "Fri, 16 Jan 2026 09:43:32 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.16`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.10.5",
+      "tag": "@yuants/vendor-hyperliquid_v0.10.5",
+      "date": "Wed, 14 Jan 2026 09:10:04 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "disable token limit after response"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.10.4",
+      "tag": "@yuants/vendor-hyperliquid_v0.10.4",
+      "date": "Tue, 13 Jan 2026 10:53:40 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.15`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.10.3",
+      "tag": "@yuants/vendor-hyperliquid_v0.10.3",
+      "date": "Mon, 12 Jan 2026 05:15:55 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-interest-rate\" to `0.2.9`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.14`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.10.2",
+      "tag": "@yuants/vendor-hyperliquid_v0.10.2",
+      "date": "Mon, 12 Jan 2026 03:30:04 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.13`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.10.1",
+      "tag": "@yuants/vendor-hyperliquid_v0.10.1",
+      "date": "Sun, 11 Jan 2026 00:09:15 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.12`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.10.0",
       "tag": "@yuants/vendor-hyperliquid_v0.10.0",
       "date": "Wed, 07 Jan 2026 12:14:06 GMT",
