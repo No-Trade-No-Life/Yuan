@@ -1,5 +1,5 @@
 import { Terminal } from '@yuants/protocol';
-import { decodePath, encodePath, formatTime, resourcePool } from '@yuants/utils';
+import { encodePath, formatTime, resourcePool } from '@yuants/utils';
 import { ICredential, isApiError } from '../api/client';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { ITradeHistory } from '@yuants/data-trade';
