@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-binance",
   "entries": [
     {
+      "version": "0.13.11",
+      "tag": "@yuants/vendor-binance_v0.13.11",
+      "date": "Tue, 27 Jan 2026 23:51:32 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add fetch trade history"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.13.10",
       "tag": "@yuants/vendor-binance_v0.13.10",
       "date": "Tue, 27 Jan 2026 22:28:36 GMT",
