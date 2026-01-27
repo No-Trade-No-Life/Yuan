@@ -1040,3 +1040,51 @@ export const getFundingAsset = (
     | IApiError
   >(credential, 'POST', endpoint, params);
 };
+
+/**
+ * UM账户成交历史 (USER_DATA)
+ * @param credential
+ * https://developers.binance.com/docs/zh-CN/derivatives/portfolio-margin/trade/UM-Account-Trade-List
+ * @param params
+ * @returns
+ */
+export const getUmAccountTradeList = (
+  credential: ICredential,
+  params: {
+    symbol: string;
+    timestamp: number;
+    fromId?: number;
+    startTime?: number;
+    endTime?: number;
+    limit?: number;
+    recvWindow?: number;
+  },
+) => {
+  const endpoint = 'https://papi.binance.com/papi/v1/um/userTrades';
+  const url = new URL(endpoint);
+  const weight = 5;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
+  );
+  return requestPrivate<
+    | {
+        symbol: string;
+        id: number;
+        orderId: number;
+        side: string;
+        price: string;
+        qty: string;
+        realizedPnl: string;
+        quoteQty: string;
+        commission: string;
+        commissionAsset: string;
+        time: number;
+        buyer: boolean;
+        maker: boolean;
+        positionSide: string;
+      }[]
+    | IApiError
+  >(credential, 'GET', endpoint, params);
+};
