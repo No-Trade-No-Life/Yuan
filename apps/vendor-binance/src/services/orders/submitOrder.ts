@@ -10,6 +10,7 @@ import {
   mapOrderDirectionToSide,
   mapOrderTypeToOrdType,
 } from './order-utils';
+import { fetchTradeHistory } from '../trade-history';
 
 const submitUnifiedOrder: IActionHandlerOfSubmitOrder<ICredential> = async (credential, order) => {
   const symbol = decodeFutureSymbol(order.product_id);
@@ -41,6 +42,9 @@ const submitUnifiedOrder: IActionHandlerOfSubmitOrder<ICredential> = async (cred
   });
   if (isApiError(res)) {
     throw new Error(`Binance submit unified order failed: ${res.code} ${res.msg}`);
+  }
+  if (order.order_type === 'MARKET') {
+    fetchTradeHistory(credential, order.product_id, symbol);
   }
   return { order_id: `${res.orderId}` };
 };
