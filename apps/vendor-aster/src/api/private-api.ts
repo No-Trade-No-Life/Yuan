@@ -572,3 +572,51 @@ export const getAccountIncome = (
   );
   return request(credential, 'GET', FutureBaseURL, endpoint, params);
 };
+
+/**
+ * 账户成交历史 (USER_DATA)
+ *
+ * 权重: 5
+ *
+ * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#%E8%B4%A6%E6%88%B7%E6%88%90%E4%BA%A4%E5%8E%86%E5%8F%B2-user_data
+ */
+export const getAccountTradeList = (
+  credential: ICredential,
+  params: {
+    symbol: string;
+    timestamp: number;
+    fromId?: number;
+    startTime?: number;
+    endTime?: number;
+    limit?: number;
+    recvWindow?: number;
+  },
+): Promise<
+  {
+    symbol: string;
+    id: number;
+    orderId: number;
+    side: string;
+    price: string;
+    qty: string;
+    realizedPnl: string;
+    quoteQty: string;
+    commission: string;
+    commissionAsset: string;
+    time: number;
+    buyer: boolean;
+    maker: boolean;
+    positionSide: string;
+  }[]
+> => {
+  const endpoint = '/fapi/v1/userTrades';
+  const url = new URL(FutureBaseURL);
+  url.pathname = endpoint;
+  const weight = 5;
+  scopeError(
+    'ASTER_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    () => tokenBucket(url.host).acquireSync(weight),
+  );
+  return request(credential, 'GET', FutureBaseURL, endpoint, params);
+};

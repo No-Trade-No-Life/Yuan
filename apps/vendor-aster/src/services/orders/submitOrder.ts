@@ -1,6 +1,7 @@
 import { IActionHandlerOfSubmitOrder } from '@yuants/data-order';
 import { decodePath, roundToStep } from '@yuants/utils';
 import { getApiV1TickerPrice, ICredential, postApiV1Order, postFApiV1Order } from '../../api/private-api';
+import { fetchTradeHistory } from '../trade-history';
 
 const parseProductId = (productId?: string) => {
   if (!productId) {
@@ -56,7 +57,9 @@ const handleSubmitOrderOfSpot: IActionHandlerOfSubmitOrder<ICredential> = async 
   if (!res.orderId) {
     throw new Error('Failed to retrieve order ID from response');
   }
-
+  if (type === 'MARKET') {
+    fetchTradeHistory(credential, order.product_id, resolvedSymbol);
+  }
   return { order_id: '' + res.orderId };
 };
 
@@ -111,7 +114,9 @@ const handleSubmitOrderOfPerp: IActionHandlerOfSubmitOrder<ICredential> = async 
     (res as any)?.data?.order_id;
 
   if (!orderId) throw new Error('Failed to retrieve order ID from response');
-
+  if (type === 'MARKET') {
+    fetchTradeHistory(credential, order.product_id, symbol);
+  }
   return { order_id: `${orderId}` };
 };
 

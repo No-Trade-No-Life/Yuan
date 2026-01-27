@@ -1,9 +1,9 @@
 import { Terminal } from '@yuants/protocol';
 import { encodePath, formatTime, resourcePool } from '@yuants/utils';
-import { ICredential, isApiError } from '../api/client';
+// import { ICredential, isApiError } from '../api/client';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { ITradeHistory } from '@yuants/data-trade';
-import { getSpotAccountInfo, getUmAccountTradeList } from '../api/private-api';
+import { getAccountTradeList, ICredential } from '../api/private-api';
 import { Subject, groupBy, mergeMap, debounceTime } from 'rxjs';
 
 const terminal = Terminal.fromNodeEnv();
@@ -16,7 +16,6 @@ interface IFetchTradeHistoryRequest {
 }
 
 const queueMap = new Map<string, boolean>();
-const mapCredentialToAccountId = new Map<string, string>();
 
 const request$ = new Subject<IFetchTradeHistoryRequest>();
 
@@ -33,18 +32,7 @@ request$
   .subscribe();
 
 export const fetchTradeHistory = async (credential: ICredential, productId: string, symbol: string) => {
-  if (!mapCredentialToAccountId.has(encodePath(credential.access_key, credential.secret_key))) {
-    const spotAccountInfo = await getSpotAccountInfo(credential);
-    if (isApiError(spotAccountInfo)) {
-      throw new Error(spotAccountInfo.msg);
-    }
-    const accountId = encodePath('BINANCE', spotAccountInfo.uid);
-    mapCredentialToAccountId.set(encodePath(credential.access_key, credential.secret_key), accountId);
-  }
-  const accountId = mapCredentialToAccountId.get(encodePath(credential.access_key, credential.secret_key));
-  if (!accountId) {
-    throw new Error('AccountIdNotFound');
-  }
+  const accountId = encodePath('ASTER', credential.address);
   request$.next({ credential, accountId, productId, symbol });
 };
 
@@ -59,8 +47,8 @@ const fetchTradeHistoryActual = async (
     await fetchTradeData(credential, accountId, productId, symbol).finally(() => {
       resourcePool(`${accountId}-${productId}`, { capacity: 1 }).release(1);
       if (queueMap.get(`${accountId}-${productId}`)) {
-        request$.next({ credential, accountId, productId, symbol });
         queueMap.delete(`${accountId}-${productId}`);
+        request$.next({ credential, accountId, productId, symbol });
       }
     });
   } catch (error) {
@@ -102,9 +90,9 @@ const fetchTradeData = async (
       }
     }
 
-    const trades = await getUmAccountTradeList(credential, params);
+    const trades = await getAccountTradeList(credential, params);
     if (!Array.isArray(trades)) {
-      throw new Error('GetUmAccountTradeListFailed');
+      throw new Error('GetAccountTradeListFailed');
     }
     const formatTrades = trades.map((v) => {
       let direction = 'OPEN_LONG';
@@ -130,7 +118,7 @@ const fetchTradeData = async (
         }
       }
       return {
-        id: String(v.id),
+        id: v.id.toString(),
         account_id: accountId,
         product_id: productId,
         size: v.qty,

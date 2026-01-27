@@ -43,7 +43,7 @@ const submitUnifiedOrder: IActionHandlerOfSubmitOrder<ICredential> = async (cred
   if (isApiError(res)) {
     throw new Error(`Binance submit unified order failed: ${res.code} ${res.msg}`);
   }
-  if (order.order_type === 'MARKET') {
+  if (type === 'MARKET') {
     fetchTradeHistory(credential, order.product_id, symbol);
   }
   return { order_id: `${res.orderId}` };
@@ -77,6 +77,9 @@ const submitSpotOrder: IActionHandlerOfSubmitOrder<ICredential> = async (credent
   const res = await postSpotOrder(credential, params);
   if (isApiError(res)) {
     throw new Error(`Binance submit spot order failed: ${res.code} ${res.msg}`);
+  }
+  if (type === 'MARKET') {
+    fetchTradeHistory(credential, order.product_id, symbol);
   }
   return { order_id: `${res.orderId}` };
 };
