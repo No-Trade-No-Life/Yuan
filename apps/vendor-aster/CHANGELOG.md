@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-aster
 
-This log was last generated on Mon, 26 Jan 2026 21:10:03 GMT and should not be manually modified.
+This log was last generated on Tue, 27 Jan 2026 23:51:32 GMT and should not be manually modified.
+
+## 0.10.10
+Tue, 27 Jan 2026 23:51:32 GMT
+
+### Patches
+
+- add fetch trade history 
 
 ## 0.10.9
 Mon, 26 Jan 2026 21:10:03 GMT
