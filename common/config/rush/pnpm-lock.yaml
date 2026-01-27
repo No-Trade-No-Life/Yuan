@@ -1228,6 +1228,9 @@ importers:
       '@yuants/data-series':
         specifier: workspace:*
         version: link:../../libraries/data-series
+      '@yuants/data-trade':
+        specifier: workspace:*
+        version: link:../../libraries/data-trade
       '@yuants/exchange':
         specifier: workspace:*
         version: link:../../libraries/exchange
