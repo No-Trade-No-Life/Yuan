@@ -744,6 +744,11 @@
       "packageName": "@yuants/http-services",
       "projectFolder": "libraries/http-services",
       "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/app-http-proxy",
+      "projectFolder": "apps/http-proxy",
+      "shouldPublish": true
     }
   ]
 }

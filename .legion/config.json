@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "http-proxy-service",
+  "currentTask": "http-proxy-app-implementation",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -178,9 +178,16 @@
     {
       "id": "http-proxy-service",
       "name": "HTTP Proxy Service 实现",
-      "status": "active",
+      "status": "paused",
       "createdAt": "2026-01-26T09:28:42.592Z",
-      "updatedAt": "2026-01-26T15:12:01.711Z"
+      "updatedAt": "2026-01-28T07:31:21.903Z"
+    },
+    {
+      "id": "http-proxy-app-implementation",
+      "name": "HTTP Proxy App Implementation",
+      "status": "active",
+      "createdAt": "2026-01-28T07:31:21.903Z",
+      "updatedAt": "2026-01-28T13:51:33.032Z"
     }
   ],
   "pendingProposals": [
@@ -2014,6 +2021,56 @@
       "decidedAt": "2026-01-26T09:28:42.592Z",
       "decidedBy": "Claude",
       "createdTaskId": "http-proxy-service"
+    },
+    {
+      "id": "proposal-mkxpi5ri-876052",
+      "name": "HTTP Proxy App Implementation",
+      "goal": "Create a simple @yuants/app-http-proxy application that starts a terminal and registers an HTTP service using http-services.",
+      "rationale": "User requested a simple HTTP proxy application using http-services.",
+      "points": [
+        "Simple application wrapper around http-services",
+        "Registers as a Terminal",
+        "Exposes HTTP service capability"
+      ],
+      "scope": ["apps/http-proxy"],
+      "phases": [
+        {
+          "tasks": [
+            {
+              "description": "Create RFC / Protocol Specification",
+              "acceptance": "RFC document created at docs/rfc.md"
+            },
+            {
+              "acceptance": "Spec documents created at docs/spec-*.md",
+              "description": "Create Dev, Test, Bench, and Obs Specifications"
+            },
+            {
+              "acceptance": "Design self-check report added to context and user approval requested",
+              "description": "Perform Design Self-Check"
+            }
+          ],
+          "name": "Design"
+        },
+        {
+          "tasks": [
+            {
+              "acceptance": "Package structure created and dependencies added",
+              "description": "Initialize package @yuants/app-http-proxy"
+            },
+            {
+              "acceptance": "Application starts and registers HTTP service",
+              "description": "Implement core logic"
+            }
+          ],
+          "name": "Implementation"
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-01-28T07:31:18.319Z",
+      "status": "approved",
+      "decidedAt": "2026-01-28T07:31:21.903Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "http-proxy-app-implementation"
     }
   ]
 }
