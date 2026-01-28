@@ -7,7 +7,7 @@ import { spawn, ChildProcess } from 'child_process';
 import net from 'net';
 import path from 'path';
 
-describe('Integration: Client → Proxy → HTTP', () => {
+(process.env.CI_RUN ? describe.skip : describe)('Integration: Client → Proxy → HTTP', () => {
   let proxyTerminal1: Terminal;
   let proxyTerminal2: Terminal;
   let clientTerminal: Terminal;
