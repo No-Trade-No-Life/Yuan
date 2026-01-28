@@ -1005,3 +1005,83 @@
 2026-01-26T14:56:52.093Z,legion_update_context,http-proxy-service,HTTP Proxy Service 实现,Claude,addDecision: bench 自动启动本地 Host（apps/host/lib/index.js）,success
 2026-01-26T15:10:35.745Z,legion_update_context,http-proxy-service,HTTP Proxy Service 实现,Claude,progress.completed: 执行 bench（rushx bench，HOST_URL=ws://localhost:8888）并通过全部阈值,success
 2026-01-26T15:12:01.718Z,legion_update_context,http-proxy-service,HTTP Proxy Service 实现,Claude,progress.completed: 将 walkthrough 报告改为中文,success
+2026-01-28T07:31:07.576Z,legion_create_task,http-proxy-service,HTTP Proxy Service 实现,Claude,goal: Create a simple @yuants/app-http-proxy application that starts a terminal and registers an HTTP service using http-services.,failed
+2026-01-28T07:31:18.328Z,legion_propose_task,http-proxy-service,HTTP Proxy Service 实现,Claude,name: HTTP Proxy App Implementation,success
+2026-01-28T07:31:21.910Z,legion_approve_proposal,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,proposalId: proposal-mkxpi5ri-876052,success
+2026-01-28T07:32:10.068Z,legion_update_plan,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-01-28T07:33:56.277Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: Create RFC / Protocol Specification,success
+2026-01-28T07:33:58.897Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"completeTask: Create Dev, Test, Bench, and Obs Specifications",success
+2026-01-28T07:34:06.095Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: 采用单一入口 `src/index.ts` 作为胶水层启动 HTTP Proxy 服务,success
+2026-01-28T07:34:18.114Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addTask: 设计审批通过（用户确认）,success
+2026-01-28T07:34:20.618Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: Perform Design Self-Check,success
+2026-01-28T07:34:26.672Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addConstraint: 设计自检报告：1) 需求覆盖：RFC 与 spec 覆盖“启动 terminal + 注册 HTTP 服务”的简单目标；2) 复杂度控制：单入口文件与环境变量配置，无额外模块；3) 依赖最小：仅依赖 protocol 与 http-services；4) 可运维性：提供基本日志与信号处理；5) 风险点：依赖 Host,success
+2026-01-28T07:43:09.664Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-01-28T07:43:23.928Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addTask: 设计审批通过（用户确认）,success
+2026-01-28T07:43:28.343Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 用户已确认设计审批（待在 tasks.md 勾选）,success
+2026-01-28T07:43:32.208Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 设计审批通过（用户确认）,success
+2026-01-28T07:43:45.830Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addTask: 设计审批通过（用户确认）,success
+2026-01-28T07:43:46.571Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 设计审批通过（用户确认）,success
+2026-01-28T07:44:05.002Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 在 tasks.md 记录并勾选“设计审批通过（用户确认）”,success
+2026-01-28T07:44:08.970Z,legion_list_reviews,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,status: open,success
+2026-01-28T07:44:23.396Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-01-28T07:44:25.717Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-01-28T07:44:26.740Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-01-28T07:44:26.975Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-01-28T07:44:27.471Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-01-28T07:44:28.344Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-01-28T07:44:29.446Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-01-28T07:44:32.544Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-01-28T07:55:06.299Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,handoff: 获取 SUBTREE_ROOT 与允许改动目录边界,success
+2026-01-28T07:55:10.631Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,setCurrentTask: Initialize package @yuants/app-http-proxy（等待提供 SUBTREE_ROOT 与允许改动目录边界）,success
+2026-01-28T08:01:36.827Z,legion_respond_review,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"file: plan.md, reviewId: 29, status: resolved",success
+2026-01-28T08:01:37.857Z,legion_respond_review,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"file: plan.md, reviewId: 30, status: resolved",failed
+2026-01-28T08:01:42.903Z,legion_respond_review,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"file: plan.md, reviewId: 31, status: resolved",failed
+2026-01-28T08:01:43.571Z,legion_respond_review,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"file: plan.md, reviewId: 32, status: resolved",failed
+2026-01-28T08:01:43.903Z,legion_respond_review,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"file: plan.md, reviewId: 33, status: resolved",success
+2026-01-28T08:01:45.938Z,legion_respond_review,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"file: plan.md, reviewId: 34, status: resolved",failed
+2026-01-28T08:01:50.565Z,legion_list_reviews,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,status: open,success
+2026-01-28T08:02:01.839Z,legion_respond_review,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"file: plan.md, reviewId: R3, status: resolved",success
+2026-01-28T08:02:02.424Z,legion_respond_review,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"file: plan.md, reviewId: R4, status: resolved",success
+2026-01-28T08:02:02.903Z,legion_respond_review,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"file: plan.md, reviewId: R5, status: resolved",success
+2026-01-28T08:02:03.444Z,legion_respond_review,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"file: plan.md, reviewId: R6, status: resolved",success
+2026-01-28T08:02:08.592Z,legion_list_reviews,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,status: all,success
+2026-01-28T08:02:15.135Z,legion_respond_review,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"file: plan.md, reviewId: R2, status: resolved",success
+2026-01-28T08:02:26.282Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: 默认要求配置 ALLOWED_HOSTS，且非本地 ws:// 需显式允许,success
+2026-01-28T08:02:42.649Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-01-28T08:02:43.232Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-01-28T08:02:43.922Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-01-28T08:02:44.685Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-01-28T08:02:45.655Z,legion_list_reviews,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,status: open,success
+2026-01-28T08:02:46.285Z,legion_list_reviews,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,status: open,success
+2026-01-28T08:08:20.892Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: Initialize package @yuants/app-http-proxy,success
+2026-01-28T08:08:24.072Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: Implement core logic,success
+2026-01-28T08:08:32.217Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 补齐 @yuants/app-http-proxy 的 package.json 与编译配置,success
+2026-01-28T08:08:35.889Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addFile: apps/http-proxy/package.json,success
+2026-01-28T08:08:36.920Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addFile: apps/http-proxy/src/index.ts,success
+2026-01-28T08:08:44.645Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,handoff: 按需补充 apps/http-proxy/README.md 使用说明,success
+2026-01-28T08:09:12.959Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-01-28T08:09:17.629Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-01-28T08:17:26.853Z,legion_list_reviews,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,status: open,success
+2026-01-28T08:17:32.053Z,legion_respond_review,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"file: plan.md, reviewId: R7, status: resolved",success
+2026-01-28T08:17:33.117Z,legion_respond_review,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"file: plan.md, reviewId: R8, status: wontfix",success
+2026-01-28T08:17:34.170Z,legion_respond_review,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"file: plan.md, reviewId: R9, status: resolved",success
+2026-01-28T08:18:11.725Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-01-28T08:19:35.143Z,legion_list_reviews,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,status: open,success
+2026-01-28T08:19:41.392Z,legion_respond_review,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"file: plan.md, reviewId: R10, status: resolved",success
+2026-01-28T08:19:50.715Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: 为 CONCURRENT/MAX_PENDING_REQUESTS/ MAX_RESPONSE_BODY_SIZE 设置默认值与范围校验,success
+2026-01-28T08:20:01.872Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-01-28T08:20:04.399Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-01-28T08:20:04.879Z,legion_list_reviews,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,status: open,success
+2026-01-28T08:23:49.230Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: 测试阶段采用包内构建验证（rushx build）作为最小可运行检查,success
+2026-01-28T08:23:50.437Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 测试执行（构建验证）失败：`rushx build` 报错缺少 `heft-jest` 类型定义（TS2688），需补齐依赖或调整 tsconfig,success
+2026-01-28T08:24:25.420Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-01-28T08:26:38.413Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 构建验证通过：`rushx build`（apps/http-proxy），未出现 tsc 报错（仅提示 Node 版本未测试与项目未注册警告）,success
+2026-01-28T08:26:42.722Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 测试执行（构建验证）失败：`rushx build` 报错缺少 `heft-jest` 类型定义（TS2688），需补齐依赖或调整 tsconfig,success
+2026-01-28T08:26:55.386Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-01-28T08:26:57.780Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-01-28T08:29:14.275Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addFile: apps/http-proxy/tsconfig.json,success
+2026-01-28T09:15:21.509Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-01-28T09:20:47.613Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: graceful shutdown 设置 5s 超时强制退出,success
+2026-01-28T13:50:14.752Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: graceful shutdown 保持在 RxJS 流内处理，去掉 timeout/promise,success
+2026-01-28T13:51:33.033Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"addDecision: 使用 RxJS race(timer, cleanup$) 提供 shutdown timeout 能力",success
+2026-01-28T14:19:40.076Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success

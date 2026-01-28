@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-http-proxy",
+      "comment": "",
+      "type": "none"
+    }
+  ],
+  "packageName": "@yuants/app-http-proxy"
+}
