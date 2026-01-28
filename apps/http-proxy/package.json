@@ -19,6 +19,7 @@
   "devDependencies": {
     "@types/node": "24",
     "@microsoft/api-extractor": "~7.55.2",
+    "@yuants/tool-kit": "workspace:*",
     "@rushstack/heft": "~1.1.7",
     "@rushstack/heft-jest-plugin": "~1.1.7",
     "@rushstack/heft-node-rig": "~2.11.12",

@@ -538,6 +538,9 @@ importers:
       '@types/node':
         specifier: '24'
         version: 24.10.4
+      '@yuants/tool-kit':
+        specifier: workspace:*
+        version: link:../../tools/toolkit
       typescript:
         specifier: ~5.9.3
         version: 5.9.3
