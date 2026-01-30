@@ -36,6 +36,14 @@
 - 阶段 C 通过：rush build -t @yuants/vendor-binance 成功
 - 阶段 D 完成：生成 report-walkthrough.md 与 pr-body.md
 - 阶段 C 通过：rush build -t @yuants/vendor-binance 成功（依赖已更新）
+- 设计变更：新增 USE_HTTP_PROXY 环境变量控制是否覆盖 globalThis.fetch
+- 更新 WORK_ROOT/docs/spec-test.md，补充 USE_HTTP_PROXY 手工验证要点并标记测试清单待补；本轮不新增测试、不运行测试。
+- 在 apps/vendor-binance/src/api/client.ts 增加 USE_HTTP_PROXY 条件：为 true 时覆盖 globalThis.fetch，调用改为 globalThis.fetch。
+- 更新 apps/vendor-binance/SESSION_NOTES.md 记录 USE_HTTP_PROXY 开关，本轮未运行基准/测试。
+- 本轮无需新增 benchmark，spec-bench 保持不变。
+- 调整 fetch 实现：USE_HTTP_PROXY=false 时优先使用原生 fetch，不可用则回退到 http-services fetch
+- 阶段 B 复检通过：review-code PASS、review-security PASS（USE_HTTP_PROXY 变更）
+- 最小验证通过：`rush build -t @yuants/vendor-binance`（Node 24.11.0，Rush 5.165.0，目标包 @yuants/vendor-binance 构建成功，部分依赖命中缓存）。
 
 ### 🟡 进行中
 
@@ -72,13 +80,13 @@
 
 **下次继续从这里开始：**
 
-1. 等待用户确认是否进入阶段 4（推广到其他 vendor）
-2. 如需创建 PR，运行 /legion-pr
+1. 如需补齐类型检查，重跑 `npx tsc --noEmit --project apps/vendor-binance/tsconfig.json`（此前环境缺少 TypeScript）。
+2. 用户确认后进入阶段 4，推广到其他 vendor。
 
 **注意事项：**
 
-- 测试通过：rush build -t @yuants/vendor-binance
-- report-walkthrough 与 pr-body 已生成
+- report-walkthrough.md 与 pr-body.md 已更新以反映 USE_HTTP_PROXY 与 fetchImpl 回退
+- 最小验证 `rush build -t @yuants/vendor-binance` 已通过
 
 ---
 

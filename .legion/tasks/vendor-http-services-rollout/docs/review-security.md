@@ -6,20 +6,21 @@ PASS
 
 ## Blocking Issues
 
-- None
+- [ ] 无（仅评审 `apps/vendor-binance`，未发现阻塞项）
 
 ## 安全建议（非阻塞）
 
-- `apps/vendor-binance/src/api/client.ts:20` [Spoofing] - 无法评估完整认证流程（凭证来源、轮换、权限边界）；需要提供调用方 credential 获取与存储流程说明。
-- `apps/vendor-binance/src/api/client.ts:118` [Repudiation] - 无法评估审计日志完整性（请求上下文、请求方标识、链路追踪）；建议补充链路追踪字段或请求 ID。
-- `apps/vendor-binance/src/api/client.ts:120` [Information Disclosure] - 已避免记录签名/API key/query；建议统一日志脱敏函数，防止后续新增日志时引入泄露。
-- `apps/vendor-binance/src/api/client.ts:120` [Denial of Service] - 无法评估全局速率限制策略（分布式/多实例共享限流）；如多实例部署，建议使用集中式限流或共享配额监控。
-- `apps/vendor-binance/package.json:14` [Tampering] - 依赖风险无法评估（workspace:\* 无法判断 CVE）；需提供锁文件或依赖扫描结果。
+- `apps/vendor-binance/src/api/client.ts:11` [Elevation of Privilege] - `USE_HTTP_PROXY=true` 时覆盖 `globalThis.fetch` 影响同进程其他模块的出站路径与鉴权边界，存在全局副作用与意外交互风险。
+- `apps/vendor-binance/src/api/client.ts:9` [Tampering] - `USE_HTTP_PROXY=false` 且运行时无原生 `fetch` 时仍回退到代理 `fetch`，可能绕过“禁用代理”的预期控制。
+- `apps/vendor-binance/src/api/client.ts` [Spoofing] - 无法评估 HTTPProxy 的认证/ACL/证书校验与 `allowedHosts` 策略，需补充代理部署与安全配置说明。
+- `apps/vendor-binance/src/api/client.ts:105` [Information Disclosure] - 已确认请求日志与 `ACTIVE_RATE_LIMIT` payload 不包含签名、API key 或完整 query（无须改动）。
+- `apps/vendor-binance/src/api/client.ts` [Denial of Service] - 令牌桶与 Retry-After 控制存在，但无法评估代理侧限流与重试策略；建议补充代理侧限流/熔断说明与默认阈值。
+- `apps/vendor-binance/src/api/client.ts` [Tampering] - 依赖漏洞未评估（`@yuants/http-services` 及传递依赖）；建议在发布前运行依赖审计。
 
 ## 修复指导
 
-1. 建立统一的日志脱敏与错误 payload 过滤器，禁止输出签名、API key、完整 query 或 secret 片段。
-2. 在 request/response 日志中追加请求 ID 与调用方标识（不含凭证），用于审计追溯与抗抵赖。
-3. 明确 credential 生命周期与存储边界（来源、轮换、权限最小化），并在文档中说明。
-4. 多实例场景采用集中式限流或全局配额监控，避免 DoS 或限流绕过。
-5. 提供依赖扫描输出（如 SCA 报告或锁文件），补齐 CVE 评估。
+- 避免覆盖 `globalThis.fetch`，改为局部 `fetchImpl` 并仅在本模块使用；或仅在 `globalThis.fetch` 缺失时才设置，并记录显式日志说明全局副作用。
+- 若 `USE_HTTP_PROXY=false` 代表强制直连，请在无原生 `fetch` 时直接报错并提示运行时要求，避免隐式回退到代理。
+- 提供 HTTPProxy 的鉴权/ACL/证书校验与 `allowedHosts` 配置说明，以便评估 Spoofing/Tampering 风险与绕过路径。
+- 为代理侧补充速率限制、并发与重试策略的默认配置说明（如限流阈值、熔断策略、超时），避免 DoS 风险评估缺失。
+- 运行依赖漏洞扫描（如 pnpm audit 或仓库内既定安全扫描流程），并记录高危/中危修复计划。

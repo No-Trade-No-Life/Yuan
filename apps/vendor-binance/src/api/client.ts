@@ -5,6 +5,12 @@ import { encodeHex, formatTime, HmacSHA256, newError, tokenBucket } from '@yuant
 const MetricBinanceApiUsedWeight = GlobalPrometheusRegistry.gauge('binance_api_used_weight', '');
 const MetricBinanceApiCounter = GlobalPrometheusRegistry.counter('binance_api_request_total', '');
 const terminal = Terminal.fromNodeEnv();
+const shouldUseHttpProxy = process.env.USE_HTTP_PROXY === 'true';
+const fetchImpl = shouldUseHttpProxy ? fetch : globalThis.fetch ?? fetch;
+
+if (shouldUseHttpProxy) {
+  globalThis.fetch = fetch;
+}
 
 type HttpMethod = 'GET' | 'POST' | 'DELETE' | 'PUT';
 
@@ -117,7 +123,7 @@ const callApi = async <T>(
 
   MetricBinanceApiCounter.labels({ path: url.pathname, terminal_id: terminal.terminal_id }).inc();
 
-  const res = await fetch(url.href, {
+  const res = await fetchImpl(url.href, {
     method,
     headers,
   });

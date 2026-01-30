@@ -39,8 +39,8 @@ export const requestPrivate = <T>(
 
 ## 设计方案
 
-- `client.ts` 内仅新增 `import { fetch } from '@yuants/http-services'`，覆盖本地 `fetch` 标识。
-- 保持现有调用点不变；`fetch` 在内部使用 `Terminal.fromNodeEnv()` 的全局单例。
+- `client.ts` 内新增 `import { fetch } from '@yuants/http-services'`，由 `USE_HTTP_PROXY` 决定是否覆盖 `globalThis.fetch`。
+- 保持现有调用点不变；启用时 `fetch` 内部使用 `Terminal.fromNodeEnv()`。
 - 保持现有日志输出格式与限流逻辑。
 
 ## 规范条款（用于测试映射）
@@ -51,11 +51,11 @@ export const requestPrivate = <T>(
 
 ## 文件变更明细
 
-| 文件路径                                | 操作 | 说明                                           |
-| --------------------------------------- | ---- | ---------------------------------------------- |
-| `apps/vendor-binance/package.json`      | 修改 | 新增依赖 `@yuants/http-services`               |
-| `apps/vendor-binance/src/api/client.ts` | 修改 | 替换 `fetch` 为 `proxyFetch` 并注入 `terminal` |
-| `apps/vendor-binance/SESSION_NOTES.md`  | 修改 | 记录迁移决策、验证步骤、风险                   |
+| 文件路径                                | 操作 | 说明                                              |
+| --------------------------------------- | ---- | ------------------------------------------------- |
+| `apps/vendor-binance/package.json`      | 修改 | 新增依赖 `@yuants/http-services`                  |
+| `apps/vendor-binance/src/api/client.ts` | 修改 | 通过 `USE_HTTP_PROXY` 条件覆盖 `globalThis.fetch` |
+| `apps/vendor-binance/SESSION_NOTES.md`  | 修改 | 记录迁移决策、验证步骤、风险                      |
 
 ## 依赖与运行要求
 
@@ -72,8 +72,10 @@ export const requestPrivate = <T>(
 ## 风险与回滚
 
 - 风险：HTTPProxy 未部署或未放行目标 host，导致请求失败。
+- 风险：覆盖 `globalThis.fetch` 具有全局副作用，可能影响同进程其它模块。
 - 回滚：恢复使用全局 `fetch` 并移除依赖。
 
 ## 未决问题
 
 - 是否需要在后续阶段引入 labels 以区分不同代理节点。
+- 是否需要限定覆盖范围（仅 vendor-binance）或引入更细粒度开关。

@@ -12,6 +12,7 @@ SUBTREE_ROOT: apps/vendor-binance
 - 调研现有 fetch 使用点、封装层与请求路径，明确替换边界与兼容风险
 - 输出 RFC + dev/test/bench/obs specs，包含迁移步骤、接口变更点、回滚策略
 - 实现阶段只改 binance；扩展到 okx/gate/hyperliquid/aster/bitget/huobi 作为后续阶段（需用户确认）
+- 新增：通过环境变量 USE_HTTP_PROXY 控制是否启用代理 fetch 覆盖，全局副作用需确认
 
 ## 范围
 
@@ -32,7 +33,9 @@ SUBTREE_ROOT: apps/vendor-binance
 
 1. `requestPublic/requestPrivate` 保持现有签名，内部继续调用 `callApi`。
 2. `callApi` 负责构建 URL、追加 query、签名与 header，并维持现有日志与限流语义。
-3. 仅新增 `import { fetch } from '@yuants/http-services'`，利用同名覆盖让现有调用自动走代理，无需改动调用点代码：
+3. 仅新增 `import { fetch } from '@yuants/http-services'`，通过环境变量 `USE_HTTP_PROXY` 决定是否覆盖 `globalThis.fetch`，调用点保持不变：
+   - `USE_HTTP_PROXY=true` 时启用代理 fetch（全局副作用）
+   - 未开启时使用原生 fetch
    - 传入 `terminal`（沿用当前模块的 `Terminal.fromNodeEnv()` 实例）；
    - 初期不强制 labels，避免要求代理节点额外配置；
    - 代理返回 `Response` 后继续读取 `Retry-After`、`x-mbx-used-weight-1m` 等 header。
@@ -54,22 +57,22 @@ export const requestPrivate = <T>(
 
 ### 迁移策略
 
-- 只改 `apps/vendor-binance/src/api/client.ts` 的 import，确保上层 `public-api.ts` / `private-api.ts` 无感。
+- 只改 `apps/vendor-binance/src/api/client.ts` 的 import 与初始化逻辑，确保上层 `public-api.ts` / `private-api.ts` 无感。
 - 依赖新增 `@yuants/http-services`，由 Rush/PNPM 统一管理。
 - 初期不引入 labels 与超时配置；若代理部署完成后需要分流，再增量引入 labels。
 
 ### 文件变更明细表（仅 binance）
 
-| 文件路径                                | 操作 | 说明                                      |
-| --------------------------------------- | ---- | ----------------------------------------- |
-| `apps/vendor-binance/package.json`      | 修改 | 新增依赖 `@yuants/http-services`          |
-| `apps/vendor-binance/src/api/client.ts` | 修改 | 用 http-services `fetch` 替换全局 `fetch` |
-| `apps/vendor-binance/SESSION_NOTES.md`  | 修改 | 记录迁移决策、验证命令与风险              |
+| 文件路径                                | 操作 | 说明                                              |
+| --------------------------------------- | ---- | ------------------------------------------------- |
+| `apps/vendor-binance/package.json`      | 修改 | 新增依赖 `@yuants/http-services`                  |
+| `apps/vendor-binance/src/api/client.ts` | 修改 | 通过 `USE_HTTP_PROXY` 条件覆盖 `globalThis.fetch` |
+| `apps/vendor-binance/SESSION_NOTES.md`  | 修改 | 记录迁移决策、验证命令与风险                      |
 
 ### 风险与回滚
 
 - 运行时需存在 HTTPProxy 服务；否则请求会失败。应确认代理部署与 `allowedHosts` 已覆盖 `api.binance.com`/`fapi.binance.com`/`papi.binance.com`。
-- 回滚策略：恢复使用全局 `fetch` 并移除 `@yuants/http-services` 依赖。
+- 回滚策略：移除覆盖逻辑并恢复使用原生 `fetch`，或设置 `USE_HTTP_PROXY` 为非 true。
 
 ---
 
@@ -87,9 +90,10 @@ export const requestPrivate = <T>(
 - 先在 `apps/vendor-binance` 完成替换并验证，通过后再扩展到其他 vendor。
 - 初期不强制 labels；后续需要分流时再增量引入。
 - 运行环境需提供 HTTPProxy 服务并放行 Binance 三个 host。
+- 需要确认可接受全局覆盖 `globalThis.fetch` 的副作用。
 
 确认后我将继续生成 RFC 与 spec 文档并完成设计门禁。
 
 ---
 
-_创建于: 2026-01-29 | 最后更新: 2026-01-29_
+_创建于: 2026-01-29 | 最后更新: 2026-01-30_

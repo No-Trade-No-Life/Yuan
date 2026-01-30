@@ -1,6 +1,7 @@
 ## What
 
 - Switch vendor-binance HTTP calls to `@yuants/http-services` `fetch` without changing public/private API signatures
+- Add `USE_HTTP_PROXY` toggle with `fetchImpl` fallback (native fetch preferred when proxy disabled)
 - Sanitize request logs and `ACTIVE_RATE_LIMIT` error payload
 - Update dependencies/lockfile and record reviews
 
@@ -12,6 +13,7 @@
 ## How
 
 - Import `fetch` from `@yuants/http-services` in `apps/vendor-binance/src/api/client.ts`
+- Gate global fetch override with `USE_HTTP_PROXY`; prefer native `fetch`, fallback to `fetchImpl` when unavailable
 - Keep `requestPublic/requestPrivate` and rate-limit header handling intact
 - Add dependency in `apps/vendor-binance/package.json` and refresh lockfile
 
@@ -23,8 +25,8 @@
 
 ## Risk / Rollback
 
-- Risk: HTTPProxy not configured for Binance hosts; sanitized logs reduce detail
-- Rollback: remove `@yuants/http-services` import/dependency and restore previous logging payloads
+- Risk: HTTPProxy not configured for Binance hosts; global fetch override when `USE_HTTP_PROXY=true`; sanitized logs reduce detail
+- Rollback: set `USE_HTTP_PROXY` to false or remove `@yuants/http-services` import/dependency and restore previous logging payloads
 
 ## Links
 

@@ -1165,3 +1165,22 @@
 2026-01-30T03:02:32.279Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
 2026-01-30T03:05:32.697Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,completeTask: 生成 walkthrough 报告与 PR body,success
 2026-01-30T03:06:13.091Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,progress.completed: 阶段 D 完成：生成 report-walkthrough.md 与 pr-body.md,success
+2026-01-30T04:55:30.520Z,legion_update_plan,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-30T04:56:22.601Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addDecision: 通过 USE_HTTP_PROXY 控制是否覆盖 globalThis.fetch，实现调用点不变的开关,success
+2026-01-30T04:57:37.492Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-30T04:57:56.146Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-30T04:57:57.928Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-30T04:57:59.604Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-30T04:58:02.043Z,legion_list_reviews,vendor-http-services-rollout,vendor-http-services-rollout,Claude,status: open,success
+2026-01-30T04:58:05.698Z,legion_read_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,"section: all, includeReviews: true",success
+2026-01-30T04:58:49.426Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,progress.completed: 更新 WORK_ROOT/docs/spec-test.md，补充 USE_HTTP_PROXY 手工验证要点并标记测试清单待补；本轮不新增测试、不运行测试。,success
+2026-01-30T04:59:44.854Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addFile: apps/vendor-binance/src/api/client.ts,success
+2026-01-30T04:59:45.372Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,completeTask: benchmark 实现：本阶段无需新增，已在 spec-bench 记录。,success
+2026-01-30T05:00:18.169Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-30T05:00:21.332Z,legion_read_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,"section: all, includeReviews: true",success
+2026-01-30T05:02:20.463Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addDecision: 引入 fetchImpl 回退逻辑避免无原生 fetch 时失败,success
+2026-01-30T05:02:34.720Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-30T05:04:52.953Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addFile: .legion/tasks/vendor-http-services-rollout/docs/review-code.md,success
+2026-01-30T05:05:01.470Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-30T05:30:02.377Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,progress.completed: 最小验证通过：`rush build -t @yuants/vendor-binance`（Node 24.11.0，Rush 5.165.0，目标包 @yuants/vendor-binance 构建成功，部分依赖命中缓存）。,success
+2026-01-30T05:30:16.376Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success

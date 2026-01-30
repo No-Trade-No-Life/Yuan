@@ -2,7 +2,7 @@
 
 ## 目标与范围
 
-- 目标：在不改动 `requestPublic/requestPrivate` 接口的前提下，将 `apps/vendor-binance` 的 HTTP 传输层切换到 `@yuants/http-services`，并完成日志脱敏与最小验证。
+- 目标：在不改动 `requestPublic/requestPrivate` 接口的前提下，将 `apps/vendor-binance` 的 HTTP 传输层切换到 `@yuants/http-services`，新增 `USE_HTTP_PROXY` 开关与 `fetchImpl` 回退，完成日志脱敏与最小验证。
 - 范围：SUBTREE_ROOT `apps/vendor-binance`；伴随更新 WORK_ROOT 文档与依赖锁文件。
 
 ## 设计摘要
@@ -13,7 +13,7 @@
 
 ## 改动清单（按模块/文件类型）
 
-- apps/vendor-binance 代码：`src/api/client.ts` 引入 `@yuants/http-services` 的 `fetch`；请求日志与 `ACTIVE_RATE_LIMIT` 错误 payload 完成脱敏（不输出 API key/签名/signData/完整 query）。
+- apps/vendor-binance 代码：`src/api/client.ts` 引入 `@yuants/http-services` 的 `fetch`，新增 `USE_HTTP_PROXY` 控制是否覆盖 `globalThis.fetch`；当原生 `fetch` 不可用时回退到 `fetchImpl`；请求日志与 `ACTIVE_RATE_LIMIT` 错误 payload 完成脱敏（不输出 API key/签名/signData/完整 query）。
 - apps/vendor-binance 元数据：`package.json` 新增依赖 `@yuants/http-services`；`SESSION_NOTES.md` 记录迁移决策与验证信息。
 - 依赖锁文件：`pnpm-lock.yaml` 随 `rush update` 更新。
 - WORK_ROOT 文档：RFC/spec-dev/spec-test/spec-bench/spec-obs + review-code/review-security 输出；本报告与 PR body 新增。
@@ -42,8 +42,8 @@
 ## 风险与回滚
 
 - 风险：HTTPProxy 未部署或 `allowedHosts` 未覆盖 `api.binance.com`/`fapi.binance.com`/`papi.binance.com`，请求会失败。
-- 风险：日志脱敏降低排障信息密度，需要配合 proxy 日志定位。
-- 回滚：移除 `@yuants/http-services` 依赖与 `fetch` import，恢复全局 `fetch`；必要时还原错误 payload 字段。
+- 风险：`USE_HTTP_PROXY` 打开时引入全局 `fetch` 覆盖；日志脱敏降低排障信息密度，需要配合 proxy 日志定位。
+- 回滚：关闭 `USE_HTTP_PROXY`，或移除 `@yuants/http-services` 依赖与 `fetch` import，恢复全局 `fetch`；必要时还原错误 payload 字段。
 
 ## 未决项与下一步
 

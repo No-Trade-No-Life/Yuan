@@ -22,6 +22,7 @@ import { fetch } from '@yuants/http-services';
 ```
 
 - 不改动调用点，保持现有 `fetch(url.href, { method, headers })` 形态。
+- 通过 `USE_HTTP_PROXY` 控制是否覆盖 `globalThis.fetch`；启用时由 http-services `fetch` 接管。
 - `fetch` 内部使用 `Terminal.fromNodeEnv()`；不传 `labels` 与 `timeout`。
 
 ## 文件变更

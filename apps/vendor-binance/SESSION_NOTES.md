@@ -7,7 +7,7 @@
 ## 0. 元信息（Meta）
 
 - **项目名称**：@yuants/vendor-binance
-- **最近更新时间**：2026-01-30 11:20(确认日志与错误 payload 脱敏)
+- **最近更新时间**：2026-01-30 15:10(新增 USE_HTTP_PROXY 开关)
 - **当前状态标签**：重构中（credential 化 & 上下文治理）
 
 ---
@@ -104,6 +104,16 @@
 ### 2026-01-30 — OpenCode
 
 - **本轮摘要**：
+  - 新增 `USE_HTTP_PROXY` 开关：当为 `true` 时覆盖 `globalThis.fetch`，默认继续使用原生 fetch。
+- **修改的文件**：
+  - `apps/vendor-binance/src/api/client.ts`
+- **运行的测试 / 检查**：
+  - 命令：未运行（按指令不执行基准/测试）
+  - 结果：未运行
+
+### 2026-01-30 — OpenCode
+
+- **本轮摘要**：
   - 复核 `api/client.ts` 日志与错误 payload 已完成脱敏：不输出签名、API key、signData 或完整 query。
   - 记录当前状态与后续注意事项，未新增代码改动。
 - **修改的文件**：
@@ -128,6 +138,7 @@
   - 在 `api/client.ts` 移除请求日志中的 API key、签名与完整 query，避免泄露敏感信息。
   - 保留必要日志字段（method/host/path/usedWeight/retryAfter）。
   - 限流错误 `ACTIVE_RATE_LIMIT` 的 payload 仅保留 `host+pathname`，避免签名泄露。
+  - USE_HTTP_PROXY 为 false 时优先使用原生 `globalThis.fetch`，若不可用则回退到 http-services fetch。
 - **修改的文件**：
   - `apps/vendor-binance/src/api/client.ts`
 - **运行的测试 / 检查**：

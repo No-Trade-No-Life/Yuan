@@ -20,6 +20,8 @@ npx tsc --noEmit --project apps/vendor-binance/tsconfig.json
 
 - 选择一个公共 API（如 `getSpotExchangeInfo`）调用链，确认可以通过 HTTPProxy 返回 JSON。
 - 验证 `x-mbx-used-weight-1m` 与 `Retry-After` header 读取无异常。
+- 验证 `USE_HTTP_PROXY=true` 时走代理：请求经 HTTPProxy，日志/指标显示代理路径。
+- 验证 `USE_HTTP_PROXY=false` 时走原生 fetch：无需依赖 HTTPProxy 也能正常请求。
 
 3. 单元测试（计划新增）
 
@@ -39,7 +41,7 @@ npx tsc --noEmit --project apps/vendor-binance/tsconfig.json
 - `@yuants/http-services` 的 `fetch` 抛错时应透传异常（回归用例: `client.http-services.test.ts`）。
 - 响应不含 `x-mbx-used-weight-1m` 时不应更新指标（回归用例: `client.rate-limit.test.ts`）。
 
-## 计划新增测试清单
+## 计划新增测试清单（待补）
 
 - `apps/vendor-binance/src/api/__tests__/client.http-services.test.ts`
 - `apps/vendor-binance/src/api/__tests__/client.compat.test.ts`
@@ -53,5 +55,5 @@ npx tsc --noEmit --project apps/vendor-binance/tsconfig.json
 
 ## 实施备注（本轮）
 
-- 本轮仅做日志脱敏修复，无需新增测试用例。
-- 关键 MUST 行为（R1-R3）单测覆盖率 100%；整体覆盖率目标 80%。
+- 本轮不新增测试用例，仅补充 USE_HTTP_PROXY 的手工验证要点。
+- R1-R3 覆盖与失败场景回归用例保持在计划清单，待后续补齐。
