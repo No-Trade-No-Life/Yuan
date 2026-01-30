@@ -404,7 +404,7 @@ describe('claimDeployment', () => {
     expect(mockEscapeSQL).toHaveBeenCalledWith('d1');
     expect(mockRequestSQL).toHaveBeenCalledWith(
       mockTerminal,
-      "update deployment set address = 'addr1' where id = 'd1' and (address = '') returning id",
+      "update deployment set address = 'addr1' where id = 'd1' and type = 'deployment' and (address = '') returning id",
     );
     expect(claimed).toBe(true);
   });
@@ -419,7 +419,7 @@ describe('claimDeployment', () => {
 
     expect(mockRequestSQL).toHaveBeenCalledWith(
       mockTerminal,
-      "update deployment set address = 'addr1' where id = 'd1' and (address = '' or address in ('addr_lost')) returning id",
+      "update deployment set address = 'addr1' where id = 'd1' and type = 'deployment' and (address = '' or address in ('addr_lost')) returning id",
     );
     expect(claimed).toBe(true);
   });

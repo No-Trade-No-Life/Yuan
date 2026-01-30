@@ -1340,3 +1340,10 @@
 2026-01-30T12:18:31.894Z,legion_update_tasks,update-deploysettings-for-deployment-type,Update DeploySettings for Deployment Type,Claude,completeTask: 修复 UI：在 DeploySettings 页面增加 deployment.type 支持（列表显示、编辑表单、更新逻辑）。,success
 2026-01-30T12:18:37.199Z,legion_update_context,update-deploysettings-for-deployment-type,Update DeploySettings for Deployment Type,Claude,"progress.completed: 已完成工程实现（apps/node-unit, libraries/deploy, sql-migration）。",success
 2026-01-30T12:29:51.560Z,legion_get_status,update-deploysettings-for-deployment-type,Update DeploySettings for Deployment Type,Claude,,success
+2026-01-30T14:17:31.102Z,legion_get_status,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,,success
+2026-01-30T14:17:35.168Z,legion_read_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,section: all,success
+2026-01-30T14:18:03.217Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addTask: 创建 daemon 类型 E2E 测试脚本,success
+2026-01-30T14:18:05.194Z,legion_update_context,update-deploysettings-for-deployment-type,Update DeploySettings for Deployment Type,Claude,,failed
+2026-01-30T14:22:57.938Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,completeTask: 创建 daemon 类型 E2E 测试脚本,success
+2026-01-30T14:23:12.299Z,legion_update_context,update-deploysettings-for-deployment-type,Update DeploySettings for Deployment Type,Claude,,failed
+2026-01-30T14:32:04.438Z,legion_update_context,update-deploysettings-for-deployment-type,Update DeploySettings for Deployment Type,Claude,,failed

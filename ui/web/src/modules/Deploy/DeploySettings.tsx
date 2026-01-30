@@ -175,7 +175,13 @@ registerPage('DeploySettings', () => {
           {
             header: '部署地址',
             accessorKey: 'address',
-            cell: (ctx) => <InlineNodeUnitAddress address={ctx.getValue()} />,
+            cell: (ctx) => {
+              const isDaemon = ctx.row.original.type === 'daemon';
+              if (isDaemon) {
+                return <Typography.Text type="secondary">每节点一个</Typography.Text>;
+              }
+              return <InlineNodeUnitAddress address={ctx.getValue()} />;
+            },
           },
           {
             header: '部署 ID',

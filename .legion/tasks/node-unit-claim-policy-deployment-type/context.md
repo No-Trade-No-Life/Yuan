@@ -37,6 +37,10 @@
 - 已生成 docs/report-walkthrough.md 与 docs/pr-body.md。
 - 已修复 yuanctl 构建错误并更新报告。
 - UI 适配已完成：DeploySettings.tsx 支持 deployment.type 显示与表单联动。
+- 创建 daemon 类型 E2E 测试脚本（scripts/e2e-daemon-type.sh），使用 @yuants/app-http-proxy 作为测试对象
+- 修复 scheduler.ts 中 claimDeployment 函数的 bug（缺少 type='deployment' 条件）
+- 更新 scheduler.test.ts 单元测试以匹配新的 SQL
+- 运行 E2E 测试：两个 node-unit 都成功启动 daemon，address 保持为空 ✅
 
 ### 🟡 进行中
 
@@ -55,6 +59,8 @@
 - apps/node-unit/src/index.ts
 - tools/sql-migration/sql/deployment.sql
 - libraries/deploy/src/index.ts
+- apps/node-unit/scripts/e2e-daemon-type.sh
+- apps/node-unit/reports/node-unit-daemon-e2e-report.md
 
 ---
 
