@@ -15,6 +15,7 @@ export interface IDeployment {
     id: string;
     package_name: string;
     package_version: string;
+    type: 'daemon' | 'deployment';
     updated_at: string;
 }
 

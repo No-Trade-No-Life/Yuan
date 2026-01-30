@@ -34,3 +34,7 @@ SET DEFAULT '';
 -- 添加 address 列
 ALTER TABLE deployment
 ADD COLUMN IF NOT EXISTS address TEXT NOT NULL DEFAULT '';
+
+-- 添加 type 列
+ALTER TABLE deployment
+ADD COLUMN IF NOT EXISTS type TEXT NOT NULL DEFAULT 'deployment';

@@ -61,6 +61,7 @@ Kubernetes 提供了强大的容器编排能力，但其复杂性往往超出实
 | ---------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------- |
 | NODE_UNIT_NAME         | 节点的名字 (任意字符串)，用于身份标识和加密通信，可以明文传输                                 | `os.hostname()`                                   |
 | NODE_UNIT_PASSWORD     | 节点的密码 (任意字符串)，用于身份标识和加密通信，需要妥善保存                                 | `randomUUID()`                                    |
+| NODE_UNIT_CLAIM_POLICY | 抢占策略：`deployment_count`、`resource_usage` 或 `none`（不区分大小写）                      | `deployment_count`                                |
 | POSTGRES_URI           | PostgreSQL 连接字符串，如果非空将创建本地的 PG 连接服务                                       | `''`                                              |
 | TRUSTED_PACKAGE_REGEXP | 信任的包名正则表达式，允许从节点运行这些包的代码，正则表达式会检验字符串 `${name}@${version}` | `'^@yuants/'` (信任 @yuants 下的所有包的所有版本) |
 | ENABLE_CUSTOM_COMMAND  | 是否启用自定义命令功能，如果启用，将允许自定义命令 (建议仅在容器沙盒的安全环境使用)           | `'false'`                                         |
@@ -82,6 +83,12 @@ Kubernetes 提供了强大的容器编排能力，但其复杂性往往超出实
 | 变量名   | 说明                         | 默认值 |
 | -------- | ---------------------------- | ------ |
 | HOST_URL | 从节点模式，连接主节点的地址 | 必填   |
+
+## 调度策略与 deployment 类型
+
+- `deployment.type=deployment`：使用 `address` 绑定与抢占逻辑，行为与现有版本一致。
+- `deployment.type=daemon`：不参与抢占且不绑定 `address`，启用后每个 node-unit 都会运行一个实例。
+- `NODE_UNIT_CLAIM_POLICY=none`：调度循环继续运行但不执行 `claim`/`assign`，不会写入 `deployment.address`。
 
 ## Docker 部署
 

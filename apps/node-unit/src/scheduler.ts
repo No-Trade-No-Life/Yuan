@@ -40,6 +40,19 @@ export interface ClaimPolicy {
   pickEligible: (nodeUnits: string[], snapshots: Map<string, ClaimMetricSnapshot[]>) => string[];
 }
 
+type DeploymentType = 'daemon' | 'deployment';
+
+const normalizeDeploymentType = (deployment: IDeployment): DeploymentType | undefined => {
+  const rawType = (deployment as { type?: string }).type;
+  if (rawType === 'daemon' || rawType === 'deployment') return rawType;
+  console.error(formatTime(Date.now()), 'DeploymentTypeInvalid', {
+    error_code: 'ERR_INVALID_TYPE',
+    deployment_id: deployment.id,
+    type: rawType ?? null,
+  });
+  return undefined;
+};
+
 const deploymentCountProvider: ClaimMetricProvider = {
   key: 'deployment_count',
   evaluate: (nodeUnitAddress, ctx) => ({
@@ -205,6 +218,7 @@ const getLostAddresses = (deployments: IDeployment[], activeNodeUnits: string[])
   const activeSet = new Set(activeNodeUnits);
   const lost = new Set<string>();
   for (const deployment of deployments) {
+    if (deployment.type !== 'deployment') continue;
     if (deployment.address && !activeSet.has(deployment.address)) {
       lost.add(deployment.address);
     }
@@ -218,6 +232,7 @@ const buildDeploymentCounts = (
 ): Map<string, number> => {
   const counts = new Map(activeNodeUnits.map((address) => [address, 0]));
   for (const deployment of deployments) {
+    if (deployment.type !== 'deployment') continue;
     const address = deployment.address;
     if (!address) continue;
     const current = counts.get(address);
@@ -292,13 +307,13 @@ const pickCandidateDeployment = async (
 ): Promise<IDeployment | undefined> => {
   if (lostAddresses.length > 0) {
     const lostFilter = `address in (${lostAddresses.map((address) => escapeSQL(address)).join(',')})`;
-    const lostSql = `select * from deployment where enabled = true and ${lostFilter} order by updated_at asc, created_at asc, id asc limit 1`;
+    const lostSql = `select * from deployment where enabled = true and type = 'deployment' and ${lostFilter} order by updated_at asc, created_at asc, id asc limit 1`;
     const lostResult = await requestSQL<IDeployment[]>(terminal, lostSql);
     if (lostResult[0]) return lostResult[0];
   }
 
   const fallbackSql =
-    "select * from deployment where enabled = true and address = '' order by updated_at asc, created_at asc, id asc limit 1";
+    "select * from deployment where enabled = true and type = 'deployment' and address = '' order by updated_at asc, created_at asc, id asc limit 1";
   const fallbackResult = await requestSQL<IDeployment[]>(terminal, fallbackSql);
   return fallbackResult[0];
 };
@@ -325,18 +340,48 @@ const runSchedulerCycle = async (
   nodeUnitAddress: string,
   activeNodeUnits: string[],
   terminalInfos: ITerminalInfo[],
+  policyName: string,
   policy: ClaimPolicy,
 ): Promise<void> => {
   if (activeNodeUnits.length === 0) return;
 
   let deployments = await listDeployments(terminal);
-  const lostAddresses = getLostAddresses(deployments, activeNodeUnits);
+  const deploymentOnly: IDeployment[] = [];
+  for (const deployment of deployments) {
+    const type = normalizeDeploymentType(deployment);
+    if (!type) continue;
+    if (type === 'daemon') {
+      if (deployment.address) {
+        console.error(formatTime(Date.now()), 'DeploymentDaemonAddressSet', {
+          error_code: 'ERR_DAEMON_ADDRESS_SET',
+          deployment_id: deployment.id,
+          address: deployment.address,
+        });
+      }
+      continue;
+    }
+    deploymentOnly.push(deployment);
+  }
+  const lostAddresses = getLostAddresses(deploymentOnly, activeNodeUnits);
 
   const addressToTerminalId = resolveNodeUnitTerminalIds(terminalInfos);
   const resourceUsage = await fetchResourceUsage(terminal, activeNodeUnits, addressToTerminalId);
 
-  const counts = buildDeploymentCounts(deployments, activeNodeUnits);
-  const context: ClaimMetricContext = { deployments, deploymentCounts: counts, resourceUsage };
+  const counts = buildDeploymentCounts(deploymentOnly, activeNodeUnits);
+  const context: ClaimMetricContext = {
+    deployments: deploymentOnly,
+    deploymentCounts: counts,
+    resourceUsage,
+  };
+
+  if (policyName === 'none') {
+    console.info(formatTime(Date.now()), 'DeploymentClaimSkipped', {
+      reason: 'policy_disabled',
+      error_code: 'ERR_POLICY_DISABLED',
+      policy: policyName,
+    });
+    return;
+  }
   const snapshots = buildSnapshots(activeNodeUnits, context, policy);
   const eligibleNodeUnits = policy.pickEligible(activeNodeUnits, snapshots);
   const isEligible = eligibleNodeUnits.includes(nodeUnitAddress);
@@ -408,7 +453,7 @@ export const startDeploymentScheduler = (
     activeNodeUnits = loadActiveNodeUnits(infos);
   });
 
-  const policyName = process.env.NODE_UNIT_CLAIM_POLICY ?? 'deployment_count';
+  const policyName = (process.env.NODE_UNIT_CLAIM_POLICY ?? 'deployment_count').toLowerCase();
   const policies: Record<string, ClaimPolicy> = {
     deployment_count: defaultClaimPolicy,
     resource_usage: resourceOnlyPolicy,
@@ -427,7 +472,7 @@ export const startDeploymentScheduler = (
       takeUntil(terminal.dispose$),
       concatMap(() =>
         defer(() =>
-          runSchedulerCycle(terminal, nodeUnitAddress, activeNodeUnits, terminalInfos, policy),
+          runSchedulerCycle(terminal, nodeUnitAddress, activeNodeUnits, terminalInfos, policyName, policy),
         ).pipe(
           catchError((err) => {
             console.error(formatTime(Date.now()), 'DeploymentSchedulerError', err);

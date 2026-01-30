@@ -102,6 +102,17 @@ const makeDeploymentInfoMetricLabels = (
   node_unit_address: nodeUnitAddress,
 });
 
+const normalizeDeploymentType = (deployment: IDeployment): 'daemon' | 'deployment' | undefined => {
+  const rawType = (deployment as { type?: string }).type;
+  if (rawType === 'daemon' || rawType === 'deployment') return rawType;
+  console.error(formatTime(Date.now()), 'DeploymentTypeInvalid', {
+    error_code: 'ERR_INVALID_TYPE',
+    deployment_id: deployment.id,
+    type: rawType ?? null,
+  });
+  return undefined;
+};
+
 const registerDeploymentProcess = (deployment: IDeployment, pid: number | undefined, terminalId: string) => {
   if (!pid) return;
   const prev = mapDeploymentIdToProcess.get(deployment.id);
@@ -296,6 +307,7 @@ defer(async () => {
         command: '',
         args: [],
         env: {},
+        type: 'deployment',
         address: '',
         enabled: true,
         created_at: formatTime(Date.now()),
@@ -318,6 +330,7 @@ defer(async () => {
         package_version: process.env.PG_PACKAGE_VERSION || 'latest',
         command: '',
         args: [],
+        type: 'deployment',
         address: '',
         env: {
           TERMINAL_ID: encodePath('PG', nodeKeyPair.public_key),
@@ -499,21 +512,35 @@ defer(async () => {
   defer(() =>
     requestSQL<IDeployment[]>(
       terminal,
-      `select * from deployment where enabled = true and address = ${escapeSQL(nodeKeyPair.public_key)}`,
+      `select * from deployment where enabled = true and ((type = 'deployment' and address = ${escapeSQL(
+        nodeKeyPair.public_key,
+      )}) or type = 'daemon')`,
     ),
   )
     .pipe(
       map((deployments) => {
-        const trusted = deployments.filter((deployment) =>
+        const validDeployments = deployments.filter((deployment) => {
+          const type = normalizeDeploymentType(deployment);
+          if (!type) return false;
+          if (type === 'daemon' && deployment.address) {
+            console.error(formatTime(Date.now()), 'DeploymentDaemonAddressSet', {
+              error_code: 'ERR_DAEMON_ADDRESS_SET',
+              deployment_id: deployment.id,
+              address: deployment.address,
+            });
+          }
+          return true;
+        });
+        const trusted = validDeployments.filter((deployment) =>
           trustedPackageRegExp.test(`${deployment.package_name}@${deployment.package_version}`),
         );
         console.info(
           formatTime(Date.now()),
           'Deployments',
-          `${trusted.length} trusted, ${deployments.length} total`,
+          `${trusted.length} trusted, ${validDeployments.length} total`,
         );
         console.table(
-          deployments.map(({ id, package_name, package_version, updated_at }) => ({
+          validDeployments.map(({ id, package_name, package_version, updated_at }) => ({
             id,
             package_name,
             package_version,

@@ -1224,3 +1224,105 @@
 2026-01-30T06:46:27.229Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
 2026-01-30T06:50:32.768Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,completeTask: PR 创建完成,success
 2026-01-30T06:50:37.798Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,progress.completed: 已创建 PR: https://github.com/No-Trade-No-Life/Yuan/pull/2547,success
+2026-01-30T08:08:33.335Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-30T08:08:37.656Z,legion_list_reviews,vendor-http-services-rollout,vendor-http-services-rollout,Claude,status: open,success
+2026-01-30T08:09:01.903Z,legion_propose_task,vendor-http-services-rollout,vendor-http-services-rollout,Claude,name: node-unit-claim-policy-and-deployment-type,success
+2026-01-30T08:28:28.684Z,legion_init,vendor-http-services-rollout,vendor-http-services-rollout,Claude,workingDirectory: /Users/c1/Work/Yuan,success
+2026-01-30T08:28:32.632Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-30T08:28:35.714Z,legion_read_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,"section: all, includeReviews: true",success
+2026-01-30T08:28:36.152Z,legion_list_reviews,vendor-http-services-rollout,vendor-http-services-rollout,Claude,status: open,success
+2026-01-30T08:30:08.627Z,legion_propose_task,vendor-http-services-rollout,vendor-http-services-rollout,Claude,name: node-unit-claim-policy-deployment-type,success
+2026-01-30T08:30:54.050Z,legion_approve_proposal,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,proposalId: proposal-ml0mhj3k-15c161,success
+2026-01-30T08:30:58.583Z,legion_switch_task,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,taskId: node-unit-claim-policy-deployment-type,success
+2026-01-30T08:31:06.752Z,legion_list_reviews,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,status: open,success
+2026-01-30T08:31:13.665Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,setCurrentTask: phase 调研,success
+2026-01-30T08:31:21.398Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addDecision: RFC 输出路径暂定为 docs/rfc-node-unit-claim-policy.md,success
+2026-01-30T08:31:45.425Z,legion_init,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,workingDirectory: /Users/c1/Work/Yuan,success
+2026-01-30T08:31:47.391Z,legion_get_status,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,,success
+2026-01-30T08:31:50.668Z,legion_read_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,"section: all, includeReviews: true",success
+2026-01-30T08:39:44.743Z,legion_get_status,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,,success
+2026-01-30T08:39:47.306Z,legion_read_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,"section: all, includeReviews: true",success
+2026-01-30T08:43:28.075Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,completeTask: phase 设计审查,success
+2026-01-30T08:47:38.065Z,legion_get_status,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,,success
+2026-01-30T08:47:40.150Z,legion_read_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,"section: all, includeReviews: true",success
+2026-01-30T08:50:13.412Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,progress.completed: 完成 RFC 对抗审查，发现阻塞项：none 策略边界未定义、daemon 依赖活跃列表与唯一性键不清、混合版本缺少门禁、ERR_DAEMON_MISSING 触发点不明。,success
+2026-01-30T08:50:16.157Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addDiscoveredTask: 修订 RFC：明确 NODE_UNIT_CLAIM_POLICY=none 下所有 address 写路径均禁止（含回收/重分配/清理）与未绑定行为,success
+2026-01-30T08:50:18.714Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addDiscoveredTask: 修订 RFC：将 daemon 调度改为本地启停并明确唯一性键（建议 deployment.id），取消对活跃列表的依赖,success
+2026-01-30T08:50:21.682Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addDiscoveredTask: 修订 RFC：增加混合版本门禁/校验方案，避免旧版本误抢占 daemon,success
+2026-01-30T08:50:23.967Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addDiscoveredTask: 修订 RFC：明确 ERR_DAEMON_MISSING 的触发点（本地检测）或删除该错误码,success
+2026-01-30T08:52:24.866Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addTask: 修订 RFC：收敛 review-rfc 的阻塞问题（none 边界、daemon 本地规则、唯一性键、混部门禁、错误语义）。,success
+2026-01-30T08:52:28.054Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addTask: 重新执行 review-rfc 审查修订后的 RFC。,success
+2026-01-30T08:52:31.982Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,completeTask: 修订 RFC：收敛 review-rfc 的阻塞问题（none 边界、daemon 本地规则、唯一性键、混部门禁、错误语义）。,success
+2026-01-30T08:52:41.790Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addDecision: 混部阶段 daemon 必须保持 enabled=false，回滚前需禁用或转换为 deployment,success
+2026-01-30T08:52:48.803Z,legion_get_status,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,,success
+2026-01-30T08:52:51.433Z,legion_read_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,"section: all, includeReviews: true",success
+2026-01-30T08:54:56.197Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,progress.completed: 完成修订后 RFC 对抗审查，结论无阻塞项；可选优化聚焦于 DB 约束与 daemon 启动速率。,success
+2026-01-30T08:55:04.401Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addTask: 复核修订后 RFC 并确认无阻塞,success
+2026-01-30T08:55:08.800Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,completeTask: 复核修订后 RFC 并确认无阻塞,success
+2026-01-30T08:56:04.009Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,completeTask: 重新执行 review-rfc 审查修订后的 RFC。,success
+2026-01-30T08:56:10.830Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addFile: docs/review-rfc.md,success
+2026-01-30T09:00:42.019Z,legion_get_status,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,,success
+2026-01-30T09:00:50.308Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,completeTask: 修订 RFC：明确 NODE_UNIT_CLAIM_POLICY=none 下所有 address 写路径均禁止（含回收/重分配/清理）与未绑定行为,success
+2026-01-30T09:00:55.191Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,completeTask: 修订 RFC：将 daemon 调度改为本地启停并明确唯一性键（建议 deployment.id），取消对活跃列表的依赖,success
+2026-01-30T09:01:01.798Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,completeTask: 修订 RFC：增加混合版本门禁/校验方案，避免旧版本误抢占 daemon,success
+2026-01-30T09:01:08.618Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,completeTask: 修订 RFC：明确 ERR_DAEMON_MISSING 的触发点（本地检测）或删除该错误码,success
+2026-01-30T09:01:12.641Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,progress.completed: 已完成审查阻塞项对应的 RFC 修订并在 tasks.md 标记完成。,success
+2026-01-30T09:01:49.506Z,legion_get_status,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,,success
+2026-01-30T09:02:00.194Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addDecision: 进入实现阶段,success
+2026-01-30T09:02:03.941Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,setCurrentTask: 工程实现：按 RFC 修改调度、类型定义、SQL 迁移与文档。,success
+2026-01-30T09:02:16.416Z,legion_get_status,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,,success
+2026-01-30T09:02:19.420Z,legion_read_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,"section: all, includeReviews: true",success
+2026-01-30T09:05:34.556Z,legion_get_status,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,,success
+2026-01-30T09:05:36.799Z,legion_read_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,"section: all, includeReviews: true",success
+2026-01-30T09:11:02.434Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addTask: 实现 NODE_UNIT_CLAIM_POLICY=none 与 deployment.type/daemon 调度/执行逻辑，并同步 SQL/类型定义/文档,success
+2026-01-30T09:11:04.077Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addTask: 补充 scheduler 单元测试覆盖 deployment.type/claim policy none 关键路径,success
+2026-01-30T09:11:09.457Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,completeTask: 实现 NODE_UNIT_CLAIM_POLICY=none 与 deployment.type/daemon 调度/执行逻辑，并同步 SQL/类型定义/文档,success
+2026-01-30T09:11:10.358Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,completeTask: 补充 scheduler 单元测试覆盖 deployment.type/claim policy none 关键路径,success
+2026-01-30T09:11:46.778Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addDecision: invalid deployment.type 与 daemon address 非空时仅记录错误并跳过/忽略 address,success
+2026-01-30T09:11:54.405Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addFile: apps/node-unit/src/index.ts,success
+2026-01-30T09:11:55.054Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addFile: tools/sql-migration/sql/deployment.sql,success
+2026-01-30T09:11:55.581Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addFile: apps/node-unit/src/scheduler.test.ts,success
+2026-01-30T09:11:56.100Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addFile: libraries/deploy/src/index.ts,success
+2026-01-30T09:11:57.016Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addFile: apps/node-unit/README.md,success
+2026-01-30T09:11:57.767Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addFile: docs/zh-Hans/packages/@yuants-node-unit.md,success
+2026-01-30T09:12:31.144Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addConstraint: 本次按仓库协作要求更新 .legion/tasks/* 的 context/tasks 以记录进展，属于 scope 外的过程性写入；仅用于任务跟踪，无业务代码变更。,success
+2026-01-30T10:49:11.265Z,legion_get_status,current,,Claude,,failed
+2026-01-30T10:51:48.830Z,legion_list_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,,success
+2026-01-30T10:51:54.235Z,legion_read_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,,success
+2026-01-30T10:57:45.857Z,legion_get_status,current,,Claude,,failed
+2026-01-30T10:58:04.177Z,legion_list_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,,success
+2026-01-30T10:58:13.951Z,legion_read_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,,success
+2026-01-30T10:59:11.552Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addTask: Generate Walkthrough Report and PR Body,success
+2026-01-30T10:59:12.334Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,handoff: Review the generated report and PR body.,success
+2026-01-30T10:59:17.649Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,completeTask: Generate Walkthrough Report and PR Body,success
+2026-01-30T10:59:22.188Z,legion_read_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,section: all,success
+2026-01-30T10:59:29.887Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addTask: Generate Walkthrough Report and PR Body,success
+2026-01-30T10:59:36.762Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addTask: Generate Walkthrough Report and PR Body,success
+2026-01-30T11:00:01.103Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,completeTask: 工程实现：按 RFC 修改调度、类型定义、SQL 迁移与文档。,success
+2026-01-30T11:00:07.011Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addFile: docs/report-walkthrough.md,success
+2026-01-30T11:24:44.767Z,legion_get_status,current,,Claude,,failed
+2026-01-30T11:24:50.099Z,legion_list_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,,success
+2026-01-30T11:24:54.808Z,legion_read_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,,success
+2026-01-30T11:26:43.109Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addDecision: Run tests via heft with simpler pattern,success
+2026-01-30T11:27:13.724Z,legion_get_status,current,,Claude,,failed
+2026-01-30T11:27:29.156Z,legion_list_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,,success
+2026-01-30T11:27:41.834Z,legion_read_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,section: all,success
+2026-01-30T11:28:14.539Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addDecision: Regenerate Walkthrough Report and PR Body,success
+2026-01-30T11:28:14.955Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,completeTask: Generate Walkthrough Report and PR Body,success
+2026-01-30T11:28:45.689Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,handoff: 检查 report-walkthrough.md 确认改动范围。,success
+2026-01-30T11:28:58.726Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,completeTask: 工程实现：按 RFC 修改调度、类型定义、SQL 迁移与文档。,success
+2026-01-30T11:29:04.398Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,"progress.completed: 已完成工程实现（apps/node-unit, libraries/deploy, sql-migration）。",success
+2026-01-30T11:34:41.182Z,legion_init,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,workingDirectory: /Users/c1/Work/Yuan,success
+2026-01-30T11:34:41.187Z,legion_get_status,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,,success
+2026-01-30T11:35:03.745Z,legion_get_status,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,,success
+2026-01-30T11:35:14.063Z,legion_list_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,,success
+2026-01-30T11:35:25.720Z,legion_read_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,,success
+2026-01-30T11:35:38.309Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addDecision: 记录 yuanctl 构建失败并阻断交付,success
+2026-01-30T11:35:38.629Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addDiscoveredTask: 修复 yuanctl 测试代码：在 cli-commands.test.ts 的 IDeployment mock 数据中补充 type 字段,success
+2026-01-30T11:35:45.239Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,handoff: 修复 yuanctl 测试代码中的 IDeployment mock 数据,success
+2026-01-30T11:36:05.680Z,legion_init,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,workingDirectory: /Users/c1/Work/Yuan,success
+2026-01-30T11:36:09.316Z,legion_get_status,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,,success
+2026-01-30T11:36:13.307Z,legion_read_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,,success
+2026-01-30T11:37:08.864Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addDecision: 修复 yuanctl 测试代码中的 IDeployment mock 数据,success
+2026-01-30T11:37:37.363Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,completeTask: 修复 yuanctl 测试代码适配 IDeployment 变更,success
+2026-01-30T11:37:42.249Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,"progress.completed: 已完成工程实现（apps/node-unit, libraries/deploy, sql-migration）。",success
