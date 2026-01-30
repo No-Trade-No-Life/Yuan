@@ -2,6 +2,28 @@
   "name": "@yuants/tool-yuanctl",
   "entries": [
     {
+      "version": "0.2.22",
+      "tag": "@yuants/tool-yuanctl_v0.2.22",
+      "date": "Fri, 30 Jan 2026 12:39:13 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add deployment type"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/deploy\" to `0.4.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.21",
       "tag": "@yuants/tool-yuanctl_v0.2.21",
       "date": "Mon, 26 Jan 2026 19:55:09 GMT",

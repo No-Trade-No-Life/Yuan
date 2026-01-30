@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-aster
 
-This log was last generated on Tue, 27 Jan 2026 23:51:32 GMT and should not be manually modified.
+This log was last generated on Fri, 30 Jan 2026 12:39:13 GMT and should not be manually modified.
+
+## 0.11.0
+Fri, 30 Jan 2026 12:39:13 GMT
+
+### Minor changes
+
+- add fetch proxy
 
 ## 0.10.10
 Tue, 27 Jan 2026 23:51:32 GMT

@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-gate",
   "entries": [
     {
+      "version": "0.9.0",
+      "tag": "@yuants/vendor-gate_v0.9.0",
+      "date": "Fri, 30 Jan 2026 12:39:13 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add fetch proxy"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.8.4",
       "tag": "@yuants/vendor-gate_v0.8.4",
       "date": "Mon, 26 Jan 2026 21:10:04 GMT",

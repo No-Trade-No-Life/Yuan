@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-gate
 
-This log was last generated on Mon, 26 Jan 2026 21:10:04 GMT and should not be manually modified.
+This log was last generated on Fri, 30 Jan 2026 12:39:13 GMT and should not be manually modified.
+
+## 0.9.0
+Fri, 30 Jan 2026 12:39:13 GMT
+
+### Minor changes
+
+- add fetch proxy
 
 ## 0.8.4
 Mon, 26 Jan 2026 21:10:04 GMT
