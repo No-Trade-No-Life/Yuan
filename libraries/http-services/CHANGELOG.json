@@ -2,6 +2,23 @@
   "name": "@yuants/http-services",
   "entries": [
     {
+      "version": "0.2.2",
+      "tag": "@yuants/http-services_v0.2.2",
+      "date": "Fri, 30 Jan 2026 05:40:11 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fetch with http-proxy replacement"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.1",
       "tag": "@yuants/http-services_v0.2.1",
       "date": "Wed, 28 Jan 2026 14:54:09 GMT",
