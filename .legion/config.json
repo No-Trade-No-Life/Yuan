@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "node-unit-claim-policy-deployment-type",
+  "currentTask": "update-deploysettings-for-deployment-type",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -199,9 +199,16 @@
     {
       "id": "node-unit-claim-policy-deployment-type",
       "name": "node-unit-claim-policy-deployment-type",
-      "status": "active",
+      "status": "paused",
       "createdAt": "2026-01-30T08:30:54.044Z",
-      "updatedAt": "2026-01-30T11:37:42.243Z"
+      "updatedAt": "2026-01-30T12:18:01.740Z"
+    },
+    {
+      "id": "update-deploysettings-for-deployment-type",
+      "name": "Update DeploySettings for Deployment Type",
+      "status": "active",
+      "createdAt": "2026-01-30T12:14:43.129Z",
+      "updatedAt": "2026-01-30T12:18:37.194Z"
     }
   ],
   "pendingProposals": [
@@ -2263,6 +2270,46 @@
       "decidedAt": "2026-01-30T08:30:54.044Z",
       "decidedBy": "Claude",
       "createdTaskId": "node-unit-claim-policy-deployment-type"
+    },
+    {
+      "id": "proposal-ml0ui3c6-f739e7",
+      "name": "Update DeploySettings for Deployment Type",
+      "goal": "Update DeploySettings UI to support 'deployment' and 'daemon' types, enforcing address constraints for daemon type.",
+      "rationale": "To implement RFC requirement for distinguishing between Deployment and Daemon types and enforcing address constraints.",
+      "points": [
+        "Add 'type' to DataView columns",
+        "Add Select for 'type' in Form",
+        "Conditionally render/disable Address input",
+        "Clear address on type change to Daemon",
+        "Ensure type is included in update payload"
+      ],
+      "scope": ["ui/web/src/modules/Deploy/DeploySettings.tsx"],
+      "phases": [
+        {
+          "tasks": [
+            {
+              "description": "Add 'Type' column to list and 'Type' selector to edit form.",
+              "acceptance": "List shows 'Type' column. Edit form has 'Type' selector."
+            }
+          ],
+          "name": "UI Update"
+        },
+        {
+          "tasks": [
+            {
+              "acceptance": "Address input hidden/disabled when Type is Daemon. Address cleared when switching to Daemon. Type saved on update.",
+              "description": "Handle Type change logic and persistence."
+            }
+          ],
+          "name": "Logic Update"
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-01-30T12:14:31.794Z",
+      "status": "approved",
+      "decidedAt": "2026-01-30T12:14:43.129Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "update-deploysettings-for-deployment-type"
     }
   ]
 }
