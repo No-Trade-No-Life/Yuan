@@ -37,6 +37,7 @@ const createMockDeployment = (overrides: Partial<IDeployment>): IDeployment => (
   command: 'npm start',
   args: [],
   env: {},
+  type: 'deployment',
   address: '',
   enabled: true,
   created_at: '2025-01-01T00:00:00.000Z',
@@ -188,6 +189,17 @@ describe('getLostAddresses', () => {
     const result = getLostAddresses(deployments, activeNodeUnits);
     expect(result).toEqual([]);
   });
+
+  it('ignores daemon deployments', () => {
+    const deployments: IDeployment[] = [
+      createMockDeployment({ id: 'd1', type: 'daemon', address: 'addr1' }),
+      createMockDeployment({ id: 'd2', address: 'addr2' }),
+    ];
+    const activeNodeUnits = ['addr1'];
+
+    const result = getLostAddresses(deployments, activeNodeUnits);
+    expect(result).toEqual(['addr2']);
+  });
 });
 
 describe('buildDeploymentCounts', () => {
@@ -213,6 +225,17 @@ describe('buildDeploymentCounts', () => {
     const counts = buildDeploymentCounts(deployments, activeNodeUnits);
     expect(counts.get('addr1')).toBe(1);
     expect(counts.get('addr2')).toBe(0);
+  });
+
+  it('ignores daemon deployments when counting', () => {
+    const deployments: IDeployment[] = [
+      createMockDeployment({ id: 'd1', type: 'daemon', address: 'addr1' }),
+      createMockDeployment({ id: 'd2', address: 'addr1' }),
+    ];
+    const activeNodeUnits = ['addr1'];
+
+    const counts = buildDeploymentCounts(deployments, activeNodeUnits);
+    expect(counts.get('addr1')).toBe(1);
   });
 });
 
@@ -315,7 +338,7 @@ describe('pickCandidateDeployment', () => {
 
     expect(mockRequestSQL).toHaveBeenCalledWith(
       mockTerminal,
-      "select * from deployment where enabled = true and address = '' order by updated_at asc, created_at asc, id asc limit 1",
+      "select * from deployment where enabled = true and type = 'deployment' and address = '' order by updated_at asc, created_at asc, id asc limit 1",
     );
     expect(candidate?.id).toBe('d2'); // updated_at 更早的优先
   });
@@ -329,7 +352,7 @@ describe('pickCandidateDeployment', () => {
 
     expect(mockRequestSQL).toHaveBeenCalledWith(
       mockTerminal,
-      "select * from deployment where enabled = true and address in ('addr_lost') order by updated_at asc, created_at asc, id asc limit 1",
+      "select * from deployment where enabled = true and type = 'deployment' and address in ('addr_lost') order by updated_at asc, created_at asc, id asc limit 1",
     );
     expect(candidate?.id).toBe('d3');
   });
@@ -344,11 +367,11 @@ describe('pickCandidateDeployment', () => {
 
     expect(mockRequestSQL).toHaveBeenCalledWith(
       mockTerminal,
-      "select * from deployment where enabled = true and address in ('addr_lost') order by updated_at asc, created_at asc, id asc limit 1",
+      "select * from deployment where enabled = true and type = 'deployment' and address in ('addr_lost') order by updated_at asc, created_at asc, id asc limit 1",
     );
     expect(mockRequestSQL).toHaveBeenCalledWith(
       mockTerminal,
-      "select * from deployment where enabled = true and address = '' order by updated_at asc, created_at asc, id asc limit 1",
+      "select * from deployment where enabled = true and type = 'deployment' and address = '' order by updated_at asc, created_at asc, id asc limit 1",
     );
     expect(candidate?.id).toBe('d4');
   });
@@ -440,13 +463,19 @@ describe('policy selection via environment variable', () => {
   });
 
   it('defaults to deployment_count when env var not set', () => {
-    const policyName = process.env.NODE_UNIT_CLAIM_POLICY ?? 'deployment_count';
+    const policyName = (process.env.NODE_UNIT_CLAIM_POLICY ?? 'deployment_count').toLowerCase();
     expect(policyName).toBe('deployment_count');
   });
 
   it('uses resource_usage when env var set', () => {
     process.env.NODE_UNIT_CLAIM_POLICY = 'resource_usage';
-    const policyName = process.env.NODE_UNIT_CLAIM_POLICY ?? 'deployment_count';
+    const policyName = (process.env.NODE_UNIT_CLAIM_POLICY ?? 'deployment_count').toLowerCase();
     expect(policyName).toBe('resource_usage');
+  });
+
+  it('supports case-insensitive values', () => {
+    process.env.NODE_UNIT_CLAIM_POLICY = 'NONE';
+    const policyName = (process.env.NODE_UNIT_CLAIM_POLICY ?? 'deployment_count').toLowerCase();
+    expect(policyName).toBe('none');
   });
 });

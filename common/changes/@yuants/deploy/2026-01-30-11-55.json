@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/deploy",
+      "comment": "add deployment type",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/deploy"
+}

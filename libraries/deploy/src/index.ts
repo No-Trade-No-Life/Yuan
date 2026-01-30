@@ -35,6 +35,11 @@ export interface IDeployment {
   env: Record<string, string>;
 
   /**
+   * Deployment type
+   */
+  type: 'daemon' | 'deployment';
+
+  /**
    * Node Unit Address (ED25519 Public Key)
    *
    * If not empty, the deployment will be deployed to the specified Node Unit

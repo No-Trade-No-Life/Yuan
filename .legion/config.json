@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "vendor-http-services-rollout",
+  "currentTask": "node-unit-claim-policy-deployment-type",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -192,9 +192,16 @@
     {
       "id": "vendor-http-services-rollout",
       "name": "vendor-http-services-rollout",
-      "status": "active",
+      "status": "paused",
       "createdAt": "2026-01-29T15:48:30.598Z",
-      "updatedAt": "2026-01-30T06:50:37.792Z"
+      "updatedAt": "2026-01-30T08:30:54.044Z"
+    },
+    {
+      "id": "node-unit-claim-policy-deployment-type",
+      "name": "node-unit-claim-policy-deployment-type",
+      "status": "active",
+      "createdAt": "2026-01-30T08:30:54.044Z",
+      "updatedAt": "2026-01-30T11:37:42.243Z"
     }
   ],
   "pendingProposals": [
@@ -2139,6 +2146,123 @@
       "decidedAt": "2026-01-29T15:48:30.598Z",
       "decidedBy": "Claude",
       "createdTaskId": "vendor-http-services-rollout"
+    },
+    {
+      "id": "proposal-ml0lqdos-b4fa0e",
+      "name": "node-unit-claim-policy-and-deployment-type",
+      "goal": "为 node-unit 增加抢占策略 NONE 与 deployment/daemon 类型区分，明确抢占与绑定行为规则，并完成设计门禁所需文档输出。",
+      "rationale": "用户要求对 node-unit 抢占策略与 deployment 类型做扩展，涉及多文件修改与行为语义决策，需通过 LegionMind 设计门禁流程记录并闭环。",
+      "points": [
+        "新增 NODE_UNIT_CLAIM_POLICY.NONE 语义：禁用抢占",
+        "deployment 表新增 type 字段：daemon/deployment；历史数据迁移为 deployment",
+        "daemon 不可被抢占且不绑定 address，启用后每个 node-unit 至少一个",
+        "明确抢占与调度规则、异常与兼容策略",
+        "输出 RFC 与各类 specs 到任务 docs 目录"
+      ],
+      "scope": [
+        "apps/node-unit/**",
+        "docs/zh-Hans/packages/@yuants-node-unit.md（如需更新）",
+        "tools/sql-migration/sql/**（如需新增 migration）"
+      ],
+      "phases": [
+        {
+          "name": "调研",
+          "tasks": [
+            {
+              "description": "定位 node-unit 的 claim policy、deployment 结构与抢占逻辑实现位置，明确现状与约束",
+              "acceptance": "context.md 记录现状文件/模块与关键行为"
+            }
+          ]
+        },
+        {
+          "name": "设计",
+          "tasks": [
+            {
+              "description": "输出 RFC：新增 NONE 与 deployment.type 行为、迁移策略、兼容与风控",
+              "acceptance": "WORK_ROOT/docs/rfc.md 完成且通过 review-rfc"
+            }
+          ]
+        },
+        {
+          "name": "规范输出",
+          "tasks": [
+            {
+              "description": "生成 dev/test/bench/obs specs",
+              "acceptance": "WORK_ROOT/docs/spec-*.md 完成"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-01-30T08:09:01.900Z",
+      "status": "pending"
+    },
+    {
+      "id": "proposal-ml0mhj3k-15c161",
+      "name": "node-unit-claim-policy-deployment-type",
+      "goal": "为 node-unit 增加抢占关闭策略与 deployment 类型字段，明确 daemon 与 deployment 的调度/抢占规则。",
+      "rationale": "用户要求新增 NODE_UNIT_CLAIM_POLICY=NONE 以禁用抢占，并为 deployment 增加 type 字段区分 daemon/normal 部署，影响调度与地址绑定逻辑；涉及多文件与数据迁移，需要设计门禁与跨会话跟踪。",
+      "points": [
+        "新增 NODE_UNIT_CLAIM_POLICY=none，调度可完全跳过抢占逻辑",
+        "deployment 表新增 type(TEXT) 字段，取值 daemon/deployment，并将历史记录迁移为 deployment",
+        "daemon 类型不参与抢占且不绑定 address，但启用时每个 node-unit 至少保持一个 daemon 实例",
+        "明确调度/分配规则与边界条件（启用/禁用、失联、无 daemon 可用等）",
+        "更新类型定义/文档/测试计划，保持既有日志与指标语义一致"
+      ],
+      "scope": [
+        "apps/node-unit/src/scheduler.ts",
+        "apps/node-unit/src/index.ts",
+        "libraries/deploy/src/index.ts",
+        "tools/sql-migration/sql/deployment.sql",
+        "apps/node-unit/etc/node-unit.api.md",
+        "apps/node-unit/README.md",
+        "docs/zh-Hans/packages/@yuants-node-unit.md",
+        "docs/rfc-node-unit-claim-policy.md"
+      ],
+      "phases": [
+        {
+          "name": "调研",
+          "tasks": [
+            {
+              "description": "阅读 node-unit 调度与 deployment 表结构，梳理当前抢占/地址绑定/失联处理的关键路径与边界。",
+              "acceptance": "context.md 记录现状流程、关键 SQL 与调度决策点。"
+            }
+          ]
+        },
+        {
+          "name": "设计",
+          "tasks": [
+            {
+              "description": "输出 RFC：新增 claim policy=none 的行为、deployment.type 语义、daemon 与 deployment 的调度/抢占/地址绑定规则、迁移策略与回滚。",
+              "acceptance": "docs/rfc-node-unit-claim-policy.md 完成并可评审。"
+            }
+          ]
+        },
+        {
+          "name": "设计审查",
+          "tasks": [
+            {
+              "description": "对 RFC 做对抗审查并收敛问题。",
+              "acceptance": "review-rfc 通过或给出修订点并迭代。"
+            }
+          ]
+        },
+        {
+          "name": "门禁确认",
+          "tasks": [
+            {
+              "description": "将 RFC 链接写入 plan.md 并请求用户确认设计。",
+              "acceptance": "用户确认后进入实现阶段。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-01-30T08:30:08.625Z",
+      "status": "approved",
+      "decidedAt": "2026-01-30T08:30:54.044Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "node-unit-claim-policy-deployment-type"
     }
   ]
 }

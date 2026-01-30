@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/tool-sql-migration",
+      "comment": "add deployment type",
+      "type": "none"
+    }
+  ],
+  "packageName": "@yuants/tool-sql-migration"
+}
