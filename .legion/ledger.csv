@@ -1085,3 +1085,83 @@
 2026-01-28T13:50:14.752Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: graceful shutdown 保持在 RxJS 流内处理，去掉 timeout/promise,success
 2026-01-28T13:51:33.033Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"addDecision: 使用 RxJS race(timer, cleanup$) 提供 shutdown timeout 能力",success
 2026-01-28T14:19:40.076Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-01-29T15:09:13.346Z,legion_get_status,http-proxy-service,HTTP Proxy Service 实现,Claude,,success
+2026-01-29T15:09:15.217Z,legion_read_context,http-proxy-service,HTTP Proxy Service 实现,Claude,"section: all, includeReviews: true",success
+2026-01-29T15:10:12.431Z,legion_update_tasks,http-proxy-service,HTTP Proxy Service 实现,Claude,addDiscoveredTask: requestHTTPProxy 改为 fetch 兼容接口（支持 Terminal 注入）,success
+2026-01-29T15:10:19.031Z,legion_update_plan,http-proxy-service,HTTP Proxy Service 实现,Claude,,success
+2026-01-29T15:22:12.123Z,legion_update_context,http-proxy-service,HTTP Proxy Service 实现,Claude,addDecision: requestHTTPProxy 采用 fetch 兼容签名并导出为 fetch，同时保留 requestHTTPProxy 作为别名,success
+2026-01-29T15:22:24.436Z,legion_update_tasks,http-proxy-service,HTTP Proxy Service 实现,Claude,completeTask: requestHTTPProxy 改为 fetch 兼容接口（支持 Terminal 注入）,success
+2026-01-29T15:46:47.917Z,legion_get_status,http-proxy-service,HTTP Proxy Service 实现,Claude,,success
+2026-01-29T15:46:52.798Z,legion_read_context,http-proxy-service,HTTP Proxy Service 实现,Claude,"section: all, includeReviews: true",success
+2026-01-29T15:47:43.811Z,legion_propose_task,http-proxy-service,HTTP Proxy Service 实现,Claude,name: vendor-http-services-rollout,success
+2026-01-29T15:48:30.608Z,legion_approve_proposal,vendor-http-services-rollout,vendor-http-services-rollout,Claude,proposalId: proposal-mkzmof28-cc1994,success
+2026-01-29T15:48:34.618Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-29T15:48:38.202Z,legion_read_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,"section: all, includeReviews: true",success
+2026-01-29T15:50:43.879Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addDecision: SUBTREE_ROOT 设为 apps/vendor-binance，用于本阶段仅改动 Binance 并形成迁移模板,success
+2026-01-29T15:50:47.039Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,completeTask: phase 1,success
+2026-01-29T15:53:10.617Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addDecision: 初期不强制 labels，先完成 binance 迁移再评估分流需求,success
+2026-01-29T16:08:24.354Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addFile: .legion/tasks/vendor-http-services-rollout/docs/rfc.md,success
+2026-01-29T16:10:33.965Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addDecision: 在 client.ts 中直接 import { fetch } 覆盖本地 fetch 标识，不使用别名,success
+2026-01-29T16:11:56.321Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addDecision: client.ts 仅新增 `import { fetch } from '@yuants/http-services'`，不修改任何调用点,success
+2026-01-29T16:12:22.672Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-29T16:12:59.858Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,completeTask: 设计审批通过（用户确认）。,success
+2026-01-29T16:13:06.173Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-29T16:13:09.206Z,legion_list_reviews,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-29T16:13:09.330Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-29T16:13:10.336Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-29T16:13:14.449Z,legion_list_reviews,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-29T16:14:07.989Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addFile: .legion/tasks/vendor-http-services-rollout/docs/spec-bench.md,success
+2026-01-29T16:14:09.064Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addTask: benchmark 实现：本阶段无需新增，已在 spec-bench 记录,success
+2026-01-29T16:14:12.464Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,completeTask: benchmark 实现：本阶段无需新增，已在 spec-bench 记录,success
+2026-01-29T16:14:37.884Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,completeTask: 设计审批通过（用户确认）。,success
+2026-01-29T16:14:38.608Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,setCurrentTask: 在 vendor-binance 中用 http-services 替换所有 fetch 调用，并完成最小验证。,success
+2026-01-29T16:14:41.903Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,progress.completed: apps/vendor-binance 侧引入 @yuants/http-services fetch 覆盖本地 fetch 标识，调用点保持不变。,success
+2026-01-29T16:16:02.214Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,progress.completed: 补充 spec-test 测试实现方案，新增 RFC 条款覆盖映射与失败场景回归用例清单。,success
+2026-01-29T16:16:05.428Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addFile: .legion/tasks/vendor-http-services-rollout/docs/spec-test.md,success
+2026-01-29T16:16:07.841Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addFile: .legion/tasks/vendor-http-services-rollout/docs/rfc.md,success
+2026-01-29T16:16:13.031Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addTask: 补充 spec-test 测试实现方案（RFC R1-R3 映射与失败场景回归用例）。,success
+2026-01-29T16:16:15.840Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,completeTask: 补充 spec-test 测试实现方案（RFC R1-R3 映射与失败场景回归用例）。,success
+2026-01-29T16:16:19.605Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,handoff: 按 spec-test.md 在 apps/vendor-binance 补充单元测试文件与 fixtures。,success
+2026-01-29T16:16:43.768Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-29T16:16:44.234Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-29T16:19:08.569Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addDecision: 进入阶段 B 后发现阻塞问题，暂停进入测试阶段,success
+2026-01-29T16:35:22.944Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-29T16:35:24.186Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-29T16:35:24.319Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-29T16:35:25.048Z,legion_list_reviews,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-29T16:35:28.269Z,legion_list_reviews,vendor-http-services-rollout,vendor-http-services-rollout,Claude,status: open,success
+2026-01-29T16:35:41.472Z,legion_read_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,"section: all, includeReviews: true",success
+2026-01-29T16:35:52.096Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addConstraint: 按本轮硬约束仅允许改 SUBTREE_ROOT=apps/vendor-binance，无法直接修改 WORK_ROOT/docs/spec-test.md；需要 orchestrator 决策是否允许越界更新或由他人处理。,success
+2026-01-29T16:35:56.639Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addDiscoveredTask: 请求 orchestrator 决策：是否允许更新 WORK_ROOT/docs/spec-test.md（超出 SUBTREE_ROOT 边界）以记录“无需新增测试、原因：仅日志脱敏”。,success
+2026-01-29T16:36:26.330Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,setCurrentTask: 在 vendor-binance 中用 http-services 替换所有 fetch 调用，并完成最小验证。,success
+2026-01-29T16:36:30.407Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,completeTask: 修复 review-security：client.ts 请求日志脱敏，移除 API key/签名/query,success
+2026-01-29T16:36:36.938Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addFile: apps/vendor-binance/src/api/client.ts,success
+2026-01-29T16:37:36.443Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addDecision: 测试与基准不新增用例，仅记录说明,success
+2026-01-29T16:37:48.427Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-29T16:47:31.655Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addFile: apps/vendor-binance/src/api/client.ts,success
+2026-01-29T16:47:44.220Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-29T16:47:44.920Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-29T16:47:46.436Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-29T16:47:46.509Z,legion_read_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,"section: all, includeReviews: true",success
+2026-01-29T16:47:46.889Z,legion_read_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,"section: all, includeReviews: true",success
+2026-01-29T16:47:53.065Z,legion_read_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,"section: all, includeReviews: true",success
+2026-01-29T16:49:18.110Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addFile: apps/vendor-binance/src/api/client.ts,success
+2026-01-29T16:49:20.926Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addTask: 测试实现：本轮仅错误 payload 脱敏，无需新增测试,success
+2026-01-29T16:49:23.273Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,completeTask: 测试实现：本轮仅错误 payload 脱敏，无需新增测试,success
+2026-01-29T16:49:40.542Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addFile: apps/vendor-binance/SESSION_NOTES.md,success
+2026-01-29T16:49:43.526Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addTask: 复核日志与错误 payload 脱敏确认,success
+2026-01-29T16:49:47.324Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,completeTask: 复核日志与错误 payload 脱敏确认,success
+2026-01-29T16:51:22.315Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-29T16:51:24.706Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-29T16:53:15.309Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addFile: .legion/tasks/vendor-http-services-rollout/docs/review-security.md,success
+2026-01-29T16:53:23.485Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-29T16:53:26.981Z,legion_read_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,"section: all, includeReviews: true",success
+2026-01-30T02:49:03.325Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,progress.completed: 执行 spec-test 最小验证：运行 `npx tsc --noEmit --project apps/vendor-binance/tsconfig.json`（失败：本地缺少 TypeScript，npx 无法找到 tsc）。,success
+2026-01-30T02:49:27.405Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addDecision: 暂停进入阶段 D，等待测试环境修复后重跑 B+C,success
+2026-01-30T02:59:56.974Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addDecision: 阶段 C 失败后回到阶段 A 修复依赖解析问题,success
+2026-01-30T03:00:02.707Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addDiscoveredTask: 修复 @yuants/vendor-binance 找不到 @yuants/http-services 的构建错误（TS2307）并重跑 rush build,success
+2026-01-30T03:01:53.090Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addFile: common/config/rush/pnpm-lock.yaml,success
+2026-01-30T03:02:02.160Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,completeTask: phase 3,success
+2026-01-30T03:02:32.279Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-30T03:05:32.697Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,completeTask: 生成 walkthrough 报告与 PR body,success
+2026-01-30T03:06:13.091Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,progress.completed: 阶段 D 完成：生成 report-walkthrough.md 与 pr-body.md,success

@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "http-proxy-app-implementation",
+  "currentTask": "vendor-http-services-rollout",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -188,6 +188,13 @@
       "status": "active",
       "createdAt": "2026-01-28T07:31:21.903Z",
       "updatedAt": "2026-01-28T13:51:33.032Z"
+    },
+    {
+      "id": "vendor-http-services-rollout",
+      "name": "vendor-http-services-rollout",
+      "status": "active",
+      "createdAt": "2026-01-29T15:48:30.598Z",
+      "updatedAt": "2026-01-30T03:06:13.085Z"
     }
   ],
   "pendingProposals": [
@@ -2071,6 +2078,67 @@
       "decidedAt": "2026-01-28T07:31:21.903Z",
       "decidedBy": "Claude",
       "createdTaskId": "http-proxy-app-implementation"
+    },
+    {
+      "id": "proposal-mkzmof28-cc1994",
+      "name": "vendor-http-services-rollout",
+      "goal": "用新的 @yuants/http-services 替换 vendor HTTP fetch 调用，先在 vendor-binance 完成调研/文档/实现并通过验证，再按同方案推广至其他指定 vendor。",
+      "rationale": "用户要求统一各 vendor 的 HTTP 调用层以便通过 http-services 的代理与策略；同时需要分阶段验证，先在 binance 上落地并通过确认后再扩展到其他 vendor。",
+      "points": [
+        "先聚焦 apps/vendor-binance 完成替换与验证，形成可复用的迁移模式",
+        "调研现有 fetch 使用点、封装层与请求路径，明确替换边界与兼容风险",
+        "输出 RFC + dev/test/bench/obs specs，包含迁移步骤、接口变更点、回滚策略",
+        "实现阶段只改 binance；扩展到 okx/gate/hyperliquid/aster/bitget/huobi 作为后续阶段（需用户确认）"
+      ],
+      "scope": [
+        "apps/vendor-binance",
+        "libraries/http-services (usage only)",
+        "docs/ (design outputs in .legion task docs)"
+      ],
+      "phases": [
+        {
+          "name": "调研",
+          "tasks": [
+            {
+              "description": "盘点 vendor-binance 的 fetch 使用点、现有 http client/签名/重试/限流封装，并识别是否已有可替换的统一入口。",
+              "acceptance": "形成使用点清单与替换策略草图（按模块归类），并记录潜在风险与兼容点。"
+            }
+          ]
+        },
+        {
+          "name": "设计",
+          "tasks": [
+            {
+              "description": "输出 RFC 与 specs（dev/test/bench/obs），明确 http-services 的接入方式、接口适配、错误语义与观测指标。",
+              "acceptance": "docs/rfc.md 与 spec-*.md 完整可评审，包含核心流程、接口定义、文件变更明细。"
+            }
+          ]
+        },
+        {
+          "name": "实现（仅 binance）",
+          "tasks": [
+            {
+              "description": "在 vendor-binance 中用 http-services 替换所有 fetch 调用，并完成最小验证。",
+              "acceptance": "binance 侧 fetch 替换完成且通过最小验证；其余 vendor 暂不改动，等待用户确认后进入下一阶段。"
+            }
+          ]
+        },
+        {
+          "name": "推广（其他 vendor）",
+          "tasks": [
+            {
+              "description": "在用户确认后，将相同替换方案扩展到 okx/gate/hyperliquid/aster/bitget/huobi。",
+              "acceptance": "其他 vendor 替换完成并通过与 binance 相同的验证步骤。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-01-29T15:47:43.808Z",
+      "status": "approved",
+      "decidedAt": "2026-01-29T15:48:30.598Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "vendor-http-services-rollout"
     }
   ]
 }

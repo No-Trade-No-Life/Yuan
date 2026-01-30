@@ -6,8 +6,7 @@ import {
   startHostProcess,
   stopHostProcess,
 } from './setup';
-import { requestHTTPProxy } from '../src/client';
-import { IHTTPProxyRequest } from '../src/types';
+import { fetch } from '../src/client';
 
 const DEFAULT_HOST_URL = process.env.HOST_URL;
 const TEST_SERVER_PORT = 3000;
@@ -72,8 +71,8 @@ async function runBenchmarks(clientTerminal: Terminal) {
       threshold: THRESHOLDS.light,
       concurrency: CONCURRENCY,
       iterations: ITERATIONS,
-      request: {
-        url: `http://localhost:${TEST_SERVER_PORT}/light`,
+      input: `http://localhost:${TEST_SERVER_PORT}/light`,
+      init: {
         method: 'GET' as const,
       },
     },
@@ -82,8 +81,8 @@ async function runBenchmarks(clientTerminal: Terminal) {
       threshold: THRESHOLDS.medium,
       concurrency: CONCURRENCY,
       iterations: ITERATIONS,
-      request: {
-        url: `http://localhost:${TEST_SERVER_PORT}/medium`,
+      input: `http://localhost:${TEST_SERVER_PORT}/medium`,
+      init: {
         method: 'POST' as const,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: 'test', data: 'x'.repeat(10000) }),
@@ -94,8 +93,8 @@ async function runBenchmarks(clientTerminal: Terminal) {
       threshold: THRESHOLDS.heavy,
       concurrency: CONCURRENCY,
       iterations: ITERATIONS,
-      request: {
-        url: `http://localhost:${TEST_SERVER_PORT}/heavy`,
+      input: `http://localhost:${TEST_SERVER_PORT}/heavy`,
+      init: {
         method: 'GET' as const,
       },
     },
@@ -104,8 +103,8 @@ async function runBenchmarks(clientTerminal: Terminal) {
       threshold: THRESHOLDS.highConcurrency,
       concurrency: HIGH_CONCURRENCY,
       iterations: ITERATIONS,
-      request: {
-        url: `http://localhost:${TEST_SERVER_PORT}/light`,
+      input: `http://localhost:${TEST_SERVER_PORT}/light`,
+      init: {
         method: 'GET' as const,
       },
     },
@@ -118,7 +117,8 @@ async function runBenchmarks(clientTerminal: Terminal) {
 
     const result = await benchmarkRequest(
       clientTerminal,
-      scenario.request,
+      scenario.input,
+      scenario.init,
       scenario.iterations,
       scenario.concurrency,
       scenario.threshold,
@@ -131,7 +131,8 @@ async function runBenchmarks(clientTerminal: Terminal) {
 
 async function benchmarkRequest(
   clientTerminal: Terminal,
-  request: IHTTPProxyRequest,
+  input: Request | string | URL,
+  init: RequestInit | undefined,
   iterations: number,
   concurrency: number,
   threshold: { rps?: number; p95Ms?: number },
@@ -139,7 +140,7 @@ async function benchmarkRequest(
   const startTime = Date.now();
 
   for (let i = 0; i < WARMUP_REQUESTS; i++) {
-    await ensureSuccess(clientTerminal, request);
+    await ensureSuccess(clientTerminal, input, init);
   }
 
   // Concurrent run
@@ -149,7 +150,7 @@ async function benchmarkRequest(
   for (let i = 0; i < batches; i++) {
     const batchRequests = Array.from({ length: concurrency }, async () => {
       const reqStart = Date.now();
-      await ensureSuccess(clientTerminal, request);
+      await ensureSuccess(clientTerminal, input, init);
       const reqEnd = Date.now();
       return reqEnd - reqStart;
     });
@@ -199,12 +200,13 @@ async function benchmarkRequest(
   return { pass };
 }
 
-async function ensureSuccess(terminal: Terminal, request: IHTTPProxyRequest) {
-  const response = await requestHTTPProxy(terminal, request);
-  if (!response || response.code !== 0) {
-    const code = response?.code ?? 'UNKNOWN';
-    const message = response?.message ?? 'Unknown error';
-    throw new Error(`Request failed: ${code} ${message}`);
+async function ensureSuccess(terminal: Terminal, input: Request | string | URL, init?: RequestInit) {
+  const response = await fetch(input, {
+    ...init,
+    terminal,
+  });
+  if (!response.ok) {
+    throw new Error(`Request failed: ${response.status} ${response.statusText}`);
   }
   return response;
 }

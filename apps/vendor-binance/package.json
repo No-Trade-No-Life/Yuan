@@ -25,8 +25,9 @@
     "@yuants/data-interest-rate": "workspace:*",
     "@yuants/transfer": "workspace:*",
     "@yuants/exchange": "workspace:*",
-    "rxjs": "~7.5.6",
-    "@yuants/data-trade": "workspace:*"
+    "@yuants/data-trade": "workspace:*",
+    "@yuants/http-services": "workspace:*",
+    "rxjs": "~7.5.6"
   },
   "devDependencies": {
     "@microsoft/api-extractor": "~7.55.2",

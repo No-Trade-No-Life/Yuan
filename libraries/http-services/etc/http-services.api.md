@@ -4,9 +4,19 @@
 
 ```ts
 
-import { IResponse } from '@yuants/protocol';
 import { IServiceOptions } from '@yuants/protocol';
 import { Terminal } from '@yuants/protocol';
+
+// @public
+const fetch_2: (input: Request | string | URL, init?: IHTTPProxyFetchInit) => Promise<Response>;
+export { fetch_2 as fetch }
+
+// @public
+export interface IHTTPProxyFetchInit extends RequestInit {
+    labels?: Record<string, string>;
+    terminal?: Terminal;
+    timeout?: number;
+}
 
 // @public
 export interface IHTTPProxyOptions {
@@ -41,8 +51,5 @@ export interface IHTTPProxyResponse {
 export const provideHTTPProxyService: (terminal: Terminal, labels: Record<string, string>, options?: IServiceOptions & IHTTPProxyOptions) => {
     dispose: () => void;
 };
-
-// @public
-export const requestHTTPProxy: (terminal: Terminal, request: IHTTPProxyRequest) => Promise<IResponse<IHTTPProxyResponse>>;
 
 ```

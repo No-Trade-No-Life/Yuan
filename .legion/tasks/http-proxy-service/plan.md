@@ -9,12 +9,12 @@
 - 提供 provideHTTPProxyService helper 函数，包装 terminal.server.provideService
 - 支持完整的 fetch 参数（url, method, headers, body 等）
 - 支持 label (Record<string, string>) 用于服务选择（如 ip、hostname）
-- 提供 requestHTTPProxy client 函数，支持按 label 选择 terminal
+- requestHTTPProxy 使用与 fetch 一致的调用签名（RequestInfo + RequestInit），并允许通过 Terminal.fromNodeEnv 或 init.terminal 注入
 - 返回原始 HTTP 响应（status, headers, body）
 - 参考 provideQuoteService 和 provideExchangeServices 的实现风格
 - 集成 Prometheus metrics 和结构化日志
 - 完整的测试覆盖（单元测试 + 集成测试 + benchmark）
-- **使用 JSON Schema 路由机制（利用 Terminal 现有能力）**
+- 使用 JSON Schema 路由机制（利用 Terminal 现有能力）
 
 ## 范围
 
@@ -39,7 +39,7 @@
 
 ---
 
-_创建于: 2026-01-26 | 最后更新: 2026-01-26_
+_创建于: 2026-01-26 | 最后更新: 2026-01-29_
 
 ## 设计方案
 
