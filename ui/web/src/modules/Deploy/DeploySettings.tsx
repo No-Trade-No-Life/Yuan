@@ -83,6 +83,7 @@ registerPage('DeploySettings', () => {
         if (nextVersion && nextVersion !== setting.package_version) {
           deploymentsToUpdate.push({
             ...setting,
+            type: setting.type || 'deployment',
             package_version: nextVersion,
           });
         }
@@ -107,11 +108,11 @@ registerPage('DeploySettings', () => {
     }
   };
   const onEdit = (deployment: IDeployment) => {
-    setEditDeployment(deployment);
+    setEditDeployment({ ...deployment, type: deployment.type || 'deployment' });
     onOpenEdit();
   };
   const onCreate = () => {
-    setEditDeployment({ id: UUID(), enabled: false } as IDeployment);
+    setEditDeployment({ id: UUID(), enabled: false, type: 'deployment' } as IDeployment);
     onOpenEdit();
   };
   const onUpdate = async (deployments: IDeployment[]) => {
@@ -124,6 +125,7 @@ registerPage('DeploySettings', () => {
             columns: [
               //
               'id',
+              'type',
               'package_name',
               'package_version',
               'env',
@@ -165,6 +167,11 @@ registerPage('DeploySettings', () => {
           </>
         }
         columns={[
+          {
+            header: '类型',
+            accessorKey: 'type',
+            cell: (ctx) => (ctx.getValue() === 'daemon' ? '守护进程 (Daemon)' : '部署 (Deployment)'),
+          },
           {
             header: '部署地址',
             accessorKey: 'address',
@@ -292,6 +299,9 @@ registerPage('DeploySettings', () => {
               values.env?.forEach((item: { key: string; value: string }) => {
                 env[item.key] = item.value || ''; // Ensure value defaults to empty string
               });
+              if (values.type === 'daemon') {
+                values.address = '';
+              }
               setEditDeployment({
                 ...values,
                 args,
@@ -306,6 +316,15 @@ registerPage('DeploySettings', () => {
             style={{ marginTop: '20px' }}
           >
             <Form.Input field="package_name" label="NPM 包名" style={{ width: '560px' }} />
+            <Form.Select
+              field="type"
+              label="部署类型"
+              style={{ width: '560px' }}
+              optionList={[
+                { value: 'deployment', label: 'Deployment' },
+                { value: 'daemon', label: 'Daemon' },
+              ]}
+            />
             <Form.AutoComplete
               field="package_version"
               label="部署版本"
@@ -313,22 +332,24 @@ registerPage('DeploySettings', () => {
               data={packageVersionsCache.get(editDeployment.package_name ?? '') ?? []}
             />
 
-            <Form.AutoComplete
-              field="address"
-              label={{
-                text: '部署地址',
-                extra: (
-                  <Tooltip content="部署到指定的 Node Unit 地址 (ED25519 公钥)。NodeUnit 仅会部署与其地址匹配的项目。">
-                    <IconHelpCircle style={{ color: 'var(--semi-color-text-2)' }} />
-                  </Tooltip>
-                ),
-              }}
-              style={{ width: '560px' }}
-              data={availableNodeUnit?.map((unit) => ({
-                label: `${unit.node_unit_name} (${unit.node_unit_address}) @yuants/node-unit@${unit.node_unit_version}`,
-                value: unit.node_unit_address,
-              }))}
-            />
+            {editDeployment.type !== 'daemon' && (
+              <Form.AutoComplete
+                field="address"
+                label={{
+                  text: '部署地址',
+                  extra: (
+                    <Tooltip content="部署到指定的 Node Unit 地址 (ED25519 公钥)。NodeUnit 仅会部署与其地址匹配的项目。">
+                      <IconHelpCircle style={{ color: 'var(--semi-color-text-2)' }} />
+                    </Tooltip>
+                  ),
+                }}
+                style={{ width: '560px' }}
+                data={availableNodeUnit?.map((unit) => ({
+                  label: `${unit.node_unit_name} (${unit.node_unit_address}) @yuants/node-unit@${unit.node_unit_version}`,
+                  value: unit.node_unit_address,
+                }))}
+              />
+            )}
 
             <Form.Section text="环境变量" />
             <ArrayField

@@ -1326,3 +1326,17 @@
 2026-01-30T11:37:08.864Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addDecision: 修复 yuanctl 测试代码中的 IDeployment mock 数据,success
 2026-01-30T11:37:37.363Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,completeTask: 修复 yuanctl 测试代码适配 IDeployment 变更,success
 2026-01-30T11:37:42.249Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,"progress.completed: 已完成工程实现（apps/node-unit, libraries/deploy, sql-migration）。",success
+2026-01-30T12:13:53.547Z,legion_update_tasks,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,addTask: 修复 UI：在 DeploySettings 页面增加 deployment.type 支持（列表显示、编辑表单、更新逻辑）。,success
+2026-01-30T12:14:08.332Z,legion_get_status,current,,Claude,,failed
+2026-01-30T12:14:24.035Z,legion_init,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,,success
+2026-01-30T12:14:31.801Z,legion_propose_task,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,name: Update DeploySettings for Deployment Type,success
+2026-01-30T12:14:43.147Z,legion_approve_proposal,update-deploysettings-for-deployment-type,Update DeploySettings for Deployment Type,Claude,proposalId: proposal-ml0ui3c6-f739e7,success
+2026-01-30T12:15:05.310Z,legion_update_context,update-deploysettings-for-deployment-type,Update DeploySettings for Deployment Type,Claude,,success
+2026-01-30T12:15:06.028Z,legion_update_tasks,update-deploysettings-for-deployment-type,Update DeploySettings for Deployment Type,Claude,setCurrentTask: Add 'Type' column to list and 'Type' selector to edit form.,success
+2026-01-30T12:16:37.555Z,legion_update_context,update-deploysettings-for-deployment-type,Update DeploySettings for Deployment Type,Claude,progress.completed: Implement UI changes in DeploySettings.tsx,success
+2026-01-30T12:16:38.625Z,legion_update_tasks,update-deploysettings-for-deployment-type,Update DeploySettings for Deployment Type,Claude,completeTask: Add 'Type' column to list and 'Type' selector to edit form.,success
+2026-01-30T12:16:39.164Z,legion_update_tasks,update-deploysettings-for-deployment-type,Update DeploySettings for Deployment Type,Claude,completeTask: Handle Type change logic and persistence.,success
+2026-01-30T12:18:01.742Z,legion_update_context,node-unit-claim-policy-deployment-type,node-unit-claim-policy-deployment-type,Claude,progress.completed: UI 适配已完成：DeploySettings.tsx 支持 deployment.type 显示与表单联动。,success
+2026-01-30T12:18:31.894Z,legion_update_tasks,update-deploysettings-for-deployment-type,Update DeploySettings for Deployment Type,Claude,completeTask: 修复 UI：在 DeploySettings 页面增加 deployment.type 支持（列表显示、编辑表单、更新逻辑）。,success
+2026-01-30T12:18:37.199Z,legion_update_context,update-deploysettings-for-deployment-type,Update DeploySettings for Deployment Type,Claude,"progress.completed: 已完成工程实现（apps/node-unit, libraries/deploy, sql-migration）。",success
+2026-01-30T12:29:51.560Z,legion_get_status,update-deploysettings-for-deployment-type,Update DeploySettings for Deployment Type,Claude,,success

@@ -36,6 +36,7 @@
 - 已通过 run-tests（单元测试与构建）。
 - 已生成 docs/report-walkthrough.md 与 docs/pr-body.md。
 - 已修复 yuanctl 构建错误并更新报告。
+- UI 适配已完成：DeploySettings.tsx 支持 deployment.type 显示与表单联动。
 
 ### 🟡 进行中
 

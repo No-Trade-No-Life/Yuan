@@ -16,6 +16,7 @@
 
 - Modified `apps/node-unit/src/scheduler.ts` to respect the `none` policy and filter out `daemon` types from the claiming process.
 - Updated `apps/node-unit/src/index.ts` to execute `daemon` deployments locally regardless of address binding.
+- Updated `ui/web/src/modules/Deploy/DeploySettings.tsx` to support type selection and address field toggling.
 - Updated SQL schema and `IDeployment` interface.
 
 ## Testing

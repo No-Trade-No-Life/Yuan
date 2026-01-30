@@ -33,12 +33,13 @@
 
 ### 核心模块
 
-| 模块          | 文件                                     | 变更说明                                                                                                                                                                 |
-| :------------ | :--------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Scheduler** | `apps/node-unit/src/scheduler.ts`        | 1. `runSchedulerCycle` 在 policy=none 时跳过 claim。<br>2. 过滤 `daemon` 类型，使其不进入抢占逻辑。<br>3. 增加非法 `address` 绑定的错误日志 (`ERR_DAEMON_ADDRESS_SET`)。 |
-| **Runtime**   | `apps/node-unit/src/index.ts`            | 1. SQL 查询改为拉取 `address` 匹配的 `deployment` **或** 所有 `daemon`。<br>2. 增加对 `daemon` 类型的本地执行支持。                                                      |
-| **Schema**    | `tools/sql-migration/sql/deployment.sql` | 新增 `type` 字段 (TEXT)，默认值为 `'deployment'`。                                                                                                                       |
-| **Library**   | `libraries/deploy/src/index.ts`          | 更新 `IDeployment` 接口，增加 `type: 'daemon' \| 'deployment'`。                                                                                                         |
+| 模块          | 文件                                           | 变更说明                                                                                                                                                                 |
+| :------------ | :--------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Scheduler** | `apps/node-unit/src/scheduler.ts`              | 1. `runSchedulerCycle` 在 policy=none 时跳过 claim。<br>2. 过滤 `daemon` 类型，使其不进入抢占逻辑。<br>3. 增加非法 `address` 绑定的错误日志 (`ERR_DAEMON_ADDRESS_SET`)。 |
+| **Runtime**   | `apps/node-unit/src/index.ts`                  | 1. SQL 查询改为拉取 `address` 匹配的 `deployment` **或** 所有 `daemon`。<br>2. 增加对 `daemon` 类型的本地执行支持。                                                      |
+| **Schema**    | `tools/sql-migration/sql/deployment.sql`       | 新增 `type` 字段 (TEXT)，默认值为 `'deployment'`。                                                                                                                       |
+| **Library**   | `libraries/deploy/src/index.ts`                | 更新 `IDeployment` 接口，增加 `type: 'daemon' \| 'deployment'`。                                                                                                         |
+| **UI**        | `ui/web/src/modules/Deploy/DeploySettings.tsx` | 1. 列表增加 `类型` 列显示。<br>2. 编辑表单新增 `类型` 选择 (Deployment/Daemon)。<br>3. `daemon` 类型隐藏 `address` 字段并自动置空。                                      |
 
 ### 文档与测试
 
@@ -78,8 +79,15 @@ heft test --test-path-pattern lib/scheduler.test.js
     - 预期: 数据库中 `deployment` 表的 `address` 字段不会发生变化。
 
 3.  **验证 Daemon**:
+
     - 插入一条 `type='daemon'` 且 `enabled=true` 的部署记录。
     - 预期: 所有连接的 `node-unit` 均启动该进程，且不修改该记录的 `address`。
+
+4.  **验证 UI**:
+    - 进入 `DeploySettings` 页面。
+    - 创建/编辑部署，选择类型为 `Daemon`。
+    - 预期: `部署地址` 输入框消失 (表单联动)。
+    - 保存后，列表中该记录类型显示为 `守护进程 (Daemon)` 且地址为空。
 
 ## 5. 可观测性
 
