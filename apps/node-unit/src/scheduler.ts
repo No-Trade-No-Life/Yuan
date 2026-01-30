@@ -328,9 +328,10 @@ const claimDeployment = async (
     lostAddresses.length > 0
       ? `address = '' or address in (${lostAddresses.map((address) => escapeSQL(address)).join(',')})`
       : "address = ''";
+  // Only claim deployment type records, never daemon type
   const sql = `update deployment set address = ${escapeSQL(nodeUnitAddress)} where id = ${escapeSQL(
     deployment.id,
-  )} and (${addressFilter}) returning id`;
+  )} and type = 'deployment' and (${addressFilter}) returning id`;
   const result = await requestSQL<Array<{ id: string }>>(terminal, sql);
   return result.length > 0;
 };
