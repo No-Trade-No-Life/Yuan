@@ -7,7 +7,7 @@
 ## 0. 元信息（Meta）
 
 - **项目名称**：@yuants/vendor-binance
-- **最近更新时间**：2025-11-25 22:50(添加 Spot/Margin 产品支持)
+- **最近更新时间**：2026-01-30 15:10(新增 USE_HTTP_PROXY 开关)
 - **当前状态标签**：重构中（credential 化 & 上下文治理）
 
 ---
@@ -100,6 +100,62 @@
 ## 6. 最近几轮工作记录（Recent Sessions）
 
 > 仅记录已结束的会话;进行中的内容放在第 11 节,收尾后再搬运;最新记录置顶。
+
+### 2026-01-30 — OpenCode
+
+- **本轮摘要**：
+  - 新增 `USE_HTTP_PROXY` 开关：当为 `true` 时覆盖 `globalThis.fetch`，默认继续使用原生 fetch。
+- **修改的文件**：
+  - `apps/vendor-binance/src/api/client.ts`
+- **运行的测试 / 检查**：
+  - 命令：未运行（按指令不执行基准/测试）
+  - 结果：未运行
+
+### 2026-01-30 — OpenCode
+
+- **本轮摘要**：
+  - 复核 `api/client.ts` 日志与错误 payload 已完成脱敏：不输出签名、API key、signData 或完整 query。
+  - 记录当前状态与后续注意事项，未新增代码改动。
+- **修改的文件**：
+  - `apps/vendor-binance/SESSION_NOTES.md`
+- **运行的测试 / 检查**：
+  - 命令：未运行（按指令不执行测试）
+  - 结果：未运行
+
+### 2026-01-30 — OpenCode
+
+- **本轮摘要**：
+  - 进一步脱敏 `ACTIVE_RATE_LIMIT` 错误 payload，移除 `endpoint` 字段，仅保留 host+pathname。
+- **修改的文件**：
+  - `apps/vendor-binance/src/api/client.ts`
+- **运行的测试 / 检查**：
+  - 命令：未运行（按指令不执行测试）
+  - 结果：未运行
+
+### 2026-01-30 — OpenCode
+
+- **本轮摘要**：
+  - 在 `api/client.ts` 移除请求日志中的 API key、签名与完整 query，避免泄露敏感信息。
+  - 保留必要日志字段（method/host/path/usedWeight/retryAfter）。
+  - 限流错误 `ACTIVE_RATE_LIMIT` 的 payload 仅保留 `host+pathname`，避免签名泄露。
+  - USE_HTTP_PROXY 为 false 时优先使用原生 `globalThis.fetch`，若不可用则回退到 http-services fetch。
+- **修改的文件**：
+  - `apps/vendor-binance/src/api/client.ts`
+- **运行的测试 / 检查**：
+  - 命令：未运行（按指令不执行测试）
+  - 结果：未运行
+
+### 2026-01-30 — OpenCode
+
+- **本轮摘要**：
+  - 在 `api/client.ts` 新增 `@yuants/http-services` 的 `fetch` import，覆盖本地 fetch 标识以走代理。
+  - 更新 `apps/vendor-binance` 依赖，新增 `@yuants/http-services`。
+- **修改的文件**：
+  - `apps/vendor-binance/src/api/client.ts`
+  - `apps/vendor-binance/package.json`
+- **运行的测试 / 检查**：
+  - 命令：未运行（按指令不执行测试）
+  - 结果：未运行
 
 ### 2026-01-07 — Codex
 

@@ -1,9 +1,16 @@
+import { fetch } from '@yuants/http-services';
 import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import { encodeHex, formatTime, HmacSHA256, newError, tokenBucket } from '@yuants/utils';
 
 const MetricBinanceApiUsedWeight = GlobalPrometheusRegistry.gauge('binance_api_used_weight', '');
 const MetricBinanceApiCounter = GlobalPrometheusRegistry.counter('binance_api_request_total', '');
 const terminal = Terminal.fromNodeEnv();
+const shouldUseHttpProxy = process.env.USE_HTTP_PROXY === 'true';
+const fetchImpl = shouldUseHttpProxy ? fetch : globalThis.fetch ?? fetch;
+
+if (shouldUseHttpProxy) {
+  globalThis.fetch = fetch;
+}
 
 type HttpMethod = 'GET' | 'POST' | 'DELETE' | 'PUT';
 
@@ -95,16 +102,9 @@ const callApi = async <T>(
       'Content-Type': 'application/json;charset=utf-8',
       'X-MBX-APIKEY': credential.access_key,
     };
-    console.info(
-      formatTime(Date.now()),
-      method,
-      url.href,
-      JSON.stringify(headers),
-      url.searchParams.toString(),
-      signData,
-    );
+    console.info(formatTime(Date.now()), 'request', method, url.host, url.pathname);
   } else {
-    console.info(formatTime(Date.now()), method, url.href);
+    console.info(formatTime(Date.now()), 'request', method, url.host, url.pathname);
   }
 
   const retryAfterUntil = mapPathToRetryAfterUntil[endpoint];
@@ -115,8 +115,7 @@ const callApi = async <T>(
       throw newError('ACTIVE_RATE_LIMIT', {
         wait_time: `${retryAfterUntil - Date.now()}ms`,
         retryAfterUntil,
-        url: url.href,
-        endpoint,
+        url: `${url.host}${url.pathname}`,
       });
     }
     delete mapPathToRetryAfterUntil[endpoint];
@@ -124,7 +123,7 @@ const callApi = async <T>(
 
   MetricBinanceApiCounter.labels({ path: url.pathname, terminal_id: terminal.terminal_id }).inc();
 
-  const res = await fetch(url.href, {
+  const res = await fetchImpl(url.href, {
     method,
     headers,
   });
@@ -137,7 +136,8 @@ const callApi = async <T>(
     formatTime(Date.now()),
     'response',
     method,
-    url.href,
+    url.host,
+    url.pathname,
     `status=${res.status}`,
     retryAfter ? `retryAfter=${retryAfter}` : '',
     `usedWeight1M=${usedWeight1M ?? 'N/A'}`,

@@ -1,5 +1,4 @@
 declare module '@yuants/ui-web' {
-  /// <reference types="react" />
   import { JSONSchema7 } from 'json-schema';
   import * as react_jsx_runtime from 'react/jsx-runtime';
   import * as React$1 from 'react';
@@ -345,17 +344,15 @@ declare module '@yuants/ui-web' {
   const showForm: <T>(
     schema: JSONSchema7,
     initialData?: any,
-    options?:
-      | {
-          /**
-           * Whether to submit the form immediately if the initial data is valid.
-           * if set to true, the form will be submitted immediately without showing the form.
-           * if initial data is invalid, the form will be shown as usual.
-           */
-          immediateSubmit?: boolean | undefined;
-          uiSchema?: UiSchema<T, any, any> | undefined;
-        }
-      | undefined,
+    options?: {
+      /**
+       * Whether to submit the form immediately if the initial data is valid.
+       * if set to true, the form will be submitted immediately without showing the form.
+       * if initial data is invalid, the form will be shown as usual.
+       */
+      immediateSubmit?: boolean;
+      uiSchema?: UiSchema<T, any, any>;
+    },
   ) => Promise<T>;
 
   const index_d$h_Form: typeof Form;
@@ -503,7 +500,7 @@ declare module '@yuants/ui-web' {
   const Switch: React__default.MemoExoticComponent<
     (
       props: Omit<SwitchProps, 'onChange' | 'loading'> & {
-        onChange?: ((checked: boolean) => any) | undefined;
+        onChange?: (checked: boolean) => any;
       },
     ) => react_jsx_runtime.JSX.Element
   >;
@@ -875,7 +872,7 @@ declare module '@yuants/ui-web' {
      * @param transpose 是否转置数据 (行列互换), 默认不转置
      */
     writeFileFromRawTable: (filename: string, data: any[][], transpose?: boolean) => Promise<void>;
-    parse: <T_1 = any>(csvString: string) => T_1[];
+    parse: <T = any>(csvString: string) => T[];
     stringify: (data: any[]) => string;
   };
 

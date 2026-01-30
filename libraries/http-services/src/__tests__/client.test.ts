@@ -1,9 +1,8 @@
 import { Terminal } from '@yuants/protocol';
-import { requestHTTPProxy } from '../client';
-import { IHTTPProxyRequest } from '../types';
+import { fetch } from '../client';
 import { Subject, BehaviorSubject } from 'rxjs';
 
-describe('requestHTTPProxy', () => {
+describe('fetch', () => {
   let terminal: Terminal;
 
   beforeEach(() => {
@@ -41,7 +40,7 @@ describe('requestHTTPProxy', () => {
       data: {
         status: 200,
         statusText: 'OK',
-        headers: {},
+        headers: { 'content-type': 'application/json' },
         body: '{}',
         ok: true,
         url: 'https://api.example.com/data',
@@ -50,14 +49,20 @@ describe('requestHTTPProxy', () => {
 
     jest.spyOn(terminal.client, 'requestForResponse').mockResolvedValue(mockResponse);
 
-    const request: IHTTPProxyRequest = {
-      url: 'https://api.example.com/data',
+    const response = await fetch('https://api.example.com/data', {
       labels: { region: 'us-west' },
-    };
+      terminal,
+    });
 
-    const response = await requestHTTPProxy(terminal, request);
-
-    expect(terminal.client.requestForResponse).toHaveBeenCalledWith('HTTPProxy', request);
-    expect(response).toEqual(mockResponse);
+    expect(terminal.client.requestForResponse).toHaveBeenCalledWith(
+      'HTTPProxy',
+      expect.objectContaining({
+        url: 'https://api.example.com/data',
+        method: 'GET',
+        labels: { region: 'us-west' },
+      }),
+    );
+    expect(response.ok).toBe(true);
+    expect(response.status).toBe(200);
   });
 });

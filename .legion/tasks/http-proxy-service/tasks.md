@@ -2,7 +2,7 @@
 
 ## 快速恢复
 
-**当前阶段**: 阶段 5 - 阶段 5: 测试与文档
+**当前阶段**: (unknown)
 **当前任务**: (none)
 **进度**: 14/14 任务完成
 
@@ -57,6 +57,7 @@
 - [x] 执行测试/构建（`rush build -t @yuants/http-services`）并记录结果 | 来源: run-tests 未执行
 - [x] 修复单元测试中的 WebSocketConnectionError 问题 | 来源: rush build failure
 - [x] 修复 client.test.ts 和 server.test.ts 中的 WebSocket 连接错误与异步泄漏 | 来源: rush build 失败日志
+- [x] requestHTTPProxy 改为 fetch 兼容接口（支持 Terminal 注入） | 来源: 用户需求
 
 ---
 

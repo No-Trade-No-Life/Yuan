@@ -1,7 +1,6 @@
 import { Terminal } from '@yuants/protocol';
 import { provideHTTPProxyService } from '../server';
-import { requestHTTPProxy } from '../client';
-import { IHTTPProxyRequest } from '../types';
+import { fetch } from '../client';
 import { createServer, Server } from 'http';
 import { spawn, ChildProcess } from 'child_process';
 import net from 'net';
@@ -185,53 +184,45 @@ import path from 'path';
   }, 20000);
 
   it('should complete end-to-end HTTP request', async () => {
-    const request: IHTTPProxyRequest = {
-      url: `http://localhost:${httpServerPort}/get`,
+    const response = await fetch(`http://localhost:${httpServerPort}/get`, {
       method: 'GET',
       headers: { Connection: 'close' },
-    };
+      terminal: clientTerminal,
+    });
 
-    const response = await requestHTTPProxy(clientTerminal, request);
-
-    expect(response.code).toBe(0);
-    expect(response.data?.status).toBe(200);
-    expect(response.data?.ok).toBe(true);
+    expect(response.status).toBe(200);
+    expect(response.ok).toBe(true);
   }, 10000);
 
   it('should route to correct proxy based on labels', async () => {
-    const request: IHTTPProxyRequest = {
-      url: `http://localhost:${httpServerPort}/get`,
+    const response = await fetch(`http://localhost:${httpServerPort}/get`, {
       labels: { region: 'us-west' },
       headers: { Connection: 'close' },
-    };
-
-    const response = await requestHTTPProxy(clientTerminal, request);
-    expect(response.code).toBe(0);
+      terminal: clientTerminal,
+    });
+    expect(response.ok).toBe(true);
   }, 10000);
 
   it('should fail if no proxy matches labels', async () => {
-    const request: IHTTPProxyRequest = {
-      url: `http://localhost:${httpServerPort}/get`,
-      labels: { region: 'eu-central' },
-      headers: { Connection: 'close' },
-    };
-
-    await expect(requestHTTPProxy(clientTerminal, request)).rejects.toBeTruthy();
+    await expect(
+      fetch(`http://localhost:${httpServerPort}/get`, {
+        labels: { region: 'eu-central' },
+        headers: { Connection: 'close' },
+        terminal: clientTerminal,
+      }),
+    ).rejects.toBeTruthy();
   }, 10000);
 
   it('should support POST request', async () => {
-    const request: IHTTPProxyRequest = {
-      url: `http://localhost:${httpServerPort}/post`,
+    const response = await fetch(`http://localhost:${httpServerPort}/post`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Connection: 'close' },
       body: JSON.stringify({ test: 'data' }),
-    };
+      terminal: clientTerminal,
+    });
 
-    const response = await requestHTTPProxy(clientTerminal, request);
-
-    expect(response.code).toBe(0);
-    expect(response.data?.status).toBe(200);
-    const body = JSON.parse(response.data?.body || '{}');
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as { json: { test: string } };
     expect(body.json).toEqual({ test: 'data' });
   }, 10000);
 });
