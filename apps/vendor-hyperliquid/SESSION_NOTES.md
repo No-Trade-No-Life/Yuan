@@ -199,6 +199,21 @@
 
 > 约定：仅记录已经结束的会话；进行中的内容放在第 11 节，收尾后再搬运；按时间倒序追加。
 
+### 2026-01-30 — OpenCode
+
+- **本轮摘要**：
+  - 在 Hyperliquid REST client 引入 `@yuants/http-services` 的 `fetch`，增加 `USE_HTTP_PROXY` 开关与 `fetchImpl` 回退逻辑。
+  - `USE_HTTP_PROXY=true` 时覆盖 `globalThis.fetch`，未开启时优先原生 fetch，不可用则回退。
+  - 私有请求日志脱敏：移除包含完整 URL 与请求参数的输出，仅保留 host/path/status。
+  - `package.json` 新增 `@yuants/http-services` 依赖。
+- **修改的文件**：
+  - `apps/vendor-hyperliquid/src/api/client.ts`
+  - `apps/vendor-hyperliquid/package.json`
+  - `apps/vendor-hyperliquid/SESSION_NOTES.md`
+- **运行的测试 / 检查**：
+  - 命令：未运行（按指令不运行测试）
+  - 结果：未运行
+
 ### 2026-01-14 — Codex
 
 - **本轮摘要**：

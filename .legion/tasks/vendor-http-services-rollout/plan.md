@@ -1,6 +1,8 @@
 # vendor-http-services-rollout
 
-SUBTREE_ROOT: apps/vendor-binance
+TITLE: vendor-http-services-rollout
+SLUG: vendor-http-services-rollout
+SUBTREE_ROOT: apps
 
 ## 目标
 
@@ -17,6 +19,12 @@ SUBTREE_ROOT: apps/vendor-binance
 ## 范围
 
 - apps/vendor-binance
+- apps/vendor-okx
+- apps/vendor-gate
+- apps/vendor-hyperliquid
+- apps/vendor-aster
+- apps/vendor-bitget
+- apps/vendor-huobi
 - libraries/http-services (usage only)
 - docs/ (design outputs in .legion task docs)
 
@@ -61,13 +69,26 @@ export const requestPrivate = <T>(
 - 依赖新增 `@yuants/http-services`，由 Rush/PNPM 统一管理。
 - 初期不引入 labels 与超时配置；若代理部署完成后需要分流，再增量引入 labels。
 
-### 文件变更明细表（仅 binance）
+### 文件变更明细表（推广到其他 vendor）
 
-| 文件路径                                | 操作 | 说明                                              |
-| --------------------------------------- | ---- | ------------------------------------------------- |
-| `apps/vendor-binance/package.json`      | 修改 | 新增依赖 `@yuants/http-services`                  |
-| `apps/vendor-binance/src/api/client.ts` | 修改 | 通过 `USE_HTTP_PROXY` 条件覆盖 `globalThis.fetch` |
-| `apps/vendor-binance/SESSION_NOTES.md`  | 修改 | 记录迁移决策、验证命令与风险                      |
+| 文件路径                                          | 操作 | 说明                                    |
+| ------------------------------------------------- | ---- | --------------------------------------- |
+| `apps/vendor-okx/package.json`                    | 修改 | 新增依赖 `@yuants/http-services`        |
+| `apps/vendor-okx/src/api/public-api.ts`           | 修改 | 引入 `fetchImpl` 与 USE_HTTP_PROXY 开关 |
+| `apps/vendor-okx/src/api/private-api.ts`          | 修改 | 引入 `fetchImpl` 与 USE_HTTP_PROXY 开关 |
+| `apps/vendor-gate/package.json`                   | 修改 | 新增依赖 `@yuants/http-services`        |
+| `apps/vendor-gate/src/api/http-client.ts`         | 修改 | 引入 `fetchImpl` 与 USE_HTTP_PROXY 开关 |
+| `apps/vendor-hyperliquid/package.json`            | 修改 | 新增依赖 `@yuants/http-services`        |
+| `apps/vendor-hyperliquid/src/api/client.ts`       | 修改 | 引入 `fetchImpl` 与 USE_HTTP_PROXY 开关 |
+| `apps/vendor-aster/package.json`                  | 修改 | 新增依赖 `@yuants/http-services`        |
+| `apps/vendor-aster/src/api/public-api.ts`         | 修改 | 引入 `fetchImpl` 与 USE_HTTP_PROXY 开关 |
+| `apps/vendor-aster/src/api/private-api.ts`        | 修改 | 引入 `fetchImpl` 与 USE_HTTP_PROXY 开关 |
+| `apps/vendor-aster/src/services/accounts/spot.ts` | 修改 | 让 coingecko 请求走 `fetchImpl`         |
+| `apps/vendor-bitget/package.json`                 | 修改 | 新增依赖 `@yuants/http-services`        |
+| `apps/vendor-bitget/src/api/client.ts`            | 修改 | 引入 `fetchImpl` 与 USE_HTTP_PROXY 开关 |
+| `apps/vendor-huobi/package.json`                  | 修改 | 新增依赖 `@yuants/http-services`        |
+| `apps/vendor-huobi/src/api/public-api.ts`         | 修改 | 引入 `fetchImpl` 与 USE_HTTP_PROXY 开关 |
+| `apps/vendor-huobi/src/api/private-api.ts`        | 修改 | 引入 `fetchImpl` 与 USE_HTTP_PROXY 开关 |
 
 ### 风险与回滚
 

@@ -1,3 +1,4 @@
+import { fetch } from '@yuants/http-services';
 import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import { scopeError, tokenBucket } from '@yuants/utils';
 
@@ -8,6 +9,12 @@ const MetricsAsterApiCallCounter = GlobalPrometheusRegistry.counter(
   'Number of aster api call',
 );
 const terminal = Terminal.fromNodeEnv();
+const shouldUseHttpProxy = process.env.USE_HTTP_PROXY === 'true';
+const fetchImpl = shouldUseHttpProxy ? fetch : globalThis.fetch ?? fetch;
+
+if (shouldUseHttpProxy) {
+  globalThis.fetch = fetch;
+}
 
 const FutureBaseURL = 'https://fapi.asterdex.com';
 const SpotBaseURL = 'https://sapi.asterdex.com';
@@ -35,9 +42,8 @@ const request = async <T>(
 
   console.info(url.toString());
   MetricsAsterApiCallCounter.labels({ path: url.pathname, terminal_id: terminal.terminal_id }).inc();
-  const res = (await fetch(url.toString(), {
-    method,
-  }).then((response) => response.json())) as unknown;
+  const response = (await fetchImpl(url.toString(), { method })) as Response;
+  const res = (await response.json()) as unknown;
 
   const maybeError = res as { code?: number };
   if (typeof maybeError.code === 'number' && maybeError.code !== 0) {

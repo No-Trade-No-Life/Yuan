@@ -1,4 +1,12 @@
+import { fetch } from '@yuants/http-services';
 import { encodeBase64, formatTime, HmacSHA256 } from '@yuants/utils';
+
+const shouldUseHttpProxy = process.env.USE_HTTP_PROXY === 'true';
+const fetchImpl = shouldUseHttpProxy ? fetch : globalThis.fetch ?? fetch;
+
+if (shouldUseHttpProxy) {
+  globalThis.fetch = fetch;
+}
 
 /**
  * API v5: https://www.okx.com/docs-v5/#overview
@@ -49,21 +57,14 @@ export async function request(
     'OK-ACCESS-PASSPHRASE': credential.passphrase,
   };
 
-  console.info(formatTime(Date.now()), method, url.href, JSON.stringify(headers), body, signData);
-  const res = await fetch(url.href, {
+  console.info(formatTime(Date.now()), 'PrivateApiRequest', method, url.host, url.pathname);
+  const res = await fetchImpl(url.href, {
     method,
     headers,
     body: body || undefined,
   });
 
-  console.info(
-    formatTime(Date.now()),
-    'PrivateApiResponse',
-    credential.access_key,
-    method,
-    url.href,
-    res.status,
-  );
+  console.info(formatTime(Date.now()), 'PrivateApiResponse', method, url.host, url.pathname, res.status);
 
   return res.json();
 }

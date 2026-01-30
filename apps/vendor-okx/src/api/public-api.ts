@@ -1,4 +1,12 @@
+import { fetch } from '@yuants/http-services';
 import { formatTime } from '@yuants/utils';
+
+const shouldUseHttpProxy = process.env.USE_HTTP_PROXY === 'true';
+const fetchImpl = shouldUseHttpProxy ? fetch : globalThis.fetch ?? fetch;
+
+if (shouldUseHttpProxy) {
+  globalThis.fetch = fetch;
+}
 
 /**
  * 基础公共请求函数
@@ -13,7 +21,7 @@ async function publicRequest(method: string, path: string, params?: Record<strin
   }
 
   console.info(formatTime(Date.now()), method, url.href);
-  const res = await fetch(url.href, { method });
+  const res = await fetchImpl(url.href, { method });
   return res.json();
 }
 

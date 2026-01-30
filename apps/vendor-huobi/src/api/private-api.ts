@@ -1,3 +1,4 @@
+import { fetch } from '@yuants/http-services';
 import { encodeBase64, formatTime, HmacSHA256, scopeError, tokenBucket } from '@yuants/utils';
 
 const SPOT_API_ROOT = 'api.huobi.pro';
@@ -6,6 +7,13 @@ const LINEAR_SWAP_API_ROOT = 'api.hbdm.com';
 export interface ICredential {
   access_key: string;
   secret_key: string;
+}
+
+const shouldUseHttpProxy = process.env.USE_HTTP_PROXY === 'true';
+const fetchImpl = shouldUseHttpProxy ? fetch : globalThis.fetch ?? fetch;
+
+if (shouldUseHttpProxy) {
+  globalThis.fetch = fetch;
 }
 
 export const getDefaultCredential = (): ICredential => {
@@ -34,7 +42,7 @@ const privateRequestWithRateLimit = async (
   api_root: string,
   params?: any,
 ) => {
-  const meta = { method, api_root, path, business, interfaceType, access_key: credential.access_key };
+  const meta = { method, api_root, path, business, interfaceType };
 
   const interfaceTypeUpper = interfaceType.toUpperCase();
   const businessUpper = business.toUpperCase();
@@ -70,15 +78,15 @@ const privateRequestWithRateLimit = async (
 
   const url = new URL(`https://${api_root}${path}?${requestParams}&Signature=${encodeURIComponent(str)}`);
   // url.searchParams.sort();
-  console.info(formatTime(Date.now()), method, url.href, body);
-  const res = await fetch(url.href, {
+  console.info(formatTime(Date.now()), 'PrivateApiRequest', method, url.host, url.pathname);
+  const res = await fetchImpl(url.href, {
     method,
     headers: { 'Content-Type': 'application/json' },
     body: body || undefined,
   });
 
   const retStr = await res.text();
-  console.info(formatTime(Date.now()), 'PrivateResponse', url.toString(), res.status);
+  console.info(formatTime(Date.now()), 'PrivateResponse', url.host, url.pathname, res.status);
   try {
     return JSON.parse(retStr);
   } catch (e) {

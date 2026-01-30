@@ -100,6 +100,20 @@
 
 > 仅记录已结束的会话；进行中的内容放在第 11 节，收尾后再搬运；最新记录置顶。
 
+### 2026-01-30 — OpenCode
+
+- **本轮摘要**：
+  - 在 Bitget REST client 引入 `@yuants/http-services` 的 `fetch`，增加 `USE_HTTP_PROXY` 开关与 `fetchImpl` 回退逻辑。
+  - `USE_HTTP_PROXY=true` 时覆盖 `globalThis.fetch`，未开启时优先原生 fetch，不可用则回退。
+  - `package.json` 新增 `@yuants/http-services` 依赖。
+- **修改的文件**：
+  - `apps/vendor-bitget/src/api/client.ts`
+  - `apps/vendor-bitget/package.json`
+  - `apps/vendor-bitget/SESSION_NOTES.md`
+- **运行的测试 / 检查**：
+  - 命令：未运行（按指令不运行测试）
+  - 结果：未运行
+
 ### 2026-01-07 — Codex
 
 - **本轮摘要**：

@@ -17,6 +17,7 @@
     "@yuants/data-account": "workspace:*",
     "@yuants/data-order": "workspace:*",
     "@yuants/utils": "workspace:*",
+    "@yuants/http-services": "workspace:*",
     "@yuants/cache": "workspace:*",
     "@yuants/sql": "workspace:*",
     "@yuants/data-series": "workspace:*",

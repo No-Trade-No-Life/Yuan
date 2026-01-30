@@ -1,7 +1,14 @@
+import { fetch } from '@yuants/http-services';
 import { encodeHex, formatTime, HmacSHA512, sha512 } from '@yuants/utils';
 import { join } from 'path';
 
 const BASE_URL = 'https://api.gateio.ws/api/v4';
+const shouldUseHttpProxy = process.env.USE_HTTP_PROXY === 'true';
+const fetchImpl = shouldUseHttpProxy ? fetch : globalThis.fetch ?? fetch;
+
+if (shouldUseHttpProxy) {
+  globalThis.fetch = fetch;
+}
 
 export type HttpMethod = 'GET' | 'POST' | 'DELETE' | 'PUT';
 
@@ -105,7 +112,7 @@ export const requestPublic = async <TResponse>(
   }, timeoutMs);
 
   try {
-    const response = await fetch(url.href, {
+    const response = await fetchImpl(url.href, {
       method,
       headers,
       body: body || undefined,
@@ -159,7 +166,7 @@ export const requestPrivate = async <TResponse>(
   }, timeoutMs);
 
   try {
-    const response = await fetch(url.href, {
+    const response = await fetchImpl(url.href, {
       method,
       headers,
       body: body || undefined,

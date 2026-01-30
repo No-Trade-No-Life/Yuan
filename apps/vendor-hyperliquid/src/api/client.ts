@@ -1,3 +1,4 @@
+import { fetch } from '@yuants/http-services';
 import { UUID, formatTime, newError } from '@yuants/utils';
 import { Subject, filter, firstValueFrom, mergeMap, of, shareReplay, throwError, timeout, timer } from 'rxjs';
 import { afterRestResponse, beforeRestRequest, getRestRequestContext } from './rate-limit';
@@ -7,6 +8,12 @@ void afterRestResponse;
 type HttpMethod = 'GET' | 'POST';
 
 const BASE_URL = 'https://api.hyperliquid.xyz';
+const shouldUseHttpProxy = process.env.USE_HTTP_PROXY === 'true';
+const fetchImpl = shouldUseHttpProxy ? fetch : globalThis.fetch ?? fetch;
+
+if (shouldUseHttpProxy) {
+  globalThis.fetch = fetch;
+}
 
 const getRequestKey = (ctx: ReturnType<typeof getRestRequestContext>) => {
   if (ctx.kind === 'info') return `info:${ctx.infoType ?? 'unknown'}`;
@@ -31,7 +38,7 @@ const callApi = async (method: HttpMethod, path: string, params?: any) => {
   const url = buildUrl(path, method, params);
   const body = method === 'GET' ? '' : JSON.stringify(params ?? {});
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  console.info(formatTime(Date.now()), method, url.href, body);
+  console.info(formatTime(Date.now()), 'HyperliquidRequest', method, url.host, url.pathname);
 
   const requestContext = getRestRequestContext(method, path, params);
   const requestKey = getRequestKey(requestContext);
@@ -41,7 +48,7 @@ const callApi = async (method: HttpMethod, path: string, params?: any) => {
     requestContext,
   );
 
-  const res = await fetch(url.href, {
+  const res = await fetchImpl(url.href, {
     method,
     headers,
     body: method === 'GET' ? undefined : body || undefined,
@@ -52,22 +59,21 @@ const callApi = async (method: HttpMethod, path: string, params?: any) => {
       formatTime(Date.now()),
       'HyperliquidResponse',
       method,
-      url.href,
+      url.host,
+      url.pathname,
       `status=${res.status}`,
-      retStr,
     );
     throw newError('HYPERLIQUID_HTTP_429', {
       status: res.status,
       requestKey,
       method,
       path,
-      url: url.href,
-      response: retStr,
+      url: `${url.host}${url.pathname}`,
     });
   }
   try {
     if (process.env.LOG_LEVEL === 'DEBUG') {
-      console.debug(formatTime(Date.now()), 'HyperliquidResponse', path, JSON.stringify(params), retStr);
+      console.debug(formatTime(Date.now()), 'HyperliquidResponse', path, retStr);
     }
     const response = JSON.parse(retStr);
     // await afterRestResponse(
@@ -85,14 +91,7 @@ const callApi = async (method: HttpMethod, path: string, params?: any) => {
     // );
     return response;
   } catch (err) {
-    console.error(
-      formatTime(Date.now()),
-      'HyperliquidRequestFailed',
-      path,
-      JSON.stringify(params),
-      retStr,
-      err,
-    );
+    console.error(formatTime(Date.now()), 'HyperliquidRequestFailed', path, retStr, err);
     throw err;
   }
 };

@@ -8,7 +8,7 @@
 
 - 仅在 `apps/vendor-binance` 替换 HTTP 传输层，保持 `requestPublic/requestPrivate` 的接口不变。
 - 通过 `@yuants/http-services` 代理完成请求，保留现有签名、日志、限流与指标语义。
-- 形成可复用迁移模板，为后续 okx/gate/hyperliquid/aster/bitget/huobi 做准备。
+- 形成可复用迁移模板，并将方案推广到 okx/gate/hyperliquid/aster/bitget/huobi。
 
 ## 非目标
 
@@ -62,20 +62,23 @@ export const requestPrivate = <T>(
 - 运行环境需提供 HTTPProxy 服务。
 - HTTPProxy 的 `allowedHosts` 需要允许 `api.binance.com`、`fapi.binance.com`、`papi.binance.com`。
 
-## 迁移步骤（仅 binance）
+## 迁移步骤（推广到其他 vendor）
 
-1. 为 `apps/vendor-binance` 添加 `@yuants/http-services` 依赖。
-2. 在 `client.ts` 中替换 `fetch` 引用并传入 `terminal`。
-3. 保持 `requestPublic/requestPrivate` 调用方无需改动。
-4. 记录决策与验证命令到 `apps/vendor-binance/SESSION_NOTES.md`。
+1. 为各 vendor 包添加 `@yuants/http-services` 依赖。
+2. 在每个 vendor 的 HTTP 客户端/REST 层引入 `fetchImpl` 与 `USE_HTTP_PROXY` 开关，调用点保持不变。
+3. 对于 `vendor-aster` 的 coingecko 请求，同样使用 `fetchImpl`。
+4. 记录各 vendor 的验证命令与风险到对应 `SESSION_NOTES.md`。
 
 ## 风险与回滚
 
 - 风险：HTTPProxy 未部署或未放行目标 host，导致请求失败。
+- 风险：`USE_HTTP_PROXY` 覆盖 `globalThis.fetch` 具有全局副作用，可能影响同进程其它模块。
+- 风险：`USE_HTTP_PROXY=false` 时若运行环境无原生 fetch，将回退到代理 fetch（行为与直连预期可能不一致）。
 - 风险：覆盖 `globalThis.fetch` 具有全局副作用，可能影响同进程其它模块。
 - 回滚：恢复使用全局 `fetch` 并移除依赖。
 
 ## 未决问题
 
 - 是否需要在后续阶段引入 labels 以区分不同代理节点。
+- 是否需要列出并固定各 vendor 的 allowedHosts 白名单（含 coingecko）。
 - 是否需要限定覆盖范围（仅 vendor-binance）或引入更细粒度开关。

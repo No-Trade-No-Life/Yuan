@@ -44,6 +44,23 @@
 - 调整 fetch 实现：USE_HTTP_PROXY=false 时优先使用原生 fetch，不可用则回退到 http-services fetch
 - 阶段 B 复检通过：review-code PASS、review-security PASS（USE_HTTP_PROXY 变更）
 - 最小验证通过：`rush build -t @yuants/vendor-binance`（Node 24.11.0，Rush 5.165.0，目标包 @yuants/vendor-binance 构建成功，部分依赖命中缓存）。
+- 调研 other vendors 的 fetch 使用点（okx/gate/hyperliquid/aster/bitget/huobi）并更新设计文档
+- 更新 plan.md/RFC/spec-dev/spec-test/spec-obs 以覆盖阶段 4 推广
+- 按指令本轮仅推广 fetch 模式，不新增测试、不运行测试；spec-test 清单保持为构建+手工验证说明。
+- 补充 spec-bench 说明：本阶段无 benchmark，明确无执行命令/基线/阈值与回归判断。
+- 按 spec-dev 在 okx/gate/hyperliquid/aster/bitget/huobi 的 fetch 模块引入 @yuants/http-services，添加 USE_HTTP_PROXY + fetchImpl 回退逻辑并覆盖 globalThis.fetch。
+- 将各模块的 fetch 调用改为 fetchImpl（含 aster 的 coingecko 请求）。
+- 为各 vendor package.json 增加 @yuants/http-services 依赖。
+- 更新 gate/hyperliquid/aster/bitget 的 SESSION_NOTES 记录变更与未运行测试。
+- 修复 okx/huobi/aster 私有 API 日志脱敏：移除含签名/查询的 URL 与 headers 输出
+- 修复 hyperliquid 私有请求日志脱敏：移除完整 URL/params 输出，仅保留 host/path/status
+- 修复 huobi 私有请求元数据脱敏：移除 access_key 字段以避免日志泄露
+- 阶段 B 复检通过：review-code PASS、review-security PASS（推广阶段）
+- 阶段 D 更新：walkthrough/pr-body 已覆盖多 vendor 推广
+- 阶段 C 通过：rush build -t @yuants/vendor-{okx,gate,hyperliquid,aster,bitget,huobi} 成功
+- 阶段 D 完成：更新 report-walkthrough.md 与 pr-body.md 覆盖全 vendor 推广
+- 阶段 C 通过：rush build -t @yuants/vendor-okx/gate/hyperliquid/aster/bitget/huobi 成功
+- 已创建 PR: https://github.com/No-Trade-No-Life/Yuan/pull/2547
 
 ### 🟡 进行中
 
@@ -51,7 +68,7 @@
 
 ### ⚠️ 阻塞/待定
 
-(暂无)
+- (暂无)
 
 ---
 
@@ -80,14 +97,13 @@
 
 **下次继续从这里开始：**
 
-1. 如需补齐类型检查，重跑 `npx tsc --noEmit --project apps/vendor-binance/tsconfig.json`（此前环境缺少 TypeScript）。
-2. 用户确认后进入阶段 4，推广到其他 vendor。
+1. 等待 PR review/merge
+2. 如需纳入 lockfile 或 .legion 文档，请按需要单独提交
 
 **注意事项：**
 
-- report-walkthrough.md 与 pr-body.md 已更新以反映 USE_HTTP_PROXY 与 fetchImpl 回退
-- 最小验证 `rush build -t @yuants/vendor-binance` 已通过
+- 本次 PR 仅包含 SUBTREE_ROOT=apps 变更；.legion 与 pnpm-lock.yaml 未入 PR。
 
 ---
 
-_最后更新: 2026-01-30 11:06 by Claude_
+_最后更新: 2026-01-30 11:30 by Claude_
