@@ -2,6 +2,28 @@
   "name": "@yuants/vendor-binance",
   "entries": [
     {
+      "version": "0.14.0",
+      "tag": "@yuants/vendor-binance_v0.14.0",
+      "date": "Fri, 30 Jan 2026 05:40:11 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "fetch with http-proxy replacement"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/http-services\" to `0.2.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.13.11",
       "tag": "@yuants/vendor-binance_v0.13.11",
       "date": "Tue, 27 Jan 2026 23:51:32 GMT",
