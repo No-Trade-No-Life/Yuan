@@ -17,6 +17,7 @@
     "@yuants/data-ohlc": "workspace:*",
     "@yuants/transfer": "workspace:*",
     "@yuants/utils": "workspace:*",
+    "@yuants/http-services": "workspace:*",
     "@yuants/cache": "workspace:*",
     "@yuants/sql": "workspace:*",
     "@yuants/data-product": "workspace:*",

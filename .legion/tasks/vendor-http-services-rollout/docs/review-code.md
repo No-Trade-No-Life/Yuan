@@ -4,18 +4,20 @@
 
 PASS
 
-已审查文件：`apps/vendor-binance/src/api/client.ts`、`apps/vendor-binance/SESSION_NOTES.md`。
-
 ## Blocking Issues
 
-- [ ] None
+- [ ] 无
 
 ## 建议（非阻塞）
 
-- `apps/vendor-binance/src/api/client.ts:8` - `USE_HTTP_PROXY` 仅接受 `'true'`，可考虑兼容 `'1'/'TRUE'` 以减少部署误配风险。
-- `apps/vendor-binance/src/api/client.ts:9` - 若担心不同运行时对 `fetch` 绑定行为不一致，可显式使用 `globalThis.fetch?.bind(globalThis)` 提升健壮性（当前实现也可接受）。
+- `apps/vendor-bitget/src/api/client.ts:87` - 建议将请求日志的 body 输出长度做上限（或仅在 DEBUG 下输出），避免日志过大影响可观测性。
+- `apps/vendor-gate/src/api/http-client.ts:6` - 建议抽一个共享的 fetch 初始化 helper，减少各 vendor 重复的 USE_HTTP_PROXY 与 fallback 逻辑。
+- `apps/vendor-okx/src/api/private-api.ts:57` - 建议统一私有请求日志前缀（如 PrivateApiRequest/PrivateApiResponse），跨模块检索更一致。
+- `apps/vendor-hyperliquid/src/api/client.ts:83` - 建议 DEBUG 日志中增加 requestId 或 requestKey，方便串联请求/响应。
 
 ## 修复指导
 
-- 兼容更多开关值：`const shouldUseHttpProxy = ['true','1'].includes((process.env.USE_HTTP_PROXY ?? '').toLowerCase());`
-- 绑定原生 fetch：`const nativeFetch = globalThis.fetch?.bind(globalThis); const fetchImpl = shouldUseHttpProxy ? fetch : nativeFetch ?? fetch;`
+本轮未发现阻塞问题；如需改进可按以下方式：
+
+1. 抽取公共的 fetch 选择逻辑（例如 getFetchImpl），统一 USE_HTTP_PROXY 开关与 globalThis.fetch 覆盖行为。
+2. 统一私有请求的日志结构（method/host/path/status），并限制 body/response 的输出长度或仅在 DEBUG 下输出。

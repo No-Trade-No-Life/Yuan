@@ -1,3 +1,4 @@
+import { fetch } from '@yuants/http-services';
 import { encodeHex, HmacSHA256, newError, scopeError, tokenBucket } from '@yuants/utils';
 
 import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
@@ -9,6 +10,12 @@ const MetricsAsterApiCallCounter = GlobalPrometheusRegistry.counter(
   'Number of aster api call',
 );
 const terminal = Terminal.fromNodeEnv();
+const shouldUseHttpProxy = process.env.USE_HTTP_PROXY === 'true';
+const fetchImpl = shouldUseHttpProxy ? fetch : globalThis.fetch ?? fetch;
+
+if (shouldUseHttpProxy) {
+  globalThis.fetch = fetch;
+}
 
 export interface ICredential {
   address: string;
@@ -79,9 +86,9 @@ const request = async <T>(
   );
   url.searchParams.set('signature', signature);
 
-  console.info(url.toString());
+  console.info('request', method, url.host, url.pathname);
   MetricsAsterApiCallCounter.labels({ path: url.pathname, terminal_id: terminal.terminal_id }).inc();
-  const response = await fetch(url.toString(), {
+  const response = await fetchImpl(url.toString(), {
     method,
     headers: {
       'X-MBX-APIKEY': credential.api_key,

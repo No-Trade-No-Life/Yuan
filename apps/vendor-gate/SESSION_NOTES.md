@@ -107,6 +107,20 @@
 
 ## 6. 最近几轮工作记录（Recent Sessions）
 
+### 2026-01-30 — OpenCode
+
+- **本轮摘要**：
+  - 在 Gate API 请求层引入 `@yuants/http-services` 的 `fetch`，增加 `USE_HTTP_PROXY` 开关与 `fetchImpl` 回退逻辑。
+  - `USE_HTTP_PROXY=true` 时覆盖 `globalThis.fetch`，未开启时优先原生 fetch，不可用则回退。
+  - `package.json` 新增 `@yuants/http-services` 依赖。
+- **修改的文件**：
+  - `apps/vendor-gate/src/api/http-client.ts`
+  - `apps/vendor-gate/package.json`
+  - `apps/vendor-gate/SESSION_NOTES.md`
+- **运行的测试 / 检查**：
+  - 命令：未运行（按指令不运行测试）
+  - 结果：未运行
+
 ### 2026-01-07 — Codex
 
 - **本轮摘要**：

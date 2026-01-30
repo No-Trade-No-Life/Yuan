@@ -4,7 +4,7 @@
 
 **当前阶段**: 阶段 4 - 推广（其他 vendor）
 **当前任务**: (none)
-**进度**: 3/4 任务完成
+**进度**: 4/4 任务完成
 
 ---
 
@@ -28,21 +28,23 @@
 
 ## 阶段 4: 推广（其他 vendor） 🟡 IN PROGRESS
 
-- [ ] 在用户确认后，将相同替换方案扩展到 okx/gate/hyperliquid/aster/bitget/huobi。 | 验收: 其他 vendor 替换完成并通过与 binance 相同的验证步骤。
+- [x] 在用户确认后，将相同替换方案扩展到 okx/gate/hyperliquid/aster/bitget/huobi。 | 验收: 其他 vendor 替换完成并通过与 binance 相同的验证步骤。 ← CURRENT
 
 ---
 
 ## 发现的新任务
 
 - [x] 设计审批通过（用户确认）。 | 来源: 设计审批门禁流程
-- [x] benchmark 实现：本阶段无需新增，已在 spec-bench 记录。 | 来源: spec-bench 审核
+- [x] benchmark 实现：本阶段无需新增，已在 spec-bench 记录并补充可复现/门槛说明。 | 来源: spec-bench 审核
 - [x] 请求 orchestrator 决策：是否允许更新 WORK_ROOT/docs/spec-test.md（超出 SUBTREE_ROOT 边界）以记录“无需新增测试、原因：仅日志脱敏”。 | 来源: 用户指令与边界约束冲突
 - [x] 修复测试环境并重跑最小验证（npx tsc）。 | 来源: 阶段 C 测试失败
 - [x] 修复 @yuants/vendor-binance 找不到 @yuants/http-services 的构建错误（TS2307）并重跑 rush build | 来源: 阶段 C 测试失败
-- [x] Walkthrough 报告生成完成（含 PR body 更新） | 来源: 阶段 D 需求
+- [x] Walkthrough 报告生成完成（覆盖 okx/gate/hyperliquid/aster/bitget/huobi 推广、日志脱敏修复、review/test 结果） | 来源: 阶段 D 需求
 - [x] 设计变更审批通过（用户确认）。 | 来源: 新增 USE_HTTP_PROXY 条件覆盖逻辑
 - [x] 更新 spec-test 说明补充 USE_HTTP_PROXY 手工验证要点（不新增测试）。 | 来源: 用户指令
+- [x] 设计变更审批通过（用户确认：推广到所有 vendor）。 | 来源: 用户指令
+- [ ] PR 创建完成 | 来源: 发布流程
 
 ---
 
-_最后更新: 2026-01-30 11:05_
+_最后更新: 2026-01-30 11:30_

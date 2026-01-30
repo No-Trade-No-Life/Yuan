@@ -1,3 +1,4 @@
+import { fetch } from '@yuants/http-services';
 import { formatTime, scopeError, tokenBucket } from '@yuants/utils';
 
 // Huobi API 根域名
@@ -6,6 +7,13 @@ const SPOT_API_ROOT = 'api.huobi.pro';
 
 type HuobiBusiness = 'spot' | 'linear-swap';
 type HuobiPublicInterfaceType = 'market' | 'non-market';
+
+const shouldUseHttpProxy = process.env.USE_HTTP_PROXY === 'true';
+const fetchImpl = shouldUseHttpProxy ? fetch : globalThis.fetch ?? fetch;
+
+if (shouldUseHttpProxy) {
+  globalThis.fetch = fetch;
+}
 
 const acquire = (bucketId: string, meta: Record<string, unknown>) => {
   const bucket = tokenBucket(bucketId);
@@ -52,7 +60,7 @@ async function publicRequest(method: string, path: string, api_root: string, par
 
   console.info(formatTime(Date.now()), method, url.href, body);
 
-  const res = await fetch(url.href, {
+  const res = await fetchImpl(url.href, {
     method,
     headers: { 'Content-Type': 'application/json' },
     body: body || undefined,

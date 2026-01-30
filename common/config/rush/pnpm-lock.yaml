@@ -1274,6 +1274,9 @@ importers:
       '@yuants/exchange':
         specifier: workspace:*
         version: link:../../libraries/exchange
+      '@yuants/http-services':
+        specifier: workspace:*
+        version: link:../../libraries/http-services
       '@yuants/protocol':
         specifier: workspace:*
         version: link:../../libraries/protocol
@@ -1435,6 +1438,9 @@ importers:
       '@yuants/exchange':
         specifier: workspace:*
         version: link:../../libraries/exchange
+      '@yuants/http-services':
+        specifier: workspace:*
+        version: link:../../libraries/http-services
       '@yuants/protocol':
         specifier: workspace:*
         version: link:../../libraries/protocol
@@ -1642,6 +1648,9 @@ importers:
       '@yuants/exchange':
         specifier: workspace:*
         version: link:../../libraries/exchange
+      '@yuants/http-services':
+        specifier: workspace:*
+        version: link:../../libraries/http-services
       '@yuants/protocol':
         specifier: workspace:*
         version: link:../../libraries/protocol
@@ -1718,6 +1727,9 @@ importers:
       '@yuants/exchange':
         specifier: workspace:*
         version: link:../../libraries/exchange
+      '@yuants/http-services':
+        specifier: workspace:*
+        version: link:../../libraries/http-services
       '@yuants/protocol':
         specifier: workspace:*
         version: link:../../libraries/protocol
@@ -1794,6 +1806,9 @@ importers:
       '@yuants/exchange':
         specifier: workspace:*
         version: link:../../libraries/exchange
+      '@yuants/http-services':
+        specifier: workspace:*
+        version: link:../../libraries/http-services
       '@yuants/protocol':
         specifier: workspace:*
         version: link:../../libraries/protocol
@@ -1879,6 +1894,9 @@ importers:
       '@yuants/exchange':
         specifier: workspace:*
         version: link:../../libraries/exchange
+      '@yuants/http-services':
+        specifier: workspace:*
+        version: link:../../libraries/http-services
       '@yuants/protocol':
         specifier: workspace:*
         version: link:../../libraries/protocol

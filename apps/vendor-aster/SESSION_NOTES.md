@@ -114,6 +114,23 @@
 
 ## 6. 最近几轮工作记录（Recent Sessions）
 
+### 2026-01-30 — OpenCode
+
+- **本轮摘要**：
+  - 在 Aster 公/私有 REST helper 引入 `@yuants/http-services` 的 `fetch`，增加 `USE_HTTP_PROXY` 开关与 `fetchImpl` 回退逻辑。
+  - Aster 的 coingecko 价格请求改为使用 `fetchImpl`。
+  - `USE_HTTP_PROXY=true` 时覆盖 `globalThis.fetch`，未开启时优先原生 fetch，不可用则回退。
+  - `package.json` 新增 `@yuants/http-services` 依赖。
+- **修改的文件**：
+  - `apps/vendor-aster/src/api/public-api.ts`
+  - `apps/vendor-aster/src/api/private-api.ts`
+  - `apps/vendor-aster/src/services/accounts/spot.ts`
+  - `apps/vendor-aster/package.json`
+  - `apps/vendor-aster/SESSION_NOTES.md`
+- **运行的测试 / 检查**：
+  - 命令：未运行（按指令不运行测试）
+  - 结果：未运行
+
 ### 2026-01-07 — Codex
 
 - **本轮摘要**：
@@ -152,6 +169,19 @@
   - `apps/vendor-aster/src/services/markets/quote.ts`
 - **运行的测试 / 检查**：
   - `./node_modules/.bin/tsc --noEmit --project apps/vendor-aster/tsconfig.json`
+
+### 2026-01-30 — OpenCode
+
+- **本轮摘要**：
+  - 私有 API 请求日志脱敏：移除包含签名的完整 URL，改为仅记录 host/path。
+  - USE_HTTP_PROXY 推广：私有 API 请求改用 `fetchImpl`（proxy/原生回退），coingecko 请求走同一入口。
+- **修改的文件**：
+  - `apps/vendor-aster/src/api/private-api.ts`
+  - `apps/vendor-aster/src/api/public-api.ts`
+  - `apps/vendor-aster/src/services/accounts/spot.ts`
+- **运行的测试 / 检查**：
+  - 命令：未运行（按指令不执行测试）
+  - 结果：未运行
 
 ### 2025-12-08 — Codex
 

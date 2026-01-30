@@ -1,5 +1,6 @@
 import { createCache } from '@yuants/cache';
 import { IPosition, makeSpotPosition } from '@yuants/data-account';
+import { fetch } from '@yuants/http-services';
 import { encodePath } from '@yuants/utils';
 import {
   getApiV1Account,
@@ -10,12 +11,19 @@ import {
 } from '../../api/private-api';
 import { listProducts } from '../markets/product';
 
+const shouldUseHttpProxy = process.env.USE_HTTP_PROXY === 'true';
+const fetchImpl = shouldUseHttpProxy ? fetch : globalThis.fetch ?? fetch;
+
+if (shouldUseHttpProxy) {
+  globalThis.fetch = fetch;
+}
+
 // ISSUE: ASBNB price is not available in the price API, need to fetch from coingecko
-const asBNBPrice = createCache(
+const asBNBPrice = createCache<number>(
   () =>
-    fetch('https://api.coingecko.com/api/v3/simple/price?ids=astherus-staked-bnb&vs_currencies=usd')
-      .then((res) => res.json())
-      .then((data) => data['astherus-staked-bnb'].usd as number),
+    fetchImpl('https://api.coingecko.com/api/v3/simple/price?ids=astherus-staked-bnb&vs_currencies=usd')
+      .then((res: Response) => res.json())
+      .then((data: { 'astherus-staked-bnb'?: { usd?: number } }) => data['astherus-staked-bnb']?.usd ?? 0),
   {
     expire: 60_000, // 1 minute
   },

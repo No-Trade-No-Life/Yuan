@@ -1,31 +1,36 @@
 ## What
 
-- Switch vendor-binance HTTP calls to `@yuants/http-services` `fetch` without changing public/private API signatures
+- Roll out `@yuants/http-services` fetch integration to okx/gate/hyperliquid/aster/bitget/huobi (plus existing binance template) without changing external API signatures
 - Add `USE_HTTP_PROXY` toggle with `fetchImpl` fallback (native fetch preferred when proxy disabled)
-- Sanitize request logs and `ACTIVE_RATE_LIMIT` error payload
-- Update dependencies/lockfile and record reviews
+- Sanitize private request logs/error payloads to remove keys/signatures/query/params
+- Update vendor dependencies/lockfile and record reviews
 
 ## Why
 
-- Unify HTTP routing via HTTPProxy while keeping existing call sites stable
-- Reduce sensitive data exposure in logs
+- Unify HTTP routing via HTTPProxy while keeping existing call sites stable across vendors
+- Reduce sensitive data exposure in logs across private request paths
 
 ## How
 
-- Import `fetch` from `@yuants/http-services` in `apps/vendor-binance/src/api/client.ts`
+- Introduce `fetchImpl` + `USE_HTTP_PROXY` in each vendor HTTP client module (okx/gate/hyperliquid/aster/bitget/huobi, plus binance)
 - Gate global fetch override with `USE_HTTP_PROXY`; prefer native `fetch`, fallback to `fetchImpl` when unavailable
-- Keep `requestPublic/requestPrivate` and rate-limit header handling intact
-- Add dependency in `apps/vendor-binance/package.json` and refresh lockfile
+- Keep existing public/private API signatures and header handling intact
+- Add `@yuants/http-services` dependencies and refresh lockfile
 
 ## Testing
 
 - `rush build -t @yuants/vendor-binance` (pass)
-- `npx tsc --noEmit --project apps/vendor-binance/tsconfig.json` (fail: TypeScript not found in env)
+- `rush build -t @yuants/vendor-okx` (pass)
+- `rush build -t @yuants/vendor-gate` (pass)
+- `rush build -t @yuants/vendor-hyperliquid` (pass)
+- `rush build -t @yuants/vendor-aster` (pass)
+- `rush build -t @yuants/vendor-bitget` (pass)
+- `rush build -t @yuants/vendor-huobi` (pass)
 - Review: `review-code` PASS; `review-security` PASS
 
 ## Risk / Rollback
 
-- Risk: HTTPProxy not configured for Binance hosts; global fetch override when `USE_HTTP_PROXY=true`; sanitized logs reduce detail
+- Risk: HTTPProxy not configured for exchange hosts; global fetch override when `USE_HTTP_PROXY=true`; sanitized logs reduce detail
 - Rollback: set `USE_HTTP_PROXY` to false or remove `@yuants/http-services` import/dependency and restore previous logging payloads
 
 ## Links

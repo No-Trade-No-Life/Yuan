@@ -1184,3 +1184,43 @@
 2026-01-30T05:05:01.470Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
 2026-01-30T05:30:02.377Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,progress.completed: 最小验证通过：`rush build -t @yuants/vendor-binance`（Node 24.11.0，Rush 5.165.0，目标包 @yuants/vendor-binance 构建成功，部分依赖命中缓存）。,success
 2026-01-30T05:30:16.376Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-30T05:42:43.030Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-30T05:42:45.802Z,legion_read_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,"section: all, includeReviews: true",success
+2026-01-30T05:46:00.041Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,setCurrentTask: phase 4,success
+2026-01-30T05:46:27.004Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addDecision: SUBTREE_ROOT 调整为 apps，覆盖多 vendor 推广范围,success
+2026-01-30T05:47:09.846Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-30T05:47:11.528Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-30T05:47:12.469Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-30T05:47:13.693Z,legion_read_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,"section: all, includeReviews: true",success
+2026-01-30T05:47:14.202Z,legion_list_reviews,vendor-http-services-rollout,vendor-http-services-rollout,Claude,status: open,success
+2026-01-30T05:47:14.445Z,legion_read_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,"section: all, includeReviews: true",success
+2026-01-30T05:47:14.886Z,legion_read_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,"section: all, includeReviews: true",success
+2026-01-30T05:47:15.301Z,legion_list_reviews,vendor-http-services-rollout,vendor-http-services-rollout,Claude,status: open,success
+2026-01-30T05:47:40.348Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,progress.completed: 按指令本轮仅推广 fetch 模式，不新增测试、不运行测试；spec-test 清单保持为构建+手工验证说明。,success
+2026-01-30T05:47:42.172Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,completeTask: 测试实现（推广阶段）：按指令不新增测试、不运行测试，仅保持 spec-test 说明。,success
+2026-01-30T05:48:32.659Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addFile: .legion/tasks/vendor-http-services-rollout/docs/spec-bench.md,success
+2026-01-30T05:51:14.552Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,completeTask: phase 阶段 4: 推广（其他 vendor）,success
+2026-01-30T05:51:26.742Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addConstraint: 受用户边界限制仅允许修改 SUBTREE_ROOT=apps，未更新 docs/zh-Hans/vendor-supporting.md 等仓库外文档同步要求。,success
+2026-01-30T05:52:31.924Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-30T05:56:25.810Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addFile: apps/vendor-okx/src/api/private-api.ts,success
+2026-01-30T05:56:37.365Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-30T05:56:40.087Z,legion_read_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,"section: all, includeReviews: true",success
+2026-01-30T06:00:48.098Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addFile: apps/vendor-hyperliquid/src/api/client.ts,success
+2026-01-30T06:01:01.176Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-30T06:01:02.801Z,legion_read_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,"section: all, includeReviews: true",success
+2026-01-30T06:03:27.024Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addFile: apps/vendor-huobi/src/api/private-api.ts,success
+2026-01-30T06:03:35.077Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-30T06:03:36.991Z,legion_read_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,"section: all, includeReviews: true",success
+2026-01-30T06:07:18.676Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,progress.completed: 阶段 B 复检通过：review-code PASS、review-security PASS（推广阶段）,success
+2026-01-30T06:07:25.685Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-30T06:07:44.473Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addConstraint: 当前失败属于测试执行/命令用法问题（impl-test 流程），需要按正确参数重跑；建议命令：`rush build -t @yuants/vendor-okx -t @yuants/vendor-gate -t @yuants/vendor-hyperliquid -t @yuants/vendor-aster -t,success
+2026-01-30T06:30:08.438Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-30T06:30:10.504Z,legion_read_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,"section: all, includeReviews: true",success
+2026-01-30T06:32:57.495Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,completeTask: phase 4,success
+2026-01-30T06:33:05.376Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,progress.completed: 阶段 D 更新：walkthrough/pr-body 已覆盖多 vendor 推广,success
+2026-01-30T06:38:20.510Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-30T06:40:59.892Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,completeTask: phase 4,success
+2026-01-30T06:41:08.436Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,progress.completed: 阶段 D 完成：更新 report-walkthrough.md 与 pr-body.md 覆盖全 vendor 推广,success
+2026-01-30T06:46:27.229Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-01-30T06:50:32.768Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,completeTask: PR 创建完成,success
+2026-01-30T06:50:37.798Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,progress.completed: 已创建 PR: https://github.com/No-Trade-No-Life/Yuan/pull/2547,success

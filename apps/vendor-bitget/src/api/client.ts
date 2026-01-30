@@ -1,8 +1,15 @@
+import { fetch } from '@yuants/http-services';
 import { HmacSHA256, UUID, encodeBase64, formatTime } from '@yuants/utils';
 import { Subject, filter, firstValueFrom, mergeMap, of, shareReplay, throwError, timeout, timer } from 'rxjs';
 import { ICredential } from './types';
 
 const BASE_URL = 'https://api.bitget.com';
+const shouldUseHttpProxy = process.env.USE_HTTP_PROXY === 'true';
+const fetchImpl = shouldUseHttpProxy ? fetch : globalThis.fetch ?? fetch;
+
+if (shouldUseHttpProxy) {
+  globalThis.fetch = fetch;
+}
 
 type HttpMethod = 'GET' | 'POST' | 'DELETE' | 'PUT';
 
@@ -80,7 +87,7 @@ const callApi = async <TResponse>(
     body: method === 'GET' ? undefined : body || undefined,
   };
   console.info(formatTime(Date.now()), method, url.href, method === 'GET' ? '' : init.body || '');
-  const res = await fetch(url.href, init);
+  const res = await fetchImpl(url.href, init);
   const retStr = await res.text();
   try {
     if (process.env.LOG_LEVEL === 'DEBUG') {
