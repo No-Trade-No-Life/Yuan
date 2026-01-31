@@ -2,6 +2,26 @@
   "name": "@yuants/http-services",
   "entries": [
     {
+      "version": "0.3.0",
+      "tag": "@yuants/http-services_v0.3.0",
+      "date": "Sat, 31 Jan 2026 16:32:10 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "feat(http-services): add prometheus metrics support for http proxy"
+          },
+          {
+            "comment": "refactor: replace region/tier with ip/hostname in dashboard and inject labels in server"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.3",
       "tag": "@yuants/http-services_v0.2.3",
       "date": "Sat, 31 Jan 2026 07:11:54 GMT",
