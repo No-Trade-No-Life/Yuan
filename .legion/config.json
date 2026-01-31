@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "update-deploysettings-for-deployment-type",
+  "currentTask": null,
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -206,9 +206,16 @@
     {
       "id": "update-deploysettings-for-deployment-type",
       "name": "Update DeploySettings for Deployment Type",
-      "status": "active",
+      "status": "paused",
       "createdAt": "2026-01-30T12:14:43.129Z",
-      "updatedAt": "2026-01-30T12:18:37.194Z"
+      "updatedAt": "2026-01-31T14:01:51.517Z"
+    },
+    {
+      "id": "refactor-grafana-dashboard-for-iphostname",
+      "name": "Refactor Grafana Dashboard for IP/Hostname",
+      "status": "archived",
+      "createdAt": "2026-01-31T14:01:51.517Z",
+      "updatedAt": "2026-01-31T14:39:02.963Z"
     }
   ],
   "pendingProposals": [
@@ -473,7 +480,9 @@
         "`updated_at` 讨论：在 SWR 语义下它更像 `min_updated_at`（鲜度下界/容忍度），用于 miss 计算与过滤；若下游只是“尽量新”，可考虑未来把它变为可选并增加 `max_staleness_ms` 默认值（但这会改动契约，建议先保持必填）。",
         "性能评估：同步延迟显著下降（不再 await 上游）；后台会增加一次（甚至多次）miss 计算开销，但通常远小于上游 RPC；串行队列会降低并发、可能延长收敛时间，但能显著降低上游瞬时压力，并通过“执行时重新算 miss”对重复轮询天然去重（很多任务会 no-op）。可选增强：队列长度监控/报警，或对连续任务做合并（不在本次最小实现范围内）。"
       ],
-      "scope": ["apps/virtual-exchange/src/quote/service.ts"],
+      "scope": [
+        "apps/virtual-exchange/src/quote/service.ts"
+      ],
       "phases": [
         {
           "name": "Discovery",
@@ -841,7 +850,10 @@
         "对 dedupe 的 key/存储策略做最小必要调整，避免回归 firing 场景",
         "补充最小单测/集成测试覆盖 resolve/repeat 去重与更新行为"
       ],
-      "scope": ["apps/alert-receiver/src/**", "docs/zh-Hans/monitoring-alerting.md（如需补充行为说明）"],
+      "scope": [
+        "apps/alert-receiver/src/**",
+        "docs/zh-Hans/monitoring-alerting.md（如需补充行为说明）"
+      ],
       "phases": [
         {
           "name": "调研与复现",
@@ -1743,7 +1755,9 @@
         "Add `node_unit_deployment_info` gauge (value 1) mapping `deployment_id` <-> `terminal_id`.",
         "Rely on `nodejs_process_resource_usage` from child processes."
       ],
-      "scope": ["apps/node-unit/src/index.ts"],
+      "scope": [
+        "apps/node-unit/src/index.ts"
+      ],
       "phases": [
         {
           "name": "RFC & Design",
@@ -2053,7 +2067,9 @@
         "Registers as a Terminal",
         "Exposes HTTP service capability"
       ],
-      "scope": ["apps/http-proxy"],
+      "scope": [
+        "apps/http-proxy"
+      ],
       "phases": [
         {
           "tasks": [
@@ -2283,7 +2299,9 @@
         "Clear address on type change to Daemon",
         "Ensure type is included in update payload"
       ],
-      "scope": ["ui/web/src/modules/Deploy/DeploySettings.tsx"],
+      "scope": [
+        "ui/web/src/modules/Deploy/DeploySettings.tsx"
+      ],
       "phases": [
         {
           "tasks": [
@@ -2401,6 +2419,57 @@
       "proposedBy": "Claude",
       "proposedAt": "2026-01-31T03:25:56.667Z",
       "status": "pending"
+    },
+    {
+      "id": "proposal-ml2drvwj-352286",
+      "name": "Refactor Grafana Dashboard for IP/Hostname",
+      "goal": "Refactor Grafana dashboard to replace region/tier grouping with IP/Hostname and add new metrics",
+      "rationale": "User requested to change dashboard grouping from region/tier to IP/Hostname and add selection capabilities.",
+      "points": [
+        "Identify current region/tier usage",
+        "Define new IP/Hostname variables",
+        "Design new panels for IP/Hostname grouping",
+        "Add checkbox for IP selection",
+        "Add other important metrics if identified"
+      ],
+      "scope": [
+        "libraries/http-services/grafana-dashboard.json"
+      ],
+      "phases": [
+        {
+          "name": "Design",
+          "tasks": [
+            {
+              "description": "Create and review RFC for dashboard changes",
+              "acceptance": "RFC approved by user"
+            }
+          ]
+        },
+        {
+          "name": "Implementation",
+          "tasks": [
+            {
+              "description": "Modify grafana-dashboard.json to remove region/tier and add ip/hostname grouping",
+              "acceptance": "Dashboard JSON updated with new variables and panels"
+            }
+          ]
+        },
+        {
+          "name": "Verification",
+          "tasks": [
+            {
+              "description": "Verify the JSON structure and variable references",
+              "acceptance": "Dashboard validates correctly (syntax check)"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-01-31T14:01:47.590Z",
+      "status": "approved",
+      "decidedAt": "2026-01-31T14:01:51.517Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "refactor-grafana-dashboard-for-iphostname"
     }
   ]
 }

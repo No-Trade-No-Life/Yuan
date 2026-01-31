@@ -117,7 +117,7 @@ export const provideHTTPProxyService = (
       const method = req.method || 'GET';
 
       // R8: 请求开始，递增活跃请求
-      activeRequests.inc();
+      activeRequests.labels(labels).inc();
 
       try {
         // Security Check: SSRF
@@ -127,7 +127,7 @@ export const provideHTTPProxyService = (
         if (allowedHosts && allowedHosts.length > 0) {
           if (!allowedHosts.includes(urlObj.hostname)) {
             // R9: 记录 FORBIDDEN 错误
-            errorsTotal.labels({ error_type: 'security' }).inc();
+            errorsTotal.labels({ ...labels, error_type: 'security' }).inc();
             console.warn(`[HTTPProxy] Blocked access to ${urlObj.hostname} (not in allowedHosts)`);
             throw newError('FORBIDDEN', { host: urlObj.hostname, allowedHosts });
           }
@@ -158,11 +158,11 @@ export const provideHTTPProxyService = (
         } catch (err: any) {
           if (err?.name === 'AbortError') {
             // R9: 记录 TIMEOUT 错误
-            errorsTotal.labels({ error_type: 'timeout' }).inc();
+            errorsTotal.labels({ ...labels, error_type: 'timeout' }).inc();
             throw newError('TIMEOUT', { url: req.url, timeoutMs }, err);
           }
           // R9: 记录 FETCH_FAILED 错误
-          errorsTotal.labels({ error_type: 'network' }).inc();
+          errorsTotal.labels({ ...labels, error_type: 'network' }).inc();
           throw newError('FETCH_FAILED', { url: req.url }, err);
         } finally {
           clearTimeout(timeoutId);
@@ -174,7 +174,7 @@ export const provideHTTPProxyService = (
           const contentLength = parseInt(contentLengthHeader, 10);
           if (!isNaN(contentLength) && contentLength > maxResponseBodySize) {
             // R9: 记录 RESPONSE_TOO_LARGE 错误
-            errorsTotal.labels({ error_type: 'security' }).inc();
+            errorsTotal.labels({ ...labels, error_type: 'security' }).inc();
             throw newError('RESPONSE_TOO_LARGE', { url: req.url, contentLength, maxResponseBodySize });
           }
         }
@@ -197,7 +197,7 @@ export const provideHTTPProxyService = (
                 if (receivedLength > maxResponseBodySize) {
                   await reader.cancel('Response size limit exceeded');
                   // R9: 记录 RESPONSE_TOO_LARGE 错误
-                  errorsTotal.labels({ error_type: 'security' }).inc();
+                  errorsTotal.labels({ ...labels, error_type: 'security' }).inc();
                   throw newError('RESPONSE_TOO_LARGE', { url: req.url, maxResponseBodySize });
                 }
                 chunks.push(value);
@@ -222,7 +222,7 @@ export const provideHTTPProxyService = (
           );
           if (buffer.byteLength > maxResponseBodySize) {
             // R9: 记录 RESPONSE_TOO_LARGE 错误
-            errorsTotal.labels({ error_type: 'security' }).inc();
+            errorsTotal.labels({ ...labels, error_type: 'security' }).inc();
             throw newError('RESPONSE_TOO_LARGE', {
               url: req.url,
               maxResponseBodySize,
@@ -242,6 +242,7 @@ export const provideHTTPProxyService = (
         // R6: 记录请求总数（成功情况）
         requestsTotal
           .labels({
+            ...labels,
             method,
             status_code: statusCode.toString(),
             error_code: 'none',
@@ -278,11 +279,12 @@ export const provideHTTPProxyService = (
           INVALID_URL: 'validation',
           RESPONSE_TOO_LARGE: 'security',
         };
-        errorsTotal.labels({ error_type: errorTypeMap[errorCode] || 'unknown' }).inc();
+        errorsTotal.labels({ ...labels, error_type: errorTypeMap[errorCode] || 'unknown' }).inc();
 
         // R6: 记录请求总数（错误情况）
         requestsTotal
           .labels({
+            ...labels,
             method,
             status_code: '0',
             error_code: errorCode,
@@ -293,10 +295,10 @@ export const provideHTTPProxyService = (
       } finally {
         // R7: 记录延迟分布
         const duration = (Date.now() - startTime) / 1000;
-        requestDuration.labels({ method }).observe(duration);
+        requestDuration.labels({ ...labels, method }).observe(duration);
 
         // R8: 请求结束，递减活跃请求
-        activeRequests.dec();
+        activeRequests.labels(labels).dec();
       }
     },
     serviceOptions,
