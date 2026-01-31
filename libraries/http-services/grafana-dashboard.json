@@ -22,7 +22,12 @@
   "links": [],
   "panels": [
     {
-      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 0 },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 0
+      },
       "id": 1,
       "options": {
         "colorMode": "value",
@@ -43,7 +48,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(increase(http_proxy_requests_total[$__range]))",
+          "expr": "sum(increase(http_proxy_requests_total{ip=~\"$ip\", hostname=~\"$hostname\"}[$__range]))",
           "refId": "A"
         }
       ],
@@ -51,7 +56,12 @@
       "type": "stat"
     },
     {
-      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 0 },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 0
+      },
       "id": 2,
       "options": {
         "colorMode": "value",
@@ -72,7 +82,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(rate(http_proxy_requests_total{status_code=~\"2..\"}[1m])) / sum(rate(http_proxy_requests_total[1m])) * 100",
+          "expr": "sum(rate(http_proxy_requests_total{ip=~\"$ip\", hostname=~\"$hostname\", status_code=~\"2..\"}[$__rate_interval])) / sum(rate(http_proxy_requests_total{ip=~\"$ip\", hostname=~\"$hostname\"}[$__rate_interval])) * 100",
           "refId": "A"
         }
       ],
@@ -80,7 +90,12 @@
       "type": "gauge"
     },
     {
-      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 0 },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 0
+      },
       "id": 3,
       "options": {
         "legend": {
@@ -101,7 +116,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "histogram_quantile(0.99, sum(rate(http_proxy_request_duration_seconds_bucket[5m])) by (le))",
+          "expr": "histogram_quantile(0.99, sum(rate(http_proxy_request_duration_seconds_bucket{ip=~\"$ip\", hostname=~\"$hostname\"}[$__rate_interval])) by (le))",
           "legendFormat": "P99 Latency",
           "refId": "A"
         }
@@ -110,7 +125,12 @@
       "type": "timeseries"
     },
     {
-      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 0 },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 0
+      },
       "id": 4,
       "options": {
         "legend": {
@@ -131,7 +151,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "histogram_quantile(0.95, sum(rate(http_proxy_request_duration_seconds_bucket[5m])) by (le))",
+          "expr": "histogram_quantile(0.95, sum(rate(http_proxy_request_duration_seconds_bucket{ip=~\"$ip\", hostname=~\"$hostname\"}[$__rate_interval])) by (le))",
           "legendFormat": "P95 Latency",
           "refId": "A"
         }
@@ -140,7 +160,12 @@
       "type": "timeseries"
     },
     {
-      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 4 },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 4
+      },
       "id": 5,
       "options": {
         "displayLabels": ["le"],
@@ -164,7 +189,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(rate(http_proxy_request_duration_seconds_bucket[5m])) by (le)",
+          "expr": "sum(rate(http_proxy_request_duration_seconds_bucket{ip=~\"$ip\", hostname=~\"$hostname\"}[$__rate_interval])) by (le)",
           "legendFormat": "{{ le }}s",
           "refId": "A"
         }
@@ -173,10 +198,15 @@
       "type": "bargauge"
     },
     {
-      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 4 },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 4
+      },
       "id": 6,
       "options": {
-        "displayLabels": ["region"],
+        "displayLabels": ["ip"],
         "legend": {
           "displayMode": "table",
           "placement": "right",
@@ -196,19 +226,24 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum by (region) (rate(http_proxy_requests_total[5m]))",
-          "legendFormat": "{{ region }}",
+          "expr": "topk(10, sum by (ip) (rate(http_proxy_requests_total{ip=~\"$ip\", hostname=~\"$hostname\"}[$__rate_interval])))",
+          "legendFormat": "{{ ip }}",
           "refId": "A"
         }
       ],
-      "title": "Requests by Region",
+      "title": "Requests by IP",
       "type": "bargauge"
     },
     {
-      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 10 },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 10
+      },
       "id": 7,
       "options": {
-        "displayLabels": ["region"],
+        "displayLabels": ["ip"],
         "legend": {
           "displayMode": "table",
           "placement": "right",
@@ -229,16 +264,21 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum by (region) (rate(http_proxy_requests_total{status_code=~\"2..\"}[5m])) / sum by (region) (rate(http_proxy_requests_total[5m]))",
-          "legendFormat": "{{ region }}",
+          "expr": "topk(10, sum by (ip) (rate(http_proxy_requests_total{status_code=~\"2..\", ip=~\"$ip\", hostname=~\"$hostname\"}[$__rate_interval])) / sum by (ip) (rate(http_proxy_requests_total{ip=~\"$ip\", hostname=~\"$hostname\"}[$__rate_interval])))",
+          "legendFormat": "{{ ip }}",
           "refId": "A"
         }
       ],
-      "title": "Success Rate by Region",
+      "title": "Success Rate by IP",
       "type": "bargauge"
     },
     {
-      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 10 },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 10
+      },
       "id": 8,
       "options": {
         "displayLabels": ["error_type"],
@@ -261,13 +301,83 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum by (error_type) (rate(http_proxy_errors_total[5m]))",
+          "expr": "sum by (error_type) (rate(http_proxy_errors_total{ip=~\"$ip\", hostname=~\"$hostname\"}[$__rate_interval]))",
           "legendFormat": "{{ error_type }}",
           "refId": "A"
         }
       ],
       "title": "Errors by Type",
       "type": "bargauge"
+    },
+    {
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "id": 9,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum by (method) (rate(http_proxy_requests_total{ip=~\"$ip\", hostname=~\"$hostname\"}[$__rate_interval]))",
+          "legendFormat": "{{ method }}",
+          "refId": "A"
+        }
+      ],
+      "title": "Requests by Method",
+      "type": "timeseries"
+    },
+    {
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "id": 10,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum by (status_code) (rate(http_proxy_requests_total{ip=~\"$ip\", hostname=~\"$hostname\"}[$__rate_interval]))",
+          "legendFormat": "{{ status_code }}",
+          "refId": "A"
+        }
+      ],
+      "title": "Response Codes Breakdown",
+      "type": "timeseries"
     }
   ],
   "refresh": "10s",
@@ -295,7 +405,6 @@
       },
       {
         "current": {
-          "selected": false,
           "text": "All",
           "value": "$__all"
         },
@@ -303,15 +412,15 @@
           "type": "prometheus",
           "uid": "${datasource}"
         },
-        "definition": "label_values(http_proxy_requests_total, region)",
+        "definition": "label_values(http_proxy_requests_total, ip)",
         "hide": 0,
         "includeAll": true,
-        "label": "Region",
+        "label": "IP Address",
         "multi": true,
-        "name": "region",
+        "name": "ip",
         "options": [],
         "query": {
-          "query": "label_values(http_proxy_requests_total, region)",
+          "query": "label_values(http_proxy_requests_total, ip)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 2,
@@ -322,7 +431,6 @@
       },
       {
         "current": {
-          "selected": false,
           "text": "All",
           "value": "$__all"
         },
@@ -330,15 +438,15 @@
           "type": "prometheus",
           "uid": "${datasource}"
         },
-        "definition": "label_values(http_proxy_requests_total, tier)",
+        "definition": "label_values(http_proxy_requests_total, hostname)",
         "hide": 0,
         "includeAll": true,
-        "label": "Tier",
+        "label": "Hostname",
         "multi": true,
-        "name": "tier",
+        "name": "hostname",
         "options": [],
         "query": {
-          "query": "label_values(http_proxy_requests_total, tier)",
+          "query": "label_values(http_proxy_requests_total, hostname)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 2,
