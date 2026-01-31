@@ -1,6 +1,11 @@
 # Change Log - @yuants/app-http-proxy
 
-This log was last generated on Sat, 31 Jan 2026 07:11:54 GMT and should not be manually modified.
+This log was last generated on Sat, 31 Jan 2026 16:32:10 GMT and should not be manually modified.
+
+## 0.1.4
+Sat, 31 Jan 2026 16:32:10 GMT
+
+_Version update only_
 
 ## 0.1.3
 Sat, 31 Jan 2026 07:11:54 GMT

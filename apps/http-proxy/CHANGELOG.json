@@ -2,6 +2,23 @@
   "name": "@yuants/app-http-proxy",
   "entries": [
     {
+      "version": "0.1.4",
+      "tag": "@yuants/app-http-proxy_v0.1.4",
+      "date": "Sat, 31 Jan 2026 16:32:10 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/http-services\" to `0.3.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.3",
       "tag": "@yuants/app-http-proxy_v0.1.3",
       "date": "Sat, 31 Jan 2026 07:11:54 GMT",
