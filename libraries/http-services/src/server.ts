@@ -1,4 +1,4 @@
-import { IServiceOptions, Terminal } from '@yuants/protocol';
+import { GlobalPrometheusRegistry, IServiceOptions, Terminal } from '@yuants/protocol';
 import { newError, scopeError } from '@yuants/utils';
 import { IHTTPProxyRequest, IHTTPProxyResponse, IHTTPProxyOptions } from './types';
 
@@ -49,15 +49,23 @@ export const provideHTTPProxyService = (
   Object.assign(terminal.terminalInfo.tags, labels);
 
   // Initialize metrics
-  const metrics = terminal.metrics;
-  const requestsTotal = metrics.counter('http_proxy_requests_total', 'Total HTTP proxy requests');
-  const requestDuration = metrics.histogram(
+  const requestsTotal = GlobalPrometheusRegistry.counter(
+    'http_proxy_requests_total',
+    'Total HTTP proxy requests',
+  );
+  const requestDuration = GlobalPrometheusRegistry.histogram(
     'http_proxy_request_duration_seconds',
     'HTTP proxy request duration in seconds',
     [0.01, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10, 30],
   );
-  const activeRequests = metrics.gauge('http_proxy_active_requests', 'Number of active HTTP proxy requests');
-  const errorsTotal = metrics.counter('http_proxy_errors_total', 'Total HTTP proxy errors by type');
+  const activeRequests = GlobalPrometheusRegistry.gauge(
+    'http_proxy_active_requests',
+    'Number of active HTTP proxy requests',
+  );
+  const errorsTotal = GlobalPrometheusRegistry.counter(
+    'http_proxy_errors_total',
+    'Total HTTP proxy errors by type',
+  );
 
   // 1. 构造包含 labels 约束的 JSON Schema（支持部分匹配）
   const labelProperties: Record<string, { const: string }> = {};

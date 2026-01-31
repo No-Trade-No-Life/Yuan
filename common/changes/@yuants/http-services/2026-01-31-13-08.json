@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "feat(http-services): add prometheus metrics support for http proxy",
+      "type": "minor",
+      "packageName": "@yuants/http-services"
+    }
+  ],
+  "packageName": "@yuants/http-services",
+  "email": "c.one@thrimbda.com"
+}
