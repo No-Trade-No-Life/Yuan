@@ -1,4 +1,4 @@
-import { Terminal } from '@yuants/protocol';
+import { Terminal, GlobalPrometheusRegistry } from '@yuants/protocol';
 import { provideHTTPProxyService } from '../server';
 import { IHTTPProxyRequest } from '../types';
 import { Subject, BehaviorSubject } from 'rxjs';
@@ -22,9 +22,9 @@ const createMockMetric = () => {
 describe('provideHTTPProxyService', () => {
   let terminal: Terminal;
   let mockMetrics: {
-    counter: jest.Mock;
-    histogram: jest.Mock;
-    gauge: jest.Mock;
+    counter: jest.SpyInstance;
+    histogram: jest.SpyInstance;
+    gauge: jest.SpyInstance;
   };
 
   beforeEach(() => {
@@ -52,17 +52,23 @@ describe('provideHTTPProxyService', () => {
 
     // Setup mock metrics
     mockMetrics = {
-      counter: jest.fn().mockImplementation(() => createMockMetric()),
-      histogram: jest.fn().mockImplementation(() => createMockMetric()),
-      gauge: jest.fn().mockImplementation(() => createMockMetric()),
+      counter: jest
+        .spyOn(GlobalPrometheusRegistry, 'counter')
+        .mockImplementation(() => createMockMetric() as any),
+      histogram: jest
+        .spyOn(GlobalPrometheusRegistry, 'histogram')
+        .mockImplementation(() => createMockMetric() as any),
+      gauge: jest
+        .spyOn(GlobalPrometheusRegistry, 'gauge')
+        .mockImplementation(() => createMockMetric() as any),
     };
-    (terminal as any).metrics = mockMetrics;
 
     jest.clearAllMocks();
   });
 
   afterEach(() => {
     terminal.dispose();
+    jest.restoreAllMocks();
   });
 
   it('should register HTTPProxy service with correct JSON Schema', () => {
