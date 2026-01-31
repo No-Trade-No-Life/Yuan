@@ -74,6 +74,36 @@ description: Yuan 仓库通用 Agent 准则，约束根级协作方式的唯一�
 
 ---
 
+## 8. Rush 工具链指南
+
+本仓库使用 [Rush](https://rushjs.io/) 管理 Monorepo，所有构建、测试与版本发布必须遵循以下规范：
+
+### 构建与测试
+
+- **全局构建**：使用 `rush build` 或 `rush rebuild`（全量重构）来编译整个仓库。
+- **单包测试**：在具体包目录下通常使用 `npm test`（实际调用 package.json scripts），或在根目录使用 `rushx test`。
+- **提交前验证**：提交代码前务必确保 `rush build` 通过，防止破坏主干。
+
+### 变更日志 (Change Log) 工作流
+
+发布新版本前，必须通过 `rush change` 生成变更描述文件：
+
+1. **完成修改**：确保代码已修改并保存。
+2. **暂存文件**：运行 `git add .` 将修改加入暂存区（`rush change` 依赖 git diff 检测变更包）。
+3. **生成变更**：运行 `rush change`。
+   - 按提示选择受影响的包。
+   - 选择变更类型（major/minor/patch/none）。
+   - 输入清晰的变更描述（将会出现在 CHANGELOG.md 中）。
+4. **提交变更文件**：
+   - `rush change` 会在 `common/changes/` 下生成 JSON 文件。
+   - 必须运行 `git add common/changes` 将这些新文件加入暂存区。
+5. **最终提交**：运行 `git commit` 将代码修改与 change file 一同提交。
+6. **Pull Request**：提 PR 时必须包含这些 change file，否则 CI/发布流程会报错。
+
+> **注意**：不要手动修改 CHANGELOG.md，它由 CI 根据 change file 自动生成。
+
+---
+
 # Agent Instructions (Global)
 
 本仓库默认要求使用 **skill `legionmind`** 来开展任何需要跨会话追踪的工作。`.legion/` 是任务进展、决策与交接的单一事实来源（single source of truth）。
