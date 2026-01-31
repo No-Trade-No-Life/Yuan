@@ -1,6 +1,13 @@
 # Change Log - @yuants/http-services
 
-This log was last generated on Fri, 30 Jan 2026 05:40:11 GMT and should not be manually modified.
+This log was last generated on Sat, 31 Jan 2026 07:11:54 GMT and should not be manually modified.
+
+## 0.2.3
+Sat, 31 Jan 2026 07:11:54 GMT
+
+### Patches
+
+- add metrics
 
 ## 0.2.2
 Fri, 30 Jan 2026 05:40:11 GMT
