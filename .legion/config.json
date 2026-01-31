@@ -2310,6 +2310,97 @@
       "decidedAt": "2026-01-30T12:14:43.129Z",
       "decidedBy": "Claude",
       "createdTaskId": "update-deploysettings-for-deployment-type"
+    },
+    {
+      "id": "proposal-ml101e4b-e3a2b4",
+      "name": "HTTP Proxy Service Metrics 打点与 Dashboard",
+      "goal": "为 http-proxy-service 实现 Prometheus metrics 打点并创建 Grafana dashboard",
+      "rationale": "http-proxy-service 已实现并部署，但缺乏可观测性能力。无法监控每个 terminal 的请求量、成功/失败率和延迟等关键指标，影响问题排查和容量规划。需要补充 metrics 打点并创建 Grafana Dashboard 以实现可观测性。",
+      "points": [
+        "当前 http-proxy-service 无 metrics 打点，仅有 console.warn 日志",
+        "需覆盖指标：请求量、速率、成功率、延迟、错误分类",
+        "Dashboard 需支持按 terminal labels 筛选"
+      ],
+      "scope": "[\"libraries/http-services/src/server.ts\", \"libraries/http-services/src/types.ts\", \"libraries/http-services/src/__tests__/server.test.ts\", \"libraries/http-services/grafana-dashboard.json\"]}",
+      "phases": [
+        {
+          "name": "阶段 1: Metrics 设计",
+          "tasks": [
+            {
+              "acceptance": "RFC 文档包含完整的 metrics 规范（指标名称、labels、计算方式）",
+              "description": "设计 metrics 打点规范（指标、labels、采集点）"
+            },
+            {
+              "acceptance": "Grafana Dashboard JSON 模板包含所有关键指标面板",
+              "description": "设计 Grafana Dashboard 布局与查询"
+            }
+          ]
+        },
+        {
+          "name": "阶段 2: Metrics 实现",
+          "tasks": [
+            {
+              "acceptance": "server.ts 中添加 metrics 打点代码并通过测试",
+              "description": "在 server.ts 中实现 Prometheus metrics 打点"
+            },
+            {
+              "acceptance": "单元测试覆盖 metrics 计数器逻辑",
+              "description": "添加 metrics 单元测试"
+            }
+          ]
+        },
+        {
+          "name": "阶段 3: Dashboard 实现",
+          "tasks": [
+            {
+              "acceptance": "创建 grafana-dashboard.json 模板文件",
+              "description": "创建 Grafana Dashboard JSON 模板"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-01-30T14:49:30.306Z",
+      "status": "pending"
+    },
+    {
+      "id": "proposal-ml1r26gm-d16425",
+      "name": "http-proxy-service Metrics 打点实现",
+      "goal": "为 http-proxy-service 实现 Prometheus metrics 打点和 Grafana Dashboard",
+      "rationale": "Metrics 打点实现已完成，需要生成正式的 walkthrough 报告和 PR 描述供团队审查。报告将包含实现摘要、核心设计、测试覆盖和 Dashboard 预览，便于后续维护和交接。\", \"scope\": [\"libraries/http-services/src/server.ts\", \"libraries/http-services/src/__tests__/server.test.ts\", \"libraries/http-services/grafana-dashboard.json\"]}",
+      "points": [
+        "4 个核心 metrics 指标设计",
+        "5 种错误类型映射",
+        "12 个单元测试用例覆盖",
+        "8 个 Dashboard 面板"
+      ],
+      "scope": [],
+      "phases": [
+        {
+          "name": "Metrics 实现",
+          "tasks": [
+            {
+              "acceptance": "完成 4 个核心 metrics 的初始化和采集逻辑",
+              "description": "实现 metrics 初始化和采集逻辑"
+            },
+            {
+              "acceptance": "通过所有 12 个单元测试用例",
+              "description": "添加 metrics 单元测试"
+            },
+            {
+              "acceptance": "生成包含 8 个面板的 Grafana Dashboard",
+              "description": "创建 Grafana Dashboard 模板"
+            },
+            {
+              "acceptance": "生成完整的 walkthrough 报告",
+              "description": "生成 walkthrough 报告"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-01-31T03:25:56.667Z",
+      "status": "pending"
     }
   ]
 }
