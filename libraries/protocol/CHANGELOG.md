@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Mon, 26 Jan 2026 19:55:09 GMT and should not be manually modified.
+This log was last generated on Tue, 03 Feb 2026 07:54:43 GMT and should not be manually modified.
+
+## 0.54.3
+Tue, 03 Feb 2026 07:54:43 GMT
+
+### Patches
+
+- fix recursive public IP fetch for http-services
 
 ## 0.54.2
 Mon, 26 Jan 2026 19:55:09 GMT

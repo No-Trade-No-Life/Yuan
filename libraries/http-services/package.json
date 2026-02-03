@@ -1,6 +1,6 @@
 {
   "name": "@yuants/http-services",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "HTTP proxy service for Yuan Terminal",
   "main": "lib/index.js",
   "module": "dist/index.js",
