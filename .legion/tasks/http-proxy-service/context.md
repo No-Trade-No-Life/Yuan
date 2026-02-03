@@ -128,6 +128,8 @@
 - 执行 bench（rushx bench，HOST_URL=ws://localhost:8888）并通过全部阈值
 - 将 walkthrough 报告改为中文
 - client.ts 改为 fetch 兼容接口，支持 terminal 注入并返回 Response
+- Updated RFC with Section 7 'Implementation Details' covering server.ts modifications
+- Added 'Prometheus Label Cardinality' to Security Considerations in RFC
 
 ### 🟡 进行中
 

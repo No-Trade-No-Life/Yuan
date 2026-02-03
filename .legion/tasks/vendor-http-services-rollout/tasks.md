@@ -2,7 +2,7 @@
 
 ## 快速恢复
 
-**当前阶段**: 阶段 4 - 推广（其他 vendor）
+**当前阶段**: (unknown)
 **当前任务**: (none)
 **进度**: 4/4 任务完成
 
@@ -28,7 +28,7 @@
 
 ## 阶段 4: 推广（其他 vendor） 🟡 IN PROGRESS
 
-- [x] 在用户确认后，将相同替换方案扩展到 okx/gate/hyperliquid/aster/bitget/huobi。 | 验收: 其他 vendor 替换完成并通过与 binance 相同的验证步骤。 ← CURRENT
+- [x] 在用户确认后，将相同替换方案扩展到 okx/gate/hyperliquid/aster/bitget/huobi。 | 验收: 其他 vendor 替换完成并通过与 binance 相同的验证步骤。
 
 ---
 
@@ -43,8 +43,15 @@
 - [x] 设计变更审批通过（用户确认）。 | 来源: 新增 USE_HTTP_PROXY 条件覆盖逻辑
 - [x] 更新 spec-test 说明补充 USE_HTTP_PROXY 手工验证要点（不新增测试）。 | 来源: 用户指令
 - [x] 设计变更审批通过（用户确认：推广到所有 vendor）。 | 来源: 用户指令
+- [x] RFC 生成完成（http-services 递归栈溢出修复）。 | 来源: 用户指令
 - [ ] PR 创建完成 | 来源: 发布流程
+- [x] 排查 http-services 引入后导致 RangeError: Maximum call stack size exceeded 的递归问题，并输出修复设计（RFC + review）。 | 来源: 用户反馈：vendor-okx/gate/huobi/bitget 运行时栈溢出
+- [x] 补充 publicIP 用途/是否可删除，并调整 Goals/R1-R7/Testability 以可验证 | 来源: RFC 对抗审查 blocking
+- [x] RFC 审查完成（最终对抗审查，结论 PASS） | 来源: 用户指令
+- [x] 实现 RFC 修复：缓存 \_\_yuantsNativeFetch/标记 proxy fetch，terminal public IP 跳过逻辑 | 来源: 用户批准设计，进入阶段 A
+- [x] 验证与审查：运行测试，review-code，review-security | 来源: 流程阶段 B
+- [x] 生成报告：report-walkthrough + PR body 建议 | 来源: 流程阶段 C
 
 ---
 
-_最后更新: 2026-01-30 11:30_
+_最后更新: 2026-02-03_

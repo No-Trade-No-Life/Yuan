@@ -346,12 +346,44 @@ export const requestHTTPProxy = async (
    - 按 terminal_id 限制请求频率
 
 4. **审计日志**：
+
    - 记录所有请求的 URL、source_terminal_id
    - 利用 Terminal metrics 监控异常模式
 
+5. **Prometheus 基数控制**（重要）：
+   - 调用方传入的 `labels` **必须**是有限基数的（Finite Cardinality）。
+   - **推荐**：Region, Hostname, Zone, Service Tier。
+   - **严禁**：传入 Request ID, User ID, Transaction ID 等高基数数据作为 labels。
+   - 原因：高基数 labels 会导致 Prometheus 内存爆炸和查询性能下降。
+
 ---
 
-## 7. 性能考虑
+## 7. Implementation Details
+
+### 7.1 Overview
+
+Implementation follows the design described in previous sections.
+
+### 7.2 Code Modifications (server.ts)
+
+Specific requirements for `server.ts` implementation:
+
+1.  **Metric Initialization**:
+
+    - Use `GlobalPrometheusRegistry` to create metrics.
+    - Ensure metrics are initialized to support dynamic labels.
+
+2.  **Label Injection**:
+
+    - In `provideHTTPProxyService`, capture the `labels` argument (type `Record<string, string>`) at the start of the function.
+    - Inject these `labels` into _all_ metric recordings.
+    - **MUST** spread `...labels` into every `.labels({...})` call.
+
+3.  **Active Requests Gauge**:
+    - Previously: `activeRequests.inc()` / `activeRequests.dec()`
+    - **MUST** change to: `activeRequests.labels(labels).inc()` and `activeRequests.labels(labels).dec()` to ensure correct dimensional tracking per proxy instance.
+
+## 8. 性能考虑
 
 ### 7.1 瓶颈分析
 
@@ -368,7 +400,7 @@ export const requestHTTPProxy = async (
 
 ---
 
-## 8. 兼容性与迁移
+## 9. 兼容性与迁移
 
 ### 8.1 向后兼容
 
@@ -386,7 +418,7 @@ export const requestHTTPProxy = async (
 
 ---
 
-## 9. 决策记录
+## 10. 决策记录
 
 | 决策                                    | 理由                             | 备选方案                      | 影响                                          |
 | --------------------------------------- | -------------------------------- | ----------------------------- | --------------------------------------------- |
@@ -397,7 +429,7 @@ export const requestHTTPProxy = async (
 
 ---
 
-## 10. 验收标准
+## 11. 验收标准
 
 ### 10.1 功能验收
 
@@ -416,7 +448,7 @@ export const requestHTTPProxy = async (
 
 ---
 
-## 11. 参考资料
+## 12. 参考资料
 
 - `@yuants/protocol` - Terminal 协议实现
 - `@yuants/exchange` - provideQuoteService、provideExchangeServices 参考实现

@@ -61,35 +61,50 @@
 - 阶段 D 完成：更新 report-walkthrough.md 与 pr-body.md 覆盖全 vendor 推广
 - 阶段 C 通过：rush build -t @yuants/vendor-okx/gate/hyperliquid/aster/bitget/huobi 成功
 - 已创建 PR: https://github.com/No-Trade-No-Life/Yuan/pull/2547
+- 生成 http-services 递归栈溢出修复 RFC（设计真源）。
+- 完成 RFC 对抗审查，形成 review-rfc.md 内容草案（NEEDS_CHANGES）
+- 最终对抗审查完成：结论 PASS，无 blocking；可选优化记录于 review-rfc.md
+- 在 http-services client.ts 缓存 native fetch 并为 proxy fetch 打标记，避免覆盖后丢失原生 fetch。
+- 在 Terminal 构造中优先使用 \_\_yuantsNativeFetch，并在 USE_HTTP_PROXY=true 或 native fetch 不可用/被标记时跳过 public IP 获取。
+- 完成实现：http-services 缓存 \_\_yuantsNativeFetch/标记 proxy fetch；terminal public IP 跳过逻辑落地。
+- 执行最小构建验证：`rush build -t @yuants/http-services -t @yuants/protocol`（PASS；Node 24.11.0，Rush 5.165.0；@yuants/http-services/@yuants/protocol 构建成功，部分依赖命中缓存）
+- 阶段 B 完成：rush build -t @yuants/http-services -t @yuants/protocol 通过（Node 24.11.0 警告未测试但构建成功）。
+- review-code 通过：/Users/c1/Work/Yuan/.legion/tasks/vendor-http-services-rollout/docs/review-code-fix.md
+- review-security 通过：/Users/c1/Work/Yuan/.legion/tasks/vendor-http-services-rollout/docs/review-security-fix.md
+- 生成报告：/Users/c1/Work/Yuan/.legion/tasks/vendor-http-services-rollout/docs/report-walkthrough-fix.md
+- 生成 PR body：/Users/c1/Work/Yuan/.legion/tasks/vendor-http-services-rollout/docs/pr-body-fix.md
+- 阶段 C 完成：生成 report-walkthrough 与 PR body（fix 版本）。
 
 ### 🟡 进行中
 
-(暂无)
+- (暂无)
 
 ### ⚠️ 阻塞/待定
 
-- (暂无)
+(暂无)
 
 ---
 
 ## 关键文件
 
-(暂无)
+- `/Users/c1/Work/Yuan/.legion/tasks/vendor-http-services-rollout/docs/rfc.md`
+- `/Users/c1/Work/Yuan/.legion/tasks/vendor-http-services-rollout/docs/review-rfc.md`
 
 ---
 
 ## 关键决策
 
-| 决策                                                                               | 原因                                                                                                    | 替代方案                                                                     | 日期       |
-| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- | ---------- |
-| SUBTREE_ROOT 设为 apps/vendor-binance，用于本阶段仅改动 Binance 并形成迁移模板     | 用户要求先从 binance 验证通过再推广到其他 vendor，且主要变更集中在 Binance vendor 下的 HTTP client 封装 | 将 SUBTREE_ROOT 设为 apps/ 或 apps/vendor-\*（过大，易混入其他 vendor 修改） | 2026-01-29 |
-| 初期不强制 labels，先完成 binance 迁移再评估分流需求                               | 降低对代理节点配置的依赖，保证最小改动验证链路可用                                                      | 在第一阶段就强制 labels（需要运行环境同步改造）                              | 2026-01-29 |
-| 在 client.ts 中直接 import { fetch } 覆盖本地 fetch 标识，不使用别名               | 用户明确要求避免 alias，保持调用点语义直观                                                              | 使用 import { fetch as proxyFetch } 并替换调用                               | 2026-01-29 |
-| client.ts 仅新增 `import { fetch } from '@yuants/http-services'`，不修改任何调用点 | 用户要求调用点不改，且 http-services fetch 内部可使用 Terminal.fromNodeEnv()                            | 显式替换调用点并传入 terminal 或 timeout                                     | 2026-01-29 |
-| 进入阶段 B 后发现阻塞问题，暂停进入测试阶段                                        | 流程要求 blocking review 必须先修复并重跑 A+B                                                           | 忽略 blocking 直接进入测试（不符合门禁要求）                                 | 2026-01-30 |
-| 测试与基准不新增用例，仅记录说明                                                   | 本轮变更仅涉及日志脱敏，不影响执行路径                                                                  | 新增日志相关单测/基准（非必须）                                              | 2026-01-30 |
-| 暂停进入阶段 D，等待测试环境修复后重跑 B+C                                         | 流程要求测试通过才能进入报告阶段                                                                        | 跳过测试直接生成报告（不符合门禁）                                           | 2026-01-30 |
-| 阶段 C 失败后回到阶段 A 修复依赖解析问题                                           | TypeScript 无法解析 @yuants/http-services，测试无法通过                                                 | 跳过测试继续报告（不符合流程）                                               | 2026-01-30 |
+| 决策                                                                                                                 | 原因                                                                                                    | 替代方案                                                                     | 日期       |
+| -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- | ---------- |
+| SUBTREE_ROOT 设为 apps/vendor-binance，用于本阶段仅改动 Binance 并形成迁移模板                                       | 用户要求先从 binance 验证通过再推广到其他 vendor，且主要变更集中在 Binance vendor 下的 HTTP client 封装 | 将 SUBTREE_ROOT 设为 apps/ 或 apps/vendor-\*（过大，易混入其他 vendor 修改） | 2026-01-29 |
+| 初期不强制 labels，先完成 binance 迁移再评估分流需求                                                                 | 降低对代理节点配置的依赖，保证最小改动验证链路可用                                                      | 在第一阶段就强制 labels（需要运行环境同步改造）                              | 2026-01-29 |
+| 在 client.ts 中直接 import { fetch } 覆盖本地 fetch 标识，不使用别名                                                 | 用户明确要求避免 alias，保持调用点语义直观                                                              | 使用 import { fetch as proxyFetch } 并替换调用                               | 2026-01-29 |
+| client.ts 仅新增 `import { fetch } from '@yuants/http-services'`，不修改任何调用点                                   | 用户要求调用点不改，且 http-services fetch 内部可使用 Terminal.fromNodeEnv()                            | 显式替换调用点并传入 terminal 或 timeout                                     | 2026-01-29 |
+| 进入阶段 B 后发现阻塞问题，暂停进入测试阶段                                                                          | 流程要求 blocking review 必须先修复并重跑 A+B                                                           | 忽略 blocking 直接进入测试（不符合门禁要求）                                 | 2026-01-30 |
+| 测试与基准不新增用例，仅记录说明                                                                                     | 本轮变更仅涉及日志脱敏，不影响执行路径                                                                  | 新增日志相关单测/基准（非必须）                                              | 2026-01-30 |
+| 暂停进入阶段 D，等待测试环境修复后重跑 B+C                                                                           | 流程要求测试通过才能进入报告阶段                                                                        | 跳过测试直接生成报告（不符合门禁）                                           | 2026-01-30 |
+| 阶段 C 失败后回到阶段 A 修复依赖解析问题                                                                             | TypeScript 无法解析 @yuants/http-services，测试无法通过                                                 | 跳过测试继续报告（不符合流程）                                               | 2026-01-30 |
+| 选择方案 1：http-services 缓存 `__yuantsNativeFetch` 并标记 proxy fetch；`USE_HTTP_PROXY=true` 时跳过 public IP 获取 | 修复递归同时明确代理边界；接口不变且可回滚                                                              | 方案 2：新增禁用 public IP 获取配置；方案 3：放弃全局 fetch 覆盖             | 2026-02-03 |
 
 ---
 
@@ -97,13 +112,12 @@
 
 **下次继续从这里开始：**
 
-1. 等待 PR review/merge
-2. 如需纳入 lockfile 或 .legion 文档，请按需要单独提交
+1. 运行 /legion-pr 创建 PR
 
 **注意事项：**
 
-- 本次 PR 仅包含 SUBTREE_ROOT=apps 变更；.legion 与 pnpm-lock.yaml 未入 PR。
+- 可选：在 USE_HTTP_PROXY=true 的环境触发一次真实请求，确认无递归栈溢出。
 
 ---
 
-_最后更新: 2026-01-30 11:30 by Claude_
+_最后更新: 2026-02-03 by OpenCode_

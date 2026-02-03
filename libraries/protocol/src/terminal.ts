@@ -120,20 +120,31 @@ export class Terminal {
     });
 
     // Infer Public IP
-    defer(() =>
-      fetch('https://ifconfig.me/ip')
-        .then((res) => res.text())
-        .then((public_ip) => {
-          Object.assign(tags, { public_ip });
-          this.terminalInfoUpdated$.next();
-        }),
-    )
-      .pipe(
-        //
-        retry({ delay: 30_000 }),
-        takeUntil(this.dispose$),
+    const useHttpProxy = globalThis.process?.env?.USE_HTTP_PROXY === 'true';
+    const proxyFetchMarker = '__isHttpServicesFetch';
+    const globalScope = globalThis as typeof globalThis & { __yuantsNativeFetch?: typeof fetch };
+    const nativeFetchCandidate = globalScope.__yuantsNativeFetch ?? globalThis.fetch;
+    const nativeFetch =
+      typeof nativeFetchCandidate === 'function' && !(nativeFetchCandidate as any)[proxyFetchMarker]
+        ? nativeFetchCandidate
+        : undefined;
+
+    if (!useHttpProxy && nativeFetch) {
+      defer(() =>
+        nativeFetch('https://ifconfig.me/ip')
+          .then((res) => res.text())
+          .then((public_ip) => {
+            Object.assign(tags, { public_ip });
+            this.terminalInfoUpdated$.next();
+          }),
       )
-      .subscribe();
+        .pipe(
+          //
+          retry({ delay: 30_000 }),
+          takeUntil(this.dispose$),
+        )
+        .subscribe();
+    }
 
     const url = new URL(host_url);
     url.searchParams.set('terminal_id', this.terminal_id); // make sure terminal_id is in the connection parameters
