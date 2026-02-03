@@ -1,6 +1,13 @@
 import { Terminal } from '@yuants/protocol';
 import { IHTTPProxyRequest, IHTTPProxyResponse } from './types';
 
+const proxyFetchMarker = '__isHttpServicesFetch';
+const globalFetch = globalThis.fetch;
+const globalScope = globalThis as typeof globalThis & { __yuantsNativeFetch?: typeof fetch };
+if (!globalScope.__yuantsNativeFetch && globalFetch && !(globalFetch as any)[proxyFetchMarker]) {
+  globalScope.__yuantsNativeFetch = globalFetch;
+}
+
 /**
  * 通过代理发送 HTTP 请求（fetch 兼容）
  *
@@ -106,3 +113,5 @@ export const fetch = async (input: Request | string | URL, init?: IHTTPProxyFetc
   }
   return fetchResponse;
 };
+
+(fetch as any)[proxyFetchMarker] = true;

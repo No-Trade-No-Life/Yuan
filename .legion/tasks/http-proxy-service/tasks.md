@@ -58,6 +58,7 @@
 - [x] 修复单元测试中的 WebSocketConnectionError 问题 | 来源: rush build failure
 - [x] 修复 client.test.ts 和 server.test.ts 中的 WebSocket 连接错误与异步泄漏 | 来源: rush build 失败日志
 - [x] requestHTTPProxy 改为 fetch 兼容接口（支持 Terminal 注入） | 来源: 用户需求
+- [x] 完善 RFC：增加 server.ts 实现细节与基数控制安全说明 | 来源: Code Review
 
 ---
 
