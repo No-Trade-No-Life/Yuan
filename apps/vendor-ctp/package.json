@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-ctp",
-  "version": "0.10.49",
+  "version": "0.10.50",
   "main": "lib/index.js",
   "files": [
     "dist",

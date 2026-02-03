@@ -2,6 +2,28 @@
   "name": "@yuants/http-services",
   "entries": [
     {
+      "version": "0.3.1",
+      "tag": "@yuants/http-services_v0.3.1",
+      "date": "Tue, 03 Feb 2026 07:54:43 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix recursive public IP fetch for http-services"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.54.3`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.0",
       "tag": "@yuants/http-services_v0.3.0",
       "date": "Sat, 31 Jan 2026 16:32:10 GMT",
