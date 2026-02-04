@@ -260,9 +260,38 @@ main().catch(console.error);
 
 ---
 
-### 3.3 运行脚本
+### 3.3 Selector 微基准
+
+**目标**：评估 `selectHTTPProxyIpRoundRobin` 在不同 proxy 池规模下的性能开销。
+
+**场景**：
+
+| 场景 | Proxy 池规模 | 迭代次数 | 目标 (RPS) |
+| ---- | ------------ | -------- | ---------- |
+| S1   | 1            | 20000    | >= 100000  |
+| S2   | 16           | 20000    | >= 80000   |
+| S3   | 128          | 20000    | >= 60000   |
+| S4   | 1024         | 20000    | >= 40000   |
+
+**输出要求**：
+
+- 控制台输出与现有 bench 风格一致（Requests/Duration/RPS/Latency/Thresholds/Result）
+- 每个场景输出 `ResultJSON`，包含 `poolSize`、`rps`、`p50Ms/p95Ms/p99Ms`、`threshold`、`pass`
+
+**阈值判定**：
+
+- 任一场景未达标时整体 bench 失败（进程退出码为 1）
+
+---
+
+### 3.4 运行脚本
 
 **文件路径**: `package.json`
+
+**环境变量**：
+
+- `HOST_URL`：可选，默认自动启动本地 Host。
+- 若 `HOST_URL` 指向非本地地址，需设置 `ALLOW_REMOTE_HOST=true` 才会启用远端 Host（否则忽略并回退本地 Host）。
 
 ```json
 {
@@ -395,6 +424,7 @@ npm run bench \u003e benchmarks/baseline.txt
 - [ ] 轻量级请求 RPS \u003e 500
 - [ ] 中等负载 RPS \u003e 200
 - [ ] 100 并发 P95 \u003c 500ms
+- [ ] Selector 微基准：S1/S2/S3/S4 均满足对应 RPS 阈值
 - [ ] 无内存泄漏（24 小时压测）
 - [ ] CPU 占用 \u003c 50%（单核）
 

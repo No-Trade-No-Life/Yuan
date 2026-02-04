@@ -1,6 +1,6 @@
-import { fetch } from '@yuants/http-services';
+import { fetch, selectHTTPProxyIpRoundRobin } from '@yuants/http-services';
 import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
-import { scopeError, tokenBucket } from '@yuants/utils';
+import { encodePath, formatTime, scopeError, tokenBucket } from '@yuants/utils';
 
 import './client';
 
@@ -11,6 +11,8 @@ const MetricsAsterApiCallCounter = GlobalPrometheusRegistry.counter(
 const terminal = Terminal.fromNodeEnv();
 const shouldUseHttpProxy = process.env.USE_HTTP_PROXY === 'true';
 const fetchImpl = shouldUseHttpProxy ? fetch : globalThis.fetch ?? fetch;
+const MISSING_PUBLIC_IP_LOG_INTERVAL = 3_600_000;
+const missingPublicIpLogAtByTerminalId = new Map<string, number>();
 
 if (shouldUseHttpProxy) {
   globalThis.fetch = fetch;
@@ -18,6 +20,39 @@ if (shouldUseHttpProxy) {
 
 const FutureBaseURL = 'https://fapi.asterdex.com';
 const SpotBaseURL = 'https://sapi.asterdex.com';
+
+type RequestContext = { ip: string };
+
+const buildTokenBucketKey = (baseKey: string, ip: string): string => encodePath([baseKey, ip]);
+
+const resolveLocalPublicIp = (): string => {
+  const ip = terminal.terminalInfo.tags?.public_ip?.trim();
+  if (ip) return ip;
+  const now = Date.now();
+  const lastLoggedAt = missingPublicIpLogAtByTerminalId.get(terminal.terminal_id) ?? 0;
+  if (now - lastLoggedAt > MISSING_PUBLIC_IP_LOG_INTERVAL) {
+    missingPublicIpLogAtByTerminalId.set(terminal.terminal_id, now);
+    console.info(formatTime(Date.now()), 'missing terminal public_ip tag, fallback to public-ip-unknown');
+  }
+  return 'public-ip-unknown';
+};
+
+const createRequestContext = (): RequestContext => {
+  if (shouldUseHttpProxy) {
+    const ip = selectHTTPProxyIpRoundRobin(terminal);
+    return { ip };
+  }
+  return { ip: resolveLocalPublicIp() };
+};
+
+const acquireRateLimit = (url: URL, endpoint: string, weight: number, requestContext: RequestContext) => {
+  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  scopeError(
+    'ASTER_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
+    () => tokenBucket(bucketKey).acquireSync(weight),
+  );
+};
 
 const getKlinesRequestWeight = (limit: number | undefined): number => {
   const resolvedLimit = limit ?? 500;
@@ -32,6 +67,7 @@ const request = async <T>(
   baseUrl: string,
   endpoint: string,
   params: Record<string, unknown> = {},
+  requestContext: RequestContext,
 ): Promise<T> => {
   const url = new URL(baseUrl);
   url.pathname = endpoint;
@@ -42,7 +78,16 @@ const request = async <T>(
 
   console.info(url.toString());
   MetricsAsterApiCallCounter.labels({ path: url.pathname, terminal_id: terminal.terminal_id }).inc();
-  const response = (await fetchImpl(url.toString(), { method })) as Response;
+  const response = (await fetchImpl(
+    url.toString(),
+    shouldUseHttpProxy
+      ? {
+          method,
+          labels: requestContext.ip ? { ip: requestContext.ip } : undefined,
+          terminal,
+        }
+      : { method },
+  )) as Response;
   const res = (await response.json()) as unknown;
 
   const maybeError = res as { code?: number };
@@ -75,12 +120,9 @@ export const getFApiV1FundingRate = (params: {
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = 1;
-  scopeError(
-    'ASTER_API_RATE_LIMIT',
-    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket(url.host).acquireSync(weight),
-  );
-  return request('GET', FutureBaseURL, endpoint, params);
+  const requestContext = createRequestContext();
+  acquireRateLimit(url, endpoint, weight, requestContext);
+  return request('GET', FutureBaseURL, endpoint, params, requestContext);
 };
 
 export interface IAsterRateLimit {
@@ -120,12 +162,9 @@ export const getFApiV1ExchangeInfo = (params: Record<string, never>): Promise<IA
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = 1;
-  scopeError(
-    'ASTER_API_RATE_LIMIT',
-    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket(url.host).acquireSync(weight),
-  );
-  return request('GET', FutureBaseURL, endpoint, params);
+  const requestContext = createRequestContext();
+  acquireRateLimit(url, endpoint, weight, requestContext);
+  return request('GET', FutureBaseURL, endpoint, params, requestContext);
 };
 
 /**
@@ -140,12 +179,9 @@ export const getApiV1ExchangeInfo = (params: Record<string, never>): Promise<IAs
   const url = new URL(SpotBaseURL);
   url.pathname = endpoint;
   const weight = 1;
-  scopeError(
-    'ASTER_API_RATE_LIMIT',
-    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket(url.host).acquireSync(weight),
-  );
-  return request('GET', SpotBaseURL, endpoint, params);
+  const requestContext = createRequestContext();
+  acquireRateLimit(url, endpoint, weight, requestContext);
+  return request('GET', SpotBaseURL, endpoint, params, requestContext);
 };
 
 /**
@@ -168,12 +204,9 @@ export const getFApiV1OpenInterest = (params: {
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = 1;
-  scopeError(
-    'ASTER_API_RATE_LIMIT',
-    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket(url.host).acquireSync(weight),
-  );
-  return request('GET', FutureBaseURL, endpoint, params);
+  const requestContext = createRequestContext();
+  acquireRateLimit(url, endpoint, weight, requestContext);
+  return request('GET', FutureBaseURL, endpoint, params, requestContext);
 };
 
 /**
@@ -196,12 +229,9 @@ export const getFApiV1TickerPrice = (
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = 2;
-  scopeError(
-    'ASTER_API_RATE_LIMIT',
-    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket(url.host).acquireSync(weight),
-  );
-  return request('GET', FutureBaseURL, endpoint, params);
+  const requestContext = createRequestContext();
+  acquireRateLimit(url, endpoint, weight, requestContext);
+  return request('GET', FutureBaseURL, endpoint, params, requestContext);
 };
 
 /**
@@ -239,12 +269,9 @@ export const getFApiV1PremiumIndex = (params: {
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = 1;
-  scopeError(
-    'ASTER_API_RATE_LIMIT',
-    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket(url.host).acquireSync(weight),
-  );
-  return request('GET', FutureBaseURL, endpoint, params);
+  const requestContext = createRequestContext();
+  acquireRateLimit(url, endpoint, weight, requestContext);
+  return request('GET', FutureBaseURL, endpoint, params, requestContext);
 };
 
 export interface IAsterKline extends Array<string | number> {
@@ -282,6 +309,7 @@ export const getFApiV1Klines = (params: {
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = getKlinesRequestWeight(params?.limit);
+  const requestContext = createRequestContext();
   scopeError(
     'ASTER_API_RATE_LIMIT',
     {
@@ -289,13 +317,13 @@ export const getFApiV1Klines = (params: {
       endpoint,
       host: url.host,
       path: url.pathname,
-      bucketId: url.host,
+      bucketId: buildTokenBucketKey(url.host, requestContext.ip),
       weight,
       limit: params?.limit,
     },
-    () => tokenBucket(url.host).acquireSync(weight),
+    () => tokenBucket(buildTokenBucketKey(url.host, requestContext.ip)).acquireSync(weight),
   );
-  return request('GET', FutureBaseURL, endpoint, params);
+  return request('GET', FutureBaseURL, endpoint, params, requestContext);
 };
 
 /**
@@ -318,6 +346,7 @@ export const getApiV1Klines = (params: {
   const url = new URL(SpotBaseURL);
   url.pathname = endpoint;
   const weight = getKlinesRequestWeight(params?.limit);
+  const requestContext = createRequestContext();
   scopeError(
     'ASTER_API_RATE_LIMIT',
     {
@@ -325,11 +354,11 @@ export const getApiV1Klines = (params: {
       endpoint,
       host: url.host,
       path: url.pathname,
-      bucketId: url.host,
+      bucketId: buildTokenBucketKey(url.host, requestContext.ip),
       weight,
       limit: params?.limit,
     },
-    () => tokenBucket(url.host).acquireSync(weight),
+    () => tokenBucket(buildTokenBucketKey(url.host, requestContext.ip)).acquireSync(weight),
   );
-  return request('GET', SpotBaseURL, endpoint, params);
+  return request('GET', SpotBaseURL, endpoint, params, requestContext);
 };

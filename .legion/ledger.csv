@@ -1740,3 +1740,261 @@
 2026-02-04T08:00:32.672Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 移除 warnedAllowedHostsWithPort 并更新测试/RFC/plan,success
 2026-02-04T08:00:32.750Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 移除 warnedAllowedHostsWithPort 并更新测试/RFC/plan,success
 2026-02-04T08:02:23.141Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T16:38:00.896Z,legion_get_status,,,Claude,,success
+2026-02-03T16:40:14.615Z,legion_propose_task,,,Claude,name: vendor-tokenbucket-proxy-ip,success
+2026-02-03T16:40:42.609Z,legion_approve_proposal,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,proposalId: proposal-ml6tr7kc-530490,success
+2026-02-03T16:41:38.297Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,setCurrentTask: 定位各 vendor 的 tokenBucket key 生成位置与 USE_HTTP_PROXY 路径，并梳理 http-proxy 终端标签（ip/hostname）注入与路由流程。,success
+2026-02-03T16:41:43.350Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-03T16:42:18.226Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-03T16:42:20.456Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-03T16:44:23.353Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-03T16:44:27.189Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-03T16:47:15.610Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,handoff: 一旦允许写文件，落盘审查报告到 `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-rfc.md`。,success
+2026-02-03T16:47:15.626Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 将 RFC 对抗审查报告写入 `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-rfc.md` 并在 tasks.md 标记完成。,success
+2026-02-03T16:50:45.475Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,setCurrentTask: 设计 tokenBucket key 拼接规则与获取目标 proxy ip 标签的机制（含一致性与随机路由的处理）。,success
+2026-02-03T16:50:52.787Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"addDecision: tokenBucket key 统一使用 `encodePath([BaseKey, ip])`，代理场景优先 `tags.ip`、fallback 到 `tags.public_ip`，直连使用 `terminal.terminalInfo.tags.public_ip`；不新增开关，回滚通过版本回退。",success
+2026-02-04T03:27:57.058Z,legion_list_reviews,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,status: open,success
+2026-02-04T03:29:50.604Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 已响应 RFC review：明确 `req.labels.ip` 已指定时直接使用该 ip 并保持 labels 发送请求，避免重复 resolve。,success
+2026-02-04T03:31:22.866Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 已根据 review 增补 RFC：引入 Label-Pinned Proxy IP 概念，明确 labels.ip 已指定时不再 resolve，并在设计/计划中区分两条路径。,success
+2026-02-04T03:31:28.978Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T03:33:20.544Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 更新 RFC 对抗审查要点，聚焦 labels.ip 绑定出口一致性与风险。,success
+2026-02-04T03:33:24.465Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addTask: RFC 对抗审查报告更新并落盘（聚焦 labels.ip 绑定出口一致性风险）。,success
+2026-02-04T03:33:28.938Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修正 RFC：明确 labels.ip 绑定出口的一致性契约、来源/权限、冲突处置与可验证性。,success
+2026-02-04T03:35:52.468Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T03:38:43.215Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addConstraint: 当前工具权限限制无法直接写入 review-rfc.md 文件内容。,success
+2026-02-04T03:38:48.038Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 将更新后的 RFC 对抗审查报告正文写入 `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-rfc.md` 并在 tasks.md 标记完成。,success
+2026-02-04T03:40:38.075Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 已按最新对抗审查补充 RFC：新增 labels.ip 验证顺序与错误码（E_PROXY_IP_INVALID/NOT_AVAILABLE），定义多 target 同 IP 的确定性选择规则，并补齐 Testability/Observability。,success
+2026-02-04T03:40:44.819Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T03:40:47.674Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T03:43:27.817Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 补齐 RFC：定义可验证的 labels.ip 可信来源信号与校验失败错误码映射闭环。,success
+2026-02-04T03:43:27.817Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addConstraint: labels.ip 可信来源校验缺少可执行信号，导致 R11 不可实现/不可验证。,success
+2026-02-04T03:43:27.818Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 补齐 RFC：labels.ip 路径强制 target-aware fetch（resolve -> 确定性选择 -> 固定 target 发送）。,success
+2026-02-04T03:43:27.818Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 补齐 RFC：测试与可观测断言覆盖校验顺序与确定性 target 选择（含 resolve 未触发断言）。,success
+2026-02-04T03:44:58.888Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 已根据最新审查意见更新 RFC：labels.ip 仅允许 helper 写入；校验顺序明确为格式/来源/匹配；labels.ip 路径强制 target-aware fetch；补充错误语义映射与校验阶段观测。,success
+2026-02-04T03:45:53.367Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T03:49:15.420Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDecision: 本次审查建议补齐 labels.ip 可信来源/绑定机制与错误语义闭环后再进入实现阶段。,success
+2026-02-04T03:49:15.475Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修正 RFC：定义 labels.ip 可信来源信号与绑定字段/校验方式，保证校验顺序可实现。,success
+2026-02-04T03:49:15.476Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修正 RFC：明确 labels.ip 与 tags.ip/tags.public_ip 的匹配边界，补齐错误语义映射与测试断言闭环。,success
+2026-02-04T03:50:22.783Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 已在 RFC 中定义 ProxyTarget Binding 作为可信来源信号，并将 labels.ip 的可用性绑定到 target-aware fetch 路径。,success
+2026-02-04T03:50:30.763Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T03:52:24.694Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 完成 RFC 对抗审查并输出报告正文（未能写入 review-rfc.md，受工具限制）。,success
+2026-02-04T03:52:31.871Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addTask: RFC 对抗审查完成并输出报告正文（待写入 review-rfc.md）。,success
+2026-02-04T03:52:35.391Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: RFC 对抗审查完成并输出报告正文（待写入 review-rfc.md）。,success
+2026-02-04T03:54:42.795Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: RFC 已改为使用 `proxy_ip_hint` + `ProxyTargetBinding` 选择/固定目标，不再接受外部 labels.ip；补充 binding 数据模型与接口定义。,success
+2026-02-04T03:54:48.969Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T03:55:18.124Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T03:55:42.118Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T03:55:52.494Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T03:55:56.909Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T03:56:01.163Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T03:56:05.330Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T03:56:10.405Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T03:58:01.239Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T03:59:12.253Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T04:00:02.635Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addConstraint: 当前工具权限无法写入/编辑文件（Write/Edit/apply_patch 被禁），仅可输出正文与更新 legionmind 状态。,success
+2026-02-04T04:00:05.754Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 将本次对抗审查正文写入 `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-rfc.md`。,success
+2026-02-04T04:00:08.547Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修正 RFC：明确 proxy_ip_hint_source/internal 的可信边界与可执行信号，避免非内部来源绕过。,success
+2026-02-04T04:00:11.258Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修正 RFC：当提供 proxy_ip_hint 时禁止使用 public_ip/proxy-unknown fallback，并明确 resolveHTTPProxyTarget 的错误返回规则。,success
+2026-02-04T04:00:14.900Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修正 RFC：补齐错误语义映射表与可验证断言（格式失败/来源不可信/匹配失败/resolve 失败），包含 resolve 未触发与确定性选择测试。,success
+2026-02-04T04:01:20.409Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 已明确 Proxy IP Fallback 仅适用于无 hint 分支，并补充 hint 分支缺失 tags.ip 的错误语义。,success
+2026-02-04T04:01:26.501Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T04:03:40.405Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addConstraint: 审查报告文件需人工写入，当前工具无直接写文件能力。,success
+2026-02-04T04:03:40.437Z,legion_update_tasks,,,Claude,addDiscoveredTask: 修正 RFC：明确 hint 分支禁止 fallback，并同步到 R4/Data Model/错误语义（缺失 tags.ip -> E_PROXY_IP_NOT_AVAILABLE）。,success
+2026-02-04T04:03:40.438Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 将本次对抗审查正文写入 `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-rfc.md`。,success
+2026-02-04T04:03:40.439Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修正 RFC：统一校验顺序与错误语义映射（格式/来源 -> E_PROXY_IP_INVALID，匹配失败 -> E_PROXY_IP_NOT_AVAILABLE，resolve 失败 -> E_PROXY_TARGET_NOT_FOUND），并规定失败时不得触发 resolve。,success
+2026-02-04T04:03:40.439Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修正 RFC Testability：labels.ip 术语改为 proxy_ip_hint，补齐 hint 分支缺失 tags.ip 与 resolve 未触发的断言。,success
+2026-02-04T04:04:48.464Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: RFC 已同步修正：R4 明确 fallback 仅无 hint 分支；确定性选择改为 terminal_id+service_id；修复 Testability/Review 响应中的 labels.ip 术语。,success
+2026-02-04T04:04:56.079Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T04:04:58.552Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T04:06:42.600Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDecision: 提示当前 RFC 在 hint 分支无 fallback 的描述与 Data Model/兼容策略存在冲突，需收敛为“hint 分支硬失败、不降级”。,success
+2026-02-04T04:06:46.357Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修订 RFC：收敛 hint 分支“禁止 fallback”与 Data Model/兼容策略/Plan 的表述，明确 hint 分支缺失 tags.ip 即硬失败。,success
+2026-02-04T04:06:49.283Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修订 RFC：补齐错误语义映射（分支+阶段 -> 错误码），并明确 format/source 失败不触发 resolve。,success
+2026-02-04T04:06:52.089Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修订 RFC Testability：确定性选择断言改为 terminal_id+service_id，并增加 hint 分支缺失 tags.ip 的失败断言（禁止 fallback）。,success
+2026-02-04T04:07:50.742Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: RFC 已补齐 hint 分支无 fallback 的数据模型/兼容策略，并修正 Testability（terminal_id+service_id、hint 分支禁用 fallback）。,success
+2026-02-04T04:07:58.652Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T04:08:02.236Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T04:10:00.449Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 完成对最新 RFC 的对抗审查，核对 hint 分支无 fallback 与错误映射闭环；发现 ProxyTargetBinding 约束与 Testability R4 断言不一致，仍需修订。,success
+2026-02-04T04:10:04.425Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修订 RFC：ProxyTargetBinding 的 proxy_ip 约束需明确 hint 分支禁止 fallback（仅允许 tags.ip）。,success
+2026-02-04T04:10:04.439Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修订 RFC Testability：R4 断言需体现 ip 缺失时先 fallback 到 public_ip，仅在双缺失时使用 proxy-unknown。,success
+2026-02-04T04:10:41.759Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: RFC 已修正 ProxyTargetBinding 分支约束，并补齐 Testability 的 R4 fallback 断言。,success
+2026-02-04T04:10:48.550Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T04:13:25.314Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: RFC 已补齐 hint 分支 binding 与 proxy_ip_hint 一致性要求，并在 Testability 增加对应断言。,success
+2026-02-04T04:13:33.276Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T04:13:35.253Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T04:16:28.896Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 完成最新 RFC 对抗审查（聚焦 hint 分支 binding 一致性闭环），审查报告正文已输出。,success
+2026-02-04T04:16:31.908Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修订 RFC：明确 hint 分支候选过滤步骤、binding 不一致错误语义与负例测试断言，形成一致性闭环。,success
+2026-02-04T04:17:16.778Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: RFC 已补齐 hint 分支候选过滤步骤与 binding mismatch 错误语义，并补充负例断言/观测项。,success
+2026-02-04T04:17:24.434Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T04:19:04.441Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addConstraint: 受当前工具权限限制，无法直接写入或编辑 `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-rfc.md`，本次仅输出审查正文并记录待写入事项。,success
+2026-02-04T04:19:07.337Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 将本次对最新 RFC 的对抗审查报告写入 `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-rfc.md`，并在 tasks.md 标记完成。,success
+2026-02-04T04:20:13.302Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: RFC 已补齐无服务/无匹配的错误语义区分，并将候选枚举与确定性选择收敛为 resolveHTTPProxyTarget 合约。,success
+2026-02-04T04:20:21.407Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T04:20:23.824Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T07:08:56.600Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addConstraint: 当前工具权限禁止修改/写入 docs 下已有文件（含 review-rfc.md）。,success
+2026-02-04T07:08:56.672Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修订 RFC：定义 resolveHTTPProxyTarget 错误返回类型/通道与分支映射（E_PROXY_TARGET_NOT_FOUND/E_PROXY_IP_NOT_AVAILABLE/E_PROXY_IP_INVALID），确保可验证。,success
+2026-02-04T07:08:56.680Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修订 RFC：明确 resolveHTTPProxyTarget 的候选枚举机制与确定性选择来源，避免与 resolveTargetServiceByMethodSync 冲突。,success
+2026-02-04T07:08:56.681Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修订 RFC：明确 binding mismatch 在 resolveHTTPProxyTarget 内部处理或标记为不可达。,success
+2026-02-04T07:08:56.682Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修订 RFC：将 proxy_ip_hint/source 校验职责收敛到 resolveHTTPProxyTarget，确保无效输入不触发 resolve。,success
+2026-02-04T07:10:07.356Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: RFC 已收敛 resolveHTTPProxyTarget 合约（返回 ok/error_code）并将校验/枚举/过滤职责内聚到该函数。,success
+2026-02-04T07:10:13.546Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T07:10:15.521Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T07:12:36.321Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修订 resolveHTTPProxyTarget：明确候选枚举来源，保证 no_service/no_match 区分与确定性选择可实现。,success
+2026-02-04T07:12:36.330Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 补齐 resolveHTTPProxyTarget error_code 联合类型与“无效输入短路不枚举”测试断言。,success
+2026-02-04T07:12:36.332Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDecision: 审查结论：resolveHTTPProxyTarget 合约依赖候选枚举与错误语义区分，但当前来源仅单 target，导致实现/验证不闭环。,success
+2026-02-04T07:13:26.063Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: RFC 已删除随机 resolve 引用，明确候选枚举使用 resolveTargetServicesSync，并收敛 resolveHTTPProxyTarget 的 error_code 联合类型。,success
+2026-02-04T07:13:34.967Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T07:15:26.157Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T07:15:28.648Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T07:19:17.093Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: RFC 已补充 resolveHTTPProxyTarget 的错误码归属表，封闭 error_code 边界与阶段归属。,success
+2026-02-04T07:19:23.915Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T07:19:26.030Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T07:22:54.095Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: RFC 已移除 E_PUBLIC_IP_MISSING 作为返回错误码，改为直连场景日志/指标处理。,success
+2026-02-04T07:23:02.233Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T07:25:05.582Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: RFC 对抗审查已完成并确认无阻塞，报告写入 `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-rfc.md`。,success
+2026-02-04T07:25:15.549Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: 设计 tokenBucket key 拼接规则与获取目标 proxy ip 标签的机制（含一致性与随机路由的处理）。,success
+2026-02-04T07:40:44.971Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 已按 review 调整 RFC：取消新增 fetchViaHTTPProxyTarget，改为扩展现有 fetch 支持 proxy_ip_hint，并由 fetch 内部固定 target；labels.ip 仅用于观测。,success
+2026-02-04T07:45:08.694Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 按新增 review 调整 RFC：同 IP 多 proxy 允许随机路由，移除确定性选择要求。,success
+2026-02-04T07:48:03.543Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 已在 RFC 中响应“proxy_ip_hint 为什么需要”的 review，并解释其作为 labels.ip 路由提示的角色。,success
+2026-02-04T07:56:19.894Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 已按最新 review 重写 RFC：删除 proxy_ip_hint/固定 target 逻辑，改为 http-services helper 枚举 http-proxy ip 池并 round robin 选择，fetch 仅用 labels.ip 路由。,success
+2026-02-04T07:59:44.329Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 已按你的确认更新 RFC：将 ip 标签计算移到 http-services（computeAndInjectProxyIp），并加入 ip 池缓存与在 http-proxy 终端变更时刷新策略。,success
+2026-02-04T08:01:15.895Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T08:01:31.985Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T08:01:33.860Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T08:08:48.901Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T08:08:49.609Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T08:08:51.100Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T08:08:51.210Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T08:08:57.387Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T08:09:00.548Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T08:10:13.313Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"progress.completed: 执行测试：`(cd libraries/http-services && npx heft test --clean)` 通过（Jest 3 suites, 0 failures）。",success
+2026-02-04T08:10:27.588Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addTask: 测试执行：http-services 通过；vendor-binance 无 targeted 测试可执行（已跳过）,success
+2026-02-04T08:10:32.616Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: 测试执行：http-services 通过；vendor-binance 无 targeted 测试可执行（已跳过）,success
+2026-02-04T08:11:02.852Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T08:11:05.029Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T08:20:45.568Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 已按新增 review 重写 RFC：使用 http-services helper 枚举 HTTPProxy ip 池并 round robin 选择，fetch 通过 labels.ip 路由；移除 proxy_ip_hint/固定 target 设计。,success
+2026-02-04T08:23:20.483Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T08:23:22.997Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T08:23:31.394Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,handoff: 请确认 RFC 已批准（设计门禁通过），我将按流程进入实现/验证/审查。,success
+2026-02-04T08:24:12.298Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDecision: 用户已批准 RFC，允许进入实现阶段。,success
+2026-02-04T08:24:14.960Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,setCurrentTask: 实现 vendor-binance + http-services 的 proxy ip key 注入逻辑,success
+2026-02-04T08:24:17.316Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addTask: 运行测试并修复失败,success
+2026-02-04T08:24:19.620Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addTask: 完成 code/security review 与报告输出,success
+2026-02-04T08:24:27.262Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T08:24:30.016Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T08:31:29.058Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: 记录与执行 vendor-binance 最小自测,success
+2026-02-04T08:31:29.059Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: vendor-binance tokenBucket key 增加 proxy ip 维度并通过 labels.ip 路由,success
+2026-02-04T08:31:29.061Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addFile: apps/vendor-binance/src/api/client.ts,success
+2026-02-04T08:31:29.060Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addTask: 记录与执行 vendor-binance 最小自测,success
+2026-02-04T08:31:29.063Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addTask: vendor-binance tokenBucket key 增加 proxy ip 维度并通过 labels.ip 路由,success
+2026-02-04T08:31:29.064Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addFile: apps/vendor-binance/src/api/private-api.ts,success
+2026-02-04T08:31:29.074Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addFile: apps/vendor-binance/src/api/public-api.ts,success
+2026-02-04T08:33:09.695Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addFile: libraries/http-services/src/proxy-ip.ts,success
+2026-02-04T08:33:13.691Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: 实现 vendor-binance + http-services 的 proxy ip key 注入逻辑,success
+2026-02-04T08:33:25.411Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T08:33:25.540Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T08:33:27.249Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T08:33:28.140Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T08:33:28.145Z,legion_list_reviews,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,status: open,success
+2026-02-04T08:33:30.726Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T08:33:58.735Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"progress.completed: 执行测试：`npx heft test --clean`（workdir `libraries/http-services`）通过；Jest 3 suites, 0 failures；含 API Extractor warning（缺少 release tag、API 变更提示）。",success
+2026-02-04T08:33:58.752Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 测试执行：http-services 的 `npx heft test --clean` 通过；vendor-binance 的 `npx tsc --noEmit --project apps/vendor-binance/tsconfig.json` 失败（环境缺少 TypeScript）。,success
+2026-02-04T08:38:15.609Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T08:38:29.899Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T08:38:31.426Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T08:38:48.974Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T08:39:01.130Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addConstraint: 测试环境未解析到 TypeScript：运行 `npx tsc --noEmit --project apps/vendor-binance/tsconfig.json` 时报“未安装 typescript”，需先安装依赖或使用仓库既有脚本。,success
+2026-02-04T08:39:03.893Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 测试执行：vendor-binance tsc + http-services heft,success
+2026-02-04T08:39:07.404Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: 测试执行：vendor-binance tsc + http-services heft,success
+2026-02-04T08:40:06.871Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T08:45:47.859Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T08:45:56.282Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T08:45:58.287Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T08:49:40.998Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T08:49:47.697Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T08:49:52.943Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T08:52:47.552Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 安全修复：默认 https 获取 proxy ip，限制 PROXY_IP_FETCH_URL 为 https，空 ip 不覆盖既有标签。,success
+2026-02-04T08:52:50.656Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: 运行测试并修复失败,success
+2026-02-04T08:52:58.610Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T08:53:02.328Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T08:54:57.587Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,handoff: 如需完成 vendor-binance 语义检查，先确保仓库可解析 TypeScript（安装依赖或使用 repo 既有脚本），再重跑 `npx tsc --noEmit --project apps/vendor-binance/tsconfig.json`。,success
+2026-02-04T08:55:00.935Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addTask: Walkthrough 报告生成完成,success
+2026-02-04T08:55:03.234Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: Walkthrough 报告生成完成,success
+2026-02-04T08:55:59.680Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addFile: .legion/tasks/vendor-tokenbucket-proxy-ip/docs/walkthrough.md,success
+2026-02-04T08:56:03.857Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addFile: .legion/tasks/vendor-tokenbucket-proxy-ip/docs/pr-body.md,success
+2026-02-04T08:56:06.989Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addFile: .legion/tasks/vendor-tokenbucket-proxy-ip/docs/report-walkthrough.md,success
+2026-02-04T08:56:10.507Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDecision: labels.ip 仅接受 ip_source=http-services 的可信标签。,success
+2026-02-04T08:56:13.641Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addFile: .legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-security.md,success
+2026-02-04T08:56:16.431Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: 完成 code/security review 与报告输出,success
+2026-02-04T09:35:19.703Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T09:35:22.223Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T09:35:38.678Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T09:37:43.585Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T09:37:46.107Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T09:38:47.018Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,setCurrentTask: 扩展 http-services benchmark 覆盖 selectHTTPProxyIpRoundRobin 微基准,success
+2026-02-04T09:38:57.083Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T09:38:59.241Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T09:42:28.999Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addFile: libraries/http-services/benchmarks/index.ts,success
+2026-02-04T09:42:31.727Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addFile: .legion/tasks/http-proxy-service/docs/spec-bench.md,success
+2026-02-04T09:42:34.550Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: impl-bench: selector 微基准（不同 proxy 池规模 + 阈值判定）,success
+2026-02-04T09:42:37.079Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: spec-bench: 补充 selector 微基准场景与验收标准,success
+2026-02-04T09:42:40.954Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: impl-bench: selector 微基准（不同 proxy 池规模 + 阈值判定）,success
+2026-02-04T09:42:43.576Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: spec-bench: 补充 selector 微基准场景与验收标准,success
+2026-02-04T09:43:18.234Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T09:43:19.777Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T09:43:20.037Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T09:43:21.415Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T09:43:22.474Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T09:43:23.424Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T09:44:57.807Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDecision: 安全审查报告未落盘到 docs/review-security.md,success
+2026-02-04T15:49:35.695Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addConstraint: bench 运行环境的 HTTPProxy allowedHosts 仅含 localhost，外部 vendor 域名请求被拒绝，导致 bench 无法完成并在 120s 超时。,success
+2026-02-04T15:49:38.460Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 测试执行：`npm run bench`（workdir `libraries/http-services`）目前失败，需允许 HTTPProxy 外部域名或使用 mock 后重跑。,success
+2026-02-04T15:56:37.340Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: 扩展 http-services benchmark 覆盖 selectHTTPProxyIpRoundRobin 微基准,success
+2026-02-04T15:56:47.223Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDecision: bench 默认仅允许本地 HOST_URL；远端需显式 ALLOW_REMOTE_HOST=true。,success
+2026-02-04T15:56:53.166Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addFile: .legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-security-bench.md,success
+2026-02-04T15:57:08.107Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T15:57:11.441Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T15:58:43.560Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 验证：`npm run bench`（workdir `libraries/http-services`）通过，selector 微基准 S1-S4 达标。,success
+2026-02-04T16:03:48.487Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T16:03:52.849Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T16:04:50.366Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,setCurrentTask: 优化 listHTTPProxyIps 缓存与 watch（listWatch/listWatchEvent），避免每次重建,success
+2026-02-04T16:05:00.197Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T16:05:02.264Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T16:08:06.963Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T16:08:07.234Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T16:08:11.542Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T16:08:15.044Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T16:10:40.545Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"addDecision: Bench failure classified as impl-dev (proxy-ip watch undefined), not impl-test.",success
+2026-02-04T16:10:47.277Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 测试执行：`libraries/http-services` 运行 `npm run bench`（selector 微基准阈值复核）,success
+2026-02-04T16:12:42.128Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T16:12:45.248Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T16:12:45.981Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T16:12:48.139Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T16:14:23.135Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addFile: docs/review-security.md,success
+2026-02-04T16:16:36.138Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T16:16:37.877Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T16:16:40.068Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T16:16:43.475Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T16:19:58.150Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T16:19:59.557Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T16:20:00.469Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T16:20:01.839Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T16:23:18.601Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T16:23:22.002Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T16:25:13.309Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 完成安全复审：重点检查 ip_source 信任边界与订阅清理风险，形成报告正文（未能落盘 docs/review-security.md，工具权限限制）。,success
+2026-02-04T16:26:09.224Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: 优化 listHTTPProxyIps 缓存与 watch（listWatch/listWatchEvent），避免每次重建,success
+2026-02-04T16:26:18.130Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addFile: .legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-code-cache.md,success
+2026-02-04T16:32:35.273Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDecision: 安全问题暂不处理：集群处于可信环境，ip_source 信任边界不再阻塞当前工作。,success
+2026-02-04T16:32:38.761Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: 确认 ip_source 信任边界与 Host 侧鉴权机制,success
+2026-02-04T16:33:51.473Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T16:33:54.203Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T16:34:01.031Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,setCurrentTask: 推广到其他 vendor（aster/bitget/gate/huobi/hyperliquid/okx）按 RFC 更新 tokenBucket key 与 proxy ip 路由,success
+2026-02-04T16:34:13.105Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T16:34:16.833Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T16:40:30.938Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T16:40:35.570Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T16:40:47.500Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,setCurrentTask: 推广 Aster：public/private API 加入 proxy ip 维度的 tokenBucket key 与 labels.ip 路由,success
+2026-02-04T16:40:57.924Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T16:41:01.776Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T16:46:08.062Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 完成 Aster public/private API 推广：tokenBucket key 增加 ip 维度，USE_HTTP_PROXY 时通过 labels.ip 路由，直连使用 public_ip fallback。,success
+2026-02-04T16:46:13.600Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: 推广 Aster：public/private API 加入 proxy ip 维度的 tokenBucket key 与 labels.ip 路由,success
+2026-02-04T16:47:55.882Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 运行 `rush build` 通过（含 vendor-aster）。,success

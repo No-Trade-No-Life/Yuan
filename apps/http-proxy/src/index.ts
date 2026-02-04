@@ -1,18 +1,9 @@
-import { provideHTTPProxyService } from '@yuants/http-services';
+import { computeAndInjectProxyIp, provideHTTPProxyService } from '@yuants/http-services';
 import { Terminal } from '@yuants/protocol';
 import { formatTime } from '@yuants/utils';
 import { fromEvent, merge, take, tap } from 'rxjs';
 
 (async () => {
-  const PROXY_IP =
-    process.env.PROXY_IP ||
-    (await fetch('http://ifconfig.me/ip')
-      .then((res) => res.text())
-      .catch((e) => {
-        console.info(formatTime(Date.now()), '[http-proxy] failed to fetch public IP address:', e);
-        return '';
-      }));
-
   const HOSTNAME = process.env.HOSTNAME || (await import('os')).hostname();
 
   const CONCURRENT = process.env.CONCURRENT ? Number(process.env.CONCURRENT) : 10;
@@ -20,12 +11,19 @@ import { fromEvent, merge, take, tap } from 'rxjs';
     ? Number(process.env.INGRESS_TOKEN_CAPACITY)
     : 100;
 
+  const terminal = Terminal.fromNodeEnv();
+  await computeAndInjectProxyIp(terminal, { proxyIp: process.env.PROXY_IP });
+
   const labels: Record<string, string> = {};
-  labels.ip = PROXY_IP;
+  const ip = terminal.terminalInfo.tags?.ip;
+  const ipSource = terminal.terminalInfo.tags?.ip_source;
+  if (ip && ipSource === 'http-services') {
+    labels.ip = ip;
+  } else if (ip) {
+    console.info(formatTime(Date.now()), '[http-proxy] ip tag source not trusted, skip labels.ip');
+  }
   labels.hostname = HOSTNAME;
   console.info(formatTime(Date.now()), '[http-proxy] labels:', labels);
-
-  const terminal = Terminal.fromNodeEnv();
   const options = {
     concurrent: CONCURRENT,
     ingress_token_capacity: INGRESS_TOKEN_CAPACITY,

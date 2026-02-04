@@ -1,5 +1,13 @@
-import { fetch } from '@yuants/http-services';
-import { encodeHex, HmacSHA256, newError, scopeError, tokenBucket } from '@yuants/utils';
+import { fetch, selectHTTPProxyIpRoundRobin } from '@yuants/http-services';
+import {
+  encodeHex,
+  encodePath,
+  formatTime,
+  HmacSHA256,
+  newError,
+  scopeError,
+  tokenBucket,
+} from '@yuants/utils';
 
 import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 
@@ -12,6 +20,8 @@ const MetricsAsterApiCallCounter = GlobalPrometheusRegistry.counter(
 const terminal = Terminal.fromNodeEnv();
 const shouldUseHttpProxy = process.env.USE_HTTP_PROXY === 'true';
 const fetchImpl = shouldUseHttpProxy ? fetch : globalThis.fetch ?? fetch;
+const MISSING_PUBLIC_IP_LOG_INTERVAL = 3_600_000;
+const missingPublicIpLogAtByTerminalId = new Map<string, number>();
 
 if (shouldUseHttpProxy) {
   globalThis.fetch = fetch;
@@ -22,6 +32,45 @@ export interface ICredential {
   api_key: string;
   secret_key: string;
 }
+
+type RequestContext = { ip: string };
+
+const buildTokenBucketKey = (baseKey: string, ip: string): string => encodePath([baseKey, ip]);
+
+const resolveLocalPublicIp = (): string => {
+  const ip = terminal.terminalInfo.tags?.public_ip?.trim();
+  if (ip) return ip;
+  const now = Date.now();
+  const lastLoggedAt = missingPublicIpLogAtByTerminalId.get(terminal.terminal_id) ?? 0;
+  if (now - lastLoggedAt > MISSING_PUBLIC_IP_LOG_INTERVAL) {
+    missingPublicIpLogAtByTerminalId.set(terminal.terminal_id, now);
+    console.info(formatTime(Date.now()), 'missing terminal public_ip tag, fallback to public-ip-unknown');
+  }
+  return 'public-ip-unknown';
+};
+
+const createRequestContext = (): RequestContext => {
+  if (shouldUseHttpProxy) {
+    const ip = selectHTTPProxyIpRoundRobin(terminal);
+    return { ip };
+  }
+  return { ip: resolveLocalPublicIp() };
+};
+
+const acquireRateLimit = (
+  method: string,
+  url: URL,
+  endpoint: string,
+  weight: number,
+  requestContext: RequestContext,
+) => {
+  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  scopeError(
+    'ASTER_API_RATE_LIMIT',
+    { method, endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
+    () => tokenBucket(bucketKey).acquireSync(weight),
+  );
+};
 
 export interface IAsterFutureOpenOrder {
   orderId: number;
@@ -71,6 +120,7 @@ const request = async <T>(
   baseURL: string,
   endpoint: string,
   params: Record<string, unknown> = {},
+  requestContext: RequestContext,
 ): Promise<T> => {
   const url = new URL(baseURL);
   url.pathname = endpoint;
@@ -88,12 +138,24 @@ const request = async <T>(
 
   console.info('request', method, url.host, url.pathname);
   MetricsAsterApiCallCounter.labels({ path: url.pathname, terminal_id: terminal.terminal_id }).inc();
-  const response = await fetchImpl(url.toString(), {
-    method,
-    headers: {
-      'X-MBX-APIKEY': credential.api_key,
-    },
-  });
+  const response = await fetchImpl(
+    url.toString(),
+    shouldUseHttpProxy
+      ? {
+          method,
+          headers: {
+            'X-MBX-APIKEY': credential.api_key,
+          },
+          labels: requestContext.ip ? { ip: requestContext.ip } : undefined,
+          terminal,
+        }
+      : {
+          method,
+          headers: {
+            'X-MBX-APIKEY': credential.api_key,
+          },
+        },
+  );
 
   const resText = await response.text();
 
@@ -186,12 +248,9 @@ export const getFApiV4Account = (
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = 5;
-  scopeError(
-    'ASTER_API_RATE_LIMIT',
-    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket(url.host).acquireSync(weight),
-  );
-  return request(credential, 'GET', FutureBaseURL, endpoint, params);
+  const requestContext = createRequestContext();
+  acquireRateLimit('GET', url, endpoint, weight, requestContext);
+  return request(credential, 'GET', FutureBaseURL, endpoint, params, requestContext);
 };
 
 /**
@@ -227,12 +286,9 @@ export const getFApiV2PositionRisk = (
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = 5;
-  scopeError(
-    'ASTER_API_RATE_LIMIT',
-    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket(url.host).acquireSync(weight),
-  );
-  return request(credential, 'GET', FutureBaseURL, endpoint, params);
+  const requestContext = createRequestContext();
+  acquireRateLimit('GET', url, endpoint, weight, requestContext);
+  return request(credential, 'GET', FutureBaseURL, endpoint, params, requestContext);
 };
 
 /**
@@ -260,12 +316,9 @@ export const getFApiV2Balance = (
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = 5;
-  scopeError(
-    'ASTER_API_RATE_LIMIT',
-    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket(url.host).acquireSync(weight),
-  );
-  return request(credential, 'GET', FutureBaseURL, endpoint, params);
+  const requestContext = createRequestContext();
+  acquireRateLimit('GET', url, endpoint, weight, requestContext);
+  return request(credential, 'GET', FutureBaseURL, endpoint, params, requestContext);
 };
 
 /**
@@ -297,17 +350,20 @@ export const postFApiV1Order = (
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = 1;
+  const requestContext = createRequestContext();
+  const secondBucketKey = buildTokenBucketKey('order/future/second', requestContext.ip);
+  const minuteBucketKey = buildTokenBucketKey('order/future/minute', requestContext.ip);
   scopeError(
     'ASTER_FUTURE_ORDER_API_SECOND_RATE_LIMIT',
-    { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket('order/future/second').acquireSync(weight),
+    { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: secondBucketKey, weight },
+    () => tokenBucket(secondBucketKey).acquireSync(weight),
   );
   scopeError(
     'ASTER_FUTURE_ORDER_API_MINUTE_RATE_LIMIT',
-    { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket('order/future/minute').acquireSync(weight),
+    { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: minuteBucketKey, weight },
+    () => tokenBucket(minuteBucketKey).acquireSync(weight),
   );
-  return request(credential, 'POST', FutureBaseURL, endpoint, params);
+  return request(credential, 'POST', FutureBaseURL, endpoint, params, requestContext);
 };
 
 /**
@@ -327,6 +383,7 @@ export const getFApiV1OpenOrders = (
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = params?.symbol ? 1 : 40;
+  const requestContext = createRequestContext();
   scopeError(
     'ASTER_API_RATE_LIMIT',
     {
@@ -334,13 +391,13 @@ export const getFApiV1OpenOrders = (
       endpoint,
       host: url.host,
       path: url.pathname,
-      bucketId: url.host,
+      bucketId: buildTokenBucketKey(url.host, requestContext.ip),
       weight,
       hasSymbol: !!params?.symbol,
     },
-    () => tokenBucket(url.host).acquireSync(weight),
+    () => tokenBucket(buildTokenBucketKey(url.host, requestContext.ip)).acquireSync(weight),
   );
-  return request(credential, 'GET', FutureBaseURL, endpoint, params);
+  return request(credential, 'GET', FutureBaseURL, endpoint, params, requestContext);
 };
 
 /**
@@ -360,6 +417,7 @@ export const getApiV1OpenOrders = (
   const url = new URL(SpotBaseURL);
   url.pathname = endpoint;
   const weight = params?.symbol ? 1 : 40;
+  const requestContext = createRequestContext();
   scopeError(
     'ASTER_API_RATE_LIMIT',
     {
@@ -367,13 +425,13 @@ export const getApiV1OpenOrders = (
       endpoint,
       host: url.host,
       path: url.pathname,
-      bucketId: url.host,
+      bucketId: buildTokenBucketKey(url.host, requestContext.ip),
       weight,
       hasSymbol: !!params?.symbol,
     },
-    () => tokenBucket(url.host).acquireSync(weight),
+    () => tokenBucket(buildTokenBucketKey(url.host, requestContext.ip)).acquireSync(weight),
   );
-  return request(credential, 'GET', SpotBaseURL, endpoint, params);
+  return request(credential, 'GET', SpotBaseURL, endpoint, params, requestContext);
 };
 
 /**
@@ -393,17 +451,20 @@ export const deleteFApiV1Order = (
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = 1;
+  const requestContext = createRequestContext();
+  const secondBucketKey = buildTokenBucketKey('order/future/second', requestContext.ip);
+  const minuteBucketKey = buildTokenBucketKey('order/future/minute', requestContext.ip);
   scopeError(
     'ASTER_FUTURE_ORDER_API_SECOND_RATE_LIMIT',
-    { method: 'DELETE', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket('order/future/second').acquireSync(weight),
+    { method: 'DELETE', endpoint, host: url.host, path: url.pathname, bucketId: secondBucketKey, weight },
+    () => tokenBucket(secondBucketKey).acquireSync(weight),
   );
   scopeError(
     'ASTER_FUTURE_ORDER_API_MINUTE_RATE_LIMIT',
-    { method: 'DELETE', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket('order/future/minute').acquireSync(weight),
+    { method: 'DELETE', endpoint, host: url.host, path: url.pathname, bucketId: minuteBucketKey, weight },
+    () => tokenBucket(minuteBucketKey).acquireSync(weight),
   );
-  return request(credential, 'DELETE', FutureBaseURL, endpoint, params);
+  return request(credential, 'DELETE', FutureBaseURL, endpoint, params, requestContext);
 };
 
 /**
@@ -433,12 +494,9 @@ export const getApiV1Account = (
   const url = new URL(SpotBaseURL);
   url.pathname = endpoint;
   const weight = 5;
-  scopeError(
-    'ASTER_API_RATE_LIMIT',
-    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket(url.host).acquireSync(weight),
-  );
-  return request(credential, 'GET', SpotBaseURL, endpoint, params);
+  const requestContext = createRequestContext();
+  acquireRateLimit('GET', url, endpoint, weight, requestContext);
+  return request(credential, 'GET', SpotBaseURL, endpoint, params, requestContext);
 };
 
 /**
@@ -462,12 +520,9 @@ export const getApiV1TickerPrice = (
   const url = new URL(SpotBaseURL);
   url.pathname = endpoint;
   const weight = 2;
-  scopeError(
-    'ASTER_API_RATE_LIMIT',
-    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket(url.host).acquireSync(weight),
-  );
-  return request(credential, 'GET', SpotBaseURL, endpoint, params);
+  const requestContext = createRequestContext();
+  acquireRateLimit('GET', url, endpoint, weight, requestContext);
+  return request(credential, 'GET', SpotBaseURL, endpoint, params, requestContext);
 };
 
 /**
@@ -493,17 +548,20 @@ export const postApiV1Order = (
   const url = new URL(SpotBaseURL);
   url.pathname = endpoint;
   const weight = 1;
+  const requestContext = createRequestContext();
+  const secondBucketKey = buildTokenBucketKey('order/spot/second', requestContext.ip);
+  const minuteBucketKey = buildTokenBucketKey('order/spot/minute', requestContext.ip);
   scopeError(
     'ASTER_SPOT_ORDER_API_SECOND_RATE_LIMIT',
-    { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket('order/spot/second').acquireSync(weight),
+    { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: secondBucketKey, weight },
+    () => tokenBucket(secondBucketKey).acquireSync(weight),
   );
   scopeError(
     'ASTER_SPOT_ORDER_API_MINUTE_RATE_LIMIT',
-    { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket('order/spot/minute').acquireSync(weight),
+    { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: minuteBucketKey, weight },
+    () => tokenBucket(minuteBucketKey).acquireSync(weight),
   );
-  return request(credential, 'POST', SpotBaseURL, endpoint, params);
+  return request(credential, 'POST', SpotBaseURL, endpoint, params, requestContext);
 };
 
 /**
@@ -525,17 +583,20 @@ export const deleteApiV1Order = (
   const url = new URL(SpotBaseURL);
   url.pathname = endpoint;
   const weight = 1;
+  const requestContext = createRequestContext();
+  const secondBucketKey = buildTokenBucketKey('order/spot/second', requestContext.ip);
+  const minuteBucketKey = buildTokenBucketKey('order/spot/minute', requestContext.ip);
   scopeError(
     'ASTER_SPOT_ORDER_API_SECOND_RATE_LIMIT',
-    { method: 'DELETE', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket('order/spot/second').acquireSync(weight),
+    { method: 'DELETE', endpoint, host: url.host, path: url.pathname, bucketId: secondBucketKey, weight },
+    () => tokenBucket(secondBucketKey).acquireSync(weight),
   );
   scopeError(
     'ASTER_SPOT_ORDER_API_MINUTE_RATE_LIMIT',
-    { method: 'DELETE', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket('order/spot/minute').acquireSync(weight),
+    { method: 'DELETE', endpoint, host: url.host, path: url.pathname, bucketId: minuteBucketKey, weight },
+    () => tokenBucket(minuteBucketKey).acquireSync(weight),
   );
-  return request(credential, 'DELETE', SpotBaseURL, endpoint, params);
+  return request(credential, 'DELETE', SpotBaseURL, endpoint, params, requestContext);
 };
 
 /**
@@ -572,12 +633,9 @@ export const getAccountIncome = (
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = 30;
-  scopeError(
-    'ASTER_API_RATE_LIMIT',
-    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket(url.host).acquireSync(weight),
-  );
-  return request(credential, 'GET', FutureBaseURL, endpoint, params);
+  const requestContext = createRequestContext();
+  acquireRateLimit('GET', url, endpoint, weight, requestContext);
+  return request(credential, 'GET', FutureBaseURL, endpoint, params, requestContext);
 };
 
 /**
@@ -620,10 +678,7 @@ export const getAccountTradeList = (
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = 5;
-  scopeError(
-    'ASTER_API_RATE_LIMIT',
-    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket(url.host).acquireSync(weight),
-  );
-  return request(credential, 'GET', FutureBaseURL, endpoint, params);
+  const requestContext = createRequestContext();
+  acquireRateLimit('GET', url, endpoint, weight, requestContext);
+  return request(credential, 'GET', FutureBaseURL, endpoint, params, requestContext);
 };

@@ -101,6 +101,22 @@
 
 > 仅记录已结束的会话;进行中的内容放在第 11 节,收尾后再搬运;最新记录置顶。
 
+### 2026-02-04 — OpenCode
+
+- **本轮摘要**：
+  - Binance API 请求上下文引入 proxy ip 维度，tokenBucket key 改为 `encodePath([BaseKey, ip])`；代理场景通过 `labels.ip` 路由，直连场景使用 `public_ip`。
+  - http-services 新增 proxy ip 计算/选择与可信来源标记，http-proxy 仅在来源可信时注入 `labels.ip`。
+  - 未更新 `docs/zh-Hans/vendor-supporting.md`（无新增支持项）。
+- **修改的文件**：
+  - `apps/vendor-binance/src/api/client.ts`
+  - `apps/vendor-binance/src/api/public-api.ts`
+  - `apps/vendor-binance/src/api/private-api.ts`
+  - `libraries/http-services/src/proxy-ip.ts`
+  - `apps/http-proxy/src/index.ts`
+- **运行的测试 / 检查**：
+  - `npx tsc --noEmit --project apps/vendor-binance/tsconfig.json`（失败：本地未安装/未解析到 TypeScript）
+  - `npx heft test --clean`（workdir: libraries/http-services，Passed）
+
 ### 2026-01-30 — OpenCode
 
 - **本轮摘要**：
