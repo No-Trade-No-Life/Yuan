@@ -2,6 +2,28 @@
   "name": "@yuants/app-http-proxy",
   "entries": [
     {
+      "version": "0.2.0",
+      "tag": "@yuants/app-http-proxy_v0.2.0",
+      "date": "Wed, 04 Feb 2026 16:57:52 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add proxy IP dimension to tokenBucket"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/http-services\" to `0.4.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.5",
       "tag": "@yuants/app-http-proxy_v0.1.5",
       "date": "Tue, 03 Feb 2026 07:54:43 GMT",
