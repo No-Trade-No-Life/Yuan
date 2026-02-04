@@ -19,6 +19,14 @@ const createMockMetric = () => {
   return metric;
 };
 
+const getCounterMetric = (mockMetrics: { counter: jest.SpyInstance }, name: string) => {
+  const index = mockMetrics.counter.mock.calls.findIndex((call) => call[0] === name);
+  if (index < 0) {
+    throw new Error(`Counter ${name} was not registered`);
+  }
+  return mockMetrics.counter.mock.results[index].value;
+};
+
 describe('provideHTTPProxyService', () => {
   let terminal: Terminal;
   let mockMetrics: {
@@ -205,6 +213,100 @@ describe('provideHTTPProxyService', () => {
     expect(durationHistogram.labels).toHaveBeenCalledWith({ method: 'GET' });
     expect(durationHistogram.observe).toHaveBeenCalled();
     expect(durationHistogram.observe).toHaveBeenCalledWith(expect.any(Number));
+
+    dispose();
+  });
+
+  it('should include service labels in metrics', async () => {
+    const mockResponse = {
+      status: 200,
+      statusText: 'OK',
+      ok: true,
+      url: 'https://api.example.com/data',
+      headers: new Headers({ 'content-type': 'application/json' }),
+      body: {
+        getReader: () => ({
+          read: async () => ({ done: true, value: undefined }),
+          releaseLock: () => {},
+        }),
+      },
+    };
+
+    (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
+
+    let capturedHandler: any;
+    jest.spyOn(terminal.server, 'provideService').mockImplementation((method, schema, handler) => {
+      capturedHandler = handler;
+      return { dispose: jest.fn() };
+    });
+
+    const { dispose } = provideHTTPProxyService(terminal, { region: 'us-west' });
+
+    await capturedHandler(
+      {
+        req: { url: 'https://api.example.com/data', method: 'GET' },
+        source_terminal_id: 'client',
+        target_terminal_id: 'test-server',
+        trace_id: 'trace-labels',
+        seq_id: 0,
+      },
+      { isAborted$: undefined },
+    );
+
+    const requestsTotalCounter = mockMetrics.counter.mock.results[0].value;
+    expect(requestsTotalCounter.labels).toHaveBeenCalledWith({
+      region: 'us-west',
+      method: 'GET',
+      status_code: '200',
+      error_code: 'none',
+    });
+
+    dispose();
+  });
+
+  it('should normalize target_host and default target_path to /', async () => {
+    const mockResponse = {
+      status: 200,
+      statusText: 'OK',
+      ok: true,
+      url: 'https://api.example.com',
+      headers: new Headers({ 'content-type': 'application/json' }),
+      body: {
+        getReader: () => ({
+          read: async () => ({ done: true, value: undefined }),
+          releaseLock: () => {},
+        }),
+      },
+    };
+
+    (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
+
+    let capturedHandler: any;
+    jest.spyOn(terminal.server, 'provideService').mockImplementation((method, schema, handler) => {
+      capturedHandler = handler;
+      return { dispose: jest.fn() };
+    });
+
+    const { dispose } = provideHTTPProxyService(terminal, {});
+
+    await capturedHandler(
+      {
+        req: { url: 'https://Api.Example.Com.', method: 'GET' },
+        source_terminal_id: 'client',
+        target_terminal_id: 'test-server',
+        trace_id: 'trace-target-path',
+        seq_id: 0,
+      },
+      { isAborted$: undefined },
+    );
+
+    const targetHostCounter = getCounterMetric(mockMetrics, 'http_proxy_target_host_requests_total');
+    expect(targetHostCounter.labels).toHaveBeenCalledWith({
+      target_host: 'api.example.com',
+      target_path: '/',
+      result: 'ok',
+    });
+    expect(targetHostCounter.inc).toHaveBeenCalled();
 
     dispose();
   });
@@ -449,6 +551,183 @@ describe('provideHTTPProxyService', () => {
     // R9: errorsTotal.inc() should be called with error_type 'validation'
     const errorsTotalCounter = mockMetrics.counter.mock.results[1].value;
     expect(errorsTotalCounter.labels).toHaveBeenCalledWith({ error_type: 'validation' });
+
+    dispose();
+  });
+
+  it('should record target_host invalid_url when URL parsing fails', async () => {
+    let capturedHandler: any;
+    jest.spyOn(terminal.server, 'provideService').mockImplementation((method, schema, handler) => {
+      capturedHandler = handler;
+      return { dispose: jest.fn() };
+    });
+
+    const { dispose } = provideHTTPProxyService(terminal, {}, { allowedHosts: ['api.example.com'] });
+
+    const request: IHTTPProxyRequest = {
+      url: 'not-a-valid-url',
+    };
+
+    await expect(
+      capturedHandler(
+        {
+          req: request,
+          source_terminal_id: 'client',
+          target_terminal_id: 'test-server',
+          trace_id: 'trace-target-invalid-url',
+          seq_id: 0,
+        },
+        { isAborted$: undefined },
+      ),
+    ).rejects.toThrow('INVALID_URL');
+
+    const targetHostCounter = getCounterMetric(mockMetrics, 'http_proxy_target_host_requests_total');
+    expect(targetHostCounter.labels).toHaveBeenCalledWith({
+      target_host: 'invalid',
+      target_path: 'invalid',
+      result: 'invalid_url',
+    });
+    expect(targetHostCounter.inc).toHaveBeenCalled();
+
+    dispose();
+  });
+
+  it('should record target_host invalid_url when hostname is empty', async () => {
+    const mockResponse = {
+      status: 200,
+      statusText: 'OK',
+      ok: true,
+      url: 'file:///etc/hosts',
+      headers: new Headers({ 'content-type': 'text/plain' }),
+      body: {
+        getReader: () => ({
+          read: async () => ({ done: true, value: undefined }),
+          releaseLock: () => {},
+        }),
+      },
+    };
+
+    (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
+
+    let capturedHandler: any;
+    jest.spyOn(terminal.server, 'provideService').mockImplementation((method, schema, handler) => {
+      capturedHandler = handler;
+      return { dispose: jest.fn() };
+    });
+
+    const { dispose } = provideHTTPProxyService(terminal, {}, { allowedHosts: [''] });
+
+    const request: IHTTPProxyRequest = {
+      url: 'file:///etc/hosts',
+      method: 'GET',
+    };
+
+    await capturedHandler(
+      {
+        req: request,
+        source_terminal_id: 'client',
+        target_terminal_id: 'test-server',
+        trace_id: 'trace-empty-hostname',
+        seq_id: 0,
+      },
+      { isAborted$: undefined },
+    );
+
+    const targetHostCounter = getCounterMetric(mockMetrics, 'http_proxy_target_host_requests_total');
+    expect(targetHostCounter.labels).toHaveBeenCalledWith({
+      target_host: 'invalid',
+      target_path: 'invalid',
+      result: 'invalid_url',
+    });
+    expect(targetHostCounter.inc).toHaveBeenCalled();
+
+    dispose();
+  });
+
+  it('should record target_host blocked for IP literal when forbidden', async () => {
+    let capturedHandler: any;
+    jest.spyOn(terminal.server, 'provideService').mockImplementation((method, schema, handler) => {
+      capturedHandler = handler;
+      return { dispose: jest.fn() };
+    });
+
+    const { dispose } = provideHTTPProxyService(terminal, {}, { allowedHosts: ['api.example.com'] });
+
+    const request: IHTTPProxyRequest = {
+      url: 'http://127.0.0.1/',
+    };
+
+    await expect(
+      capturedHandler(
+        {
+          req: request,
+          source_terminal_id: 'client',
+          target_terminal_id: 'test-server',
+          trace_id: 'trace-ip-blocked',
+          seq_id: 0,
+        },
+        { isAborted$: undefined },
+      ),
+    ).rejects.toThrow('FORBIDDEN');
+
+    const targetHostCounter = getCounterMetric(mockMetrics, 'http_proxy_target_host_requests_total');
+    expect(targetHostCounter.labels).toHaveBeenCalledWith({
+      target_host: 'ip',
+      target_path: '/',
+      result: 'blocked',
+    });
+    expect(targetHostCounter.inc).toHaveBeenCalled();
+
+    dispose();
+  });
+
+  it('should record target_host ok for allowed IP literal', async () => {
+    const mockResponse = {
+      status: 200,
+      statusText: 'OK',
+      ok: true,
+      url: 'http://127.0.0.1/',
+      headers: new Headers({ 'content-type': 'application/json' }),
+      body: {
+        getReader: () => ({
+          read: async () => ({ done: true, value: undefined }),
+          releaseLock: () => {},
+        }),
+      },
+    };
+
+    (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
+
+    let capturedHandler: any;
+    jest.spyOn(terminal.server, 'provideService').mockImplementation((method, schema, handler) => {
+      capturedHandler = handler;
+      return { dispose: jest.fn() };
+    });
+
+    const { dispose } = provideHTTPProxyService(terminal, {}, { allowedHosts: ['127.0.0.1'] });
+
+    const request: IHTTPProxyRequest = {
+      url: 'http://127.0.0.1/',
+    };
+
+    await capturedHandler(
+      {
+        req: request,
+        source_terminal_id: 'client',
+        target_terminal_id: 'test-server',
+        trace_id: 'trace-ip-ok',
+        seq_id: 0,
+      },
+      { isAborted$: undefined },
+    );
+
+    const targetHostCounter = getCounterMetric(mockMetrics, 'http_proxy_target_host_requests_total');
+    expect(targetHostCounter.labels).toHaveBeenCalledWith({
+      target_host: 'ip',
+      target_path: '/',
+      result: 'ok',
+    });
+    expect(targetHostCounter.inc).toHaveBeenCalled();
 
     dispose();
   });

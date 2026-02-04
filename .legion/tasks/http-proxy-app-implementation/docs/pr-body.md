@@ -1,27 +1,27 @@
 ## What
 
-- Add `@yuants/app-http-proxy` application that starts a Terminal and registers HTTP Proxy service
+- Add target host/path metrics for HTTP proxy requests in `@yuants/http-services`
 
 ## Why
 
-- Provide a ready-to-run HTTP proxy app instead of requiring manual integration of `http-services`
+- Provide visibility into downstream target distribution and error patterns per host/path
 
 ## How
 
-- Implement single entry `src/index.ts` with env-driven config, service registration, and graceful shutdown
-- Add package config and build setup under `apps/http-proxy`
+- Register `http_proxy_target_host_requests_total` with `target_host`, `target_path`, `result` labels
+- Map results from existing handler error codes; derive host/path from `new URL(req.url)` parse result
+- Extend tests to cover target_path defaulting, labels propagation, and invalid_url cases
 
 ## Testing
 
-- `cd apps/http-proxy && rushx build`
+- `cd libraries/http-services && rushx build`
 
 ## Risk / Rollback
 
-- Risk: external `PROXY_IP` lookup depends on network availability; high concurrency/token values can increase resource usage
-- Rollback: revert `apps/http-proxy` changes or stop the service deployment
+- Risk: `target_path` may increase metric cardinality; monitor and apply normalization/filters if needed
+- Rollback: remove the `http_proxy_target_host_requests_total` registration and sampling logic
 
 ## Links
 
-- RFC: `.legion/tasks/http-proxy-app-implementation/docs/rfc.md`
-- Specs: `.legion/tasks/http-proxy-app-implementation/docs/spec-dev.md`, `.legion/tasks/http-proxy-app-implementation/docs/spec-test.md`, `.legion/tasks/http-proxy-app-implementation/docs/spec-bench.md`, `.legion/tasks/http-proxy-app-implementation/docs/spec-obs.md`
-- Walkthrough: `.legion/tasks/http-proxy-app-implementation/docs/report-walkthrough.md`
+- RFC: `.legion/tasks/http-proxy-app-implementation/docs/rfc-metrics.md`
+- Walkthrough: `.legion/tasks/http-proxy-app-implementation/docs/report-walkthrough-metrics.md`
