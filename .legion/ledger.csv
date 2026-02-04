@@ -1507,3 +1507,236 @@
 2026-02-03T07:26:10.309Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addFile: /Users/c1/Work/Yuan/.legion/tasks/vendor-http-services-rollout/docs/report-walkthrough-fix.md,success
 2026-02-03T07:26:20.609Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addFile: /Users/c1/Work/Yuan/.legion/tasks/vendor-http-services-rollout/docs/pr-body-fix.md,success
 2026-02-03T07:35:26.081Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-02-03T08:17:19.770Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-02-03T08:17:26.198Z,legion_read_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,"section: all, includeReviews: true",success
+2026-02-03T08:17:37.679Z,legion_list_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-02-03T08:17:43.908Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T08:18:20.756Z,legion_propose_task,vendor-http-services-rollout,vendor-http-services-rollout,Claude,name: http-proxy-metrics,success
+2026-02-03T08:20:00.485Z,legion_switch_task,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,taskId: http-proxy-app-implementation,success
+2026-02-03T08:20:00.486Z,legion_update_tasks,vendor-http-services-rollout,vendor-http-services-rollout,Claude,addDiscoveredTask: http-proxy-metrics 设计与 RFC 输出,success
+2026-02-03T08:20:00.487Z,legion_update_context,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-02-03T08:20:06.888Z,legion_update_plan,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-02-03T08:20:18.300Z,legion_get_status,vendor-http-services-rollout,vendor-http-services-rollout,Claude,,success
+2026-02-03T08:20:23.294Z,legion_switch_task,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,taskId: http-proxy-app-implementation,success
+2026-02-03T08:22:20.150Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T08:22:23.818Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T08:23:47.497Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addFile: .legion/tasks/http-proxy-app-implementation/docs/review-rfc-metrics.md,success
+2026-02-03T08:23:50.958Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：明确 URL 解析来源优先级与失败边界（绝对 URL vs Host 头拼接）,success
+2026-02-03T08:23:58.002Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：定义 allowedHosts 匹配语义（精确/通配/大小写/尾点/IDN）,success
+2026-02-03T08:23:58.022Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：细化回滚策略（指标定义是否保留）,success
+2026-02-03T08:23:58.023Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：为 allowedHosts 规模设置上限或溢出归并策略以控制基数,success
+2026-02-03T08:23:58.023Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：明确 allowedHosts 为空时的策略（必须配置或显式启用替代方案）,success
+2026-02-03T08:23:58.023Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：补齐 result 映射闭合规则与典型错误示例,success
+2026-02-03T08:24:38.663Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: 目标域名指标默认仅在配置 allowedHosts 且显式启用时生效，避免破坏既有调用方与高基数风险。,success
+2026-02-03T08:24:47.062Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T08:24:51.154Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T08:26:59.698Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T08:27:01.923Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T08:52:29.000Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addConstraint: RFC 需修正 IP 字面量与 allowedHosts 命中规则冲突，明确绝对 URL 与 Host 头冲突处理。,success
+2026-02-03T08:52:29.015Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：消除 IP 字面量与 allowedHosts 命中规则冲突,success
+2026-02-03T08:52:29.036Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：明确绝对 URL 与 Host 头冲突处理规则,success
+2026-02-03T08:52:38.506Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T08:52:41.736Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T08:55:26.170Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T09:31:53.018Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T09:31:55.769Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T09:34:33.305Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T09:34:35.805Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T09:37:36.741Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T09:37:41.127Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T09:39:37.508Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T09:39:41.444Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T09:47:24.671Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T09:51:14.916Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T09:53:27.034Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addConstraint: 修订 RFC：限定指标覆盖条件、定义“无需写回”或移除、对齐 CONNECT/star-form 处理与现有行为。,success
+2026-02-03T09:53:27.158Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：定义“无需写回”或移除该语义并统一写回判定,success
+2026-02-03T09:53:27.158Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：限定指标覆盖要求的前置条件（仅指标已注册时适用）,success
+2026-02-03T09:53:27.163Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：对齐 CONNECT/star-form 处理与现有实现并补充测试断言,success
+2026-02-03T09:53:38.714Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T09:55:08.674Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: rfc-metrics 统一写回语义：仅当写回成功可标记 ok/blocked/invalid_url/timeout；写回尝试失败或未写回成功统一 result=error,success
+2026-02-03T09:55:13.167Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: CONNECT/authority-form 与 star-form 明确在 URL 解析阶段判定 invalid_url，不支持该形式,success
+2026-02-03T09:55:27.056Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T09:55:29.235Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T09:58:56.347Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"addConstraint: 修订 RFC：定义 raw_url 以 ""//"" 开头与非 origin-form 处理规则；明确写回成功判定；限定 allowedHosts 仅 ASCII/punycode。",success
+2026-02-03T09:58:56.359Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"addDiscoveredTask: RFC metrics：定义 raw_url 以 ""//"" 开头的处理规则",success
+2026-02-03T09:58:56.360Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"addDiscoveredTask: RFC metrics：限定 host_header 拼接仅支持 origin-form（raw_url 以 ""/"" 开头）",success
+2026-02-03T09:58:56.370Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：明确 allowedHosts 仅接受 ASCII/punycode,success
+2026-02-03T09:58:56.371Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：明确写回成功判定以保证 result 可验证,success
+2026-02-03T09:59:05.113Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T10:01:45.257Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T10:01:48.044Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T10:36:51.668Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T10:36:54.412Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T10:41:00.489Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T10:41:03.208Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T10:44:13.532Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addConstraint: 修订 RFC：明确 absolute-form 非 ASCII/IDN 处理；定义 ip_literal 识别算法（含 IPv6 zone/IPvFuture）；要求 absolute-form 仅接受 scheme://。,success
+2026-02-03T10:44:13.625Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：明确 absolute-form 非 ASCII/IDN 处理规则并补测试,success
+2026-02-03T10:44:13.674Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：定义 ip_literal 识别算法（含 IPv6 zone/IPvFuture）,success
+2026-02-03T10:44:13.758Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：要求 absolute-form 严格 scheme:// 并补测试,success
+2026-02-03T10:44:26.356Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T10:44:28.726Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T10:47:31.319Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T10:47:33.901Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T10:50:32.176Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: RFC metrics 复审完成（结论 NEEDS_CHANGES）；关键争议：Host 头大小写匹配、ip_literal 识别过宽、scheme 支持范围不清；建议：收敛校验规则并补充测试。,success
+2026-02-03T10:50:32.301Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics 修订：收紧 ip_literal 识别（避免含 % 的无效域名被误判 blocked）,success
+2026-02-03T10:50:32.301Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics 修订：明确绝对 URL 支持的 scheme 范围与非支持 scheme 的 result 映射,success
+2026-02-03T10:50:32.302Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics 修订：Host 头匹配需大小写不敏感或先小写化,success
+2026-02-03T10:51:20.397Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addConstraint: 修订 RFC：host_header 小写化/大小写不敏感；ip_literal 识别收敛；限定支持的 URL scheme 列表。,success
+2026-02-03T10:51:20.497Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：host_header 大小写与尾点规则（先小写化再校验）,success
+2026-02-03T10:51:20.498Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：限定允许的绝对 URL scheme 列表（http/https）,success
+2026-02-03T10:51:20.498Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：收敛 ip_literal 识别规则，避免 '%' 误判,success
+2026-02-03T10:51:28.787Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T10:51:31.406Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T10:55:17.463Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T10:55:19.648Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T10:59:12.089Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T10:59:14.914Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T11:00:44.337Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: allowedHosts 仅允许 hostname，不允许端口；匹配只基于 hostname,success
+2026-02-03T11:00:44.373Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: host_header 解析先剥离端口，再去尾点，再校验 hostname（允许 example.com.:443）,success
+2026-02-03T11:00:44.375Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: ip_literal 仅以 net.isIP(hostname) 判定；含 ':' 或 '%' 但 net.isIP=0 视为 invalid_url,success
+2026-02-03T11:01:07.477Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T11:01:09.818Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T13:20:45.262Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addConstraint: 修订 RFC：定义 host_header 端口语法/范围；明确 allowedHosts 匹配忽略端口；澄清 allowedHosts 为空 fail-fast 是否为既有基线。,success
+2026-02-03T13:20:45.277Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：定义 host_header 端口语法/范围并补示例与测试,success
+2026-02-03T13:20:45.278Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：澄清 allowedHosts 空值 fail-fast 基线/兼容性定位,success
+2026-02-03T13:20:45.279Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：明确 allowedHosts 匹配忽略端口并补规范/测试,success
+2026-02-03T13:20:54.243Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T13:20:57.882Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T13:22:59.131Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T13:23:01.294Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T13:26:17.032Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addConstraint: 修订 RFC：端口不存在允许；scheme 白名单固定 http/https；明确 ASCII 校验先于小写化。,success
+2026-02-03T13:26:17.149Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：明确 host_header ASCII 校验顺序,success
+2026-02-03T13:26:17.150Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：修复 R14 端口规则冲突（端口不存在允许）,success
+2026-02-03T13:26:17.151Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：删除 scheme 额外配置假设或定义配置项,success
+2026-02-03T13:26:24.669Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T13:28:32.290Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T13:28:34.508Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T13:31:40.262Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: RFC metrics 复审完成（结论 NEEDS_CHANGES），关键争议：非 ASCII hostname 可验证性、host_header IPv6/percent 边界、allowedHosts 空白名单基线证据。,success
+2026-02-03T13:31:45.405Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：补齐非 ASCII hostname 处理（明确 raw_url 级 ASCII 校验或允许 punycode）并同步示例/测试,success
+2026-02-03T13:31:48.490Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：明确 host_header IPv6/percent/zone/IPvFuture 的拒绝规则并统一与 absolute-form,success
+2026-02-03T13:31:52.248Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：补充 allowedHosts 为空 fail-fast 的现状证据或改为新行为并完善兼容/rollout,success
+2026-02-03T13:32:39.202Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addConstraint: 修订 RFC：明确非 ASCII hostname 处理方式（解析前校验或接受 punycode）；收紧 host_header IPv6 规则；澄清 allowedHosts fail-fast 是否为基线。,success
+2026-02-03T13:32:39.240Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：明确非 ASCII hostname 处理（解析前校验或接受 punycode）,success
+2026-02-03T13:32:39.240Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：澄清 allowedHosts 为空 fail-fast 的基线/兼容性,success
+2026-02-03T13:32:39.241Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：收紧 host_header IPv6 规则（拒绝 zone/IPvFuture/%）,success
+2026-02-03T13:32:57.937Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T13:36:58.351Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T13:37:02.556Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T13:40:07.622Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: RFC metrics 复审结论为 NEEDS_CHANGES,success
+2026-02-03T13:40:11.714Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics 修订：明确 R10/R12 校验作用域或合并校验路径；补齐 ldh_hostname 长度边界或改为 URL 解析判定；澄清 allowedHosts fail-fast 与 metrics_enabled 的关系并更新兼容/rollout。,success
+2026-02-03T13:40:42.338Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T13:45:08.232Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T13:47:42.594Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,handoff: 修订 rfc-metrics.md：明确 host_header 预处理顺序与 URL 构造字符串，消除 R12/R14 歧义。,success
+2026-02-03T13:47:45.875Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics 对抗复审完成（结论 NEEDS_CHANGES，输出 review-rfc-metrics.md）,success
+2026-02-03T13:47:51.439Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：明确 host_header 预处理顺序与 URL 构造字符串，消除 R12/R14 歧义,success
+2026-02-03T13:47:51.453Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：补齐 allowedHosts fail-fast 既有基线证据或加入兼容/迁移与回滚说明,success
+2026-02-03T13:47:51.453Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：声明指标解析必须复用现有 SSRF/请求解析结果或引用同一解析函数，避免解析分歧,success
+2026-02-03T13:49:33.775Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T13:55:54.565Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T13:55:56.636Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T14:02:22.609Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T14:02:24.849Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T14:05:20.927Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T14:08:04.645Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 完成 RFC metrics 对抗复审（结论 NEEDS_CHANGES）。,success
+2026-02-03T14:08:11.123Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 写入 review-rfc-metrics.md（输出对抗复审报告）,success
+2026-02-03T14:08:11.164Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：明确 allowedHosts 缺失/非法/超限时的启动行为仅复用既有逻辑，指标注册随配置有效性变化,success
+2026-02-03T14:08:11.164Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：对齐 absolute-form-only 与现有请求解析行为（必要时删除/调整 R5）,success
+2026-02-03T14:08:11.164Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：明确 IP 字面量判定来源（复用 parse_result 或现有 SSRF 判定函数）并补测试,success
+2026-02-03T14:16:47.575Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addConstraint: 修订 RFC：用现有 schema 证明 absolute-form-only；明确 allowedHosts 启动行为复用既有逻辑；IP 判定复用 parsed_url + net.isIP。,success
+2026-02-03T14:16:47.742Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：澄清 allowedHosts 启动行为复用既有逻辑,success
+2026-02-03T14:16:47.743Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：补充 absolute-form-only 的现有证据/引用并新增验证用例,success
+2026-02-03T14:16:47.744Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：明确 IP 判定复用 parsed_url + net.isIP，并补用例,success
+2026-02-03T14:17:04.722Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T14:19:59.962Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: RFC metrics 修订：引用 `libraries/http-services/src/server.ts` schema 的 `url` format: uri 作为 absolute-form-only 证据；allowedHosts 启动行为完全复用既有逻辑且仅影响指标注册；IP 字面量判定使用同一 par,success
+2026-02-03T14:20:50.698Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T14:20:58.158Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T14:23:20.123Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addConstraint: 当前环境无 Write/Edit 工具权限，无法写入 review-rfc-metrics.md；需开放写入权限或由人工落盘。,success
+2026-02-03T14:23:23.681Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：补充 absolute-form-only 现有行为证据或改为以 parse_result 判定为准,success
+2026-02-03T14:23:28.106Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：明确 parse_result 的生产位置/字段与指标复用方式，避免重解析,success
+2026-02-03T14:23:31.143Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：固定 allowedHosts 缺失/非法时启动语义，并明确与 metrics_enabled 的关系与验证用例,success
+2026-02-03T14:24:30.744Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addConstraint: 修订 RFC：给出 absolute-form-only 现有证据；明确 parse_result 来源；固定 allowedHosts 启动语义与 metrics_enabled 关系。,success
+2026-02-03T14:24:30.845Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：补充 absolute-form-only 证据并新增验证用例,success
+2026-02-03T14:24:30.846Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：明确 parse_result 来源/字段与复用位置,success
+2026-02-03T14:24:30.913Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：固定 allowedHosts 启动语义与 metrics_enabled 关系,success
+2026-02-03T14:24:44.867Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T14:27:14.906Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T14:28:45.242Z,legion_update_tasks,,,Claude,addDiscoveredTask: RFC metrics：定义 allowedHosts 合法性与上限（或引用既有校验实现），补可验证用例,success
+2026-02-03T14:28:45.243Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：明确 writeback_success/writeback_failure 的可观察性与优先级，保证可测试,success
+2026-02-03T14:28:45.243Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：修正 parse_result 字段命名一致性并明确 scheme 范围（http/https 或 invalid_url）,success
+2026-02-03T14:28:45.243Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：对齐 allowedHosts 缺失/非法时启动语义与实际实现，并补兼容/回滚说明,success
+2026-02-03T14:28:45.244Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addFile: .legion/tasks/http-proxy-app-implementation/docs/review-rfc-metrics.md,success
+2026-02-03T14:29:34.071Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T16:35:08.680Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T16:37:17.181Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T16:37:21.149Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T16:41:04.649Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T16:41:08.846Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T16:44:33.531Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T16:48:25.599Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-04T03:31:31.135Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-04T03:32:11.494Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 设计审批通过（用户确认）- HTTP Proxy 目标域名指标 RFC,success
+2026-02-04T03:32:18.633Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 设计审批通过（用户确认）- HTTP Proxy 目标域名指标 RFC,success
+2026-02-04T03:32:23.101Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: 进入实现阶段（HTTP Proxy 目标域名指标）,success
+2026-02-04T03:32:34.798Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-04T03:32:37.445Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-04T03:37:30.480Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-04T03:37:32.839Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-04T03:41:59.710Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: target_host 指标仅在 allowedHosts 非空时注册，allowedHosts 含端口仅告警且不参与匹配；result 映射复用 error.code 等价信号,success
+2026-02-04T03:41:59.712Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addFile: libraries/http-services/src/__tests__/server.test.ts,success
+2026-02-04T03:41:59.714Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addTask: 实现 target_host 指标采集与 result 映射,success
+2026-02-04T03:41:59.720Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addTask: 新增 target_host 指标最小单测覆盖,success
+2026-02-04T03:41:59.739Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 实现 target_host 指标采集与 result 映射,success
+2026-02-04T03:41:59.754Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 新增 target_host 指标最小单测覆盖,success
+2026-02-04T03:42:31.934Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-04T03:42:32.539Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-04T03:44:40.491Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: 测试失败判定为 impl-dev 问题（实现未将 INVALID_URL 映射为 invalid_url，或 error.code 未正确设置）。,success
+2026-02-04T03:44:44.715Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 测试执行（libraries/http-services `rushx build`）失败：invalid_url 结果映射错误需修复,success
+2026-02-04T03:46:27.926Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-04T03:46:58.358Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: 本次测试失败归因 impl-dev（错误码/结果映射与规范/测试不一致）,success
+2026-02-04T03:46:58.424Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,setCurrentTask: 测试执行（libraries/http-services `rushx build`）失败：invalid_url 结果映射错误需修复,success
+2026-02-04T03:47:30.237Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-04T03:47:52.171Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: 确认 http-services `rushx build` 通过，无需回到 impl 阶段修复。,success
+2026-02-04T03:47:54.300Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 测试执行,success
+2026-02-04T03:48:10.650Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-04T03:56:26.723Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-04T03:58:07.649Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-04T04:02:06.980Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addConstraint: security review FAIL，需先处理 blocking 再继续报告阶段。,success
+2026-02-04T04:02:06.993Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 修复安全阻塞：allowedHosts 为空时开放代理风险（需 fail-fast/强限制）,success
+2026-02-04T04:02:07.162Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 修复安全阻塞：req.timeout 缺少上限导致 DoS 风险,success
+2026-02-04T04:07:23.833Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: 接受安全阻塞风险（开放代理/timeout 无上限）并在 RFC 明确隔离前提,success
+2026-02-04T04:07:24.037Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 记录风险接受：allowedHosts 为空与 timeout 无上限的隔离前提（RFC R27a/R27b）,success
+2026-02-04T04:07:38.498Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-04T04:09:54.661Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 安全审查复审完成：review-security-metrics.md 结论 FAIL。,success
+2026-02-04T04:09:54.888Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 处理安全阻塞或明确 wontfix：allowedHosts 为空开放代理风险,success
+2026-02-04T04:09:54.902Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 处理安全阻塞或明确 wontfix：req.timeout 无上限 DoS 风险,success
+2026-02-04T04:11:34.000Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: 安全审查 blocking 标记为 wontfix,success
+2026-02-04T04:11:34.071Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 处理安全阻塞或明确 wontfix：allowedHosts 为空开放代理风险,success
+2026-02-04T04:11:34.116Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 处理安全阻塞或明确 wontfix：req.timeout 无上限 DoS 风险,success
+2026-02-04T04:11:45.498Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-04T04:11:50.161Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-04T04:11:50.161Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: handoff, includeReviews: true",success
+2026-02-04T04:13:16.493Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 阶段 4 - Review: 完成 code/security review（security 标记 wontfix）,success
+2026-02-04T04:13:16.496Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 阶段 3 - Verification: 运行 rushx build 并通过,success
+2026-02-04T04:13:16.496Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 阶段 2 - Implementation: 实现 http-proxy target_host 指标与单测,success
+2026-02-04T04:13:16.497Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 阶段 5 - Report: 生成 report-walkthrough-metrics 与 pr-body-metrics,success
+2026-02-04T04:13:16.517Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 实现完成：新增 target_host 指标与最小单测，修复 INVALID_URL 映射并通过 rushx build。,success
+2026-02-04T07:22:06.142Z,legion_list_reviews,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,status: open,success
+2026-02-04T07:27:08.784Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: 指标统计覆盖所有 fetch 目标 host+path，不再依赖 allowedHosts 过滤,success
+2026-02-04T07:27:40.034Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 已响应 rfc-metrics review 并调整 RFC/代码：指标统计覆盖所有 host+path，target_path 标签落地。,success
+2026-02-04T07:27:40.055Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 处理 rfc-metrics review：去除 allowedHosts gating，新增 target_path 指标并同步实现与测试,success
+2026-02-04T07:27:40.120Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 处理 rfc-metrics review：去除 allowedHosts gating，新增 target_path 指标并同步实现与测试,success
+2026-02-04T07:36:18.438Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-04T07:36:20.958Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-04T07:43:02.041Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-04T07:43:04.190Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-04T07:49:35.661Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 按 review 意见改码：新增 target_path 维度、移除 allowedHosts gating、删除未用函数并补充单测。,success
+2026-02-04T07:49:35.685Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 按 review 意见改码并补充单测（target_path + labels）,success
+2026-02-04T07:49:35.709Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 按 review 意见改码并补充单测（target_path + labels）,success
+2026-02-04T07:56:28.210Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 记录高基数风险的预留方案：target_path 归一化/前缀过滤/分层指标。,failed
+2026-02-04T07:56:28.218Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 评估 target_path 高基数风险：路径归一化/前缀过滤/分层指标方案,success
+2026-02-04T07:56:33.247Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 记录高基数风险的预留方案：target_path 归一化/前缀过滤/分层指标。,success
+2026-02-04T07:59:54.858Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-04T08:00:32.671Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 移除 unused warnedAllowedHostsWithPort 逻辑并更新测试/RFC/plan。,success
+2026-02-04T08:00:32.672Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 移除 warnedAllowedHostsWithPort 并更新测试/RFC/plan,success
+2026-02-04T08:00:32.750Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 移除 warnedAllowedHostsWithPort 并更新测试/RFC/plan,success
+2026-02-04T08:02:23.141Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success

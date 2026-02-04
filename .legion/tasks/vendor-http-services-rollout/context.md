@@ -77,7 +77,7 @@
 
 ### 🟡 进行中
 
-- (暂无)
+- 切换到 http-proxy-app-implementation 任务，进入 http-proxy-metrics 设计阶段。
 
 ### ⚠️ 阻塞/待定
 
