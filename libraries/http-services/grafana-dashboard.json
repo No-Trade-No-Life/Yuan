@@ -378,6 +378,80 @@
       ],
       "title": "Response Codes Breakdown",
       "type": "timeseries"
+    },
+    {
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 22
+      },
+      "id": 11,
+      "options": {
+        "displayLabels": ["target_host"],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "sortBy": "Value",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "topk(10, sum by (target_host) (rate(http_proxy_target_host_requests_total{target_host=~\"$target_host\", target_path=~\"$target_path\"}[$__rate_interval])))",
+          "legendFormat": "{{ target_host }}",
+          "refId": "A"
+        }
+      ],
+      "title": "Requests by Target Host",
+      "type": "bargauge"
+    },
+    {
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 22
+      },
+      "id": 12,
+      "options": {
+        "displayLabels": ["target_path"],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "sortBy": "Value",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "topk(10, sum by (target_path) (rate(http_proxy_target_host_requests_total{target_host=~\"$target_host\", target_path=~\"$target_path\"}[$__rate_interval])))",
+          "legendFormat": "{{ target_path }}",
+          "refId": "A"
+        }
+      ],
+      "title": "Requests by Target Path",
+      "type": "bargauge"
     }
   ],
   "refresh": "10s",
@@ -447,6 +521,58 @@
         "options": [],
         "query": {
           "query": "label_values(http_proxy_requests_total, hostname)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(http_proxy_target_host_requests_total, target_host)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Target Host",
+        "multi": true,
+        "name": "target_host",
+        "options": [],
+        "query": {
+          "query": "label_values(http_proxy_target_host_requests_total, target_host)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(http_proxy_target_host_requests_total, target_path)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Target Path",
+        "multi": true,
+        "name": "target_path",
+        "options": [],
+        "query": {
+          "query": "label_values(http_proxy_target_host_requests_total, target_path)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 2,

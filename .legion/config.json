@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "vendor-http-services-rollout",
+  "currentTask": "http-proxy-app-implementation",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -187,14 +187,14 @@
       "name": "HTTP Proxy App Implementation",
       "status": "active",
       "createdAt": "2026-01-28T07:31:21.903Z",
-      "updatedAt": "2026-01-28T13:51:33.032Z"
+      "updatedAt": "2026-02-04T08:00:32.749Z"
     },
     {
       "id": "vendor-http-services-rollout",
       "name": "vendor-http-services-rollout",
-      "status": "active",
+      "status": "paused",
       "createdAt": "2026-01-29T15:48:30.598Z",
-      "updatedAt": "2026-02-03T07:26:20.599Z"
+      "updatedAt": "2026-02-03T08:20:23.290Z"
     },
     {
       "id": "node-unit-claim-policy-deployment-type",
@@ -2457,6 +2457,85 @@
       "decidedAt": "2026-01-31T14:01:51.517Z",
       "decidedBy": "Claude",
       "createdTaskId": "refactor-grafana-dashboard-for-iphostname"
+    },
+    {
+      "id": "proposal-ml6btrka-470786",
+      "name": "http-proxy-metrics",
+      "goal": "为 HTTP Proxy 服务增加按目标域名统计的 Prometheus 指标，并给出可复现的设计与验证方案。",
+      "rationale": "用户要求在 http-proxy-metrics 中新增“目标域名”流量统计，需要在 http-services 侧明确指标口径、标签与性能/安全边界，并产出可评审设计。",
+      "points": [
+        "在 http-services 侧定义目标域名统计的指标口径（host/domain 标签、粒度与去敏）",
+        "明确指标与现有 http_proxy_requests_total/request_duration/errors/active 的关系与兼容性",
+        "约束高基数风险（host/domain 白名单、归一化策略或 top-N 方案）",
+        "补充测试/验证方案（最小单测或集成验证）",
+        "设计文档输出到 .legion/tasks/<id>/docs/rfc.md 并建立评审闭环"
+      ],
+      "scope": [
+        "libraries/http-services/src/server.ts",
+        "libraries/http-services/src/types.ts",
+        "libraries/http-services/src/__tests__/server.test.ts",
+        "apps/http-proxy/src/index.ts",
+        ".legion/tasks/http-proxy-metrics/docs/**"
+      ],
+      "phases": [
+        {
+          "name": "调查",
+          "tasks": [
+            {
+              "description": "盘点现有 http-services HTTPProxy 指标与标签结构，明确可复用字段与风险点。",
+              "acceptance": "列出当前指标/标签与可用上下文（如 URL/host/labels）并标注风险。"
+            }
+          ]
+        },
+        {
+          "name": "设计",
+          "tasks": [
+            {
+              "description": "设计新增目标域名统计指标（名称、标签、基数策略、脱敏/归一化），并给出数据采集位置与兼容性说明。",
+              "acceptance": "RFC 明确指标定义、标签策略、采集点、兼容性与回滚策略。"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "在 http-services HTTPProxy 处理链路中落地指标采集与标签填充，必要时扩展类型。",
+              "acceptance": "指标可被注册并在请求路径中更新；不影响现有错误语义。"
+            }
+          ]
+        },
+        {
+          "name": "验证",
+          "tasks": [
+            {
+              "description": "更新或新增最小测试/验证步骤，覆盖成功与错误路径的指标更新。",
+              "acceptance": "测试或手工验证说明能证明目标域名指标可用且基数受控。"
+            }
+          ]
+        },
+        {
+          "name": "Review",
+          "tasks": [
+            {
+              "description": "进行 review-code 与 review-security，并在任务目录生成报告。",
+              "acceptance": "review 报告产出且无 blocking。"
+            }
+          ]
+        },
+        {
+          "name": "报告",
+          "tasks": [
+            {
+              "description": "生成 walkthrough 报告与 PR body 建议。",
+              "acceptance": "report-walkthrough.md 与 pr-body.md 完成。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-02-03T08:18:20.748Z",
+      "status": "pending"
     }
   ]
 }

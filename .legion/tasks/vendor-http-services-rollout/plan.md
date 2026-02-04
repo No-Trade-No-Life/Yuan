@@ -6,7 +6,7 @@ SUBTREE_ROOT: apps
 
 ## 目标
 
-用新的 @yuants/http-services 替换 vendor HTTP fetch 调用，先在 vendor-binance 完成调研/文档/实现并通过验证，再按同方案推广至其他指定 vendor。
+为 HTTP Proxy 服务增加按目标域名统计的指标与采集方案，并在设计门禁后进入实现。
 
 ## 设计真源
 
@@ -14,11 +14,11 @@ SUBTREE_ROOT: apps
 
 ## 要点
 
-- 先聚焦 apps/vendor-binance 完成替换与验证，形成可复用的迁移模式
-- 调研现有 fetch 使用点、封装层与请求路径，明确替换边界与兼容风险
-- 输出 RFC + dev/test/bench/obs specs，包含迁移步骤、接口变更点、回滚策略
-- 实现阶段只改 binance；扩展到 okx/gate/hyperliquid/aster/bitget/huobi 作为后续阶段（需用户确认）
-- 新增：通过环境变量 USE_HTTP_PROXY 控制是否启用代理 fetch 覆盖，全局副作用需确认
+- 设计真源：/Users/c1/Work/Yuan/.legion/tasks/http-proxy-app-implementation/docs/rfc-metrics.md
+- 指标口径：按目标域名统计请求量、错误量与时延，兼容现有 http_proxy_requests_total/request_duration/errors/active
+- 高基数防护：仅在 allowedHosts 命中时打点或做域名归一化，避免放大 Prometheus label 基数
+- 验证方案：更新最小单测/集成验证说明，覆盖成功与错误路径
+- 不改动外部接口语义；必要时扩展 IHTTPProxyOptions/labels 以支持指标策略
 
 ## 范围
 

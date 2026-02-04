@@ -1,6 +1,38 @@
+import { isIP } from 'node:net';
 import { GlobalPrometheusRegistry, IServiceOptions, Terminal } from '@yuants/protocol';
 import { newError, scopeError } from '@yuants/utils';
 import { IHTTPProxyRequest, IHTTPProxyResponse, IHTTPProxyOptions } from './types';
+
+const normalizeHost = (host: string): string => host.toLowerCase().replace(/\.+$/, '');
+
+const resolveEffectiveErrorCode = (err: unknown): string | undefined => {
+  if (!err || typeof err !== 'object') return undefined;
+  const error = err as { code?: unknown; cause?: unknown; message?: unknown; name?: unknown };
+  if (typeof error.code === 'string') return error.code;
+  const cause = error.cause as { code?: unknown } | undefined;
+  if (cause && typeof cause.code === 'string') return cause.code;
+  if (typeof error.message === 'string') {
+    const match = /^([A-Z_]+):/.exec(error.message);
+    if (match) return match[1];
+  }
+  if (error.name === 'AbortError' || error.name === 'TimeoutError') return 'TIMEOUT';
+  return undefined;
+};
+
+const normalizeErrorCode = (code: string | undefined): string | undefined => {
+  if (!code) return undefined;
+  if (code === 'ERR_INVALID_URL') return 'INVALID_URL';
+  return code;
+};
+
+const resolveResultFromCode = (code: string): string => {
+  if (code === 'TIMEOUT') return 'timeout';
+  if (code === 'FORBIDDEN') return 'blocked';
+  if (code === 'INVALID_URL') return 'invalid_url';
+  if (code === 'FETCH_FAILED') return 'error';
+  if (code === 'RESPONSE_TOO_LARGE') return 'error';
+  return 'error';
+};
 
 /**
  * 提供 HTTP 代理服务
@@ -66,6 +98,10 @@ export const provideHTTPProxyService = (
     'http_proxy_errors_total',
     'Total HTTP proxy errors by type',
   );
+  const targetHostRequests = GlobalPrometheusRegistry.counter(
+    'http_proxy_target_host_requests_total',
+    'Total HTTP proxy requests by target host',
+  );
 
   // 1. 构造包含 labels 约束的 JSON Schema（支持部分匹配）
   const labelProperties: Record<string, { const: string }> = {};
@@ -115,6 +151,8 @@ export const provideHTTPProxyService = (
       let statusCode = 0;
       let errorCode = 'none';
       const method = req.method || 'GET';
+      let parsedUrl: URL | null = null;
+      let handlerError: unknown | null = null;
 
       // R8: 请求开始，递增活跃请求
       activeRequests.labels(labels).inc();
@@ -123,6 +161,7 @@ export const provideHTTPProxyService = (
         // Security Check: SSRF
         // 验证 URL 合法性并检查 allowedHosts
         const urlObj = scopeError('INVALID_URL', { url: req.url }, () => new URL(req.url));
+        parsedUrl = urlObj;
 
         if (allowedHosts && allowedHosts.length > 0) {
           if (!allowedHosts.includes(urlObj.hostname)) {
@@ -266,9 +305,12 @@ export const provideHTTPProxyService = (
           },
         };
       } catch (err: any) {
+        handlerError = err;
         // 错误响应记录 metrics
         // 从错误消息中提取 error_code（格式为 "TYPE: context"）
-        errorCode = (err.message || '').split(':')[0] || 'FETCH_FAILED';
+        const effectiveCode = normalizeErrorCode(resolveEffectiveErrorCode(err));
+        const fallbackCode = typeof err?.message === 'string' ? err.message.split(':')[0] : '';
+        errorCode = normalizeErrorCode(effectiveCode || fallbackCode) || 'FETCH_FAILED';
         statusCode = 0;
 
         // R9: 根据错误类型记录 errors_total
@@ -296,6 +338,21 @@ export const provideHTTPProxyService = (
         // R7: 记录延迟分布
         const duration = (Date.now() - startTime) / 1000;
         requestDuration.labels({ ...labels, method }).observe(duration);
+
+        const targetHost = (() => {
+          if (!parsedUrl || parsedUrl.hostname === '') return 'invalid';
+          if (isIP(parsedUrl.hostname)) return 'ip';
+          return normalizeHost(parsedUrl.hostname);
+        })();
+        const targetPath = !parsedUrl || parsedUrl.hostname === '' ? 'invalid' : parsedUrl.pathname || '/';
+
+        const result = handlerError
+          ? resolveResultFromCode(errorCode)
+          : !parsedUrl || parsedUrl.hostname === ''
+          ? 'invalid_url'
+          : 'ok';
+
+        targetHostRequests.labels({ target_host: targetHost, target_path: targetPath, result }).inc();
 
         // R8: 请求结束，递减活跃请求
         activeRequests.labels(labels).dec();

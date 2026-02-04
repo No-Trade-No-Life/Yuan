@@ -51,6 +51,7 @@
 - [x] 实现 RFC 修复：缓存 \_\_yuantsNativeFetch/标记 proxy fetch，terminal public IP 跳过逻辑 | 来源: 用户批准设计，进入阶段 A
 - [x] 验证与审查：运行测试，review-code，review-security | 来源: 流程阶段 B
 - [x] 生成报告：report-walkthrough + PR body 建议 | 来源: 流程阶段 C
+- [ ] http-proxy-metrics 设计与 RFC 输出 | 来源: 用户指令：继续 http-proxy-metrics 并先完成设计
 
 ---
 
