@@ -11,6 +11,7 @@
 - Register `http_proxy_target_host_requests_total` with `target_host`, `target_path`, `result` labels
 - Map results from existing handler error codes; derive host/path from `new URL(req.url)` parse result
 - Extend tests to cover target_path defaulting, labels propagation, and invalid_url cases
+- Update Grafana dashboard with target host/path panels and filters
 
 ## Testing
 
