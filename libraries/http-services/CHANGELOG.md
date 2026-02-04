@@ -1,6 +1,17 @@
 # Change Log - @yuants/http-services
 
-This log was last generated on Tue, 03 Feb 2026 07:54:43 GMT and should not be manually modified.
+This log was last generated on Wed, 04 Feb 2026 16:57:52 GMT and should not be manually modified.
+
+## 0.4.0
+Wed, 04 Feb 2026 16:57:52 GMT
+
+### Minor changes
+
+- add proxy IP dimension to tokenBucket
+
+### Patches
+
+- add metrics
 
 ## 0.3.1
 Tue, 03 Feb 2026 07:54:43 GMT

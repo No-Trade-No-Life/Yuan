@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-huobi",
   "entries": [
     {
+      "version": "0.20.4",
+      "tag": "@yuants/vendor-huobi_v0.20.4",
+      "date": "Wed, 04 Feb 2026 16:57:52 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/http-services\" to `0.4.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.20.3",
       "tag": "@yuants/vendor-huobi_v0.20.3",
       "date": "Tue, 03 Feb 2026 07:54:43 GMT",

@@ -2,6 +2,28 @@
   "name": "@yuants/http-services",
   "entries": [
     {
+      "version": "0.4.0",
+      "tag": "@yuants/http-services_v0.4.0",
+      "date": "Wed, 04 Feb 2026 16:57:52 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add proxy IP dimension to tokenBucket"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "add metrics"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.1",
       "tag": "@yuants/http-services_v0.3.1",
       "date": "Tue, 03 Feb 2026 07:54:43 GMT",
