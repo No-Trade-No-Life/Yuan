@@ -1,12 +1,14 @@
-import { fetch } from '@yuants/http-services';
+import { fetch, selectHTTPProxyIpRoundRobin } from '@yuants/http-services';
 import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
-import { encodeHex, formatTime, HmacSHA256, newError, tokenBucket } from '@yuants/utils';
+import { encodeHex, encodePath, formatTime, HmacSHA256, newError, tokenBucket } from '@yuants/utils';
 
 const MetricBinanceApiUsedWeight = GlobalPrometheusRegistry.gauge('binance_api_used_weight', '');
 const MetricBinanceApiCounter = GlobalPrometheusRegistry.counter('binance_api_request_total', '');
 const terminal = Terminal.fromNodeEnv();
 const shouldUseHttpProxy = process.env.USE_HTTP_PROXY === 'true';
 const fetchImpl = shouldUseHttpProxy ? fetch : globalThis.fetch ?? fetch;
+const MISSING_PUBLIC_IP_LOG_INTERVAL = 3_600_000;
+const missingPublicIpLogAtByTerminalId = new Map<string, number>();
 
 if (shouldUseHttpProxy) {
   globalThis.fetch = fetch;
@@ -15,6 +17,10 @@ if (shouldUseHttpProxy) {
 type HttpMethod = 'GET' | 'POST' | 'DELETE' | 'PUT';
 
 type RequestParams = Record<string, string | number | boolean | undefined>;
+
+export interface IRequestContext {
+  ip: string;
+}
 
 export interface ICredential {
   access_key: string;
@@ -50,6 +56,28 @@ export const unifiedOrderAPIBucket = tokenBucket('order/unified/minute', {
   refillAmount: 1200,
 });
 
+export const buildTokenBucketKey = (baseKey: string, ip: string): string => encodePath([baseKey, ip]);
+
+const resolveLocalPublicIp = (): string => {
+  const ip = terminal.terminalInfo.tags?.public_ip?.trim();
+  if (ip) return ip;
+  const now = Date.now();
+  const lastLoggedAt = missingPublicIpLogAtByTerminalId.get(terminal.terminal_id) ?? 0;
+  if (now - lastLoggedAt > MISSING_PUBLIC_IP_LOG_INTERVAL) {
+    missingPublicIpLogAtByTerminalId.set(terminal.terminal_id, now);
+    console.info(formatTime(Date.now()), 'missing terminal public_ip tag, fallback to public-ip-unknown');
+  }
+  return 'public-ip-unknown';
+};
+
+export const createRequestContext = (): IRequestContext => {
+  if (shouldUseHttpProxy) {
+    const ip = selectHTTPProxyIpRoundRobin(terminal);
+    return { ip };
+  }
+  return { ip: resolveLocalPublicIp() };
+};
+
 // 每个接口单独进行主动限流控制
 const mapPathToRetryAfterUntil: Record<string, number> = {};
 
@@ -76,7 +104,11 @@ const callApi = async <T>(
   endpoint: string,
   params?: RequestParams,
   credential?: ICredential,
+  requestContext?: IRequestContext,
 ): Promise<T> => {
+  if (shouldUseHttpProxy && !requestContext) {
+    throw newError('E_PROXY_TARGET_NOT_FOUND', { reason: 'Missing request context' });
+  }
   const url = new URL(endpoint);
   const normalizedParams: RequestParams = { ...params };
   if (credential) {
@@ -123,10 +155,23 @@ const callApi = async <T>(
 
   MetricBinanceApiCounter.labels({ path: url.pathname, terminal_id: terminal.terminal_id }).inc();
 
-  const res = await fetchImpl(url.href, {
-    method,
-    headers,
-  });
+  const proxyIp = shouldUseHttpProxy
+    ? requestContext?.ip ?? selectHTTPProxyIpRoundRobin(terminal)
+    : undefined;
+  const res = await fetchImpl(
+    url.href,
+    shouldUseHttpProxy
+      ? {
+          method,
+          headers,
+          labels: proxyIp ? { ip: proxyIp } : undefined,
+          terminal,
+        }
+      : {
+          method,
+          headers,
+        },
+  );
   const usedWeight1M = res.headers.get('x-mbx-used-weight-1m');
   const retryAfter = res.headers.get('Retry-After');
   if (retryAfter) {
@@ -150,15 +195,20 @@ const callApi = async <T>(
   return res.json() as Promise<T>;
 };
 
-export const requestPublic = <T>(method: HttpMethod, endpoint: string, params?: RequestParams) =>
-  callApi<T>(method, endpoint, params);
+export const requestPublic = <T>(
+  method: HttpMethod,
+  endpoint: string,
+  params?: RequestParams,
+  requestContext?: IRequestContext,
+) => callApi<T>(method, endpoint, params, undefined, requestContext);
 
 export const requestPrivate = <T>(
   credential: ICredential,
   method: HttpMethod,
   endpoint: string,
   params?: RequestParams,
-) => callApi<T>(method, endpoint, params, credential);
+  requestContext?: IRequestContext,
+) => callApi<T>(method, endpoint, params, credential, requestContext);
 
 export const getDefaultCredential = (): ICredential => {
   const access_key = process.env.ACCESS_KEY;

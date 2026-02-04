@@ -114,6 +114,17 @@
 
 ## 6. 最近几轮工作记录（Recent Sessions）
 
+### 2026-02-05 — OpenCode
+
+- **本轮摘要**：
+  - Aster public/private API 在 USE_HTTP_PROXY 场景引入 proxy ip 维度：tokenBucket key 改为 `encodePath([BaseKey, ip])`，并通过 `labels.ip` 路由。
+  - 直连场景使用 `terminal.terminalInfo.tags.public_ip`，缺失时限频日志并 fallback 到 `public-ip-unknown`。
+- **修改的文件**：
+  - `apps/vendor-aster/src/api/public-api.ts`
+  - `apps/vendor-aster/src/api/private-api.ts`
+- **运行的测试 / 检查**：
+  - `npx tsc --noEmit --project apps/vendor-aster/tsconfig.json`（失败：本地未安装/未解析到 TypeScript）
+
 ### 2026-01-30 — OpenCode
 
 - **本轮摘要**：

@@ -1,5 +1,5 @@
 import { scopeError, tokenBucket } from '@yuants/utils';
-import { requestPublic } from './client';
+import { buildTokenBucketKey, createRequestContext, requestPublic } from './client';
 
 export interface IFutureExchangeFilter extends Record<string, string | number | boolean | undefined> {
   filterType: string;
@@ -114,12 +114,14 @@ export const getFutureExchangeInfo = (): Promise<IFutureExchangeInfo> => {
   const endpoint = 'https://fapi.binance.com/fapi/v1/exchangeInfo';
   const url = new URL(endpoint);
   const weight = 1;
+  const requestContext = createRequestContext();
+  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
-    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket(url.host).acquireSync(weight),
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
+    () => tokenBucket(bucketKey).acquireSync(weight),
   );
-  return requestPublic<IFutureExchangeInfo>('GET', endpoint);
+  return requestPublic<IFutureExchangeInfo>('GET', endpoint, undefined, requestContext);
 };
 
 /**
@@ -138,17 +140,19 @@ export const getFutureFundingRate = (params: {
   const endpoint = 'https://fapi.binance.com/fapi/v1/fundingRate';
   const url = new URL(endpoint);
   const weight = 1;
+  const requestContext = createRequestContext();
+  const bucketKey = buildTokenBucketKey(url.host + 'fundingRate', requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
-    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
     () =>
-      tokenBucket(url.host + 'fundingRate', {
+      tokenBucket(bucketKey, {
         capacity: 500,
         refillAmount: 500,
         refillInterval: 300_000,
       }).acquireSync(weight),
   );
-  return requestPublic<IFutureFundingRateEntry[]>('GET', endpoint, params);
+  return requestPublic<IFutureFundingRateEntry[]>('GET', endpoint, params, requestContext);
 };
 
 /**
@@ -162,17 +166,19 @@ export const getFutureFundingInfo = (): Promise<IFutureFundingInfoEntry[]> => {
   const endpoint = 'https://fapi.binance.com/fapi/v1/fundingInfo';
   const url = new URL(endpoint);
   const weight = 1;
+  const requestContext = createRequestContext();
+  const bucketKey = buildTokenBucketKey(url.host + 'fundingRate', requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
-    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
     () =>
-      tokenBucket(url.host + 'fundingRate', {
+      tokenBucket(bucketKey, {
         capacity: 500,
         refillAmount: 500,
         refillInterval: 300_000,
       }).acquireSync(weight),
   );
-  return requestPublic<IFutureFundingInfoEntry[]>('GET', endpoint);
+  return requestPublic<IFutureFundingInfoEntry[]>('GET', endpoint, undefined, requestContext);
 };
 
 /**
@@ -188,6 +194,8 @@ export const getFuturePremiumIndex = (params: { symbol?: string }): Promise<IFut
   const endpoint = 'https://fapi.binance.com/fapi/v1/premiumIndex';
   const url = new URL(endpoint);
   const weight = params?.symbol ? 1 : 10;
+  const requestContext = createRequestContext();
+  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     {
@@ -195,13 +203,13 @@ export const getFuturePremiumIndex = (params: { symbol?: string }): Promise<IFut
       endpoint,
       host: url.host,
       path: url.pathname,
-      bucketId: url.host,
+      bucketId: bucketKey,
       weight,
       hasSymbol: !!params?.symbol,
     },
-    () => tokenBucket(url.host).acquireSync(weight),
+    () => tokenBucket(bucketKey).acquireSync(weight),
   );
-  return requestPublic<IFuturePremiumIndexEntry[]>('GET', endpoint, params);
+  return requestPublic<IFuturePremiumIndexEntry[]>('GET', endpoint, params, requestContext);
 };
 
 /**
@@ -217,6 +225,8 @@ export const getFutureBookTicker = (params?: { symbol?: string }): Promise<IFutu
   const endpoint = 'https://fapi.binance.com/fapi/v1/ticker/bookTicker';
   const url = new URL(endpoint);
   const weight = params?.symbol ? 2 : 5;
+  const requestContext = createRequestContext();
+  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     {
@@ -224,13 +234,13 @@ export const getFutureBookTicker = (params?: { symbol?: string }): Promise<IFutu
       endpoint,
       host: url.host,
       path: url.pathname,
-      bucketId: url.host,
+      bucketId: bucketKey,
       weight,
       hasSymbol: !!params?.symbol,
     },
-    () => tokenBucket(url.host).acquireSync(weight),
+    () => tokenBucket(bucketKey).acquireSync(weight),
   );
-  return requestPublic<IFutureBookTickerEntry[]>('GET', endpoint, params);
+  return requestPublic<IFutureBookTickerEntry[]>('GET', endpoint, params, requestContext);
 };
 
 /**
@@ -246,12 +256,14 @@ export const getFutureOpenInterest = (params: { symbol: string }): Promise<IFutu
   const endpoint = 'https://fapi.binance.com/fapi/v1/openInterest';
   const url = new URL(endpoint);
   const weight = 1;
+  const requestContext = createRequestContext();
+  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
-    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket(url.host).acquireSync(weight),
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
+    () => tokenBucket(bucketKey).acquireSync(weight),
   );
-  return requestPublic<IFutureOpenInterest>('GET', endpoint, params);
+  return requestPublic<IFutureOpenInterest>('GET', endpoint, params, requestContext);
 };
 export interface ISpotBookTickerEntry {
   symbol: string;
@@ -272,6 +284,8 @@ export const getSpotBookTicker = (params?: { symbol?: string }): Promise<ISpotBo
   const endpoint = 'https://api.binance.com/api/v3/ticker/bookTicker';
   const url = new URL(endpoint);
   const weight = params?.symbol ? 2 : 4;
+  const requestContext = createRequestContext();
+  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     {
@@ -279,13 +293,13 @@ export const getSpotBookTicker = (params?: { symbol?: string }): Promise<ISpotBo
       endpoint,
       host: url.host,
       path: url.pathname,
-      bucketId: url.host,
+      bucketId: bucketKey,
       weight,
       hasSymbol: !!params?.symbol,
     },
-    () => tokenBucket(url.host).acquireSync(weight),
+    () => tokenBucket(bucketKey).acquireSync(weight),
   );
-  return requestPublic<ISpotBookTickerEntry[]>('GET', endpoint, params);
+  return requestPublic<ISpotBookTickerEntry[]>('GET', endpoint, params, requestContext);
 };
 
 export interface ISpotExchangeFilter extends Record<string, string | number | boolean | undefined> {
@@ -337,12 +351,14 @@ export const getSpotExchangeInfo = (): Promise<ISpotExchangeInfo> => {
   const endpoint = 'https://api.binance.com/api/v3/exchangeInfo';
   const url = new URL(endpoint);
   const weight = 20;
+  const requestContext = createRequestContext();
+  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
-    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket(url.host).acquireSync(weight),
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
+    () => tokenBucket(bucketKey).acquireSync(weight),
   );
-  return requestPublic<ISpotExchangeInfo>('GET', endpoint);
+  return requestPublic<ISpotExchangeInfo>('GET', endpoint, undefined, requestContext);
 };
 
 /**
@@ -365,10 +381,12 @@ export const getSpotTickerPrice = (params?: {
   const endpoint = 'https://api.binance.com/api/v3/ticker/price';
   const url = new URL(endpoint);
   const weight = params?.symbol ? 2 : 4;
+  const requestContext = createRequestContext();
+  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
-    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: url.host, weight },
-    () => tokenBucket(url.host).acquireSync(weight),
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
+    () => tokenBucket(bucketKey).acquireSync(weight),
   );
-  return requestPublic('GET', endpoint, params);
+  return requestPublic('GET', endpoint, params, requestContext);
 };

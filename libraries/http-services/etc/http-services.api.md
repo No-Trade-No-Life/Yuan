@@ -7,6 +7,12 @@
 import { IServiceOptions } from '@yuants/protocol';
 import { Terminal } from '@yuants/protocol';
 
+// @public (undocumented)
+export const computeAndInjectProxyIp: (terminal: Terminal, options?: {
+    proxyIp?: string;
+    fetchUrl?: string;
+}) => Promise<string>;
+
 // @public
 const fetch_2: (input: Request | string | URL, init?: IHTTPProxyFetchInit) => Promise<Response>;
 export { fetch_2 as fetch }
@@ -47,9 +53,15 @@ export interface IHTTPProxyResponse {
     url: string;
 }
 
+// @public (undocumented)
+export const listHTTPProxyIps: (terminal: Terminal) => string[];
+
 // @public
 export const provideHTTPProxyService: (terminal: Terminal, labels: Record<string, string>, options?: IServiceOptions & IHTTPProxyOptions) => {
     dispose: () => void;
 };
+
+// @public (undocumented)
+export const selectHTTPProxyIpRoundRobin: (terminal: Terminal) => string;
 
 ```

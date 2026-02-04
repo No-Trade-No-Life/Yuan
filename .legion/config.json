@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "http-proxy-app-implementation",
+  "currentTask": "vendor-tokenbucket-proxy-ip",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -216,6 +216,13 @@
       "status": "archived",
       "createdAt": "2026-01-31T14:01:51.517Z",
       "updatedAt": "2026-01-31T16:08:09.974Z"
+    },
+    {
+      "id": "vendor-tokenbucket-proxy-ip",
+      "name": "vendor-tokenbucket-proxy-ip",
+      "status": "active",
+      "createdAt": "2026-02-03T16:40:42.595Z",
+      "updatedAt": "2026-02-04T16:47:55.878Z"
     }
   ],
   "pendingProposals": [
@@ -2536,6 +2543,97 @@
       "proposedBy": "Claude",
       "proposedAt": "2026-02-03T08:18:20.748Z",
       "status": "pending"
+    },
+    {
+      "id": "proposal-ml6tr7kc-530490",
+      "name": "vendor-tokenbucket-proxy-ip",
+      "goal": "为各 vendor 的 tokenBucket key 增加“目标 http-proxy 终端 ip 标签”维度，保证 USE_HTTP_PROXY 场景按实际出口 IP 限流，并先在 Binance 落地后推广到其他 vendor。",
+      "rationale": "现有 tokenBucket 以 host 或固定 key 分桶，USE_HTTP_PROXY=true 时实际请求由 http-proxy 终端发出，导致限流与真实出口 IP 不一致。需要把 tokenBucket key 绑定到目标 proxy terminal 的 ip 标签；非代理时使用本机 terminal.tags.public_ip。按 Binance 先行验证后再推广降低风险。",
+      "points": [
+        "梳理 USE_HTTP_PROXY 场景下 http-services 的路由机制与可获取的目标 terminal 标签",
+        "定义 tokenBucket key 规范：baseKey + 目标 terminal ip（代理）或自身 terminal.tags.public_ip（直连）",
+        "Binance 先行改造并验证 key 拼接逻辑与请求路由一致",
+        "推广到 aster/hyperliquid/gate/bitget/huobi/okx，保持一致性与最小侵入",
+        "必要时补充共享 helper（避免多处复制逻辑）"
+      ],
+      "scope": [
+        "apps/vendor-binance/src/api/client.ts",
+        "apps/vendor-binance/src/api/public-api.ts",
+        "apps/vendor-binance/src/api/private-api.ts",
+        "apps/vendor-aster/src/api/public-api.ts",
+        "apps/vendor-aster/src/api/private-api.ts",
+        "apps/vendor-bitget/src/api/client.ts",
+        "apps/vendor-gate/src/api/http-client.ts",
+        "apps/vendor-huobi/src/api/public-api.ts",
+        "apps/vendor-huobi/src/api/private-api.ts",
+        "apps/vendor-hyperliquid/src/api/client.ts",
+        "apps/vendor-hyperliquid/src/api/rate-limit.ts",
+        "apps/vendor-okx/src/api/public-api.ts",
+        "apps/vendor-okx/src/api/private-api.ts",
+        "libraries/http-services/src/client.ts",
+        "libraries/protocol/src/client.ts"
+      ],
+      "phases": [
+        {
+          "name": "调研",
+          "tasks": [
+            {
+              "description": "定位各 vendor 的 tokenBucket key 生成位置与 USE_HTTP_PROXY 路径，并梳理 http-proxy 终端标签（ip/hostname）注入与路由流程。",
+              "acceptance": "context.md 记录每个 vendor 的 key 生成点、代理开关位置、以及可获取的 proxy 终端 ip 标签来源。"
+            }
+          ]
+        },
+        {
+          "name": "设计",
+          "tasks": [
+            {
+              "description": "设计 tokenBucket key 拼接规则与获取目标 proxy ip 标签的机制（含一致性与随机路由的处理）。",
+              "acceptance": "RFC 明确 key 规则、代理/直连分支、与请求路由一致性策略。"
+            },
+            {
+              "description": "制定 Binance 先行落地与推广到其他 vendor 的迁移步骤与回滚策略。",
+              "acceptance": "RFC 中包含分阶段推广计划与验证步骤。"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "按设计修改 Binance 的 tokenBucket key 生成逻辑，确保 USE_HTTP_PROXY 时按目标 proxy ip 分桶。",
+              "acceptance": "Binance 相关文件完成改造，逻辑与 RFC 一致。"
+            },
+            {
+              "description": "将相同策略推广到 aster/hyperliquid/gate/bitget/huobi/okx。",
+              "acceptance": "其余 vendor 完成改造且无行为偏差。"
+            }
+          ]
+        },
+        {
+          "name": "验证",
+          "tasks": [
+            {
+              "description": "执行最小验证（类型检查或最小自测），并记录验证步骤。",
+              "acceptance": "context.md 记录验证命令与结果；无明显回归。"
+            }
+          ]
+        },
+        {
+          "name": "评审与报告",
+          "tasks": [
+            {
+              "description": "产出 code/security review 与 walkthrough 报告，汇总变更影响。",
+              "acceptance": "任务 docs 目录下生成 review 与 walkthrough 报告。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-02-03T16:40:14.611Z",
+      "status": "approved",
+      "decidedAt": "2026-02-03T16:40:42.595Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "vendor-tokenbucket-proxy-ip"
     }
   ]
 }

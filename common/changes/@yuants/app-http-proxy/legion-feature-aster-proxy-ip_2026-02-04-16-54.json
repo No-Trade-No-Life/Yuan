@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-http-proxy",
+      "comment": "add proxy IP dimension to tokenBucket",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/app-http-proxy"
+}
