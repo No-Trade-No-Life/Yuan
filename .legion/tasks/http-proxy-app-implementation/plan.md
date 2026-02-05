@@ -9,9 +9,9 @@ RFC 为唯一设计真源：`.legion/tasks/http-proxy-app-implementation/docs/rf
 
 ## 摘要
 
-- 核心流程：仅依赖 `parse_result`，解析失败或 hostname 为空归 `invalid_url`；新增 `target_path` 维度；IP 字面量 `target_host=ip`；`result` 以 `error.code`/等价信号映射；生命周期末尾计数。
-- 接口变更：不新增外部接口，仅新增 Prometheus Counter `http_proxy_target_host_requests_total`（labels: `target_host`,`target_path`,`result`）。
-- 文件变更清单：`libraries/http-services/src/server.ts`（指标定义与采集点）、`libraries/http-services/grafana-dashboard.json`（新增 target_host/target_path 面板），必要时补充观测说明文档。
+- 核心流程：仅依赖 `parse_result`，解析失败或 hostname 为空归 `invalid_url`；新增 `target_path` 维度；IP 字面量 `target_host=ip`；`error_code` 维持现有映射；生命周期末尾计数。
+- 接口变更：不新增外部接口，扩展 `http_proxy_requests_total` 增加 `target_host`/`target_path` labels。
+- 文件变更清单：`libraries/http-services/src/server.ts`、`libraries/http-services/src/__tests__/server.test.ts`、`libraries/http-services/grafana-dashboard.json`（新增 target_host/target_path 面板），必要时补充观测说明文档。
 - 验证策略：单测覆盖 hostname 为空/解析失败、target_path 采集、`error.code` 映射（含 INVALID_URL/TIMEOUT/FORBIDDEN）、IP 不默认 blocked；手工验证 metrics 输出与基数控制。
 - TODO（后续评估）：若 `target_path` 导致高基数，考虑路径归一化/前缀过滤/分层指标策略。
 

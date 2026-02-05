@@ -1,6 +1,6 @@
 ## What
 
-- Add target host/path metrics for HTTP proxy requests in `@yuants/http-services`
+- Add target host/path labels to `http_proxy_requests_total` in `@yuants/http-services`
 
 ## Why
 
@@ -8,7 +8,7 @@
 
 ## How
 
-- Register `http_proxy_target_host_requests_total` with `target_host`, `target_path`, `result` labels
+- Extend `http_proxy_requests_total` with `target_host` and `target_path` labels
 - Map results from existing handler error codes; derive host/path from `new URL(req.url)` parse result
 - Extend tests to cover target_path defaulting, labels propagation, and invalid_url cases
 - Update Grafana dashboard with target host/path panels and filters
@@ -20,7 +20,7 @@
 ## Risk / Rollback
 
 - Risk: `target_path` may increase metric cardinality; monitor and apply normalization/filters if needed
-- Rollback: remove the `http_proxy_target_host_requests_total` registration and sampling logic
+- Rollback: remove `target_host`/`target_path` labels from `http_proxy_requests_total` sampling logic
 
 ## Links
 
