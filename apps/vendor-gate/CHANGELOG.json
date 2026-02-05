@@ -2,6 +2,28 @@
   "name": "@yuants/vendor-gate",
   "entries": [
     {
+      "version": "0.9.6",
+      "tag": "@yuants/vendor-gate_v0.9.6",
+      "date": "Thu, 05 Feb 2026 14:06:35 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add async select ip"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/http-services\" to `0.5.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.9.5",
       "tag": "@yuants/vendor-gate_v0.9.5",
       "date": "Thu, 05 Feb 2026 06:35:27 GMT",
