@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/http-services",
+      "comment": "add async select ip",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/http-services"
+}
