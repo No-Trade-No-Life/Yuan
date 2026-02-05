@@ -74,6 +74,16 @@
 - 用户确认安全问题暂不处理，解除安全审查阻塞。
 - 完成 Aster public/private API 推广：tokenBucket key 增加 ip 维度，USE_HTTP_PROXY 时通过 labels.ip 路由，直连使用 public_ip fallback。
 - 运行 `rush build` 通过（含 vendor-aster）。
+- 已复核 scope 内 vendor 文件，确认 proxy ip 选择/labels.ip 路由/encodePath key/public_ip fallback 均已满足 RFC 要求，无需改动。
+- 阶段 B 验证：在仓库根目录执行 `rush build`，结果通过（缓存命中较多）。
+- 推广剩余 vendor（bitget/gate/huobi/hyperliquid/okx）：代理场景通过 labels.ip 路由并引入 ip 维度限流 key；直连使用 public_ip fallback。
+- 验证：`rush build` 通过。
+- 完成 code/security review，报告落盘：`review-code-rollout.md`、`review-security-rollout.md`。
+- 生成 rollout walkthrough 与 PR Body：`.legion/tasks/vendor-tokenbucket-proxy-ip/docs/walkthrough-rollout.md`、`.legion/tasks/vendor-tokenbucket-proxy-ip/docs/pr-body-rollout.md`。
+- 修复 Aster per-ip tokenBucket 配置缺失：per-ip bucket 复用 base 限频参数，避免 acquireSync(weight) 直接失败。
+- 验证：`rush build --to @yuants/vendor-aster` 通过。
+- 检查其他 vendor 的 per-ip tokenBucket 配置：发现 Binance 未复用 base 限频参数并修复。
+- 验证：`rush build --to @yuants/vendor-binance` 通过。
 
 ### 🟡 进行中
 
@@ -114,12 +124,13 @@
 
 **下次继续从这里开始：**
 
-1. 请确认 Host 是否对 UpdateTerminalInfo/HostEvent 进行鉴权，能否保证只有 http-proxy/http-services 写入 tags.ip/ip_source。
-2. 若无法保证，我将按你的指示选择：实现 Host 侧校验/签名，或引入 HTTPProxy 终端白名单。
+1. Walkthrough 与 PR Body 已生成：`.legion/tasks/vendor-tokenbucket-proxy-ip/docs/report-walkthrough.md`、`.legion/tasks/vendor-tokenbucket-proxy-ip/docs/pr-body.md`（rollout 版本同目录）。
+2. 如需继续验证，可补充运行包级 `rushx test` 或指定测试集。
+3. 如要收敛安全建议，优先处理 public_ip 缺失的 fallback 隔离与 proxy 路由日志补齐。
 
 **注意事项：**
 
-- `npm run bench`（workdir `libraries/http-services`）PASS，selector S1-S4 满足原阈值。
+- 构建输出无错误，仅提示 Node 版本未测试（Node.js 24.11.0）。
 
 ---
 

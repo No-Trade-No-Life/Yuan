@@ -1,4 +1,5 @@
-import { fetch } from '@yuants/http-services';
+import { fetch, selectHTTPProxyIpRoundRobin } from '@yuants/http-services';
+import { Terminal } from '@yuants/protocol';
 import { UUID, formatTime, newError } from '@yuants/utils';
 import { Subject, filter, firstValueFrom, mergeMap, of, shareReplay, throwError, timeout, timer } from 'rxjs';
 import { afterRestResponse, beforeRestRequest, getRestRequestContext } from './rate-limit';
@@ -7,9 +8,34 @@ void afterRestResponse;
 
 type HttpMethod = 'GET' | 'POST';
 
+type RequestContext = { ip: string };
+
+const resolveLocalPublicIp = (): string => {
+  const ip = terminal.terminalInfo.tags?.public_ip?.trim();
+  if (ip) return ip;
+  const now = Date.now();
+  const lastLoggedAt = missingPublicIpLogAtByTerminalId.get(terminal.terminal_id) ?? 0;
+  if (now - lastLoggedAt > MISSING_PUBLIC_IP_LOG_INTERVAL) {
+    missingPublicIpLogAtByTerminalId.set(terminal.terminal_id, now);
+    console.info(formatTime(Date.now()), 'missing terminal public_ip tag, fallback to public-ip-unknown');
+  }
+  return 'public-ip-unknown';
+};
+
+const createRequestContext = (): RequestContext => {
+  if (shouldUseHttpProxy) {
+    const ip = selectHTTPProxyIpRoundRobin(terminal);
+    return { ip };
+  }
+  return { ip: resolveLocalPublicIp() };
+};
+
 const BASE_URL = 'https://api.hyperliquid.xyz';
 const shouldUseHttpProxy = process.env.USE_HTTP_PROXY === 'true';
 const fetchImpl = shouldUseHttpProxy ? fetch : globalThis.fetch ?? fetch;
+const terminal = Terminal.fromNodeEnv();
+const MISSING_PUBLIC_IP_LOG_INTERVAL = 3_600_000;
+const missingPublicIpLogAtByTerminalId = new Map<string, number>();
 
 if (shouldUseHttpProxy) {
   globalThis.fetch = fetch;
@@ -42,17 +68,30 @@ const callApi = async (method: HttpMethod, path: string, params?: any) => {
 
   const requestContext = getRestRequestContext(method, path, params);
   const requestKey = getRequestKey(requestContext);
+  const proxyContext = createRequestContext();
 
   beforeRestRequest(
     { method, url: url.href, path, kind: requestContext.kind, infoType: requestContext.infoType, requestKey },
     requestContext,
+    proxyContext.ip,
   );
 
-  const res = await fetchImpl(url.href, {
-    method,
-    headers,
-    body: method === 'GET' ? undefined : body || undefined,
-  });
+  const res = await fetchImpl(
+    url.href,
+    shouldUseHttpProxy
+      ? {
+          method,
+          headers,
+          body: method === 'GET' ? undefined : body || undefined,
+          labels: proxyContext.ip ? { ip: proxyContext.ip } : undefined,
+          terminal,
+        }
+      : {
+          method,
+          headers,
+          body: method === 'GET' ? undefined : body || undefined,
+        },
+  );
   const retStr = await res.text();
   if (res.status === 429) {
     console.info(

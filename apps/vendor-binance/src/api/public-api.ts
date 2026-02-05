@@ -1,5 +1,5 @@
 import { scopeError, tokenBucket } from '@yuants/utils';
-import { buildTokenBucketKey, createRequestContext, requestPublic } from './client';
+import { buildTokenBucketKey, createRequestContext, getTokenBucketOptions, requestPublic } from './client';
 
 export interface IFutureExchangeFilter extends Record<string, string | number | boolean | undefined> {
   filterType: string;
@@ -119,7 +119,7 @@ export const getFutureExchangeInfo = (): Promise<IFutureExchangeInfo> => {
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPublic<IFutureExchangeInfo>('GET', endpoint, undefined, requestContext);
 };
@@ -207,7 +207,7 @@ export const getFuturePremiumIndex = (params: { symbol?: string }): Promise<IFut
       weight,
       hasSymbol: !!params?.symbol,
     },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPublic<IFuturePremiumIndexEntry[]>('GET', endpoint, params, requestContext);
 };
@@ -238,7 +238,7 @@ export const getFutureBookTicker = (params?: { symbol?: string }): Promise<IFutu
       weight,
       hasSymbol: !!params?.symbol,
     },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPublic<IFutureBookTickerEntry[]>('GET', endpoint, params, requestContext);
 };
@@ -261,7 +261,7 @@ export const getFutureOpenInterest = (params: { symbol: string }): Promise<IFutu
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPublic<IFutureOpenInterest>('GET', endpoint, params, requestContext);
 };
@@ -297,7 +297,7 @@ export const getSpotBookTicker = (params?: { symbol?: string }): Promise<ISpotBo
       weight,
       hasSymbol: !!params?.symbol,
     },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPublic<ISpotBookTickerEntry[]>('GET', endpoint, params, requestContext);
 };
@@ -356,7 +356,7 @@ export const getSpotExchangeInfo = (): Promise<ISpotExchangeInfo> => {
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPublic<ISpotExchangeInfo>('GET', endpoint, undefined, requestContext);
 };
@@ -386,7 +386,7 @@ export const getSpotTickerPrice = (params?: {
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPublic('GET', endpoint, params, requestContext);
 };

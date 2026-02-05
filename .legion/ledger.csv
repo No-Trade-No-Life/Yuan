@@ -1998,3 +1998,34 @@
 2026-02-04T16:46:08.062Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 完成 Aster public/private API 推广：tokenBucket key 增加 ip 维度，USE_HTTP_PROXY 时通过 labels.ip 路由，直连使用 public_ip fallback。,success
 2026-02-04T16:46:13.600Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: 推广 Aster：public/private API 加入 proxy ip 维度的 tokenBucket key 与 labels.ip 路由,success
 2026-02-04T16:47:55.882Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 运行 `rush build` 通过（含 vendor-aster）。,success
+2026-02-04T17:00:56.688Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T17:01:02.766Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T17:01:13.407Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T17:01:15.480Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-05T03:46:14.250Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-05T03:46:27.681Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,setCurrentTask: 推广剩余 vendor（bitget/gate/huobi/hyperliquid/okx）按 RFC 更新 tokenBucket key 与 labels.ip 路由,success
+2026-02-05T03:46:38.655Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-05T03:46:41.097Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-05T03:48:22.624Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addConstraint: 本轮未运行测试：无代码改动，按需执行各 vendor 的 tsc 校验。,success
+2026-02-05T03:48:26.534Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: 确认 bitget/gate/huobi/hyperliquid/okx 已符合 proxy ip/encodePath/public_ip 要求（无需改动）,success
+2026-02-05T03:48:29.855Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addTask: 自测（可选）：各 vendor tsc 校验,success
+2026-02-05T03:48:57.279Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-05T03:48:57.720Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-05T03:48:59.955Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-05T03:49:51.589Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDecision: 采用 `rush build` 作为阶段 B 验证命令。,success
+2026-02-05T03:49:53.601Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: 测试执行,success
+2026-02-05T03:52:05.159Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: 推广剩余 vendor（bitget/gate/huobi/hyperliquid/okx）按 RFC 更新 tokenBucket key 与 labels.ip 路由,success
+2026-02-05T03:52:11.664Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addFile: .legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-code-rollout.md,success
+2026-02-05T03:52:21.568Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-05T03:52:23.867Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-05T03:55:47.353Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: 运行 rush build 并完成 code/security review,success
+2026-02-05T03:55:54.505Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addFile: .legion/tasks/vendor-tokenbucket-proxy-ip/docs/walkthrough-rollout.md,success
+2026-02-05T03:55:57.895Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: 生成 rollout walkthrough 与 PR body,success
+2026-02-05T05:02:30.359Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-05T05:02:36.669Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-05T05:06:30.279Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: 修复 Aster per-ip tokenBucket 配置缺失导致限流失败,success
+2026-02-05T05:06:35.602Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 修复 Aster per-ip tokenBucket 配置缺失：per-ip bucket 复用 base 限频参数，避免 acquireSync(weight) 直接失败。,success
+2026-02-05T05:08:38.427Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-05T05:08:43.818Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-05T05:13:38.597Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addFile: apps/vendor-binance/src/api/client.ts,success
+2026-02-05T05:15:41.537Z,legion_update_plan,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success

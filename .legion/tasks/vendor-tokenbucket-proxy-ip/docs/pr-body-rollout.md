@@ -23,6 +23,6 @@
 # Links
 
 - RFC: `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/rfc.md`
-- Walkthrough: `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/report-walkthrough.md`
+- Walkthrough: `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/walkthrough-rollout.md`
 - Code Review: `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-code-rollout.md`
 - Security Review: `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-security-rollout.md`

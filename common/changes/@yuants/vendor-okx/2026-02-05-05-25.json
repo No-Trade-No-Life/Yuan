@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-okx",
+      "comment": "apply for new tokenbucket",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-okx"
+}

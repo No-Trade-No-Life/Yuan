@@ -1,4 +1,4 @@
-import { newError, scopeError, tokenBucket } from '@yuants/utils';
+import { encodePath, newError, scopeError, tokenBucket } from '@yuants/utils';
 
 type HttpMethod = 'GET' | 'POST';
 
@@ -23,11 +23,12 @@ const REST_IP_BUCKET_ID = 'HYPERLIQUID_REST_IP_WEIGHT_1200_PER_MIN';
 const REST_IP_BUCKET_CAPACITY = 1200;
 const REST_IP_WEIGHT_MAX = REST_IP_BUCKET_CAPACITY * 10;
 
-tokenBucket(REST_IP_BUCKET_ID, {
+const REST_IP_BUCKET_CONFIG = {
   capacity: REST_IP_BUCKET_CAPACITY,
   refillInterval: 60_000,
   refillAmount: 1200,
-});
+};
+tokenBucket(REST_IP_BUCKET_ID, REST_IP_BUCKET_CONFIG);
 
 const INFO_TYPE_TO_BASE_WEIGHT: Readonly<Record<string, number>> = {
   l2Book: 2,
@@ -199,21 +200,25 @@ const normalizeRestWeight = (meta: Record<string, unknown>, weight: number): num
   return normalized;
 };
 
-export const acquireRestIpWeightSync = (meta: Record<string, unknown>, weight: number) => {
+const buildRestBucketKey = (ip?: string) => (ip ? encodePath([REST_IP_BUCKET_ID, ip]) : REST_IP_BUCKET_ID);
+
+export const acquireRestIpWeightSync = (meta: Record<string, unknown>, weight: number, ip?: string) => {
   const normalized = normalizeRestWeight(meta, weight);
-  scopeError('HYPERLIQUID_API_RATE_LIMIT', { ...meta, bucketId: REST_IP_BUCKET_ID, weight: normalized }, () =>
-    tokenBucket(REST_IP_BUCKET_ID).acquireSync(normalized),
+  const bucketKey = buildRestBucketKey(ip);
+  scopeError('HYPERLIQUID_API_RATE_LIMIT', { ...meta, bucketId: bucketKey, weight: normalized }, () =>
+    tokenBucket(bucketKey, REST_IP_BUCKET_CONFIG).acquireSync(normalized),
   );
 };
 
-const acquireRestIpWeight = async (meta: Record<string, unknown>, weight: number) => {
+const acquireRestIpWeight = async (meta: Record<string, unknown>, weight: number, ip?: string) => {
   let remaining = normalizeRestWeight(meta, weight);
+  const bucketKey = buildRestBucketKey(ip);
   while (remaining > 0) {
     const chunk = Math.min(REST_IP_BUCKET_CAPACITY, remaining);
     await scopeError(
       'HYPERLIQUID_API_RATE_LIMIT',
-      { ...meta, bucketId: REST_IP_BUCKET_ID, weight: chunk, remaining },
-      () => tokenBucket(REST_IP_BUCKET_ID).acquire(chunk),
+      { ...meta, bucketId: bucketKey, weight: chunk, remaining },
+      () => tokenBucket(bucketKey, REST_IP_BUCKET_CONFIG).acquire(chunk),
     );
     remaining -= chunk;
   }
@@ -222,10 +227,11 @@ const acquireRestIpWeight = async (meta: Record<string, unknown>, weight: number
 export const beforeRestRequest = (
   meta: Record<string, unknown>,
   ctx: RestRequestContext,
+  ip?: string,
 ): Readonly<{ baseWeight: number; estimatedExtraWeight: number }> => {
   const baseWeight = getRestBaseWeight(ctx);
   const estimatedExtraWeight = getRestEstimatedExtraWeight(ctx);
-  acquireRestIpWeightSync(meta, baseWeight + estimatedExtraWeight);
+  acquireRestIpWeightSync(meta, baseWeight + estimatedExtraWeight, ip);
   return { baseWeight, estimatedExtraWeight };
 };
 
@@ -234,6 +240,7 @@ export const afterRestResponse = async (
   ctx: RestRequestContext,
   response: unknown,
   estimatedExtraWeight: number,
+  ip?: string,
 ) => {
   for (const weigher of extraWeighers) {
     if (!weigher.match(ctx)) continue;
@@ -243,7 +250,7 @@ export const afterRestResponse = async (
     const delta = actualExtraWeight - estimatedExtraWeight;
     if (delta > 0) {
       // 不使用 acquireSync：响应后只阻塞等待，不报错
-      await acquireRestIpWeight(meta, delta);
+      await acquireRestIpWeight(meta, delta, ip);
     }
     return;
   }

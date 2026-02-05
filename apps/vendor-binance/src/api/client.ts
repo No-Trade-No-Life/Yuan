@@ -1,6 +1,14 @@
 import { fetch, selectHTTPProxyIpRoundRobin } from '@yuants/http-services';
 import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
-import { encodeHex, encodePath, formatTime, HmacSHA256, newError, tokenBucket } from '@yuants/utils';
+import {
+  encodeHex,
+  encodePath,
+  formatTime,
+  HmacSHA256,
+  newError,
+  tokenBucket,
+  type TokenBucketOptions,
+} from '@yuants/utils';
 
 const MetricBinanceApiUsedWeight = GlobalPrometheusRegistry.gauge('binance_api_used_weight', '');
 const MetricBinanceApiCounter = GlobalPrometheusRegistry.counter('binance_api_request_total', '');
@@ -32,29 +40,51 @@ export interface IApiError {
   msg: string;
 }
 
-export const spotAPIBucket = tokenBucket('api.binance.com', {
-  capacity: 6000,
-  refillInterval: 60_000,
-  refillAmount: 6000,
-});
+export const BINANCE_TOKEN_BUCKET_OPTIONS_BY_ID: Record<string, TokenBucketOptions> = {
+  'api.binance.com': {
+    capacity: 6000,
+    refillInterval: 60_000,
+    refillAmount: 6000,
+  },
+  'fapi.binance.com': {
+    capacity: 2400,
+    refillInterval: 60_000,
+    refillAmount: 2400,
+  },
+  'papi.binance.com': {
+    capacity: 6000,
+    refillInterval: 60_000,
+    refillAmount: 6000,
+  },
+  'order/unified/minute': {
+    capacity: 1200,
+    refillInterval: 60_000,
+    refillAmount: 1200,
+  },
+};
 
-export const futureAPIBucket = tokenBucket('fapi.binance.com', {
-  capacity: 2400,
-  refillInterval: 60_000,
-  refillAmount: 2400,
-});
+export const getTokenBucketOptions = (baseKey: string): TokenBucketOptions | undefined =>
+  BINANCE_TOKEN_BUCKET_OPTIONS_BY_ID[baseKey];
 
-export const unifiedAPIBucket = tokenBucket('papi.binance.com', {
-  capacity: 6000,
-  refillInterval: 60_000,
-  refillAmount: 6000,
-});
+export const spotAPIBucket = tokenBucket(
+  'api.binance.com',
+  BINANCE_TOKEN_BUCKET_OPTIONS_BY_ID['api.binance.com'],
+);
 
-export const unifiedOrderAPIBucket = tokenBucket('order/unified/minute', {
-  capacity: 1200,
-  refillInterval: 60_000,
-  refillAmount: 1200,
-});
+export const futureAPIBucket = tokenBucket(
+  'fapi.binance.com',
+  BINANCE_TOKEN_BUCKET_OPTIONS_BY_ID['fapi.binance.com'],
+);
+
+export const unifiedAPIBucket = tokenBucket(
+  'papi.binance.com',
+  BINANCE_TOKEN_BUCKET_OPTIONS_BY_ID['papi.binance.com'],
+);
+
+export const unifiedOrderAPIBucket = tokenBucket(
+  'order/unified/minute',
+  BINANCE_TOKEN_BUCKET_OPTIONS_BY_ID['order/unified/minute'],
+);
 
 export const buildTokenBucketKey = (baseKey: string, ip: string): string => encodePath([baseKey, ip]);
 

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-aster",
+      "comment": "apply for new tokenbucket",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-aster"
+}

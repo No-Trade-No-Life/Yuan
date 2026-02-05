@@ -1,11 +1,15 @@
-import { fetch } from '@yuants/http-services';
-import { HmacSHA256, UUID, encodeBase64, formatTime } from '@yuants/utils';
+import { fetch, selectHTTPProxyIpRoundRobin } from '@yuants/http-services';
+import { Terminal } from '@yuants/protocol';
+import { HmacSHA256, UUID, encodeBase64, encodePath, formatTime } from '@yuants/utils';
 import { Subject, filter, firstValueFrom, mergeMap, of, shareReplay, throwError, timeout, timer } from 'rxjs';
 import { ICredential } from './types';
 
 const BASE_URL = 'https://api.bitget.com';
 const shouldUseHttpProxy = process.env.USE_HTTP_PROXY === 'true';
 const fetchImpl = shouldUseHttpProxy ? fetch : globalThis.fetch ?? fetch;
+const terminal = Terminal.fromNodeEnv();
+const MISSING_PUBLIC_IP_LOG_INTERVAL = 3_600_000;
+const missingPublicIpLogAtByTerminalId = new Map<string, number>();
 
 if (shouldUseHttpProxy) {
   globalThis.fetch = fetch;
@@ -21,6 +25,7 @@ type QueueItem = {
   method: HttpMethod;
   path: string;
   params?: Record<string, unknown>;
+  requestContext: RequestContext;
 };
 
 type QueueResponse = { trace_id: string; response?: unknown; error?: Error };
@@ -31,6 +36,30 @@ type FlowController = {
 };
 
 const flowControllers = new Map<string, FlowController>();
+
+type RequestContext = { ip: string };
+
+const buildFlowControllerKey = (baseKey: string, ip: string) => encodePath([baseKey, ip]);
+
+const resolveLocalPublicIp = (): string => {
+  const ip = terminal.terminalInfo.tags?.public_ip?.trim();
+  if (ip) return ip;
+  const now = Date.now();
+  const lastLoggedAt = missingPublicIpLogAtByTerminalId.get(terminal.terminal_id) ?? 0;
+  if (now - lastLoggedAt > MISSING_PUBLIC_IP_LOG_INTERVAL) {
+    missingPublicIpLogAtByTerminalId.set(terminal.terminal_id, now);
+    console.info(formatTime(Date.now()), 'missing terminal public_ip tag, fallback to public-ip-unknown');
+  }
+  return 'public-ip-unknown';
+};
+
+const createRequestContext = (): RequestContext => {
+  if (shouldUseHttpProxy) {
+    const ip = selectHTTPProxyIpRoundRobin(terminal);
+    return { ip };
+  }
+  return { ip: resolveLocalPublicIp() };
+};
 
 const createUrl = (path: string, method: HttpMethod, params?: Record<string, unknown>) => {
   const url = new URL(BASE_URL);
@@ -77,6 +106,7 @@ const callApi = async <TResponse>(
   method: HttpMethod,
   path: string,
   params?: Record<string, unknown>,
+  requestContext?: RequestContext,
 ): Promise<TResponse> => {
   const url = createUrl(path, method, params);
   const body = method === 'GET' || params === undefined ? '' : JSON.stringify(params);
@@ -87,7 +117,16 @@ const callApi = async <TResponse>(
     body: method === 'GET' ? undefined : body || undefined,
   };
   console.info(formatTime(Date.now()), method, url.href, method === 'GET' ? '' : init.body || '');
-  const res = await fetchImpl(url.href, init);
+  const res = await fetchImpl(
+    url.href,
+    shouldUseHttpProxy
+      ? {
+          ...init,
+          labels: requestContext?.ip ? { ip: requestContext.ip } : undefined,
+          terminal,
+        }
+      : init,
+  );
   const retStr = await res.text();
   try {
     if (process.env.LOG_LEVEL === 'DEBUG') {
@@ -100,8 +139,11 @@ const callApi = async <TResponse>(
   }
 };
 
-const getFlowControllerKey = (credential: ICredential | undefined, path: string) =>
-  `${credential ? credential.access_key : 'PUBLIC'}:${path}`;
+const getFlowControllerKey = (
+  credential: ICredential | undefined,
+  path: string,
+  requestContext: RequestContext,
+) => buildFlowControllerKey(`${credential ? credential.access_key : 'PUBLIC'}:${path}`, requestContext.ip);
 
 const ensureFlowController = (key: string, config: FlowControlConfig) => {
   if (flowControllers.has(key)) {
@@ -117,7 +159,13 @@ const ensureFlowController = (key: string, config: FlowControlConfig) => {
       mergeMap(() => controller.requestQueue.splice(0, config.limit)),
       mergeMap(async (request) => {
         try {
-          const response = await callApi(request.credential, request.method, request.path, request.params);
+          const response = await callApi(
+            request.credential,
+            request.method,
+            request.path,
+            request.params,
+            request.requestContext,
+          );
           return { trace_id: request.trace_id, response };
         } catch (error) {
           return { trace_id: request.trace_id, error: error as Error };
@@ -136,7 +184,8 @@ const requestWithFlowControl = async <TResponse>(
   config: FlowControlConfig,
   params?: Record<string, unknown>,
 ): Promise<TResponse> => {
-  const key = getFlowControllerKey(credential, path);
+  const requestContext = createRequestContext();
+  const key = getFlowControllerKey(credential, path, requestContext);
   const controller = ensureFlowController(key, config);
   const trace_id = UUID();
   const res$ = controller.responseChannel.pipe(
@@ -145,7 +194,7 @@ const requestWithFlowControl = async <TResponse>(
     timeout(30_000),
     shareReplay(1),
   );
-  controller.requestQueue.push({ trace_id, credential, method, path, params });
+  controller.requestQueue.push({ trace_id, credential, method, path, params, requestContext });
   return (await firstValueFrom(res$)).response as TResponse;
 };
 
@@ -153,13 +202,13 @@ export const requestPublic = <T = unknown>(
   method: HttpMethod,
   path: string,
   params?: Record<string, unknown>,
-) => callApi<T>(undefined, method, path, params);
+) => callApi<T>(undefined, method, path, params, createRequestContext());
 export const requestPrivate = <T = unknown>(
   credential: ICredential,
   method: HttpMethod,
   path: string,
   params?: Record<string, unknown>,
-) => callApi<T>(credential, method, path, params);
+) => callApi<T>(credential, method, path, params, createRequestContext());
 export const requestPublicWithFlowControl = <T = unknown>(
   method: HttpMethod,
   path: string,

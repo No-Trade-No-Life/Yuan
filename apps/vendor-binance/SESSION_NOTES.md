@@ -101,6 +101,18 @@
 
 > 仅记录已结束的会话;进行中的内容放在第 11 节,收尾后再搬运;最新记录置顶。
 
+### 2026-02-05 — OpenCode
+
+- **本轮摘要**：
+  - 修复 Binance per-ip tokenBucket 未复用 base 限频参数的问题，避免 `acquireSync(weight)` 直接失败。
+  - public/private API 的 per-ip bucket 统一使用 base bucket 的限频配置。
+- **修改的文件**：
+  - `apps/vendor-binance/src/api/client.ts`
+  - `apps/vendor-binance/src/api/public-api.ts`
+  - `apps/vendor-binance/src/api/private-api.ts`
+- **运行的测试 / 检查**：
+  - `rush build --to @yuants/vendor-binance`（通过）
+
 ### 2026-02-04 — OpenCode
 
 - **本轮摘要**：
