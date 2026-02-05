@@ -1,4 +1,4 @@
-import { fetch, selectHTTPProxyIpRoundRobin } from '@yuants/http-services';
+import { fetch, selectHTTPProxyIpRoundRobinAsync } from '@yuants/http-services';
 import { Terminal } from '@yuants/protocol';
 import { encodeHex, formatTime, HmacSHA512, sha512 } from '@yuants/utils';
 import { join } from 'path';
@@ -37,9 +37,9 @@ const resolveLocalPublicIp = (): string => {
   return 'public-ip-unknown';
 };
 
-const createRequestContext = (): RequestContext => {
+const createRequestContext = async (): Promise<RequestContext> => {
   if (shouldUseHttpProxy) {
-    const ip = selectHTTPProxyIpRoundRobin(terminal);
+    const ip = await selectHTTPProxyIpRoundRobinAsync(terminal);
     return { ip };
   }
   return { ip: resolveLocalPublicIp() };
@@ -122,7 +122,7 @@ export const requestPublic = async <TResponse>(
   params?: GateParams,
 ): Promise<TResponse> => {
   const { url, body } = createRequestArtifacts(method, path, params);
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const headers: Record<string, string> = {
     Accept: 'application/json',
   };
@@ -164,7 +164,7 @@ export const requestPrivate = async <TResponse>(
   params?: GateParams,
 ): Promise<TResponse> => {
   const { url, body } = createRequestArtifacts(method, path, params);
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const timestamp = Date.now() / 1000;
 
   const bodyDigest = encodeHex(await sha512(new TextEncoder().encode(body)));

@@ -117,6 +117,16 @@
 ### 2026-02-05 — OpenCode
 
 - **本轮摘要**：
+  - proxy IP 选择改为异步等待（固定 30s），public/private API 调用链改为 await 请求上下文。
+- **修改的文件**：
+  - `apps/vendor-aster/src/api/public-api.ts`
+  - `apps/vendor-aster/src/api/private-api.ts`
+- **运行的测试 / 检查**：
+  - 未运行（本次仅修改 proxy ip 选择链路）
+
+### 2026-02-05 — OpenCode
+
+- **本轮摘要**：
   - 修复 Aster tokenBucket 维度改为 ip 后的容量配置缺失问题，按 base bucket 复用相同限频参数，避免 `acquireSync(weight)` 直接失败。
 - **修改的文件**：
   - `apps/vendor-aster/src/api/client.ts`

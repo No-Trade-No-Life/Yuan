@@ -103,6 +103,15 @@
 ### 2026-02-05 — OpenCode
 
 - **本轮摘要**：
+  - proxy IP 选择改为异步等待（固定 30s），requestPublic/requestPrivate 使用 await 请求上下文。
+- **修改的文件**：
+  - `apps/vendor-bitget/src/api/client.ts`
+- **运行的测试 / 检查**：
+  - 未运行（本次仅修改 proxy ip 选择链路）
+
+### 2026-02-05 — OpenCode
+
+- **本轮摘要**：
   - Bitget REST client 在 `USE_HTTP_PROXY=true` 时引入 proxy ip 维度，流控 key 由 `encodePath([BaseKey, ip])` 生成；请求通过 `labels.ip` 路由。
   - 直连场景使用 `terminal.terminalInfo.tags.public_ip`，缺失时限频日志并 fallback 到 `public-ip-unknown`。
 - **修改的文件**：

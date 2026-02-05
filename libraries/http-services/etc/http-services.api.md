@@ -64,4 +64,10 @@ export const provideHTTPProxyService: (terminal: Terminal, labels: Record<string
 // @public (undocumented)
 export const selectHTTPProxyIpRoundRobin: (terminal: Terminal) => string;
 
+// @public (undocumented)
+export const selectHTTPProxyIpRoundRobinAsync: (terminal: Terminal) => Promise<string>;
+
+// @public (undocumented)
+export const waitForHTTPProxyIps: (terminal: Terminal) => Promise<string[]>;
+
 ```

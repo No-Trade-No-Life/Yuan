@@ -202,6 +202,15 @@
 ### 2026-02-05 — OpenCode
 
 - **本轮摘要**：
+  - proxy IP 选择改为异步等待（固定 30s），REST 请求上下文改为 await。
+- **修改的文件**：
+  - `apps/vendor-hyperliquid/src/api/client.ts`
+- **运行的测试 / 检查**：
+  - 未运行（本次仅修改 proxy ip 选择链路）
+
+### 2026-02-05 — OpenCode
+
+- **本轮摘要**：
   - Hyperliquid REST client 在 `USE_HTTP_PROXY=true` 时使用 proxy ip 作为 labels.ip 路由，并将 REST IP 限流维度改为 `encodePath([BaseKey, ip])`。
   - 直连场景使用 `terminal.terminalInfo.tags.public_ip`，缺失时限频日志并 fallback 到 `public-ip-unknown`。
 - **修改的文件**：

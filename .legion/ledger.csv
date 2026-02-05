@@ -2035,3 +2035,99 @@
 2026-02-05T05:36:43.094Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,setCurrentTask: CI 下禁用集成/E2E 测试（http-services integration）,success
 2026-02-05T05:37:02.388Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 在 http-services 集成测试中增加 CI/CI_RUN 跳过逻辑，避免 CI 运行 E2E/Integration。,success
 2026-02-05T06:27:27.073Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: Gate 测试在 HOST_URL 未设置时跳过，并延迟导入依赖，避免 fromNodeEnv 在测试加载阶段直接报错。,success
+2026-02-05T11:25:45.841Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-05T11:25:48.143Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-05T11:40:53.161Z,legion_propose_task,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,name: http-services-terminalinfos-ready,success
+2026-02-05T11:41:19.744Z,legion_approve_proposal,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,proposalId: proposal-ml9dxxr3-c0aac3,success
+2026-02-05T11:41:36.860Z,legion_switch_task,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,taskId: http-services-terminalinfos-ready,success
+2026-02-05T11:41:40.283Z,legion_read_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,"section: all, includeReviews: true",success
+2026-02-05T11:41:57.195Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addDecision: 就绪判断以 terminalInfos$ 首发为准，空池发生在 GetTerminalInfos 尚未返回时。,success
+2026-02-05T11:42:06.750Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addDecision: 方案 A 在 http-services 提供异步选择 helper；调用点改为 await 等待就绪后再选 ip。,success
+2026-02-05T11:42:10.208Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addFile: apps/host/src/host-manager.ts,success
+2026-02-05T11:42:14.322Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addFile: libraries/protocol/src/terminal.ts,success
+2026-02-05T11:42:18.075Z,legion_update_tasks,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,completeTask: phase 1,success
+2026-02-05T11:42:25.837Z,legion_get_status,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
+2026-02-05T11:42:32.212Z,legion_read_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,"section: all, includeReviews: true",success
+2026-02-05T11:44:25.104Z,legion_get_status,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
+2026-02-05T11:46:00.366Z,legion_get_status,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
+2026-02-05T11:48:42.716Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addFile: .legion/tasks/http-services-terminalinfos-ready/docs/review-rfc.md,success
+2026-02-05T11:50:23.956Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,"addDecision: timeoutMs <= 0 视为立即超时；超时错误使用 newError('E_PROXY_TARGET_NOT_FOUND', { reason, terminal_id, timeoutMs }) 并按 terminal_id 限频日志（interval=3_600_000ms）。",success
+2026-02-05T11:50:30.423Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addDecision: 空池语义定义为 terminalInfos$ 不可用或 proxyCandidates 为空；proxyCandidates 非空但 ip pool 为空则进入等待并可能超时。,success
+2026-02-05T11:50:50.528Z,legion_get_status,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
+2026-02-05T11:50:53.018Z,legion_read_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,"section: all, includeReviews: true",success
+2026-02-05T11:52:05.614Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addDecision: 完成 RFC 对抗审查并输出 review-rfc.md,success
+2026-02-05T11:52:48.119Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,progress.completed: 完成 RFC 对抗审查并形成必须修正/可选优化清单（见 review-rfc.md）。,success
+2026-02-05T11:52:48.139Z,legion_update_tasks,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addDiscoveredTask: 修订 RFC：收敛空池/timeout 语义与 terminalInfos$ 判定、统一错误结构与限频来源、补齐调用点清单。,success
+2026-02-05T11:53:42.845Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,handoff: 按审查建议修订 RFC：选择空池/timeout 语义策略（A:声明不变量或B:空池统一等待），明确 terminalInfos$ 判定条件或移除分支。,success
+2026-02-05T11:54:38.680Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addDecision: 空池语义收敛：仅在 terminalInfos$ 不可用时返回 empty_pool，其余空池一律等待至 timeout。,success
+2026-02-05T11:54:46.716Z,legion_get_status,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
+2026-02-05T11:58:05.776Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addDecision: timeout 语义明确为“等待窗口内未出现任何可用 ip（含未就绪与无代理）”，empty_pool 仅用于 terminalInfos$ 不可用的防御分支。,success
+2026-02-05T11:58:10.991Z,legion_get_status,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
+2026-02-05T11:59:43.016Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
+2026-02-05T11:59:47.615Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,progress.completed: 完成最新 RFC 对抗审查，阻塞项聚焦 timeout 成本说明、terminalInfos$ 判定统一、错误 payload 同构、限频常量来源、调用点清单生成方法。,success
+2026-02-05T11:59:52.733Z,legion_update_tasks,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addDiscoveredTask: 修订 RFC：补充无代理配置下 timeout 成本与策略；统一 terminalInfos$ 判定条件；统一错误 payload 字段；明确限频常量定义/导出来源；补齐调用点清单生成方法与排除项。,success
+2026-02-05T12:00:43.516Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addDecision: 允许调用点通过 timeoutMs 控制等待成本，含 timeoutMs=0 快速失败策略。,success
+2026-02-05T12:00:52.139Z,legion_get_status,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
+2026-02-05T12:03:08.795Z,legion_update_tasks,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addDiscoveredTask: 修订RFC：量化无代理配置下timeout成本并给出调用点策略；统一terminalInfos$判定规范或删分支；明确错误payload契约与terminal_id缺失规则；注明限频常量定义/引用方式；完善调用点清单生成与排除规则。,success
+2026-02-05T12:03:08.796Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,progress.completed: 完成本次对抗审查，聚焦空池/timeout成本、terminalInfos$判定一致性、错误payload同构、限频常量来源、调用点清单方法。,success
+2026-02-05T12:03:51.280Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
+2026-02-05T12:03:55.880Z,legion_update_tasks,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addDiscoveredTask: 修订 RFC：补充无代理配置下 timeout 成本与调用点策略；给出 terminalInfos$ 可用性唯一判定定义；封闭错误 payload 同构契约；明确限频常量定义/复用方式；扩展调用点清单生成方法与排除规则。,success
+2026-02-05T12:04:36.684Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addDecision: terminalInfos$ 可用性判定统一为 `terminal.terminalInfos$ != null` 且 `typeof terminal.terminalInfos$?.subscribe === 'function'`。,success
+2026-02-05T12:04:41.322Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,"addDecision: 所有失败路径统一错误契约 `newError('E_PROXY_TARGET_NOT_FOUND', { reason, terminal_id, timeoutMs })`，terminal_id 缺失统一写入 'unknown'。",success
+2026-02-05T12:04:44.762Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addDecision: 运行策略：USE_HTTP_PROXY=true 默认等待 10s；无代理配置时允许调用点传 timeoutMs=0/更短以快速失败。,success
+2026-02-05T12:04:48.450Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,progress.completed: 补充 RFC：新增错误契约与运行策略段落，统一 terminalInfos$ 可用性定义，完善清单生成方法。,success
+2026-02-05T12:04:55.560Z,legion_get_status,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
+2026-02-05T12:04:58.506Z,legion_read_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,"section: all, includeReviews: true",success
+2026-02-05T12:05:54.053Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addDecision: 对抗审查结论：历史必修项已在 RFC 中覆盖，但新增阻塞项为 timeoutMs 合理性校验缺乏可执行边界，需修订后方可闭环。,success
+2026-02-05T12:06:21.225Z,legion_update_tasks,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addDiscoveredTask: 修订 RFC：为 timeoutMs 合理性校验补充明确边界与处理策略（NaN/Infinity/上限），或删除该 MUST 条款以确保可实现/可验证。,success
+2026-02-05T12:07:52.969Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addDecision: timeoutMs 在内部规范化为有限非负值（NaN/Infinity/负数 -> 0），并在错误 payload 中使用规范化值。,success
+2026-02-05T12:07:59.831Z,legion_get_status,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
+2026-02-05T12:19:04.713Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addDecision: 完成最新 RFC 对抗审查（基于 .legion/tasks/http-services-terminalinfos-ready/docs/rfc.md），结论无必须修正项，允许推进。,success
+2026-02-05T12:19:07.650Z,legion_update_tasks,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addTask: RFC 对抗审查完成（本次审查结论通过，无必修项）。,success
+2026-02-05T12:19:14.159Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,progress.completed: 完成最新 RFC 对抗审查（.legion/tasks/http-services-terminalinfos-ready/docs/rfc.md），未发现必须修正项；仅给出可选优化建议。,success
+2026-02-05T12:19:37.164Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
+2026-02-05T12:20:27.963Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,progress.completed: 记录审查结论：无必须修正项，允许通过；争议点仅为可选优化方向。,success
+2026-02-05T12:20:28.054Z,legion_update_tasks,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addTask: 更新 RFC 审查状态：无必修项，结论通过。,success
+2026-02-05T12:20:31.706Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,progress.completed: 准备写入 review-rfc.md 覆盖旧内容。,success
+2026-02-05T12:20:31.762Z,legion_update_tasks,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addTask: 写入 review-rfc.md 新审查报告。,success
+2026-02-05T12:20:48.450Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,progress.completed: 尝试使用写入工具更新 review-rfc.md。,success
+2026-02-05T12:20:53.841Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,progress.completed: 若写入工具可用，将覆盖 review-rfc.md。,success
+2026-02-05T12:20:53.842Z,legion_update_tasks,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addTask: 等待写入工具可用以更新 review-rfc.md。,success
+2026-02-05T12:20:57.826Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,progress.completed: 准备直接使用 write 工具覆盖 review-rfc.md。,success
+2026-02-05T12:21:07.191Z,legion_update_tasks,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addTask: 覆盖 review-rfc.md 内容以反映通过结论。,success
+2026-02-05T12:21:07.192Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,progress.completed: 准备覆盖 review-rfc.md 内容以反映最新审查结论。,success
+2026-02-05T12:21:11.706Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,progress.completed: 准备调用 write 工具（若可用）覆盖 review-rfc.md。,success
+2026-02-05T12:21:21.478Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,progress.completed: 开始写入 review-rfc.md 新内容。,success
+2026-02-05T12:21:21.560Z,legion_update_tasks,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addTask: 写入 review-rfc.md（等待写入工具支持）。,success
+2026-02-05T12:22:11.205Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,progress.completed: RFC 对抗审查通过，未发现必须修正项。,success
+2026-02-05T12:23:09.358Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,progress.completed: 设计阶段完成：RFC 与对抗审查已通过，等待用户确认进入实现。,success
+2026-02-05T12:32:33.092Z,legion_update_tasks,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,setCurrentTask: 按用户要求调整 RFC：timeout 固定 30 秒且调用点不传参。,success
+2026-02-05T12:32:38.853Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addConstraint: 用户要求：调用点不传入 timeout 参数，等待窗口固定 30 秒。,success
+2026-02-05T12:32:47.572Z,legion_get_status,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
+2026-02-05T12:35:28.325Z,legion_get_status,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
+2026-02-05T12:39:11.225Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,progress.completed: 修订 RFC：补充迁移验收闭环（rg 校验与调用点无参数约束）。,success
+2026-02-05T12:39:17.750Z,legion_get_status,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
+2026-02-05T12:40:10.922Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,progress.completed: 完成本轮 RFC 对抗审查：确认迁移验收闭环可执行且无必须修正项；仅保留可选优化建议。,success
+2026-02-05T12:40:13.943Z,legion_update_tasks,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,completeTask: 修订 RFC：补充迁移验收闭环（rg 校验仅剩 benchmarks 且无 timeout 参数）。,success
+2026-02-05T12:41:20.843Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,progress.completed: 对抗审查通过（固定 30 秒版本），无必须修正项。,success
+2026-02-05T12:44:13.108Z,legion_get_status,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
+2026-02-05T12:44:31.851Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addDecision: 用户已确认进入实现阶段（并要求 timeout 固定 30 秒）。,success
+2026-02-05T12:44:34.954Z,legion_update_tasks,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,completeTask: phase 2,success
+2026-02-05T12:44:47.541Z,legion_get_status,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
+2026-02-05T12:44:49.539Z,legion_read_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,"section: all, includeReviews: true",success
+2026-02-05T12:47:10.823Z,legion_get_status,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
+2026-02-05T12:47:14.180Z,legion_read_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,"section: all, includeReviews: true",success
+2026-02-05T13:04:45.575Z,legion_update_tasks,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,setCurrentTask: phase 3,success
+2026-02-05T13:05:04.616Z,legion_get_status,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
+2026-02-05T13:05:06.655Z,legion_get_status,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
+2026-02-05T13:05:07.436Z,legion_get_status,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
+2026-02-05T13:06:58.769Z,legion_read_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,"section: all, includeReviews: true",success
+2026-02-05T13:07:07.459Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,progress.completed: 最小验证：在 libraries/http-services 运行 `rushx build`（heft build+jest）。构建与测试通过；API Extractor 提示签名变更并更新 etc/http-services.api.md；有 TS/Node 版本兼容性警告但不影响本次通过。,success
+2026-02-05T13:07:10.655Z,legion_update_tasks,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,completeTask: phase 4,success
+2026-02-05T13:09:32.576Z,legion_get_status,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
+2026-02-05T13:09:35.713Z,legion_read_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,"section: all, includeReviews: true",success
+2026-02-05T13:11:05.520Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addFile: .legion/tasks/http-services-terminalinfos-ready/docs/review-code.md,success
+2026-02-05T13:11:14.265Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addFile: .legion/tasks/http-services-terminalinfos-ready/docs/review-security.md,success
+2026-02-05T13:11:19.363Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addFile: .legion/tasks/http-services-terminalinfos-ready/docs/walkthrough.md,success
+2026-02-05T13:11:25.140Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addFile: .legion/tasks/http-services-terminalinfos-ready/docs/pr-body.md,success
+2026-02-05T13:24:43.640Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,progress.completed: 已推送分支 `legion/http-services-terminalinfos-ready` 并创建 PR：https://github.com/No-Trade-No-Life/Yuan/pull/2565。,success

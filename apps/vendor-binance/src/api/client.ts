@@ -1,4 +1,4 @@
-import { fetch, selectHTTPProxyIpRoundRobin } from '@yuants/http-services';
+import { fetch, selectHTTPProxyIpRoundRobinAsync } from '@yuants/http-services';
 import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import {
   encodeHex,
@@ -100,9 +100,9 @@ const resolveLocalPublicIp = (): string => {
   return 'public-ip-unknown';
 };
 
-export const createRequestContext = (): IRequestContext => {
+export const createRequestContext = async (): Promise<IRequestContext> => {
   if (shouldUseHttpProxy) {
-    const ip = selectHTTPProxyIpRoundRobin(terminal);
+    const ip = await selectHTTPProxyIpRoundRobinAsync(terminal);
     return { ip };
   }
   return { ip: resolveLocalPublicIp() };
@@ -185,9 +185,7 @@ const callApi = async <T>(
 
   MetricBinanceApiCounter.labels({ path: url.pathname, terminal_id: terminal.terminal_id }).inc();
 
-  const proxyIp = shouldUseHttpProxy
-    ? requestContext?.ip ?? selectHTTPProxyIpRoundRobin(terminal)
-    : undefined;
+  const proxyIp = shouldUseHttpProxy ? requestContext?.ip : undefined;
   const res = await fetchImpl(
     url.href,
     shouldUseHttpProxy

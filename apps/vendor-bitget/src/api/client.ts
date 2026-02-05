@@ -1,4 +1,4 @@
-import { fetch, selectHTTPProxyIpRoundRobin } from '@yuants/http-services';
+import { fetch, selectHTTPProxyIpRoundRobinAsync } from '@yuants/http-services';
 import { Terminal } from '@yuants/protocol';
 import { HmacSHA256, UUID, encodeBase64, encodePath, formatTime } from '@yuants/utils';
 import { Subject, filter, firstValueFrom, mergeMap, of, shareReplay, throwError, timeout, timer } from 'rxjs';
@@ -53,9 +53,9 @@ const resolveLocalPublicIp = (): string => {
   return 'public-ip-unknown';
 };
 
-const createRequestContext = (): RequestContext => {
+const createRequestContext = async (): Promise<RequestContext> => {
   if (shouldUseHttpProxy) {
-    const ip = selectHTTPProxyIpRoundRobin(terminal);
+    const ip = await selectHTTPProxyIpRoundRobinAsync(terminal);
     return { ip };
   }
   return { ip: resolveLocalPublicIp() };
@@ -184,7 +184,7 @@ const requestWithFlowControl = async <TResponse>(
   config: FlowControlConfig,
   params?: Record<string, unknown>,
 ): Promise<TResponse> => {
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const key = getFlowControllerKey(credential, path, requestContext);
   const controller = ensureFlowController(key, config);
   const trace_id = UUID();
@@ -198,17 +198,17 @@ const requestWithFlowControl = async <TResponse>(
   return (await firstValueFrom(res$)).response as TResponse;
 };
 
-export const requestPublic = <T = unknown>(
+export const requestPublic = async <T = unknown>(
   method: HttpMethod,
   path: string,
   params?: Record<string, unknown>,
-) => callApi<T>(undefined, method, path, params, createRequestContext());
-export const requestPrivate = <T = unknown>(
+) => callApi<T>(undefined, method, path, params, await createRequestContext());
+export const requestPrivate = async <T = unknown>(
   credential: ICredential,
   method: HttpMethod,
   path: string,
   params?: Record<string, unknown>,
-) => callApi<T>(credential, method, path, params, createRequestContext());
+) => callApi<T>(credential, method, path, params, await createRequestContext());
 export const requestPublicWithFlowControl = <T = unknown>(
   method: HttpMethod,
   path: string,

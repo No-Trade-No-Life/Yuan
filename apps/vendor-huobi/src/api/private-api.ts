@@ -1,4 +1,4 @@
-import { fetch, selectHTTPProxyIpRoundRobin } from '@yuants/http-services';
+import { fetch, selectHTTPProxyIpRoundRobinAsync } from '@yuants/http-services';
 import { Terminal } from '@yuants/protocol';
 import { encodeBase64, encodePath, formatTime, HmacSHA256, scopeError, tokenBucket } from '@yuants/utils';
 
@@ -45,9 +45,9 @@ const resolveLocalPublicIp = (): string => {
   return 'public-ip-unknown';
 };
 
-const createRequestContext = (): RequestContext => {
+const createRequestContext = async (): Promise<RequestContext> => {
   if (shouldUseHttpProxy) {
-    const ip = selectHTTPProxyIpRoundRobin(terminal);
+    const ip = await selectHTTPProxyIpRoundRobinAsync(terminal);
     return { ip };
   }
   return { ip: resolveLocalPublicIp() };
@@ -72,7 +72,7 @@ const privateRequestWithRateLimit = async (
   params?: any,
 ) => {
   const meta = { method, api_root, path, business, interfaceType };
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
 
   const interfaceTypeUpper = interfaceType.toUpperCase();
   const businessUpper = business.toUpperCase();
