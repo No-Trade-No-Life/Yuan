@@ -15,5 +15,5 @@ PASS（基于有限信息的评审；已审查文件：`libraries/http-services/
 
 ## 修复指导
 
-- `libraries/http-services/src/__tests__/server.test.ts`：将 `mockMetrics.counter.mock.results[0]`/`[1]` 替换为 `getCounterMetric(mockMetrics, 'http_proxy_requests_total')`、`getCounterMetric(mockMetrics, 'http_proxy_errors_total')`、`getCounterMetric(mockMetrics, 'http_proxy_target_host_requests_total')`，消除顺序依赖。
+- `libraries/http-services/src/__tests__/server.test.ts`：将 `mockMetrics.counter.mock.results[0]`/`[1]` 替换为 `getCounterMetric(mockMetrics, 'http_proxy_requests_total')`、`getCounterMetric(mockMetrics, 'http_proxy_errors_total')`，消除顺序依赖。
 - `libraries/http-services/src/server.ts` 或 `rfc-metrics.md`：补充一句“`target_path` 仅为 `pathname`，不包含 query/fragment”，与 R25 的安全说明对齐。

@@ -25,15 +25,6 @@ const normalizeErrorCode = (code: string | undefined): string | undefined => {
   return code;
 };
 
-const resolveResultFromCode = (code: string): string => {
-  if (code === 'TIMEOUT') return 'timeout';
-  if (code === 'FORBIDDEN') return 'blocked';
-  if (code === 'INVALID_URL') return 'invalid_url';
-  if (code === 'FETCH_FAILED') return 'error';
-  if (code === 'RESPONSE_TOO_LARGE') return 'error';
-  return 'error';
-};
-
 /**
  * 提供 HTTP 代理服务
  *
@@ -98,10 +89,6 @@ export const provideHTTPProxyService = (
     'http_proxy_errors_total',
     'Total HTTP proxy errors by type',
   );
-  const targetHostRequests = GlobalPrometheusRegistry.counter(
-    'http_proxy_target_host_requests_total',
-    'Total HTTP proxy requests by target host',
-  );
 
   // 1. 构造包含 labels 约束的 JSON Schema（支持部分匹配）
   const labelProperties: Record<string, { const: string }> = {};
@@ -152,7 +139,6 @@ export const provideHTTPProxyService = (
       let errorCode = 'none';
       const method = req.method || 'GET';
       let parsedUrl: URL | null = null;
-      let handlerError: unknown | null = null;
 
       // R8: 请求开始，递增活跃请求
       activeRequests.labels(labels).inc();
@@ -278,16 +264,6 @@ export const provideHTTPProxyService = (
 
         statusCode = response.status;
 
-        // R6: 记录请求总数（成功情况）
-        requestsTotal
-          .labels({
-            ...labels,
-            method,
-            status_code: statusCode.toString(),
-            error_code: 'none',
-          })
-          .inc();
-
         const proxyResponse: IHTTPProxyResponse = {
           status: response.status,
           statusText: response.statusText,
@@ -305,7 +281,6 @@ export const provideHTTPProxyService = (
           },
         };
       } catch (err: any) {
-        handlerError = err;
         // 错误响应记录 metrics
         // 从错误消息中提取 error_code（格式为 "TYPE: context"）
         const effectiveCode = normalizeErrorCode(resolveEffectiveErrorCode(err));
@@ -323,16 +298,6 @@ export const provideHTTPProxyService = (
         };
         errorsTotal.labels({ ...labels, error_type: errorTypeMap[errorCode] || 'unknown' }).inc();
 
-        // R6: 记录请求总数（错误情况）
-        requestsTotal
-          .labels({
-            ...labels,
-            method,
-            status_code: '0',
-            error_code: errorCode,
-          })
-          .inc();
-
         throw err;
       } finally {
         // R7: 记录延迟分布
@@ -346,13 +311,17 @@ export const provideHTTPProxyService = (
         })();
         const targetPath = !parsedUrl || parsedUrl.hostname === '' ? 'invalid' : parsedUrl.pathname || '/';
 
-        const result = handlerError
-          ? resolveResultFromCode(errorCode)
-          : !parsedUrl || parsedUrl.hostname === ''
-          ? 'invalid_url'
-          : 'ok';
-
-        targetHostRequests.labels({ target_host: targetHost, target_path: targetPath, result }).inc();
+        // R6: 记录请求总数（统一在生命周期末尾计数）
+        requestsTotal
+          .labels({
+            ...labels,
+            method,
+            status_code: statusCode ? statusCode.toString() : '0',
+            error_code: errorCode,
+            target_host: targetHost,
+            target_path: targetPath,
+          })
+          .inc();
 
         // R8: 请求结束，递减活跃请求
         activeRequests.labels(labels).dec();

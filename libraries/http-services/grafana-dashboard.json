@@ -408,7 +408,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "topk(10, sum by (target_host) (rate(http_proxy_target_host_requests_total{target_host=~\"$target_host\", target_path=~\"$target_path\"}[$__rate_interval])))",
+          "expr": "topk(10, sum by (target_host) (rate(http_proxy_requests_total{target_host=~\"$target_host\", target_path=~\"$target_path\"}[$__rate_interval])))",
           "legendFormat": "{{ target_host }}",
           "refId": "A"
         }
@@ -445,7 +445,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "topk(10, sum by (target_path) (rate(http_proxy_target_host_requests_total{target_host=~\"$target_host\", target_path=~\"$target_path\"}[$__rate_interval])))",
+          "expr": "topk(10, sum by (target_path) (rate(http_proxy_requests_total{target_host=~\"$target_host\", target_path=~\"$target_path\"}[$__rate_interval])))",
           "legendFormat": "{{ target_path }}",
           "refId": "A"
         }
@@ -538,7 +538,7 @@
           "type": "prometheus",
           "uid": "${datasource}"
         },
-        "definition": "label_values(http_proxy_target_host_requests_total, target_host)",
+        "definition": "label_values(http_proxy_requests_total, target_host)",
         "hide": 0,
         "includeAll": true,
         "label": "Target Host",
@@ -546,7 +546,7 @@
         "name": "target_host",
         "options": [],
         "query": {
-          "query": "label_values(http_proxy_target_host_requests_total, target_host)",
+          "query": "label_values(http_proxy_requests_total, target_host)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 2,
@@ -564,7 +564,7 @@
           "type": "prometheus",
           "uid": "${datasource}"
         },
-        "definition": "label_values(http_proxy_target_host_requests_total, target_path)",
+        "definition": "label_values(http_proxy_requests_total, target_path)",
         "hide": 0,
         "includeAll": true,
         "label": "Target Path",
@@ -572,7 +572,7 @@
         "name": "target_path",
         "options": [],
         "query": {
-          "query": "label_values(http_proxy_target_host_requests_total, target_path)",
+          "query": "label_values(http_proxy_requests_total, target_path)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 2,

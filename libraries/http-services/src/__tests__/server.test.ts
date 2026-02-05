@@ -19,14 +19,6 @@ const createMockMetric = () => {
   return metric;
 };
 
-const getCounterMetric = (mockMetrics: { counter: jest.SpyInstance }, name: string) => {
-  const index = mockMetrics.counter.mock.calls.findIndex((call) => call[0] === name);
-  if (index < 0) {
-    throw new Error(`Counter ${name} was not registered`);
-  }
-  return mockMetrics.counter.mock.results[index].value;
-};
-
 describe('provideHTTPProxyService', () => {
   let terminal: Terminal;
   let mockMetrics: {
@@ -205,6 +197,8 @@ describe('provideHTTPProxyService', () => {
       method: 'GET',
       status_code: '200',
       error_code: 'none',
+      target_host: 'api.example.com',
+      target_path: '/data',
     });
     expect(requestsTotalCounter.inc).toHaveBeenCalled();
 
@@ -259,6 +253,8 @@ describe('provideHTTPProxyService', () => {
       method: 'GET',
       status_code: '200',
       error_code: 'none',
+      target_host: 'api.example.com',
+      target_path: '/data',
     });
 
     dispose();
@@ -300,13 +296,15 @@ describe('provideHTTPProxyService', () => {
       { isAborted$: undefined },
     );
 
-    const targetHostCounter = getCounterMetric(mockMetrics, 'http_proxy_target_host_requests_total');
-    expect(targetHostCounter.labels).toHaveBeenCalledWith({
+    const requestsTotalCounter = mockMetrics.counter.mock.results[0].value;
+    expect(requestsTotalCounter.labels).toHaveBeenCalledWith({
+      method: 'GET',
+      status_code: '200',
+      error_code: 'none',
       target_host: 'api.example.com',
       target_path: '/',
-      result: 'ok',
     });
-    expect(targetHostCounter.inc).toHaveBeenCalled();
+    expect(requestsTotalCounter.inc).toHaveBeenCalled();
 
     dispose();
   });
@@ -359,6 +357,8 @@ describe('provideHTTPProxyService', () => {
       method: 'POST',
       status_code: '201',
       error_code: 'none',
+      target_host: 'api.example.com',
+      target_path: '/data',
     });
 
     // R7: requestDuration.observe() should be called with POST method
@@ -411,6 +411,8 @@ describe('provideHTTPProxyService', () => {
       method: 'GET',
       status_code: '0',
       error_code: 'TIMEOUT',
+      target_host: 'api.example.com',
+      target_path: '/slow',
     });
     expect(requestsTotalCounter.inc).toHaveBeenCalled();
 
@@ -460,6 +462,8 @@ describe('provideHTTPProxyService', () => {
       method: 'GET',
       status_code: '0',
       error_code: 'FETCH_FAILED',
+      target_host: 'api.example.com',
+      target_path: '/error',
     });
 
     // R9: errorsTotal.inc() should be called with error_type 'network'
@@ -504,6 +508,8 @@ describe('provideHTTPProxyService', () => {
       method: 'GET',
       status_code: '0',
       error_code: 'FORBIDDEN',
+      target_host: 'forbidden.example.com',
+      target_path: '/data',
     });
 
     // R9: errorsTotal.inc() should be called with error_type 'security'
@@ -546,6 +552,8 @@ describe('provideHTTPProxyService', () => {
       method: 'GET',
       status_code: '0',
       error_code: 'INVALID_URL',
+      target_host: 'invalid',
+      target_path: 'invalid',
     });
 
     // R9: errorsTotal.inc() should be called with error_type 'validation'
@@ -581,13 +589,15 @@ describe('provideHTTPProxyService', () => {
       ),
     ).rejects.toThrow('INVALID_URL');
 
-    const targetHostCounter = getCounterMetric(mockMetrics, 'http_proxy_target_host_requests_total');
-    expect(targetHostCounter.labels).toHaveBeenCalledWith({
+    const requestsTotalCounter = mockMetrics.counter.mock.results[0].value;
+    expect(requestsTotalCounter.labels).toHaveBeenCalledWith({
+      method: 'GET',
+      status_code: '0',
+      error_code: 'INVALID_URL',
       target_host: 'invalid',
       target_path: 'invalid',
-      result: 'invalid_url',
     });
-    expect(targetHostCounter.inc).toHaveBeenCalled();
+    expect(requestsTotalCounter.inc).toHaveBeenCalled();
 
     dispose();
   });
@@ -633,13 +643,15 @@ describe('provideHTTPProxyService', () => {
       { isAborted$: undefined },
     );
 
-    const targetHostCounter = getCounterMetric(mockMetrics, 'http_proxy_target_host_requests_total');
-    expect(targetHostCounter.labels).toHaveBeenCalledWith({
+    const requestsTotalCounter = mockMetrics.counter.mock.results[0].value;
+    expect(requestsTotalCounter.labels).toHaveBeenCalledWith({
+      method: 'GET',
+      status_code: '200',
+      error_code: 'none',
       target_host: 'invalid',
       target_path: 'invalid',
-      result: 'invalid_url',
     });
-    expect(targetHostCounter.inc).toHaveBeenCalled();
+    expect(requestsTotalCounter.inc).toHaveBeenCalled();
 
     dispose();
   });
@@ -670,13 +682,15 @@ describe('provideHTTPProxyService', () => {
       ),
     ).rejects.toThrow('FORBIDDEN');
 
-    const targetHostCounter = getCounterMetric(mockMetrics, 'http_proxy_target_host_requests_total');
-    expect(targetHostCounter.labels).toHaveBeenCalledWith({
+    const requestsTotalCounter = mockMetrics.counter.mock.results[0].value;
+    expect(requestsTotalCounter.labels).toHaveBeenCalledWith({
+      method: 'GET',
+      status_code: '0',
+      error_code: 'FORBIDDEN',
       target_host: 'ip',
       target_path: '/',
-      result: 'blocked',
     });
-    expect(targetHostCounter.inc).toHaveBeenCalled();
+    expect(requestsTotalCounter.inc).toHaveBeenCalled();
 
     dispose();
   });
@@ -721,13 +735,15 @@ describe('provideHTTPProxyService', () => {
       { isAborted$: undefined },
     );
 
-    const targetHostCounter = getCounterMetric(mockMetrics, 'http_proxy_target_host_requests_total');
-    expect(targetHostCounter.labels).toHaveBeenCalledWith({
+    const requestsTotalCounter = mockMetrics.counter.mock.results[0].value;
+    expect(requestsTotalCounter.labels).toHaveBeenCalledWith({
+      method: 'GET',
+      status_code: '200',
+      error_code: 'none',
       target_host: 'ip',
       target_path: '/',
-      result: 'ok',
     });
-    expect(targetHostCounter.inc).toHaveBeenCalled();
+    expect(requestsTotalCounter.inc).toHaveBeenCalled();
 
     dispose();
   });
@@ -782,6 +798,8 @@ describe('provideHTTPProxyService', () => {
       method: 'GET',
       status_code: '0',
       error_code: 'RESPONSE_TOO_LARGE',
+      target_host: 'api.example.com',
+      target_path: '/data',
     });
 
     // R9: errorsTotal.inc() should be called with error_type 'security'
@@ -887,6 +905,8 @@ describe('provideHTTPProxyService', () => {
       method: 'GET',
       status_code: '200',
       error_code: 'none',
+      target_host: 'api.example.com',
+      target_path: '/data',
     });
 
     // R7: requestDuration.observe() should use default method 'GET'
