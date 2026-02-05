@@ -199,6 +199,17 @@
 
 > 约定：仅记录已经结束的会话；进行中的内容放在第 11 节，收尾后再搬运；按时间倒序追加。
 
+### 2026-02-05 — OpenCode
+
+- **本轮摘要**：
+  - Hyperliquid REST client 在 `USE_HTTP_PROXY=true` 时使用 proxy ip 作为 labels.ip 路由，并将 REST IP 限流维度改为 `encodePath([BaseKey, ip])`。
+  - 直连场景使用 `terminal.terminalInfo.tags.public_ip`，缺失时限频日志并 fallback 到 `public-ip-unknown`。
+- **修改的文件**：
+  - `apps/vendor-hyperliquid/src/api/client.ts`
+  - `apps/vendor-hyperliquid/src/api/rate-limit.ts`
+- **运行的测试 / 检查**：
+  - `rush build`（repo 根目录）
+
 ### 2026-01-30 — OpenCode
 
 - **本轮摘要**：

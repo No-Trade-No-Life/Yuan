@@ -1,10 +1,14 @@
-import { fetch } from '@yuants/http-services';
+import { fetch, selectHTTPProxyIpRoundRobin } from '@yuants/http-services';
+import { Terminal } from '@yuants/protocol';
 import { encodeHex, formatTime, HmacSHA512, sha512 } from '@yuants/utils';
 import { join } from 'path';
 
 const BASE_URL = 'https://api.gateio.ws/api/v4';
 const shouldUseHttpProxy = process.env.USE_HTTP_PROXY === 'true';
 const fetchImpl = shouldUseHttpProxy ? fetch : globalThis.fetch ?? fetch;
+const terminal = Terminal.fromNodeEnv();
+const MISSING_PUBLIC_IP_LOG_INTERVAL = 3_600_000;
+const missingPublicIpLogAtByTerminalId = new Map<string, number>();
 
 if (shouldUseHttpProxy) {
   globalThis.fetch = fetch;
@@ -18,6 +22,28 @@ export interface IGateCredential {
   access_key: string;
   secret_key: string;
 }
+
+type RequestContext = { ip: string };
+
+const resolveLocalPublicIp = (): string => {
+  const ip = terminal.terminalInfo.tags?.public_ip?.trim();
+  if (ip) return ip;
+  const now = Date.now();
+  const lastLoggedAt = missingPublicIpLogAtByTerminalId.get(terminal.terminal_id) ?? 0;
+  if (now - lastLoggedAt > MISSING_PUBLIC_IP_LOG_INTERVAL) {
+    missingPublicIpLogAtByTerminalId.set(terminal.terminal_id, now);
+    console.info(formatTime(Date.now()), 'missing terminal public_ip tag, fallback to public-ip-unknown');
+  }
+  return 'public-ip-unknown';
+};
+
+const createRequestContext = (): RequestContext => {
+  if (shouldUseHttpProxy) {
+    const ip = selectHTTPProxyIpRoundRobin(terminal);
+    return { ip };
+  }
+  return { ip: resolveLocalPublicIp() };
+};
 
 interface IRequestArtifacts {
   url: URL;
@@ -96,6 +122,7 @@ export const requestPublic = async <TResponse>(
   params?: GateParams,
 ): Promise<TResponse> => {
   const { url, body } = createRequestArtifacts(method, path, params);
+  const requestContext = createRequestContext();
   const headers: Record<string, string> = {
     Accept: 'application/json',
   };
@@ -117,6 +144,12 @@ export const requestPublic = async <TResponse>(
       headers,
       body: body || undefined,
       signal: abortController.signal,
+      ...(shouldUseHttpProxy
+        ? {
+            labels: requestContext.ip ? { ip: requestContext.ip } : undefined,
+            terminal,
+          }
+        : {}),
     });
     return await parseJSON<TResponse>(response, path, params);
   } finally {
@@ -131,6 +164,7 @@ export const requestPrivate = async <TResponse>(
   params?: GateParams,
 ): Promise<TResponse> => {
   const { url, body } = createRequestArtifacts(method, path, params);
+  const requestContext = createRequestContext();
   const timestamp = Date.now() / 1000;
 
   const bodyDigest = encodeHex(await sha512(new TextEncoder().encode(body)));
@@ -171,6 +205,12 @@ export const requestPrivate = async <TResponse>(
       headers,
       body: body || undefined,
       signal: abortController.signal,
+      ...(shouldUseHttpProxy
+        ? {
+            labels: requestContext.ip ? { ip: requestContext.ip } : undefined,
+            terminal,
+          }
+        : {}),
     });
     return await parseJSON<TResponse>(response, path, params);
   } finally {

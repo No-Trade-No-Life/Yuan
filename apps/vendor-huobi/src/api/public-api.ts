@@ -1,5 +1,6 @@
-import { fetch } from '@yuants/http-services';
-import { formatTime, scopeError, tokenBucket } from '@yuants/utils';
+import { fetch, selectHTTPProxyIpRoundRobin } from '@yuants/http-services';
+import { Terminal } from '@yuants/protocol';
+import { encodePath, formatTime, scopeError, tokenBucket } from '@yuants/utils';
 
 // Huobi API 根域名
 const SWAP_API_ROOT = 'api.hbdm.com';
@@ -10,44 +11,87 @@ type HuobiPublicInterfaceType = 'market' | 'non-market';
 
 const shouldUseHttpProxy = process.env.USE_HTTP_PROXY === 'true';
 const fetchImpl = shouldUseHttpProxy ? fetch : globalThis.fetch ?? fetch;
+const terminal = Terminal.fromNodeEnv();
+const MISSING_PUBLIC_IP_LOG_INTERVAL = 3_600_000;
+const missingPublicIpLogAtByTerminalId = new Map<string, number>();
 
 if (shouldUseHttpProxy) {
   globalThis.fetch = fetch;
 }
 
-const acquire = (bucketId: string, meta: Record<string, unknown>) => {
-  const bucket = tokenBucket(bucketId);
-  scopeError('HUOBI_API_RATE_LIMIT', { ...meta, bucketId }, () => bucket.acquireSync(1));
+type RequestContext = { ip: string };
+
+const resolveLocalPublicIp = (): string => {
+  const ip = terminal.terminalInfo.tags?.public_ip?.trim();
+  if (ip) return ip;
+  const now = Date.now();
+  const lastLoggedAt = missingPublicIpLogAtByTerminalId.get(terminal.terminal_id) ?? 0;
+  if (now - lastLoggedAt > MISSING_PUBLIC_IP_LOG_INTERVAL) {
+    missingPublicIpLogAtByTerminalId.set(terminal.terminal_id, now);
+    console.info(formatTime(Date.now()), 'missing terminal public_ip tag, fallback to public-ip-unknown');
+  }
+  return 'public-ip-unknown';
+};
+
+const createRequestContext = (): RequestContext => {
+  if (shouldUseHttpProxy) {
+    const ip = selectHTTPProxyIpRoundRobin(terminal);
+    return { ip };
+  }
+  return { ip: resolveLocalPublicIp() };
+};
+
+const buildBucketKey = (baseKey: string, ip: string) => encodePath([baseKey, ip]);
+
+const acquire = (
+  bucketId: string,
+  config: { capacity: number; refillInterval: number; refillAmount: number },
+  ip: string,
+  meta: Record<string, unknown>,
+) => {
+  const bucketKey = buildBucketKey(bucketId, ip);
+  const bucket = tokenBucket(bucketKey, config);
+  scopeError('HUOBI_API_RATE_LIMIT', { ...meta, bucketId: bucketKey }, () => bucket.acquireSync(1));
 };
 
 // https://www.htx.com/zh-cn/opend/newApiPages/?id=474
 // 行情类：同一个 IP，总共 1s 最多 800 个请求（合约业务共享总额度）
 const marketDataIPAllBucketId = 'HUOBI_PUBLIC_MARKET_IP_1S_ALL';
-tokenBucket(marketDataIPAllBucketId, {
+const marketDataIPAllConfig = {
   capacity: 800,
   refillInterval: 1000,
   refillAmount: 800,
-});
+};
+tokenBucket(marketDataIPAllBucketId, marketDataIPAllConfig);
 
 // 行情类：按业务线拆分（用于交割/币本位永续/U本位分开限频）
 const marketDataSpotBucketId = 'HUOBI_PUBLIC_MARKET_IP_1S_SPOT';
-tokenBucket(marketDataSpotBucketId, { capacity: 800, refillInterval: 1000, refillAmount: 800 });
+const marketDataSpotConfig = { capacity: 800, refillInterval: 1000, refillAmount: 800 };
+tokenBucket(marketDataSpotBucketId, marketDataSpotConfig);
 
 const marketDataLinearSwapBucketId = 'HUOBI_PUBLIC_MARKET_IP_1S_LINEAR_SWAP';
-tokenBucket(marketDataLinearSwapBucketId, { capacity: 800, refillInterval: 1000, refillAmount: 800 });
+const marketDataLinearSwapConfig = { capacity: 800, refillInterval: 1000, refillAmount: 800 };
+tokenBucket(marketDataLinearSwapBucketId, marketDataLinearSwapConfig);
 
 // 非行情类公开接口：同一个 IP，3s 最多 120 次请求
 const nonMarketDataIPBucketId = 'HUOBI_PUBLIC_NON_MARKET_IP_3S_ALL';
-tokenBucket(nonMarketDataIPBucketId, {
+const nonMarketDataIPConfig = {
   capacity: 120,
   refillInterval: 3000,
   refillAmount: 120,
-});
+};
+tokenBucket(nonMarketDataIPBucketId, nonMarketDataIPConfig);
 
 /**
  * 公共 API 请求方法（不负责限流；限流由调用点选择对应 helper）
  */
-async function publicRequest(method: string, path: string, api_root: string, params?: any) {
+async function publicRequest(
+  method: string,
+  path: string,
+  api_root: string,
+  requestContext: RequestContext,
+  params?: any,
+) {
   const url = new URL(`https://${api_root}${path}`);
 
   if (method === 'GET') {
@@ -60,11 +104,22 @@ async function publicRequest(method: string, path: string, api_root: string, par
 
   console.info(formatTime(Date.now()), method, url.href, body);
 
-  const res = await fetchImpl(url.href, {
-    method,
-    headers: { 'Content-Type': 'application/json' },
-    body: body || undefined,
-  });
+  const res = await fetchImpl(
+    url.href,
+    shouldUseHttpProxy
+      ? {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: body || undefined,
+          labels: requestContext.ip ? { ip: requestContext.ip } : undefined,
+          terminal,
+        }
+      : {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: body || undefined,
+        },
+  );
 
   console.info(formatTime(Date.now()), 'PublicResponse', url.toString(), res.status);
 
@@ -78,6 +133,7 @@ async function publicRequest(method: string, path: string, api_root: string, par
 }
 
 const spotMarketRequest = async (method: string, path: string, params?: any) => {
+  const requestContext = createRequestContext();
   const meta = {
     method,
     api_root: SPOT_API_ROOT,
@@ -85,12 +141,13 @@ const spotMarketRequest = async (method: string, path: string, params?: any) => 
     business: 'spot' as HuobiBusiness,
     interfaceType: 'market' as HuobiPublicInterfaceType,
   };
-  acquire(marketDataIPAllBucketId, meta);
-  acquire(marketDataSpotBucketId, meta);
-  return publicRequest(method, path, SPOT_API_ROOT, params);
+  acquire(marketDataIPAllBucketId, marketDataIPAllConfig, requestContext.ip, meta);
+  acquire(marketDataSpotBucketId, marketDataSpotConfig, requestContext.ip, meta);
+  return publicRequest(method, path, SPOT_API_ROOT, requestContext, params);
 };
 
 const spotNonMarketRequest = async (method: string, path: string, params?: any) => {
+  const requestContext = createRequestContext();
   const meta = {
     method,
     api_root: SPOT_API_ROOT,
@@ -98,11 +155,12 @@ const spotNonMarketRequest = async (method: string, path: string, params?: any) 
     business: 'spot' as HuobiBusiness,
     interfaceType: 'non-market' as HuobiPublicInterfaceType,
   };
-  acquire(nonMarketDataIPBucketId, meta);
-  return publicRequest(method, path, SPOT_API_ROOT, params);
+  acquire(nonMarketDataIPBucketId, nonMarketDataIPConfig, requestContext.ip, meta);
+  return publicRequest(method, path, SPOT_API_ROOT, requestContext, params);
 };
 
 const linearSwapMarketRequest = async (method: string, path: string, params?: any) => {
+  const requestContext = createRequestContext();
   const meta = {
     method,
     api_root: SWAP_API_ROOT,
@@ -110,12 +168,13 @@ const linearSwapMarketRequest = async (method: string, path: string, params?: an
     business: 'linear-swap' as HuobiBusiness,
     interfaceType: 'market' as HuobiPublicInterfaceType,
   };
-  acquire(marketDataIPAllBucketId, meta);
-  acquire(marketDataLinearSwapBucketId, meta);
-  return publicRequest(method, path, SWAP_API_ROOT, params);
+  acquire(marketDataIPAllBucketId, marketDataIPAllConfig, requestContext.ip, meta);
+  acquire(marketDataLinearSwapBucketId, marketDataLinearSwapConfig, requestContext.ip, meta);
+  return publicRequest(method, path, SWAP_API_ROOT, requestContext, params);
 };
 
 const linearSwapNonMarketRequest = async (method: string, path: string, params?: any) => {
+  const requestContext = createRequestContext();
   const meta = {
     method,
     api_root: SWAP_API_ROOT,
@@ -123,8 +182,8 @@ const linearSwapNonMarketRequest = async (method: string, path: string, params?:
     business: 'linear-swap' as HuobiBusiness,
     interfaceType: 'non-market' as HuobiPublicInterfaceType,
   };
-  acquire(nonMarketDataIPBucketId, meta);
-  return publicRequest(method, path, SWAP_API_ROOT, params);
+  acquire(nonMarketDataIPBucketId, nonMarketDataIPConfig, requestContext.ip, meta);
+  return publicRequest(method, path, SWAP_API_ROOT, requestContext, params);
 };
 
 // ==================== 公共 API 方法 ====================

@@ -2,7 +2,7 @@ import { fetch, selectHTTPProxyIpRoundRobin } from '@yuants/http-services';
 import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import { encodePath, formatTime, scopeError, tokenBucket } from '@yuants/utils';
 
-import './client';
+import { ASTER_TOKEN_BUCKET_OPTIONS_BY_ID } from './client';
 
 const MetricsAsterApiCallCounter = GlobalPrometheusRegistry.counter(
   'aster_api_call',
@@ -24,6 +24,8 @@ const SpotBaseURL = 'https://sapi.asterdex.com';
 type RequestContext = { ip: string };
 
 const buildTokenBucketKey = (baseKey: string, ip: string): string => encodePath([baseKey, ip]);
+
+const getTokenBucketOptions = (baseKey: string) => ASTER_TOKEN_BUCKET_OPTIONS_BY_ID[baseKey];
 
 const resolveLocalPublicIp = (): string => {
   const ip = terminal.terminalInfo.tags?.public_ip?.trim();
@@ -50,7 +52,7 @@ const acquireRateLimit = (url: URL, endpoint: string, weight: number, requestCon
   scopeError(
     'ASTER_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
 };
 
@@ -321,7 +323,11 @@ export const getFApiV1Klines = (params: {
       weight,
       limit: params?.limit,
     },
-    () => tokenBucket(buildTokenBucketKey(url.host, requestContext.ip)).acquireSync(weight),
+    () =>
+      tokenBucket(
+        buildTokenBucketKey(url.host, requestContext.ip),
+        getTokenBucketOptions(url.host),
+      ).acquireSync(weight),
   );
   return request('GET', FutureBaseURL, endpoint, params, requestContext);
 };
@@ -358,7 +364,11 @@ export const getApiV1Klines = (params: {
       weight,
       limit: params?.limit,
     },
-    () => tokenBucket(buildTokenBucketKey(url.host, requestContext.ip)).acquireSync(weight),
+    () =>
+      tokenBucket(
+        buildTokenBucketKey(url.host, requestContext.ip),
+        getTokenBucketOptions(url.host),
+      ).acquireSync(weight),
   );
   return request('GET', SpotBaseURL, endpoint, params, requestContext);
 };

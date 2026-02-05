@@ -1,5 +1,6 @@
-import { fetch } from '@yuants/http-services';
-import { encodeBase64, formatTime, HmacSHA256, scopeError, tokenBucket } from '@yuants/utils';
+import { fetch, selectHTTPProxyIpRoundRobin } from '@yuants/http-services';
+import { Terminal } from '@yuants/protocol';
+import { encodeBase64, encodePath, formatTime, HmacSHA256, scopeError, tokenBucket } from '@yuants/utils';
 
 const SPOT_API_ROOT = 'api.huobi.pro';
 const LINEAR_SWAP_API_ROOT = 'api.hbdm.com';
@@ -11,6 +12,9 @@ export interface ICredential {
 
 const shouldUseHttpProxy = process.env.USE_HTTP_PROXY === 'true';
 const fetchImpl = shouldUseHttpProxy ? fetch : globalThis.fetch ?? fetch;
+const terminal = Terminal.fromNodeEnv();
+const MISSING_PUBLIC_IP_LOG_INTERVAL = 3_600_000;
+const missingPublicIpLogAtByTerminalId = new Map<string, number>();
 
 if (shouldUseHttpProxy) {
   globalThis.fetch = fetch;
@@ -27,9 +31,34 @@ export const getDefaultCredential = (): ICredential => {
 type HuobiBusiness = 'spot' | 'linear-swap';
 type HuobiPrivateInterfaceType = 'trade' | 'query';
 
-const acquirePrivate = (bucketId: string, meta: Record<string, unknown>) => {
-  scopeError('HUOBI_API_RATE_LIMIT', { ...meta, bucketId }, () =>
-    tokenBucket(bucketId, { capacity: 36, refillAmount: 36, refillInterval: 3000 }).acquireSync(1),
+type RequestContext = { ip: string };
+
+const resolveLocalPublicIp = (): string => {
+  const ip = terminal.terminalInfo.tags?.public_ip?.trim();
+  if (ip) return ip;
+  const now = Date.now();
+  const lastLoggedAt = missingPublicIpLogAtByTerminalId.get(terminal.terminal_id) ?? 0;
+  if (now - lastLoggedAt > MISSING_PUBLIC_IP_LOG_INTERVAL) {
+    missingPublicIpLogAtByTerminalId.set(terminal.terminal_id, now);
+    console.info(formatTime(Date.now()), 'missing terminal public_ip tag, fallback to public-ip-unknown');
+  }
+  return 'public-ip-unknown';
+};
+
+const createRequestContext = (): RequestContext => {
+  if (shouldUseHttpProxy) {
+    const ip = selectHTTPProxyIpRoundRobin(terminal);
+    return { ip };
+  }
+  return { ip: resolveLocalPublicIp() };
+};
+
+const buildBucketKey = (baseKey: string, ip: string) => encodePath([baseKey, ip]);
+
+const acquirePrivate = (bucketId: string, requestContext: RequestContext, meta: Record<string, unknown>) => {
+  const bucketKey = buildBucketKey(bucketId, requestContext.ip);
+  scopeError('HUOBI_API_RATE_LIMIT', { ...meta, bucketId: bucketKey }, () =>
+    tokenBucket(bucketKey, { capacity: 36, refillAmount: 36, refillInterval: 3000 }).acquireSync(1),
   );
 };
 
@@ -43,13 +72,14 @@ const privateRequestWithRateLimit = async (
   params?: any,
 ) => {
   const meta = { method, api_root, path, business, interfaceType };
+  const requestContext = createRequestContext();
 
   const interfaceTypeUpper = interfaceType.toUpperCase();
   const businessUpper = business.toUpperCase();
   const globalBucketId = `HUOBI_PRIVATE_${interfaceTypeUpper}_UID_3S_ALL:${credential.access_key}`;
   const businessBucketId = `HUOBI_PRIVATE_${interfaceTypeUpper}_UID_3S_${businessUpper}:${credential.access_key}`;
-  acquirePrivate(globalBucketId, meta);
-  acquirePrivate(businessBucketId, meta);
+  acquirePrivate(globalBucketId, requestContext, meta);
+  acquirePrivate(businessBucketId, requestContext, meta);
 
   const requestParams = `AccessKeyId=${
     credential.access_key
@@ -79,11 +109,22 @@ const privateRequestWithRateLimit = async (
   const url = new URL(`https://${api_root}${path}?${requestParams}&Signature=${encodeURIComponent(str)}`);
   // url.searchParams.sort();
   console.info(formatTime(Date.now()), 'PrivateApiRequest', method, url.host, url.pathname);
-  const res = await fetchImpl(url.href, {
-    method,
-    headers: { 'Content-Type': 'application/json' },
-    body: body || undefined,
-  });
+  const res = await fetchImpl(
+    url.href,
+    shouldUseHttpProxy
+      ? {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: body || undefined,
+          labels: requestContext.ip ? { ip: requestContext.ip } : undefined,
+          terminal,
+        }
+      : {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: body || undefined,
+        },
+  );
 
   const retStr = await res.text();
   console.info(formatTime(Date.now()), 'PrivateResponse', url.host, url.pathname, res.status);

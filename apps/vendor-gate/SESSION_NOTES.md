@@ -107,6 +107,16 @@
 
 ## 6. 最近几轮工作记录（Recent Sessions）
 
+### 2026-02-05 — OpenCode
+
+- **本轮摘要**：
+  - Gate HTTP client 在 `USE_HTTP_PROXY=true` 时引入 proxy ip 维度，request 通过 `labels.ip` 路由。
+  - 直连场景使用 `terminal.terminalInfo.tags.public_ip`，缺失时限频日志并 fallback 到 `public-ip-unknown`。
+- **修改的文件**：
+  - `apps/vendor-gate/src/api/http-client.ts`
+- **运行的测试 / 检查**：
+  - `rush build`（repo 根目录）
+
 ### 2026-01-30 — OpenCode
 
 - **本轮摘要**：

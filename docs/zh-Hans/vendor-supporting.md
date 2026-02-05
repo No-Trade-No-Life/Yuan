@@ -27,6 +27,8 @@
 | OKX         | 借贷账户           | ✅           | ⛔️        | ⛔️  | ⛔️  | ⛔️  |          |
 | OKX Web3    | 钱包账户           | ✅           |            |      |      |      |          |
 
+> 注：当 `USE_HTTP_PROXY=true` 时，Bitget/Gate/HTX/HyperLiquid/OKX 的限频维度按 proxy 出口 IP 计算。
+
 ## 行情数据接口
 
 | 交易所      | 品种类别    | 实时报价 | K 线数据 | 深度数据 | 利率数据 |

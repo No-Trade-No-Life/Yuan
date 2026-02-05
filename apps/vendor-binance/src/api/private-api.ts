@@ -4,6 +4,7 @@ import {
   buildTokenBucketKey,
   createRequestContext,
   getDefaultCredential,
+  getTokenBucketOptions,
   IApiError,
   ICredential,
   requestPrivate,
@@ -266,7 +267,7 @@ export const getUnifiedAccountInfo = (credential: ICredential): Promise<IUnified
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions('order/unified/minute')).acquireSync(weight),
   );
   return requestPrivate<IUnifiedAccountInfo | IApiError>(
     credential,
@@ -295,7 +296,7 @@ export const getUnifiedUmAccount = (credential: ICredential): Promise<IUnifiedUm
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions('order/unified/minute')).acquireSync(weight),
   );
   return requestPrivate<IUnifiedUmAccount | IApiError>(
     credential,
@@ -337,7 +338,7 @@ export const getUnifiedUmOpenOrders = (
       weight,
       hasSymbol: !!params?.symbol,
     },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPrivate<IUnifiedUmOpenOrder[]>(credential, 'GET', endpoint, params, requestContext);
 };
@@ -365,7 +366,7 @@ export const getUnifiedAccountBalance = (
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPrivate<IUnifiedAccountBalanceEntry[] | IApiError>(
     credential,
@@ -397,7 +398,7 @@ export const getSpotAccountInfo = (
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPrivate<ISpotAccountInfo | IApiError>(credential, 'GET', endpoint, params, requestContext);
 };
@@ -431,7 +432,7 @@ export const getSpotOpenOrders = (
       weight,
       hasSymbol: !!params?.symbol,
     },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPrivate<ISpotOrder[] | IApiError>(credential, 'GET', endpoint, params, requestContext);
 };
@@ -474,7 +475,7 @@ export const postSpotOrder = (
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPrivate<ISpotNewOrderResponse | IApiError>(
     credential,
@@ -510,7 +511,7 @@ export const deleteSpotOrder = (
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'DELETE', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPrivate<ISpotOrder | IApiError>(credential, 'DELETE', endpoint, params, requestContext);
 };
@@ -544,7 +545,7 @@ export const postAssetTransfer = (
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPrivate<IAssetTransferResponse | IApiError>(
     credential,
@@ -575,7 +576,7 @@ export const postUnifiedAccountAutoCollection = (credential: ICredential): Promi
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPrivate<{ msg: string }>(credential, 'POST', endpoint, undefined, requestContext);
 };
@@ -605,7 +606,7 @@ export const getDepositAddress = (
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPrivate<IDepositAddress>(credential, 'GET', endpoint, params, requestContext);
 };
@@ -634,7 +635,7 @@ export const getSubAccountList = (
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPrivate<ISubAccountListResponse | IApiError>(
     credential,
@@ -674,7 +675,7 @@ export const postWithdraw = (
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPrivate<{ id: string } | IApiError>(credential, 'POST', endpoint, params, requestContext);
 };
@@ -711,7 +712,7 @@ export const getWithdrawHistory = (
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPrivate<IWithdrawRecord[]>(credential, 'GET', endpoint, params, requestContext);
 };
@@ -744,7 +745,7 @@ export const getDepositHistory = (
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPrivate<IDepositRecord[]>(credential, 'GET', endpoint, params, requestContext);
 };
@@ -781,7 +782,7 @@ export const postUmOrder = (
   scopeError(
     'BINANCE_UNIFIED_ORDER_API_RATE_LIMIT',
     { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPrivate<IUnifiedUmOrderResponse | IApiError>(
     credential,
@@ -808,7 +809,7 @@ export const deleteUmOrder = (
   scopeError(
     'BINANCE_UNIFIED_ORDER_API_RATE_LIMIT',
     { method: 'DELETE', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPrivate<IUnifiedUmOrderResponse | IApiError>(
     credential,
@@ -846,7 +847,7 @@ export const getUMIncome = (
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPrivate<IUMIncomeRecord[]>(credential, 'GET', endpoint, params, requestContext);
 };
@@ -878,7 +879,7 @@ export const getAccountIncome = (
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPrivate<IAccountIncomeRecord[]>(credential, 'GET', endpoint, params, requestContext);
 };
@@ -925,7 +926,7 @@ export const postSpotOrderCancelReplace = (
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPrivate<ISpotNewOrderResponse | IApiError>(
     credential,
@@ -965,7 +966,7 @@ export const putUmOrder = (
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'PUT', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPrivate<IUnifiedUmOrderResponse | IApiError>(
     credential,
@@ -1002,7 +1003,7 @@ export const getMarginAllPairs = (params?: { symbol?: string }): Promise<IMargin
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPrivate<IMarginPair[]>(credential, 'GET', endpoint, params, requestContext);
 };
@@ -1030,7 +1031,7 @@ export const getMarginNextHourlyInterestRate = (params: {
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPrivate<
     {
@@ -1068,7 +1069,7 @@ export const getMarginInterestRateHistory = (params: {
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPrivate<
     {
@@ -1104,7 +1105,7 @@ export const getUserAsset = (
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPrivate<
     | {
@@ -1144,7 +1145,7 @@ export const getFundingAsset = (
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPrivate<
     | {
@@ -1187,7 +1188,7 @@ export const getUmAccountTradeList = (
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
   return requestPrivate<
     | {

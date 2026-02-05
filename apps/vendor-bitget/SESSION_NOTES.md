@@ -100,6 +100,16 @@
 
 > 仅记录已结束的会话；进行中的内容放在第 11 节，收尾后再搬运；最新记录置顶。
 
+### 2026-02-05 — OpenCode
+
+- **本轮摘要**：
+  - Bitget REST client 在 `USE_HTTP_PROXY=true` 时引入 proxy ip 维度，流控 key 由 `encodePath([BaseKey, ip])` 生成；请求通过 `labels.ip` 路由。
+  - 直连场景使用 `terminal.terminalInfo.tags.public_ip`，缺失时限频日志并 fallback 到 `public-ip-unknown`。
+- **修改的文件**：
+  - `apps/vendor-bitget/src/api/client.ts`
+- **运行的测试 / 检查**：
+  - `rush build`（repo 根目录）
+
 ### 2026-01-30 — OpenCode
 
 - **本轮摘要**：

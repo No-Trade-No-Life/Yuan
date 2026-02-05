@@ -11,7 +11,7 @@ import {
 
 import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 
-import './client';
+import { ASTER_TOKEN_BUCKET_OPTIONS_BY_ID } from './client';
 
 const MetricsAsterApiCallCounter = GlobalPrometheusRegistry.counter(
   'aster_api_call',
@@ -36,6 +36,8 @@ export interface ICredential {
 type RequestContext = { ip: string };
 
 const buildTokenBucketKey = (baseKey: string, ip: string): string => encodePath([baseKey, ip]);
+
+const getTokenBucketOptions = (baseKey: string) => ASTER_TOKEN_BUCKET_OPTIONS_BY_ID[baseKey];
 
 const resolveLocalPublicIp = (): string => {
   const ip = terminal.terminalInfo.tags?.public_ip?.trim();
@@ -68,7 +70,7 @@ const acquireRateLimit = (
   scopeError(
     'ASTER_API_RATE_LIMIT',
     { method, endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
   );
 };
 
@@ -356,12 +358,12 @@ export const postFApiV1Order = (
   scopeError(
     'ASTER_FUTURE_ORDER_API_SECOND_RATE_LIMIT',
     { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: secondBucketKey, weight },
-    () => tokenBucket(secondBucketKey).acquireSync(weight),
+    () => tokenBucket(secondBucketKey, getTokenBucketOptions('order/future/second')).acquireSync(weight),
   );
   scopeError(
     'ASTER_FUTURE_ORDER_API_MINUTE_RATE_LIMIT',
     { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: minuteBucketKey, weight },
-    () => tokenBucket(minuteBucketKey).acquireSync(weight),
+    () => tokenBucket(minuteBucketKey, getTokenBucketOptions('order/future/minute')).acquireSync(weight),
   );
   return request(credential, 'POST', FutureBaseURL, endpoint, params, requestContext);
 };
@@ -395,7 +397,11 @@ export const getFApiV1OpenOrders = (
       weight,
       hasSymbol: !!params?.symbol,
     },
-    () => tokenBucket(buildTokenBucketKey(url.host, requestContext.ip)).acquireSync(weight),
+    () =>
+      tokenBucket(
+        buildTokenBucketKey(url.host, requestContext.ip),
+        getTokenBucketOptions(url.host),
+      ).acquireSync(weight),
   );
   return request(credential, 'GET', FutureBaseURL, endpoint, params, requestContext);
 };
@@ -429,7 +435,11 @@ export const getApiV1OpenOrders = (
       weight,
       hasSymbol: !!params?.symbol,
     },
-    () => tokenBucket(buildTokenBucketKey(url.host, requestContext.ip)).acquireSync(weight),
+    () =>
+      tokenBucket(
+        buildTokenBucketKey(url.host, requestContext.ip),
+        getTokenBucketOptions(url.host),
+      ).acquireSync(weight),
   );
   return request(credential, 'GET', SpotBaseURL, endpoint, params, requestContext);
 };
@@ -457,12 +467,12 @@ export const deleteFApiV1Order = (
   scopeError(
     'ASTER_FUTURE_ORDER_API_SECOND_RATE_LIMIT',
     { method: 'DELETE', endpoint, host: url.host, path: url.pathname, bucketId: secondBucketKey, weight },
-    () => tokenBucket(secondBucketKey).acquireSync(weight),
+    () => tokenBucket(secondBucketKey, getTokenBucketOptions('order/future/second')).acquireSync(weight),
   );
   scopeError(
     'ASTER_FUTURE_ORDER_API_MINUTE_RATE_LIMIT',
     { method: 'DELETE', endpoint, host: url.host, path: url.pathname, bucketId: minuteBucketKey, weight },
-    () => tokenBucket(minuteBucketKey).acquireSync(weight),
+    () => tokenBucket(minuteBucketKey, getTokenBucketOptions('order/future/minute')).acquireSync(weight),
   );
   return request(credential, 'DELETE', FutureBaseURL, endpoint, params, requestContext);
 };
@@ -554,12 +564,12 @@ export const postApiV1Order = (
   scopeError(
     'ASTER_SPOT_ORDER_API_SECOND_RATE_LIMIT',
     { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: secondBucketKey, weight },
-    () => tokenBucket(secondBucketKey).acquireSync(weight),
+    () => tokenBucket(secondBucketKey, getTokenBucketOptions('order/spot/second')).acquireSync(weight),
   );
   scopeError(
     'ASTER_SPOT_ORDER_API_MINUTE_RATE_LIMIT',
     { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: minuteBucketKey, weight },
-    () => tokenBucket(minuteBucketKey).acquireSync(weight),
+    () => tokenBucket(minuteBucketKey, getTokenBucketOptions('order/spot/minute')).acquireSync(weight),
   );
   return request(credential, 'POST', SpotBaseURL, endpoint, params, requestContext);
 };
@@ -589,12 +599,12 @@ export const deleteApiV1Order = (
   scopeError(
     'ASTER_SPOT_ORDER_API_SECOND_RATE_LIMIT',
     { method: 'DELETE', endpoint, host: url.host, path: url.pathname, bucketId: secondBucketKey, weight },
-    () => tokenBucket(secondBucketKey).acquireSync(weight),
+    () => tokenBucket(secondBucketKey, getTokenBucketOptions('order/spot/second')).acquireSync(weight),
   );
   scopeError(
     'ASTER_SPOT_ORDER_API_MINUTE_RATE_LIMIT',
     { method: 'DELETE', endpoint, host: url.host, path: url.pathname, bucketId: minuteBucketKey, weight },
-    () => tokenBucket(minuteBucketKey).acquireSync(weight),
+    () => tokenBucket(minuteBucketKey, getTokenBucketOptions('order/spot/minute')).acquireSync(weight),
   );
   return request(credential, 'DELETE', SpotBaseURL, endpoint, params, requestContext);
 };
