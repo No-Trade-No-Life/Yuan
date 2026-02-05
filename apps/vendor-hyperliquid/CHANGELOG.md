@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-hyperliquid
 
-This log was last generated on Wed, 04 Feb 2026 16:57:52 GMT and should not be manually modified.
+This log was last generated on Thu, 05 Feb 2026 06:35:27 GMT and should not be manually modified.
+
+## 0.11.5
+Thu, 05 Feb 2026 06:35:27 GMT
+
+### Patches
+
+- apply for new tokenbucket
 
 ## 0.11.4
 Wed, 04 Feb 2026 16:57:52 GMT

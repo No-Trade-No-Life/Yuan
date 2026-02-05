@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-bitget",
   "entries": [
     {
+      "version": "0.15.5",
+      "tag": "@yuants/vendor-bitget_v0.15.5",
+      "date": "Thu, 05 Feb 2026 06:35:27 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "apply for new tokenbucket"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.15.4",
       "tag": "@yuants/vendor-bitget_v0.15.4",
       "date": "Wed, 04 Feb 2026 16:57:52 GMT",

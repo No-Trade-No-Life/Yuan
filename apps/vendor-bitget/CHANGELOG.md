@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-bitget
 
-This log was last generated on Wed, 04 Feb 2026 16:57:52 GMT and should not be manually modified.
+This log was last generated on Thu, 05 Feb 2026 06:35:27 GMT and should not be manually modified.
+
+## 0.15.5
+Thu, 05 Feb 2026 06:35:27 GMT
+
+### Patches
+
+- apply for new tokenbucket
 
 ## 0.15.4
 Wed, 04 Feb 2026 16:57:52 GMT
