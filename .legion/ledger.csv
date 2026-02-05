@@ -2029,3 +2029,9 @@
 2026-02-05T05:08:43.818Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
 2026-02-05T05:13:38.597Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addFile: apps/vendor-binance/src/api/client.ts,success
 2026-02-05T05:15:41.537Z,legion_update_plan,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-05T05:30:47.318Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-05T05:30:54.702Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDecision: 发现可复用模式: per-ip tokenBucket 必须复用 base bucket 限频参数,success
+2026-02-05T05:32:36.715Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-05T05:36:43.094Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,setCurrentTask: CI 下禁用集成/E2E 测试（http-services integration）,success
+2026-02-05T05:37:02.388Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 在 http-services 集成测试中增加 CI/CI_RUN 跳过逻辑，避免 CI 运行 E2E/Integration。,success
+2026-02-05T06:27:27.073Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: Gate 测试在 HOST_URL 未设置时跳过，并延迟导入依赖，避免 fromNodeEnv 在测试加载阶段直接报错。,success

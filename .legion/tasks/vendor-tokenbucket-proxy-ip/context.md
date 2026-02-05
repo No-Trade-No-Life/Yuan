@@ -84,6 +84,8 @@
 - 验证：`rush build --to @yuants/vendor-aster` 通过。
 - 检查其他 vendor 的 per-ip tokenBucket 配置：发现 Binance 未复用 base 限频参数并修复。
 - 验证：`rush build --to @yuants/vendor-binance` 通过。
+- 在 http-services 集成测试中增加 CI/CI_RUN 跳过逻辑，避免 CI 运行 E2E/Integration。
+- Gate 测试在 HOST_URL 未设置时跳过，并延迟导入依赖，避免 fromNodeEnv 在测试加载阶段直接报错。
 
 ### 🟡 进行中
 

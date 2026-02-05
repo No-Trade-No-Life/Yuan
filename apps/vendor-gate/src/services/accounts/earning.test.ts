@@ -1,25 +1,29 @@
-import { getEarningAccountInfo } from './earning';
+const shouldSkip = !process.env.HOST_URL;
+const describeFn = shouldSkip ? describe.skip : describe;
 
-// Mock 外部 API 模块
-const mockGetEarnBalance = jest.fn();
-const mockGetSpotPrice = jest.fn();
-
-jest.mock('../../api/private-api', () => ({
-  ...jest.requireActual('../../api/private-api'),
-  getEarnBalance: mockGetEarnBalance,
-}));
-
-jest.mock('../../api/public-api', () => ({
-  ...jest.requireActual('../../api/public-api'),
-  getSpotPrice: mockGetSpotPrice,
-}));
-
-import * as privateApi from '../../api/private-api';
-import * as publicApi from '../../api/public-api';
-
-describe('getEarningAccountInfo', () => {
+describeFn('getEarningAccountInfo', () => {
   const credential = { access_key: 'test', secret_key: 'test' };
   const account_id = 'GATE/123/EARNING';
+  const mockGetEarnBalance = jest.fn();
+  const mockGetSpotPrice = jest.fn();
+  let privateApi: typeof import('../../api/private-api');
+  let publicApi: typeof import('../../api/public-api');
+  let getEarningAccountInfo: typeof import('./earning').getEarningAccountInfo;
+
+  beforeAll(() => {
+    jest.resetModules();
+    jest.doMock('../../api/private-api', () => ({
+      ...jest.requireActual('../../api/private-api'),
+      getEarnBalance: mockGetEarnBalance,
+    }));
+    jest.doMock('../../api/public-api', () => ({
+      ...jest.requireActual('../../api/public-api'),
+      getSpotPrice: mockGetSpotPrice,
+    }));
+    privateApi = require('../../api/private-api');
+    publicApi = require('../../api/public-api');
+    ({ getEarningAccountInfo } = require('./earning'));
+  });
 
   beforeEach(() => {
     // 保留 mock 设置
