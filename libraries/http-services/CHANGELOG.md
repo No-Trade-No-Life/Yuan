@@ -1,6 +1,17 @@
 # Change Log - @yuants/http-services
 
-This log was last generated on Wed, 04 Feb 2026 16:57:52 GMT and should not be manually modified.
+This log was last generated on Thu, 05 Feb 2026 14:06:35 GMT and should not be manually modified.
+
+## 0.5.0
+Thu, 05 Feb 2026 14:06:35 GMT
+
+### Minor changes
+
+- Add target host/path labels to http_proxy_requests_total
+
+### Patches
+
+- add async select ip
 
 ## 0.4.0
 Wed, 04 Feb 2026 16:57:52 GMT

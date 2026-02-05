@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Thu, 05 Feb 2026 06:35:27 GMT and should not be manually modified.
+This log was last generated on Thu, 05 Feb 2026 14:06:35 GMT and should not be manually modified.
+
+## 0.20.6
+Thu, 05 Feb 2026 14:06:35 GMT
+
+### Patches
+
+- add async select ip
 
 ## 0.20.5
 Thu, 05 Feb 2026 06:35:27 GMT
