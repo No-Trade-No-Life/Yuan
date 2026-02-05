@@ -104,6 +104,17 @@
 ### 2026-02-05 — OpenCode
 
 - **本轮摘要**：
+  - proxy IP 选择改为异步等待（固定 30s），public/private API 调用链改为 await 请求上下文。
+- **修改的文件**：
+  - `apps/vendor-binance/src/api/client.ts`
+  - `apps/vendor-binance/src/api/public-api.ts`
+  - `apps/vendor-binance/src/api/private-api.ts`
+- **运行的测试 / 检查**：
+  - 未运行（本次仅修改 proxy ip 选择链路）
+
+### 2026-02-05 — OpenCode
+
+- **本轮摘要**：
   - 修复 Binance per-ip tokenBucket 未复用 base 限频参数的问题，避免 `acquireSync(weight)` 直接失败。
   - public/private API 的 per-ip bucket 统一使用 base bucket 的限频配置。
 - **修改的文件**：

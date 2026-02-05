@@ -1,4 +1,4 @@
-import { fetch, selectHTTPProxyIpRoundRobin } from '@yuants/http-services';
+import { fetch, selectHTTPProxyIpRoundRobinAsync } from '@yuants/http-services';
 import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import { encodePath, formatTime, scopeError, tokenBucket } from '@yuants/utils';
 
@@ -39,9 +39,9 @@ const resolveLocalPublicIp = (): string => {
   return 'public-ip-unknown';
 };
 
-const createRequestContext = (): RequestContext => {
+const createRequestContext = async (): Promise<RequestContext> => {
   if (shouldUseHttpProxy) {
-    const ip = selectHTTPProxyIpRoundRobin(terminal);
+    const ip = await selectHTTPProxyIpRoundRobinAsync(terminal);
     return { ip };
   }
   return { ip: resolveLocalPublicIp() };
@@ -106,7 +106,7 @@ const request = async <T>(
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#%E6%9F%A5%E8%AF%A2%E8%B5%84%E9%87%91%E8%B4%B9%E7%8E%87%E5%8E%86%E5%8F%B2
  */
-export const getFApiV1FundingRate = (params: {
+export const getFApiV1FundingRate = async (params: {
   symbol?: string;
   startTime?: number;
   endTime?: number;
@@ -122,7 +122,7 @@ export const getFApiV1FundingRate = (params: {
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   acquireRateLimit(url, endpoint, weight, requestContext);
   return request('GET', FutureBaseURL, endpoint, params, requestContext);
 };
@@ -159,12 +159,12 @@ export interface IAsterExchangeInfo {
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#%E4%BA%A4%E6%98%93%E5%AF%B9%E4%BF%A1%E6%81%AF
  */
-export const getFApiV1ExchangeInfo = (params: Record<string, never>): Promise<IAsterExchangeInfo> => {
+export const getFApiV1ExchangeInfo = async (params: Record<string, never>): Promise<IAsterExchangeInfo> => {
   const endpoint = '/fapi/v1/exchangeInfo';
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   acquireRateLimit(url, endpoint, weight, requestContext);
   return request('GET', FutureBaseURL, endpoint, params, requestContext);
 };
@@ -176,12 +176,12 @@ export const getFApiV1ExchangeInfo = (params: Record<string, never>): Promise<IA
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-spot-api_CN.md#L1080-L1145
  */
-export const getApiV1ExchangeInfo = (params: Record<string, never>): Promise<IAsterExchangeInfo> => {
+export const getApiV1ExchangeInfo = async (params: Record<string, never>): Promise<IAsterExchangeInfo> => {
   const endpoint = '/api/v1/exchangeInfo';
   const url = new URL(SpotBaseURL);
   url.pathname = endpoint;
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   acquireRateLimit(url, endpoint, weight, requestContext);
   return request('GET', SpotBaseURL, endpoint, params, requestContext);
 };
@@ -195,7 +195,7 @@ export const getApiV1ExchangeInfo = (params: Record<string, never>): Promise<IAs
  * Weight: 1
  * https://developers.binance.com/docs/zh-CN/derivatives/usds-margined-futures/market-data/rest-api/Open-Interest
  */
-export const getFApiV1OpenInterest = (params: {
+export const getFApiV1OpenInterest = async (params: {
   symbol: string;
 }): Promise<{
   symbol: string;
@@ -206,7 +206,7 @@ export const getFApiV1OpenInterest = (params: {
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   acquireRateLimit(url, endpoint, weight, requestContext);
   return request('GET', FutureBaseURL, endpoint, params, requestContext);
 };
@@ -218,7 +218,7 @@ export const getFApiV1OpenInterest = (params: {
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#%E6%9C%80%E6%96%B0%E4%BB%B7%E6%A0%BC
  */
-export const getFApiV1TickerPrice = (
+export const getFApiV1TickerPrice = async (
   params: Record<string, never>,
 ): Promise<
   {
@@ -231,7 +231,7 @@ export const getFApiV1TickerPrice = (
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = 2;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   acquireRateLimit(url, endpoint, weight, requestContext);
   return request('GET', FutureBaseURL, endpoint, params, requestContext);
 };
@@ -243,7 +243,7 @@ export const getFApiV1TickerPrice = (
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md
  */
-export const getFApiV1PremiumIndex = (params: {
+export const getFApiV1PremiumIndex = async (params: {
   symbol?: string;
 }): Promise<
   | {
@@ -271,7 +271,7 @@ export const getFApiV1PremiumIndex = (params: {
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   acquireRateLimit(url, endpoint, weight, requestContext);
   return request('GET', FutureBaseURL, endpoint, params, requestContext);
 };
@@ -300,7 +300,7 @@ export interface IAsterKline extends Array<string | number> {
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#k%E7%BA%BF%E6%95%B0%E6%8D%AE
  */
-export const getFApiV1Klines = (params: {
+export const getFApiV1Klines = async (params: {
   symbol: string;
   interval: string;
   startTime?: number;
@@ -311,7 +311,7 @@ export const getFApiV1Klines = (params: {
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = getKlinesRequestWeight(params?.limit);
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   scopeError(
     'ASTER_API_RATE_LIMIT',
     {
@@ -341,7 +341,7 @@ export const getFApiV1Klines = (params: {
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-spot-api_CN.md
  */
-export const getApiV1Klines = (params: {
+export const getApiV1Klines = async (params: {
   symbol: string;
   interval: string;
   startTime?: number;
@@ -352,7 +352,7 @@ export const getApiV1Klines = (params: {
   const url = new URL(SpotBaseURL);
   url.pathname = endpoint;
   const weight = getKlinesRequestWeight(params?.limit);
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   scopeError(
     'ASTER_API_RATE_LIMIT',
     {

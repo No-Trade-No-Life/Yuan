@@ -1,4 +1,4 @@
-import { fetch, selectHTTPProxyIpRoundRobin } from '@yuants/http-services';
+import { fetch, selectHTTPProxyIpRoundRobinAsync } from '@yuants/http-services';
 import { Terminal } from '@yuants/protocol';
 import { formatTime } from '@yuants/utils';
 
@@ -26,9 +26,9 @@ const resolveLocalPublicIp = (): string => {
   return 'public-ip-unknown';
 };
 
-const createRequestContext = (): RequestContext => {
+const createRequestContext = async (): Promise<RequestContext> => {
   if (shouldUseHttpProxy) {
-    const ip = selectHTTPProxyIpRoundRobin(terminal);
+    const ip = await selectHTTPProxyIpRoundRobinAsync(terminal);
     return { ip };
   }
   return { ip: resolveLocalPublicIp() };
@@ -40,7 +40,7 @@ const createRequestContext = (): RequestContext => {
 async function publicRequest(method: string, path: string, params?: Record<string, string>) {
   const url = new URL('https://www.okx.com');
   url.pathname = path;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   if (method === 'GET') {
     for (const key in params) {
       url.searchParams.set(key, params[key]);

@@ -5,12 +5,14 @@ import { isIP } from 'net';
 const DEFAULT_IP_FETCH_URL = 'https://ifconfig.me/ip';
 const MISSING_IP_LOG_INTERVAL = 3_600_000;
 const TRUSTED_PROXY_IP_SOURCE = 'http-services';
+const PROXY_IP_WAIT_TIMEOUT_MS = 30_000;
 
 type ProxyIpCache = {
   signature: string;
   ips: string[];
   cursor: number;
   lastMissingIpLogAt: Map<string, number>;
+  lastTimeoutLogAt: number;
   subscription?: { unsubscribe: () => void };
   disposeBound: boolean;
   ready: boolean;
@@ -26,6 +28,7 @@ const getCache = (terminalId: string): ProxyIpCache => {
       ips: [],
       cursor: 0,
       lastMissingIpLogAt: new Map(),
+      lastTimeoutLogAt: 0,
       disposeBound: false,
       ready: false,
     };
@@ -123,6 +126,69 @@ export const selectHTTPProxyIpRoundRobin = (terminal: Terminal): string => {
   cache.cursor = (index + 1) % ips.length;
   return ips[index];
 };
+
+/**
+ * @public
+ */
+export const waitForHTTPProxyIps = (terminal: Terminal): Promise<string[]> => {
+  const terminalId = terminal.terminal_id || 'unknown';
+  const ips = listHTTPProxyIps(terminal);
+  if (ips.length) return Promise.resolve(ips);
+  if (!terminal.terminalInfos$ || typeof terminal.terminalInfos$.subscribe !== 'function') {
+    throw newError('E_PROXY_TARGET_NOT_FOUND', {
+      reason: 'empty_pool',
+      terminal_id: terminalId,
+      timeoutMs: PROXY_IP_WAIT_TIMEOUT_MS,
+    });
+  }
+  const cache = getCache(terminalId);
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const cleanup = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeoutId);
+      subscription.unsubscribe();
+    };
+    const timeoutId = setTimeout(() => {
+      const now = Date.now();
+      if (now - cache.lastTimeoutLogAt > MISSING_IP_LOG_INTERVAL) {
+        cache.lastTimeoutLogAt = now;
+        console.info(formatTime(Date.now()), '[http-services] proxy ip wait timeout', {
+          terminal_id: terminalId,
+          timeoutMs: PROXY_IP_WAIT_TIMEOUT_MS,
+        });
+      }
+      cleanup();
+      reject(
+        newError('E_PROXY_TARGET_NOT_FOUND', {
+          reason: 'timeout',
+          terminal_id: terminalId,
+          timeoutMs: PROXY_IP_WAIT_TIMEOUT_MS,
+        }),
+      );
+    }, PROXY_IP_WAIT_TIMEOUT_MS);
+    const subscription = terminal.terminalInfos$.subscribe(() => {
+      const nextIps = listHTTPProxyIps(terminal);
+      if (!nextIps.length) return;
+      cleanup();
+      resolve(nextIps);
+    });
+  });
+};
+
+/**
+ * @public
+ */
+export const selectHTTPProxyIpRoundRobinAsync = async (terminal: Terminal): Promise<string> => {
+  const terminalId = terminal.terminal_id || 'unknown';
+  const cache = getCache(terminalId);
+  const ips = await waitForHTTPProxyIps(terminal);
+  const index = cache.cursor % ips.length;
+  cache.cursor = (index + 1) % ips.length;
+  return ips[index];
+};
+
 const isHttpProxyTerminal = (terminalInfo?: ITerminalInfo): boolean => {
   if (!terminalInfo) return false;
   return Object.values(terminalInfo.serviceInfo || {}).some(

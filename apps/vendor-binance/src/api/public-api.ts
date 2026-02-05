@@ -110,11 +110,11 @@ export interface IMarginPair {
  *
  * https://developers.binance.com/docs/zh-CN/derivatives/usds-margined-futures/market-data/rest-api/Exchange-Information
  */
-export const getFutureExchangeInfo = (): Promise<IFutureExchangeInfo> => {
+export const getFutureExchangeInfo = async (): Promise<IFutureExchangeInfo> => {
   const endpoint = 'https://fapi.binance.com/fapi/v1/exchangeInfo';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -131,7 +131,7 @@ export const getFutureExchangeInfo = (): Promise<IFutureExchangeInfo> => {
  *
  * https://developers.binance.com/docs/zh-CN/derivatives/usds-margined-futures/market-data/rest-api/Get-Funding-Rate-History
  */
-export const getFutureFundingRate = (params: {
+export const getFutureFundingRate = async (params: {
   symbol?: string;
   startTime?: number;
   endTime?: number;
@@ -140,7 +140,7 @@ export const getFutureFundingRate = (params: {
   const endpoint = 'https://fapi.binance.com/fapi/v1/fundingRate';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host + 'fundingRate', requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -162,11 +162,11 @@ export const getFutureFundingRate = (params: {
  *
  * https://developers.binance.com/docs/zh-CN/derivatives/usds-margined-futures/market-data/rest-api/Get-Funding-Rate-Info
  */
-export const getFutureFundingInfo = (): Promise<IFutureFundingInfoEntry[]> => {
+export const getFutureFundingInfo = async (): Promise<IFutureFundingInfoEntry[]> => {
   const endpoint = 'https://fapi.binance.com/fapi/v1/fundingInfo';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host + 'fundingRate', requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -190,11 +190,13 @@ export const getFutureFundingInfo = (): Promise<IFutureFundingInfoEntry[]> => {
  *
  * https://developers.binance.com/docs/zh-CN/derivatives/usds-margined-futures/market-data/rest-api/Mark-Price
  */
-export const getFuturePremiumIndex = (params: { symbol?: string }): Promise<IFuturePremiumIndexEntry[]> => {
+export const getFuturePremiumIndex = async (params: {
+  symbol?: string;
+}): Promise<IFuturePremiumIndexEntry[]> => {
   const endpoint = 'https://fapi.binance.com/fapi/v1/premiumIndex';
   const url = new URL(endpoint);
   const weight = params?.symbol ? 1 : 10;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -221,11 +223,13 @@ export const getFuturePremiumIndex = (params: { symbol?: string }): Promise<IFut
  *
  * https://developers.binance.com/docs/zh-CN/derivatives/usds-margined-futures/market-data/rest-api/Symbol-Order-Book-Ticker
  */
-export const getFutureBookTicker = (params?: { symbol?: string }): Promise<IFutureBookTickerEntry[]> => {
+export const getFutureBookTicker = async (params?: {
+  symbol?: string;
+}): Promise<IFutureBookTickerEntry[]> => {
   const endpoint = 'https://fapi.binance.com/fapi/v1/ticker/bookTicker';
   const url = new URL(endpoint);
   const weight = params?.symbol ? 2 : 5;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -252,11 +256,11 @@ export const getFutureBookTicker = (params?: { symbol?: string }): Promise<IFutu
  *
  * https://developers.binance.com/docs/zh-CN/derivatives/usds-margined-futures/market-data/rest-api/Open-Interest
  */
-export const getFutureOpenInterest = (params: { symbol: string }): Promise<IFutureOpenInterest> => {
+export const getFutureOpenInterest = async (params: { symbol: string }): Promise<IFutureOpenInterest> => {
   const endpoint = 'https://fapi.binance.com/fapi/v1/openInterest';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -280,11 +284,11 @@ export interface ISpotBookTickerEntry {
  *
  * https://developers.binance.com/docs/zh-CN/binance-spot-api-docs/rest-api/market-data-endpoints#%E6%9C%80%E4%BC%98%E6%8C%82%E5%8D%95%E6%8E%A5%E5%8F%A3
  */
-export const getSpotBookTicker = (params?: { symbol?: string }): Promise<ISpotBookTickerEntry[]> => {
+export const getSpotBookTicker = async (params?: { symbol?: string }): Promise<ISpotBookTickerEntry[]> => {
   const endpoint = 'https://api.binance.com/api/v3/ticker/bookTicker';
   const url = new URL(endpoint);
   const weight = params?.symbol ? 2 : 4;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -347,11 +351,11 @@ export interface ISpotExchangeInfo {
  *
  * https://developers.binance.com/docs/zh-CN/binance-spot-api-docs/rest-api/general-endpoints#%E4%BA%A4%E6%98%93%E8%A7%84%E8%8C%83%E4%BF%A1%E6%81%AF
  */
-export const getSpotExchangeInfo = (): Promise<ISpotExchangeInfo> => {
+export const getSpotExchangeInfo = async (): Promise<ISpotExchangeInfo> => {
   const endpoint = 'https://api.binance.com/api/v3/exchangeInfo';
   const url = new URL(endpoint);
   const weight = 20;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -368,7 +372,7 @@ export const getSpotExchangeInfo = (): Promise<ISpotExchangeInfo> => {
  *
  * https://developers.binance.com/docs/zh-CN/binance-spot-api-docs/rest-api/market-data-endpoints#%E6%9C%80%E6%96%B0%E4%BB%B7%E6%A0%BC%E6%8E%A5%E5%8F%A3
  */
-export const getSpotTickerPrice = (params?: {
+export const getSpotTickerPrice = async (params?: {
   symbol?: string;
   symbols?: string;
   symbolStatus?: string;
@@ -381,7 +385,7 @@ export const getSpotTickerPrice = (params?: {
   const endpoint = 'https://api.binance.com/api/v3/ticker/price';
   const url = new URL(endpoint);
   const weight = params?.symbol ? 2 : 4;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',

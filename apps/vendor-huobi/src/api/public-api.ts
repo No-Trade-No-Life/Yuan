@@ -1,4 +1,4 @@
-import { fetch, selectHTTPProxyIpRoundRobin } from '@yuants/http-services';
+import { fetch, selectHTTPProxyIpRoundRobinAsync } from '@yuants/http-services';
 import { Terminal } from '@yuants/protocol';
 import { encodePath, formatTime, scopeError, tokenBucket } from '@yuants/utils';
 
@@ -33,9 +33,9 @@ const resolveLocalPublicIp = (): string => {
   return 'public-ip-unknown';
 };
 
-const createRequestContext = (): RequestContext => {
+const createRequestContext = async (): Promise<RequestContext> => {
   if (shouldUseHttpProxy) {
-    const ip = selectHTTPProxyIpRoundRobin(terminal);
+    const ip = await selectHTTPProxyIpRoundRobinAsync(terminal);
     return { ip };
   }
   return { ip: resolveLocalPublicIp() };
@@ -133,7 +133,7 @@ async function publicRequest(
 }
 
 const spotMarketRequest = async (method: string, path: string, params?: any) => {
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const meta = {
     method,
     api_root: SPOT_API_ROOT,
@@ -147,7 +147,7 @@ const spotMarketRequest = async (method: string, path: string, params?: any) => 
 };
 
 const spotNonMarketRequest = async (method: string, path: string, params?: any) => {
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const meta = {
     method,
     api_root: SPOT_API_ROOT,
@@ -160,7 +160,7 @@ const spotNonMarketRequest = async (method: string, path: string, params?: any) 
 };
 
 const linearSwapMarketRequest = async (method: string, path: string, params?: any) => {
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const meta = {
     method,
     api_root: SWAP_API_ROOT,
@@ -174,7 +174,7 @@ const linearSwapMarketRequest = async (method: string, path: string, params?: an
 };
 
 const linearSwapNonMarketRequest = async (method: string, path: string, params?: any) => {
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const meta = {
     method,
     api_root: SWAP_API_ROOT,

@@ -1,4 +1,4 @@
-import { fetch, selectHTTPProxyIpRoundRobin } from '@yuants/http-services';
+import { fetch, selectHTTPProxyIpRoundRobinAsync } from '@yuants/http-services';
 import {
   encodeHex,
   encodePath,
@@ -51,9 +51,9 @@ const resolveLocalPublicIp = (): string => {
   return 'public-ip-unknown';
 };
 
-const createRequestContext = (): RequestContext => {
+const createRequestContext = async (): Promise<RequestContext> => {
   if (shouldUseHttpProxy) {
-    const ip = selectHTTPProxyIpRoundRobin(terminal);
+    const ip = await selectHTTPProxyIpRoundRobinAsync(terminal);
     return { ip };
   }
   return { ip: resolveLocalPublicIp() };
@@ -192,7 +192,7 @@ const SpotBaseURL = 'https://sapi.asterdex.com';
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#%E8%B4%A6%E6%88%B7%E4%BF%A1%E6%81%AFv4-user_data
  */
-export const getFApiV4Account = (
+export const getFApiV4Account = async (
   credential: ICredential,
   params: Record<string, never>,
 ): Promise<{
@@ -250,7 +250,7 @@ export const getFApiV4Account = (
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = 5;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   acquireRateLimit('GET', url, endpoint, weight, requestContext);
   return request(credential, 'GET', FutureBaseURL, endpoint, params, requestContext);
 };
@@ -262,7 +262,7 @@ export const getFApiV4Account = (
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#%E7%94%A8%E6%88%B7%E6%8C%81%E4%BB%93%E9%A3%8E%E9%99%A9v2-user_data
  */
-export const getFApiV2PositionRisk = (
+export const getFApiV2PositionRisk = async (
   credential: ICredential,
   params: {
     symbol?: string;
@@ -288,7 +288,7 @@ export const getFApiV2PositionRisk = (
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = 5;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   acquireRateLimit('GET', url, endpoint, weight, requestContext);
   return request(credential, 'GET', FutureBaseURL, endpoint, params, requestContext);
 };
@@ -298,7 +298,7 @@ export const getFApiV2PositionRisk = (
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#L2840-L2855
  */
-export const getFApiV2Balance = (
+export const getFApiV2Balance = async (
   credential: ICredential,
   params: Record<string, never>,
 ): Promise<
@@ -318,7 +318,7 @@ export const getFApiV2Balance = (
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = 5;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   acquireRateLimit('GET', url, endpoint, weight, requestContext);
   return request(credential, 'GET', FutureBaseURL, endpoint, params, requestContext);
 };
@@ -328,7 +328,7 @@ export const getFApiV2Balance = (
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#post-fapiv1order-%E7%9A%84%E7%A4%BA%E4%BE%8B
  */
-export const postFApiV1Order = (
+export const postFApiV1Order = async (
   credential: ICredential,
   params: {
     symbol: string;
@@ -352,7 +352,7 @@ export const postFApiV1Order = (
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const secondBucketKey = buildTokenBucketKey('order/future/second', requestContext.ip);
   const minuteBucketKey = buildTokenBucketKey('order/future/minute', requestContext.ip);
   scopeError(
@@ -375,7 +375,7 @@ export const postFApiV1Order = (
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#L2728-L2766
  */
-export const getFApiV1OpenOrders = (
+export const getFApiV1OpenOrders = async (
   credential: ICredential,
   params: {
     symbol?: string;
@@ -385,7 +385,7 @@ export const getFApiV1OpenOrders = (
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = params?.symbol ? 1 : 40;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   scopeError(
     'ASTER_API_RATE_LIMIT',
     {
@@ -413,7 +413,7 @@ export const getFApiV1OpenOrders = (
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-spot-api_CN.md#L1196-L1234
  */
-export const getApiV1OpenOrders = (
+export const getApiV1OpenOrders = async (
   credential: ICredential,
   params: {
     symbol?: string;
@@ -423,7 +423,7 @@ export const getApiV1OpenOrders = (
   const url = new URL(SpotBaseURL);
   url.pathname = endpoint;
   const weight = params?.symbol ? 1 : 40;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   scopeError(
     'ASTER_API_RATE_LIMIT',
     {
@@ -449,7 +449,7 @@ export const getApiV1OpenOrders = (
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#L2498-L2516
  */
-export const deleteFApiV1Order = (
+export const deleteFApiV1Order = async (
   credential: ICredential,
   params: {
     symbol: string;
@@ -461,7 +461,7 @@ export const deleteFApiV1Order = (
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const secondBucketKey = buildTokenBucketKey('order/future/second', requestContext.ip);
   const minuteBucketKey = buildTokenBucketKey('order/future/minute', requestContext.ip);
   scopeError(
@@ -484,7 +484,7 @@ export const deleteFApiV1Order = (
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-spot-api_CN.md#%E8%B4%A6%E6%88%B7%E4%BF%A1%E6%81%AF-user_data
  */
-export const getApiV1Account = (
+export const getApiV1Account = async (
   credential: ICredential,
   params: Record<string, never>,
 ): Promise<{
@@ -504,7 +504,7 @@ export const getApiV1Account = (
   const url = new URL(SpotBaseURL);
   url.pathname = endpoint;
   const weight = 5;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   acquireRateLimit('GET', url, endpoint, weight, requestContext);
   return request(credential, 'GET', SpotBaseURL, endpoint, params, requestContext);
 };
@@ -516,7 +516,7 @@ export const getApiV1Account = (
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-spot-api_CN.md#%E6%9C%80%E6%96%B0%E4%BB%B7%E6%A0%BC
  */
-export const getApiV1TickerPrice = (
+export const getApiV1TickerPrice = async (
   credential: ICredential,
   params: Record<string, never>,
 ): Promise<
@@ -530,7 +530,7 @@ export const getApiV1TickerPrice = (
   const url = new URL(SpotBaseURL);
   url.pathname = endpoint;
   const weight = 2;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   acquireRateLimit('GET', url, endpoint, weight, requestContext);
   return request(credential, 'GET', SpotBaseURL, endpoint, params, requestContext);
 };
@@ -540,7 +540,7 @@ export const getApiV1TickerPrice = (
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-spot-api_CN.md#post-apiv1order-%E7%9A%84%E7%A4%BA%E4%BE%8B
  */
-export const postApiV1Order = (
+export const postApiV1Order = async (
   credential: ICredential,
   params: {
     symbol: string;
@@ -558,7 +558,7 @@ export const postApiV1Order = (
   const url = new URL(SpotBaseURL);
   url.pathname = endpoint;
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const secondBucketKey = buildTokenBucketKey('order/spot/second', requestContext.ip);
   const minuteBucketKey = buildTokenBucketKey('order/spot/minute', requestContext.ip);
   scopeError(
@@ -581,7 +581,7 @@ export const postApiV1Order = (
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-spot-api_CN.md#L1040-L1074
  */
-export const deleteApiV1Order = (
+export const deleteApiV1Order = async (
   credential: ICredential,
   params: {
     symbol: string;
@@ -593,7 +593,7 @@ export const deleteApiV1Order = (
   const url = new URL(SpotBaseURL);
   url.pathname = endpoint;
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const secondBucketKey = buildTokenBucketKey('order/spot/second', requestContext.ip);
   const minuteBucketKey = buildTokenBucketKey('order/spot/minute', requestContext.ip);
   scopeError(
@@ -616,7 +616,7 @@ export const deleteApiV1Order = (
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#%E8%8E%B7%E5%8F%96%E8%B4%A6%E6%88%B7%E6%8D%9F%E7%9B%8A%E8%B5%84%E9%87%91%E6%B5%81%E6%B0%B4user_data
  */
-export const getAccountIncome = (
+export const getAccountIncome = async (
   credential: ICredential,
   params: {
     symbol?: string;
@@ -643,7 +643,7 @@ export const getAccountIncome = (
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = 30;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   acquireRateLimit('GET', url, endpoint, weight, requestContext);
   return request(credential, 'GET', FutureBaseURL, endpoint, params, requestContext);
 };
@@ -655,7 +655,7 @@ export const getAccountIncome = (
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#%E8%B4%A6%E6%88%B7%E6%88%90%E4%BA%A4%E5%8E%86%E5%8F%B2-user_data
  */
-export const getAccountTradeList = (
+export const getAccountTradeList = async (
   credential: ICredential,
   params: {
     symbol: string;
@@ -688,7 +688,7 @@ export const getAccountTradeList = (
   const url = new URL(FutureBaseURL);
   url.pathname = endpoint;
   const weight = 5;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   acquireRateLimit('GET', url, endpoint, weight, requestContext);
   return request(credential, 'GET', FutureBaseURL, endpoint, params, requestContext);
 };

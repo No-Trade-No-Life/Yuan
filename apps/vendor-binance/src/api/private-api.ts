@@ -258,11 +258,13 @@ export interface IAccountIncomeRecord {
  *
  * https://developers.binance.com/docs/zh-CN/derivatives/portfolio-margin/account/Account-Information
  */
-export const getUnifiedAccountInfo = (credential: ICredential): Promise<IUnifiedAccountInfo | IApiError> => {
+export const getUnifiedAccountInfo = async (
+  credential: ICredential,
+): Promise<IUnifiedAccountInfo | IApiError> => {
   const endpoint = 'https://papi.binance.com/papi/v1/account';
   const url = new URL(endpoint);
   const weight = 20;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -287,11 +289,13 @@ export const getUnifiedAccountInfo = (credential: ICredential): Promise<IUnified
  *
  * https://developers.binance.com/docs/zh-CN/derivatives/portfolio-margin/account/Get-UM-Account-Detail
  */
-export const getUnifiedUmAccount = (credential: ICredential): Promise<IUnifiedUmAccount | IApiError> => {
+export const getUnifiedUmAccount = async (
+  credential: ICredential,
+): Promise<IUnifiedUmAccount | IApiError> => {
   const endpoint = 'https://papi.binance.com/papi/v1/um/account';
   const url = new URL(endpoint);
   const weight = 5;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -316,7 +320,7 @@ export const getUnifiedUmAccount = (credential: ICredential): Promise<IUnifiedUm
  *
  * https://developers.binance.com/docs/zh-CN/derivatives/portfolio-margin/trade/Query-All-Current-UM-Open-Orders
  */
-export const getUnifiedUmOpenOrders = (
+export const getUnifiedUmOpenOrders = async (
   credential: ICredential,
   params?: {
     symbol?: string;
@@ -325,7 +329,7 @@ export const getUnifiedUmOpenOrders = (
   const endpoint = 'https://papi.binance.com/papi/v1/um/openOrders';
   const url = new URL(endpoint);
   const weight = params?.symbol ? 1 : 40;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -352,7 +356,7 @@ export const getUnifiedUmOpenOrders = (
  *
  * https://developers.binance.com/docs/zh-CN/derivatives/portfolio-margin/account/Account-Balance
  */
-export const getUnifiedAccountBalance = (
+export const getUnifiedAccountBalance = async (
   credential: ICredential,
   params?: {
     assets?: string;
@@ -361,7 +365,7 @@ export const getUnifiedAccountBalance = (
   const endpoint = 'https://papi.binance.com/papi/v1/balance';
   const url = new URL(endpoint);
   const weight = 20;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -384,7 +388,7 @@ export const getUnifiedAccountBalance = (
  *
  * https://developers.binance.com/docs/zh-CN/binance-spot-api-docs/rest-api#%E8%B4%A6%E6%88%B7%E4%BF%A1%E6%81%AF-user_data
  */
-export const getSpotAccountInfo = (
+export const getSpotAccountInfo = async (
   credential: ICredential,
   params?: {
     omitZeroBalances?: boolean;
@@ -393,7 +397,7 @@ export const getSpotAccountInfo = (
   const endpoint = 'https://api.binance.com/api/v3/account';
   const url = new URL(endpoint);
   const weight = 20;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -410,7 +414,7 @@ export const getSpotAccountInfo = (
  *
  * https://developers.binance.com/docs/zh-CN/binance-spot-api-docs/rest-api/account-endpoints#%E6%9F%A5%E7%9C%8B%E8%B4%A6%E6%88%B7%E5%BD%93%E5%89%8D%E6%8C%82%E5%8D%95-user_data
  */
-export const getSpotOpenOrders = (
+export const getSpotOpenOrders = async (
   credential: ICredential,
   params?: {
     symbol?: string;
@@ -419,7 +423,7 @@ export const getSpotOpenOrders = (
   const endpoint = 'https://api.binance.com/api/v3/openOrders';
   const url = new URL(endpoint);
   const weight = params?.symbol ? 6 : 80;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -444,7 +448,7 @@ export const getSpotOpenOrders = (
  *
  * https://developers.binance.com/docs/zh-CN/binance-spot-api-docs/rest-api/trading-endpoints#%E4%B8%8B%E5%8D%95-trade
  */
-export const postSpotOrder = (
+export const postSpotOrder = async (
   credential: ICredential,
   params: {
     symbol: string;
@@ -470,7 +474,7 @@ export const postSpotOrder = (
   const endpoint = 'https://api.binance.com/api/v3/order';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -493,7 +497,7 @@ export const postSpotOrder = (
  *
  * https://developers.binance.com/docs/zh-CN/binance-spot-api-docs/rest-api/trading-endpoints#%E6%92%A4%E9%94%80%E8%AE%A2%E5%8D%95-trade
  */
-export const deleteSpotOrder = (
+export const deleteSpotOrder = async (
   credential: ICredential,
   params: {
     symbol: string;
@@ -506,7 +510,7 @@ export const deleteSpotOrder = (
   const endpoint = 'https://api.binance.com/api/v3/order';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -527,7 +531,7 @@ export const deleteSpotOrder = (
  *
  * https://developers.binance.com/docs/zh-CN/wallet/asset/user-universal-transfer
  */
-export const postAssetTransfer = (
+export const postAssetTransfer = async (
   credential: ICredential,
   params: {
     type: string;
@@ -540,7 +544,7 @@ export const postAssetTransfer = (
   const endpoint = 'https://api.binance.com/sapi/v1/asset/transfer';
   const url = new URL(endpoint);
   const weight = 900;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -567,11 +571,11 @@ export const postAssetTransfer = (
  *
  * ISSUE(2024-07-18): 目前这是唯一能够将资金从原 U 本位合约账户转入统一账户的接口。
  */
-export const postUnifiedAccountAutoCollection = (credential: ICredential): Promise<{ msg: string }> => {
+export const postUnifiedAccountAutoCollection = async (credential: ICredential): Promise<{ msg: string }> => {
   const endpoint = 'https://papi.binance.com/papi/v1/auto-collection';
   const url = new URL(endpoint);
   const weight = 750;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -590,7 +594,7 @@ export const postUnifiedAccountAutoCollection = (credential: ICredential): Promi
  *
  * https://developers.binance.com/docs/zh-CN/wallet/capital/deposite-address
  */
-export const getDepositAddress = (
+export const getDepositAddress = async (
   credential: ICredential,
   params: {
     coin: string;
@@ -601,7 +605,7 @@ export const getDepositAddress = (
   const endpoint = 'https://api.binance.com/sapi/v1/capital/deposit/address';
   const url = new URL(endpoint);
   const weight = 10;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -618,7 +622,7 @@ export const getDepositAddress = (
  *
  * https://developers.binance.com/docs/zh-CN/sub_account/account-management/Query-Sub-account-List
  */
-export const getSubAccountList = (
+export const getSubAccountList = async (
   credential: ICredential,
   params?: {
     email?: string;
@@ -630,7 +634,7 @@ export const getSubAccountList = (
   const endpoint = 'https://api.binance.com/sapi/v1/sub-account/list';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -653,7 +657,7 @@ export const getSubAccountList = (
  *
  * https://developers.binance.com/docs/zh-CN/wallet/capital/withdraw
  */
-export const postWithdraw = (
+export const postWithdraw = async (
   credential: ICredential,
   params: {
     coin: string;
@@ -670,7 +674,7 @@ export const postWithdraw = (
   const endpoint = 'https://api.binance.com/sapi/v1/capital/withdraw/apply';
   const url = new URL(endpoint);
   const weight = 600;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -692,7 +696,7 @@ export const postWithdraw = (
  *
  * https://developers.binance.com/docs/zh-CN/wallet/capital/withdraw-history
  */
-export const getWithdrawHistory = (
+export const getWithdrawHistory = async (
   credential: ICredential,
   params?: {
     coin?: string;
@@ -707,7 +711,7 @@ export const getWithdrawHistory = (
   const endpoint = 'https://api.binance.com/sapi/v1/capital/withdraw/history';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -724,7 +728,7 @@ export const getWithdrawHistory = (
  *
  * https://developers.binance.com/docs/zh-CN/wallet/capital/deposite-history
  */
-export const getDepositHistory = (
+export const getDepositHistory = async (
   credential: ICredential,
   params?: {
     includeSource?: boolean;
@@ -740,7 +744,7 @@ export const getDepositHistory = (
   const endpoint = 'https://api.binance.com/sapi/v1/capital/deposit/hisrec';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -757,7 +761,7 @@ export const getDepositHistory = (
  *
  * https://developers.binance.com/docs/zh-CN/derivatives/portfolio-margin/trade/New-UM-Order
  */
-export const postUmOrder = (
+export const postUmOrder = async (
   credential: ICredential,
   params: {
     symbol: string;
@@ -777,7 +781,7 @@ export const postUmOrder = (
   const endpoint = 'https://papi.binance.com/papi/v1/um/order';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey('order/unified/minute', requestContext.ip);
   scopeError(
     'BINANCE_UNIFIED_ORDER_API_RATE_LIMIT',
@@ -793,7 +797,7 @@ export const postUmOrder = (
   );
 };
 
-export const deleteUmOrder = (
+export const deleteUmOrder = async (
   credential: ICredential,
   params: {
     symbol: string;
@@ -804,7 +808,7 @@ export const deleteUmOrder = (
   const endpoint = 'https://papi.binance.com/papi/v1/um/order';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey('order/unified/minute', requestContext.ip);
   scopeError(
     'BINANCE_UNIFIED_ORDER_API_RATE_LIMIT',
@@ -827,7 +831,7 @@ export const deleteUmOrder = (
  *
  * https://developers.binance.com/docs/zh-CN/derivatives/portfolio-margin/account/Get-UM-Income-History
  */
-export const getUMIncome = (
+export const getUMIncome = async (
   credential: ICredential,
   params?: {
     symbol?: string;
@@ -842,7 +846,7 @@ export const getUMIncome = (
   const endpoint = 'https://papi.binance.com/papi/v1/um/income';
   const url = new URL(endpoint);
   const weight = 30;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -858,7 +862,7 @@ export const getUMIncome = (
  *
  * https://developers.binance.com/docs/zh-CN/derivatives/usds-margined-futures/account/rest-api/Get-Income-History
  */
-export const getAccountIncome = (
+export const getAccountIncome = async (
   credential: ICredential,
   params?: {
     symbol?: string;
@@ -874,7 +878,7 @@ export const getAccountIncome = (
   const endpoint = 'https://fapi.binance.com/fapi/v1/income';
   const url = new URL(endpoint);
   const weight = 30;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -891,7 +895,7 @@ export const getAccountIncome = (
  *
  * https://developers.binance.com/docs/zh-CN/binance-spot-api-docs/rest-api/trading-endpoints#%E6%92%A4%E9%94%80%E5%B9%B6%E9%87%8D%E6%96%B0%E4%B8%8B%E5%8D%95-trade
  */
-export const postSpotOrderCancelReplace = (
+export const postSpotOrderCancelReplace = async (
   credential: ICredential,
   params: {
     symbol: string;
@@ -921,7 +925,7 @@ export const postSpotOrderCancelReplace = (
   const endpoint = 'https://api.binance.com/api/v3/order/cancelReplace';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -944,7 +948,7 @@ export const postSpotOrderCancelReplace = (
  *
  * https://developers.binance.com/docs/zh-CN/derivatives/portfolio-margin/trade/Modify-UM-Order
  */
-export const putUmOrder = (
+export const putUmOrder = async (
   credential: ICredential,
   params: {
     orderId?: number;
@@ -961,7 +965,7 @@ export const putUmOrder = (
   const endpoint = 'https://papi.binance.com/papi/v1/um/order';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -993,12 +997,12 @@ export interface IMarginPair {
  *
  * https://developers.binance.com/docs/zh-CN/margin_trading/market-data/Get-All-Cross-Margin-Pairs
  */
-export const getMarginAllPairs = (params?: { symbol?: string }): Promise<IMarginPair[]> => {
+export const getMarginAllPairs = async (params?: { symbol?: string }): Promise<IMarginPair[]> => {
   const credential = getDefaultCredential();
   const endpoint = 'https://api.binance.com/sapi/v1/margin/allPairs';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -1013,7 +1017,7 @@ export const getMarginAllPairs = (params?: { symbol?: string }): Promise<IMargin
  *
  * https://developers.binance.com/docs/zh-CN/margin_trading/borrow-and-repay/Get-a-future-hourly-interest-rate
  */
-export const getMarginNextHourlyInterestRate = (params: {
+export const getMarginNextHourlyInterestRate = async (params: {
   assets: string;
   isIsolated: boolean;
 }): Promise<
@@ -1026,7 +1030,7 @@ export const getMarginNextHourlyInterestRate = (params: {
   const endpoint = 'https://api.binance.com/sapi/v1/margin/next-hourly-interest-rate';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -1046,7 +1050,7 @@ export const getMarginNextHourlyInterestRate = (params: {
  *
  * https://developers.binance.com/docs/zh-CN/margin_trading/borrow-and-repay/Query-Margin-Interest-Rate-History
  */
-export const getMarginInterestRateHistory = (params: {
+export const getMarginInterestRateHistory = async (params: {
   asset: string;
   vipLevel?: number;
   startTime?: number;
@@ -1064,7 +1068,7 @@ export const getMarginInterestRateHistory = (params: {
   const endpoint = 'https://api.binance.com/sapi/v1/margin/interestRateHistory';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -1088,7 +1092,7 @@ export const getMarginInterestRateHistory = (params: {
  * @param params
  * @returns
  */
-export const getUserAsset = (
+export const getUserAsset = async (
   credential: ICredential,
   params: {
     timestamp: number;
@@ -1100,7 +1104,7 @@ export const getUserAsset = (
   const endpoint = 'https://api.binance.com/sapi/v3/asset/getUserAsset';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -1128,7 +1132,7 @@ export const getUserAsset = (
  * @param params
  * @returns
  */
-export const getFundingAsset = (
+export const getFundingAsset = async (
   credential: ICredential,
   params: {
     timestamp: number;
@@ -1140,7 +1144,7 @@ export const getFundingAsset = (
   const endpoint = 'https://api.binance.com/sapi/v1/asset/get-funding-asset';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',
@@ -1168,7 +1172,7 @@ export const getFundingAsset = (
  * @param params
  * @returns
  */
-export const getUmAccountTradeList = (
+export const getUmAccountTradeList = async (
   credential: ICredential,
   params: {
     symbol: string;
@@ -1183,7 +1187,7 @@ export const getUmAccountTradeList = (
   const endpoint = 'https://papi.binance.com/papi/v1/um/userTrades';
   const url = new URL(endpoint);
   const weight = 5;
-  const requestContext = createRequestContext();
+  const requestContext = await createRequestContext();
   const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
   scopeError(
     'BINANCE_API_RATE_LIMIT',

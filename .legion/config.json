@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "vendor-tokenbucket-proxy-ip",
+  "currentTask": "http-services-terminalinfos-ready",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -220,9 +220,16 @@
     {
       "id": "vendor-tokenbucket-proxy-ip",
       "name": "vendor-tokenbucket-proxy-ip",
-      "status": "active",
+      "status": "paused",
       "createdAt": "2026-02-03T16:40:42.595Z",
-      "updatedAt": "2026-02-05T06:27:27.061Z"
+      "updatedAt": "2026-02-05T11:41:19.733Z"
+    },
+    {
+      "id": "http-services-terminalinfos-ready",
+      "name": "http-services-terminalinfos-ready",
+      "status": "active",
+      "createdAt": "2026-02-05T11:41:19.733Z",
+      "updatedAt": "2026-02-05T13:24:43.631Z"
     }
   ],
   "pendingProposals": [
@@ -2634,6 +2641,76 @@
       "decidedAt": "2026-02-03T16:40:42.595Z",
       "decidedBy": "Claude",
       "createdTaskId": "vendor-tokenbucket-proxy-ip"
+    },
+    {
+      "id": "proposal-ml9dxxr3-c0aac3",
+      "name": "http-services-terminalinfos-ready",
+      "goal": "为 HTTP proxy IP 选择引入 terminalInfos$ 就绪 gate，避免进程启动阶段 selectHTTPProxyIpRoundRobin 失败，并统一生命周期管理策略。",
+      "rationale": "当前进程刚启动时 terminal.terminalInfos$ 尚未首发，selectHTTPProxyIpRoundRobin 直接从空池选择会抛错，导致依赖链路（如 http-services selectHTTPProxyRoundRobin）启动失败；需要提供可等待的就绪路径并更新调用点。",
+      "points": [
+        "梳理 terminal 加入 host 后的事件链路（GetTerminalInfos + HostEvent/TERMINAL_CHANGE）并作为就绪判断依据",
+        "在 @yuants/http-services 增加异步选择 helper（方案 A）并保留同步 API",
+        "更新各 vendor 调用点改为等待就绪后选择 proxy ip",
+        "补充超时/错误语义与观测（最小日志）"
+      ],
+      "scope": [
+        "libraries/http-services/src/proxy-ip.ts",
+        "libraries/http-services/src/index.ts",
+        "apps/vendor-binance/src/api/client.ts",
+        "apps/vendor-aster/src/api/public-api.ts",
+        "apps/vendor-aster/src/api/private-api.ts",
+        "apps/vendor-bitget/src/api/client.ts",
+        "apps/vendor-gate/src/api/http-client.ts",
+        "apps/vendor-huobi/src/api/public-api.ts",
+        "apps/vendor-huobi/src/api/private-api.ts",
+        "apps/vendor-hyperliquid/src/api/client.ts",
+        "apps/vendor-okx/src/api/public-api.ts",
+        "apps/vendor-okx/src/api/private-api.ts"
+      ],
+      "phases": [
+        {
+          "name": "调研",
+          "tasks": [
+            {
+              "description": "梳理 terminal 初始化与 terminalInfos$ 更新路径（GetTerminalInfos + HostEvent），明确就绪条件与可能的空池情形。",
+              "acceptance": "context.md 记录：事件链路、首次可用时机与空池边界条件。"
+            }
+          ]
+        },
+        {
+          "name": "设计",
+          "tasks": [
+            {
+              "description": "定义异步选择 API（输入/输出/超时/错误语义）与调用点改造方案（方案 A）。",
+              "acceptance": "RFC 明确 API 形态、等待策略、错误码/日志与调用点调整清单。"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "在 http-services 增加 async helper，并更新各 vendor 调用点使用新 API。",
+              "acceptance": "启动阶段不再因 terminalInfos$ 未就绪而抛 E_PROXY_TARGET_NOT_FOUND；功能行为保持一致。"
+            }
+          ]
+        },
+        {
+          "name": "验证",
+          "tasks": [
+            {
+              "description": "最小验证：相关包 typecheck/build 或指定 vendor 构建。",
+              "acceptance": "构建通过或给出可复现失败原因。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-02-05T11:40:53.152Z",
+      "status": "approved",
+      "decidedAt": "2026-02-05T11:41:19.733Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "http-services-terminalinfos-ready"
     }
   ]
 }
