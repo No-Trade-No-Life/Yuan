@@ -2,6 +2,23 @@
   "name": "@yuants/app-http-proxy",
   "entries": [
     {
+      "version": "0.2.3",
+      "tag": "@yuants/app-http-proxy_v0.2.3",
+      "date": "Fri, 06 Feb 2026 14:39:23 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add Dockerfile"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.2",
       "tag": "@yuants/app-http-proxy_v0.2.2",
       "date": "Fri, 06 Feb 2026 09:50:06 GMT",
