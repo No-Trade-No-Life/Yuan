@@ -2,6 +2,23 @@
   "name": "@yuants/app-http-proxy",
   "entries": [
     {
+      "version": "0.2.5",
+      "tag": "@yuants/app-http-proxy_v0.2.5",
+      "date": "Fri, 06 Feb 2026 15:37:51 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix node toleration"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.4",
       "tag": "@yuants/app-http-proxy_v0.2.4",
       "date": "Fri, 06 Feb 2026 15:22:17 GMT",
