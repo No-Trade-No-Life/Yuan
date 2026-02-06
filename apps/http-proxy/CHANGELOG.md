@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-http-proxy
 
-This log was last generated on Thu, 05 Feb 2026 14:06:35 GMT and should not be manually modified.
+This log was last generated on Fri, 06 Feb 2026 09:50:06 GMT and should not be manually modified.
+
+## 0.2.2
+Fri, 06 Feb 2026 09:50:06 GMT
+
+### Patches
+
+- adjust default rate limit for http proxy
 
 ## 0.2.1
 Thu, 05 Feb 2026 14:06:35 GMT
