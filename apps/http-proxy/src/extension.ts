@@ -33,6 +33,27 @@ export default (context: IExtensionContext) => {
           },
         },
         spec: {
+          nodeAffinity: {
+            requiredDuringSchedulingIgnoredDuringExecution: {
+              nodeSelectorTerms: [
+                {
+                  matchExpressions: [
+                    {
+                      key: 'y.ntnl.io/egress',
+                      operator: 'Exists',
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+          tolerations: [
+            {
+              key: 'egress',
+              operator: 'Exists',
+              effect: 'NoSchedule',
+            },
+          ],
           selector: {
             matchLabels: {
               'y.ntnl.io/component': COMPONENT_NAME,
