@@ -6,10 +6,10 @@ import { fromEvent, merge, take, tap } from 'rxjs';
 (async () => {
   const HOSTNAME = process.env.HOSTNAME || (await import('os')).hostname();
 
-  const CONCURRENT = process.env.CONCURRENT ? Number(process.env.CONCURRENT) : 10;
+  const CONCURRENT = process.env.CONCURRENT ? Number(process.env.CONCURRENT) : 1000;
   const INGRESS_TOKEN_CAPACITY = process.env.INGRESS_TOKEN_CAPACITY
     ? Number(process.env.INGRESS_TOKEN_CAPACITY)
-    : 100;
+    : 1000;
 
   const terminal = Terminal.fromNodeEnv();
   await computeAndInjectProxyIp(terminal, { proxyIp: process.env.PROXY_IP });
