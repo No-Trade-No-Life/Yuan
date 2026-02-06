@@ -14,7 +14,8 @@
     "rxjs": "~7.5.6",
     "@yuants/http-services": "workspace:*",
     "@yuants/protocol": "workspace:*",
-    "@yuants/utils": "workspace:*"
+    "@yuants/utils": "workspace:*",
+    "@yuants/extension": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "24",
