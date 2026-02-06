@@ -19,6 +19,7 @@
   "deploymentProjectNames": [
     "@yuants/node-unit",
     "@yuants/app-host",
+    "@yuants/app-http-proxy",
     "@yuants/vendor-ctp"
   ],
   /**
