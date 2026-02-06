@@ -507,6 +507,9 @@ importers:
 
   ../../apps/http-proxy:
     dependencies:
+      '@yuants/extension':
+        specifier: workspace:*
+        version: link:../../libraries/extension
       '@yuants/http-services':
         specifier: workspace:*
         version: link:../../libraries/http-services
