@@ -2,6 +2,23 @@
   "name": "@yuants/app-http-proxy",
   "entries": [
     {
+      "version": "0.2.4",
+      "tag": "@yuants/app-http-proxy_v0.2.4",
+      "date": "Fri, 06 Feb 2026 15:22:17 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add taint tolerations"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.3",
       "tag": "@yuants/app-http-proxy_v0.2.3",
       "date": "Fri, 06 Feb 2026 14:39:23 GMT",
