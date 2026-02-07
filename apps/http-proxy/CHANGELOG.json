@@ -2,6 +2,23 @@
   "name": "@yuants/app-http-proxy",
   "entries": [
     {
+      "version": "0.2.7",
+      "tag": "@yuants/app-http-proxy_v0.2.7",
+      "date": "Sat, 07 Feb 2026 06:46:45 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add target arch for tini"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.6",
       "tag": "@yuants/app-http-proxy_v0.2.6",
       "date": "Sat, 07 Feb 2026 05:24:37 GMT",

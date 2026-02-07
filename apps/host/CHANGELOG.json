@@ -2,6 +2,23 @@
   "name": "@yuants/app-host",
   "entries": [
     {
+      "version": "0.11.13",
+      "tag": "@yuants/app-host_v0.11.13",
+      "date": "Sat, 07 Feb 2026 06:46:45 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add target arch for tini"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.11.12",
       "tag": "@yuants/app-host_v0.11.12",
       "date": "Sat, 07 Feb 2026 05:24:37 GMT",

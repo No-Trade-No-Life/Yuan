@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-host
 
-This log was last generated on Sat, 07 Feb 2026 05:24:37 GMT and should not be manually modified.
+This log was last generated on Sat, 07 Feb 2026 06:46:45 GMT and should not be manually modified.
+
+## 0.11.13
+Sat, 07 Feb 2026 06:46:45 GMT
+
+### Patches
+
+- add target arch for tini
 
 ## 0.11.12
 Sat, 07 Feb 2026 05:24:37 GMT
