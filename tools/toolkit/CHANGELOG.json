@@ -2,6 +2,23 @@
   "name": "@yuants/tool-kit",
   "entries": [
     {
+      "version": "0.2.3",
+      "tag": "@yuants/tool-kit_v0.2.3",
+      "date": "Sat, 07 Feb 2026 05:24:37 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "support multi-arch docker bake and arm64 CI defaults"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.2",
       "tag": "@yuants/tool-kit_v0.2.2",
       "date": "Tue, 06 Jan 2026 17:23:41 GMT",

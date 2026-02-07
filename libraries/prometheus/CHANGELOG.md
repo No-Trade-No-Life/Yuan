@@ -1,6 +1,11 @@
 # Change Log - @yuants/prometheus
 
-This log was last generated on Mon, 26 Jan 2026 19:55:09 GMT and should not be manually modified.
+This log was last generated on Sat, 07 Feb 2026 05:24:37 GMT and should not be manually modified.
+
+## 0.1.4
+Sat, 07 Feb 2026 05:24:37 GMT
+
+_Version update only_
 
 ## 0.1.3
 Mon, 26 Jan 2026 19:55:09 GMT

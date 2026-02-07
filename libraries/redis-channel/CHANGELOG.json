@@ -2,6 +2,29 @@
   "name": "@yuants/redis-channel",
   "entries": [
     {
+      "version": "0.2.22",
+      "tag": "@yuants/redis-channel_v0.2.22",
+      "date": "Sat, 07 Feb 2026 05:24:37 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.19.6`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.42`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.2.3`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.21",
       "tag": "@yuants/redis-channel_v0.2.21",
       "date": "Mon, 26 Jan 2026 19:55:09 GMT",

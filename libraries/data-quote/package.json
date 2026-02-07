@@ -1,6 +1,6 @@
 {
   "name": "@yuants/data-quote",
-  "version": "0.4.10",
+  "version": "0.4.11",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [

@@ -2,6 +2,23 @@
   "name": "@yuants/prometheus",
   "entries": [
     {
+      "version": "0.1.4",
+      "tag": "@yuants/prometheus_v0.1.4",
+      "date": "Sat, 07 Feb 2026 05:24:37 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.2.3`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.3",
       "tag": "@yuants/prometheus_v0.1.3",
       "date": "Mon, 26 Jan 2026 19:55:09 GMT",

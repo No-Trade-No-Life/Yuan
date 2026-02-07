@@ -2,6 +2,23 @@
   "name": "@yuants/time-series",
   "entries": [
     {
+      "version": "0.2.2",
+      "tag": "@yuants/time-series_v0.2.2",
+      "date": "Sat, 07 Feb 2026 05:24:37 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.2.3`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.1",
       "tag": "@yuants/time-series_v0.2.1",
       "date": "Tue, 06 Jan 2026 17:23:41 GMT",

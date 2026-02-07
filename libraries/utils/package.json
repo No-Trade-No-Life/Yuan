@@ -1,6 +1,6 @@
 {
   "name": "@yuants/utils",
-  "version": "0.19.5",
+  "version": "0.19.6",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [
