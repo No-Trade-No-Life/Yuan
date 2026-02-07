@@ -1,6 +1,6 @@
 {
   "name": "@yuants/cache",
-  "version": "0.3.13",
+  "version": "0.3.14",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [

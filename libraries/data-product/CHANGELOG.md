@@ -1,6 +1,11 @@
 # Change Log - @yuants/data-product
 
-This log was last generated on Tue, 03 Feb 2026 07:54:43 GMT and should not be manually modified.
+This log was last generated on Sat, 07 Feb 2026 05:24:37 GMT and should not be manually modified.
+
+## 0.5.12
+Sat, 07 Feb 2026 05:24:37 GMT
+
+_Version update only_
 
 ## 0.5.11
 Tue, 03 Feb 2026 07:54:43 GMT

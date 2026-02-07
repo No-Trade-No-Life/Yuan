@@ -1,6 +1,13 @@
 # Change Log - @yuants/tool-kit
 
-This log was last generated on Tue, 06 Jan 2026 17:23:41 GMT and should not be manually modified.
+This log was last generated on Sat, 07 Feb 2026 05:24:37 GMT and should not be manually modified.
+
+## 0.2.3
+Sat, 07 Feb 2026 05:24:37 GMT
+
+### Patches
+
+- support multi-arch docker bake and arm64 CI defaults
 
 ## 0.2.2
 Tue, 06 Jan 2026 17:23:41 GMT

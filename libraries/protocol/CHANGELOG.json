@@ -2,6 +2,35 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.54.4",
+      "tag": "@yuants/protocol_v0.54.4",
+      "date": "Sat, 07 Feb 2026 05:24:37 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.19.6`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/cache\" to `0.3.14`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/prometheus-client\" to `0.1.10`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/prometheus\" to `0.1.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.2.3`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.54.3",
       "tag": "@yuants/protocol_v0.54.3",
       "date": "Tue, 03 Feb 2026 07:54:43 GMT",

@@ -1,6 +1,11 @@
 # Change Log - @yuants/time-series
 
-This log was last generated on Tue, 06 Jan 2026 17:23:41 GMT and should not be manually modified.
+This log was last generated on Sat, 07 Feb 2026 05:24:37 GMT and should not be manually modified.
+
+## 0.2.2
+Sat, 07 Feb 2026 05:24:37 GMT
+
+_Version update only_
 
 ## 0.2.1
 Tue, 06 Jan 2026 17:23:41 GMT

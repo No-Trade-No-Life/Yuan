@@ -2,6 +2,71 @@
   "name": "@yuants/vendor-gate",
   "entries": [
     {
+      "version": "0.9.7",
+      "tag": "@yuants/vendor-gate_v0.9.7",
+      "date": "Sat, 07 Feb 2026 05:24:37 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/cache\" to `0.3.14`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.54.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/transfer\" to `0.2.51`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.11.11`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-order\" to `0.7.12`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-ohlc\" to `0.6.7`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-trade\" to `0.1.37`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.42`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.5.12`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.19.6`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/http-services\" to `0.5.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-series\" to `0.3.64`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-interest-rate\" to `0.2.12`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.22`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-quote\" to `0.4.11`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.42`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.2.3`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.9.6",
       "tag": "@yuants/vendor-gate_v0.9.6",
       "date": "Thu, 05 Feb 2026 14:06:35 GMT",
