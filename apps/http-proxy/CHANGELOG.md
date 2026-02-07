@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-http-proxy
 
-This log was last generated on Sat, 07 Feb 2026 05:24:37 GMT and should not be manually modified.
+This log was last generated on Sat, 07 Feb 2026 06:46:45 GMT and should not be manually modified.
+
+## 0.2.7
+Sat, 07 Feb 2026 06:46:45 GMT
+
+### Patches
+
+- add target arch for tini
 
 ## 0.2.6
 Sat, 07 Feb 2026 05:24:37 GMT

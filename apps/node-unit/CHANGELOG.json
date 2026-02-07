@@ -2,6 +2,23 @@
   "name": "@yuants/node-unit",
   "entries": [
     {
+      "version": "0.15.4",
+      "tag": "@yuants/node-unit_v0.15.4",
+      "date": "Sat, 07 Feb 2026 06:46:45 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add target arch for tini"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.15.3",
       "tag": "@yuants/node-unit_v0.15.3",
       "date": "Sat, 07 Feb 2026 05:24:37 GMT",
