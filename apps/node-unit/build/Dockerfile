@@ -7,7 +7,8 @@ LABEL maintainer="Siyuan Wang <c.one@thrimbda.com>"
 
 # https://github.com/nodejs/docker-node/blob/main/docs/BestPractices.md#handling-kernel-signals
 ARG TINI_VERSION=v0.19.0
-ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+ARG TARGETARCH
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-static-${TARGETARCH} /tini
 RUN chmod a+x /tini
 ENTRYPOINT ["/tini", "--"]
 
