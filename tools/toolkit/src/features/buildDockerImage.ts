@@ -11,6 +11,17 @@ export const buildDockerImage = async () => {
     return;
   }
 
+  const parsePlatforms = (raw: string | undefined): string[] =>
+    (raw || '')
+      .split(',')
+      .map((v) => v.trim())
+      .filter((v) => !!v);
+
+  const defaultBuildPlatforms = parsePlatforms(process.env.DOCKER_BUILD_PLATFORMS);
+  if (defaultBuildPlatforms.length > 0) {
+    console.info(new Date(), `docker build platforms: ${defaultBuildPlatforms.join(',')}`);
+  }
+
   const packageJson = await fs.readJson(path.resolve(process.cwd(), 'package.json'));
   const packageName = packageJson.name;
 
@@ -158,6 +169,7 @@ export const buildDockerImage = async () => {
         interface IImageSpec {
           dockerfile: string;
           name: string;
+          platforms?: string[];
         }
 
         const imageSpecs: IImageSpec[] = packageJson?.io_ntnl?.images ?? [
@@ -171,12 +183,14 @@ export const buildDockerImage = async () => {
           imageSpecs.map((imageSpec) => {
             const baseTag = `${registry}/${namespace}/${imageSpec.name}`;
             const tags = Array.from(new Set([`${baseTag}:${version}`, `${baseTag}:latest`]));
+            const platforms = imageSpec.platforms?.length ? imageSpec.platforms : defaultBuildPlatforms;
             return [
               imageSpec.name,
               {
                 dockerfile: path.resolve(thisProject.projectFolder, imageSpec.dockerfile),
                 context: path.resolve(rushJsonFolder, 'common/temp'),
                 tags,
+                ...(platforms.length > 0 ? { platforms } : {}),
               },
             ];
           }),

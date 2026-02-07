@@ -84,6 +84,7 @@ jobs:
         env:
           REGISTRY: ghcr.io
           REGISTRY_NAMESPACE: no-trade-no-life
+          DOCKER_BUILD_PLATFORMS: linux/amd64,linux/arm64
           CI_RUN: 'true'
         run: node common/scripts/install-run-rush.js rebuild --verbose
 
@@ -92,6 +93,7 @@ jobs:
         env:
           REGISTRY: ghcr.io
           REGISTRY_NAMESPACE: no-trade-no-life
+          DOCKER_BUILD_PLATFORMS: linux/amd64,linux/arm64
           NODE_OPTIONS: '--max-old-space-size=8192'
           CI_RUN: 'true'
         run: node common/scripts/install-run-rush.js build --verbose
