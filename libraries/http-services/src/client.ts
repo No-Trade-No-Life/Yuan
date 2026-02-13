@@ -1,5 +1,6 @@
 import { Terminal } from '@yuants/protocol';
 import { IHTTPProxyRequest, IHTTPProxyResponse } from './types';
+import { newError } from '@yuants/utils';
 
 const proxyFetchMarker = '__isHttpServicesFetch';
 const globalFetch = globalThis.fetch;
@@ -86,15 +87,36 @@ export const fetch = async (input: Request | string | URL, init?: IHTTPProxyFetc
 
   // 利用 Terminal 现有的 JSON Schema 路由机制
   // 如果 request.labels 匹配某个服务的 schema，会自动路由过去
-  const response = await (terminal ?? Terminal.fromNodeEnv()).client.requestForResponse<
-    IHTTPProxyRequest,
-    IHTTPProxyResponse
-  >('HTTPProxy', proxyRequest);
+  const targetTerminal = terminal ?? Terminal.fromNodeEnv();
+
+  let response;
+  try {
+    response = await targetTerminal.client.requestForResponse<IHTTPProxyRequest, IHTTPProxyResponse>(
+      'HTTPProxy',
+      proxyRequest,
+    );
+  } catch (error) {
+    throw newError(
+      'E_PROXY_TARGET_NOT_FOUND',
+      {
+        stage: 'route',
+        reason: 'route_resolve_failed',
+        labels,
+      },
+      error,
+    );
+  }
 
   if (!response || response.code !== 0 || !response.data) {
     const code = response?.code ?? 'UNKNOWN';
     const message = response?.message ?? 'Unknown error';
-    throw new Error(`HTTPProxy request failed: ${code} ${message}`);
+    throw newError('E_PROXY_REQUEST_FAILED', {
+      stage: 'request',
+      reason: 'proxy_response_error',
+      code,
+      message,
+      labels,
+    });
   }
 
   const data = response.data;
