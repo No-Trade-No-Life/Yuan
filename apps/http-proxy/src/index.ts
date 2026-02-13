@@ -22,6 +22,7 @@ import { fromEvent, merge, take, tap } from 'rxjs';
   } else if (ip) {
     console.info(formatTime(Date.now()), '[http-proxy] ip tag source not trusted, skip labels.ip');
   }
+  labels.terminal_id = terminal.terminal_id;
   labels.hostname = HOSTNAME;
   console.info(formatTime(Date.now()), '[http-proxy] labels:', labels);
   const options = {

@@ -1,4 +1,4 @@
-import { fetch, selectHTTPProxyIpRoundRobinAsync } from '@yuants/http-services';
+import { acquireProxyBucket, fetch } from '@yuants/http-services';
 import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import {
   encodeHex,
@@ -28,6 +28,9 @@ type RequestParams = Record<string, string | number | boolean | undefined>;
 
 export interface IRequestContext {
   ip: string;
+  terminalId?: string;
+  bucketKey: string;
+  acquireWeight: number;
 }
 
 export interface ICredential {
@@ -60,6 +63,11 @@ export const BINANCE_TOKEN_BUCKET_OPTIONS_BY_ID: Record<string, TokenBucketOptio
     capacity: 1200,
     refillInterval: 60_000,
     refillAmount: 1200,
+  },
+  'fapi.binance.comfundingRate': {
+    capacity: 500,
+    refillInterval: 300_000,
+    refillAmount: 500,
   },
 };
 
@@ -100,12 +108,32 @@ const resolveLocalPublicIp = (): string => {
   return 'public-ip-unknown';
 };
 
-export const createRequestContext = async (): Promise<IRequestContext> => {
+export const createRequestContext = async (baseKey: string, weight: number): Promise<IRequestContext> => {
   if (shouldUseHttpProxy) {
-    const ip = await selectHTTPProxyIpRoundRobinAsync(terminal);
-    return { ip };
+    const { ip, terminalId, bucketKey } = acquireProxyBucket({
+      baseKey,
+      weight,
+      terminal,
+      getBucketOptions: (resolvedBaseKey) => {
+        const options = getTokenBucketOptions(resolvedBaseKey);
+        if (!options) {
+          throw newError('E_BUCKET_OPTIONS_CONFLICT', {
+            stage: 'acquire',
+            reason: 'missing_bucket_options',
+            base_key: resolvedBaseKey,
+          });
+        }
+        return options;
+      },
+    });
+    return { ip, terminalId, bucketKey, acquireWeight: 0 };
   }
-  return { ip: resolveLocalPublicIp() };
+  const ip = resolveLocalPublicIp();
+  return {
+    ip,
+    bucketKey: buildTokenBucketKey(baseKey, ip),
+    acquireWeight: weight,
+  };
 };
 
 // 每个接口单独进行主动限流控制
@@ -186,13 +214,19 @@ const callApi = async <T>(
   MetricBinanceApiCounter.labels({ path: url.pathname, terminal_id: terminal.terminal_id }).inc();
 
   const proxyIp = shouldUseHttpProxy ? requestContext?.ip : undefined;
+  const proxyTerminalId = shouldUseHttpProxy ? requestContext?.terminalId : undefined;
   const res = await fetchImpl(
     url.href,
     shouldUseHttpProxy
       ? {
           method,
           headers,
-          labels: proxyIp ? { ip: proxyIp } : undefined,
+          labels:
+            proxyIp && proxyTerminalId
+              ? { ip: proxyIp, terminal_id: proxyTerminalId }
+              : proxyIp
+              ? { ip: proxyIp }
+              : undefined,
           terminal,
         }
       : {
