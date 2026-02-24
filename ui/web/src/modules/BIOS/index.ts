@@ -149,6 +149,58 @@ defer(async () => {
         }),
       ),
     ),
+
+    // install dependencies if package-lock.json exists
+    delayWhen(() =>
+      defer(async () => {
+        if (!(await fs.exists('/package-lock.json'))) {
+          log('NO package-lock.json, skip installing dependencies');
+          return;
+        }
+        log('INSTALLING DEPENDENCIES');
+        const lockFile: {
+          packages: Record<
+            string,
+            {
+              version: string;
+              resolved: string;
+              integrity: string;
+              dev?: boolean;
+            }
+          >;
+        } = JSON.parse(await fs.readFile('/package-lock.json'));
+        const packages = Object.entries(lockFile.packages);
+        for (const [installPath, { version, resolved, dev }] of packages) {
+          if (!installPath) continue;
+          if (dev) continue;
+          const packageHome = resolve('/', installPath);
+          if (await fs.exists(resolve(packageHome, 'package.json'))) {
+            // ISSUE: package.json already exists, check if it's the same version
+            const packageJson = JSON.parse(await fs.readFile(resolve(packageHome, 'package.json')));
+            if (packageJson.version === version) {
+              log('PACKAGE ALREADY INSTALLED', resolved, installPath);
+              continue;
+            }
+          }
+
+          log('INSTALLING PACKAGE', resolved, installPath);
+          // TODO: cache package tarball (to avoid downloading the same tarball multiple times)
+          const res = await fetch(resolved);
+          const blob = await res.blob();
+          // extract tarball to installPath
+          const files = await loadTgzBlob(blob);
+          for (const file of files) {
+            if (!file.isFile) continue;
+
+            const filename = resolve('/', installPath, file.filename.replace(/^[^/]+\//, ''));
+            log('INSTALLING FILE', filename);
+            await fs.ensureDir(dirname(filename));
+            await fs.writeFile(filename, file.blob);
+          }
+        }
+      }),
+    ),
+
     // load extensions from package.json
     delayWhen(() =>
       defer(async () => {
