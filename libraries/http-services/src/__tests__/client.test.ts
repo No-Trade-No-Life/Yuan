@@ -65,4 +65,31 @@ describe('fetch', () => {
     expect(response.ok).toBe(true);
     expect(response.status).toBe(200);
   });
+
+  it('should map route stage failure to E_PROXY_TARGET_NOT_FOUND', async () => {
+    jest
+      .spyOn(terminal.client, 'requestForResponse')
+      .mockRejectedValue(new Error('NO_TERMINAL_AVAILABLE_FOR_REQUEST'));
+
+    await expect(
+      fetch('https://api.example.com/data', {
+        labels: { ip: '10.0.0.1' },
+        terminal,
+      }),
+    ).rejects.toThrow('E_PROXY_TARGET_NOT_FOUND');
+  });
+
+  it('should map request stage failure to E_PROXY_REQUEST_FAILED', async () => {
+    jest.spyOn(terminal.client, 'requestForResponse').mockResolvedValue({
+      code: 500,
+      message: 'FETCH_FAILED',
+    } as any);
+
+    await expect(
+      fetch('https://api.example.com/data', {
+        labels: { ip: '10.0.0.1' },
+        terminal,
+      }),
+    ).rejects.toThrow('E_PROXY_REQUEST_FAILED');
+  });
 });

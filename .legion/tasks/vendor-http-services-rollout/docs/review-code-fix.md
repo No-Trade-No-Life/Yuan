@@ -4,7 +4,7 @@
 
 PASS
 
-基于有限信息的评审：仅审查 `libraries/http-services/src/client.ts` 与 `libraries/protocol/src/terminal.ts`，对照 RFC `/Users/c1/Work/Yuan/.legion/tasks/vendor-http-services-rollout/docs/rfc.md`。
+基于有限信息的评审：仅审查 `libraries/http-services/src/client.ts` 与 `libraries/protocol/src/terminal.ts`，对照 RFC `.legion/tasks/vendor-http-services-rollout/docs/rfc.md`。
 
 ## Blocking Issues
 

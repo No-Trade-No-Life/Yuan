@@ -1,35 +1,45 @@
-# RFC 对抗审查报告: TokenBucket Proxy IP Key
+# RFC 对抗审查报告: Proxy IP TokenBucket v2（最终只读复审）
 
 目标文档: `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/rfc.md`
-审查日期: 2026-02-04
-原则: 奥卡姆剃刀（质疑必要性、假设、边界、复杂度）
+审查日期: 2026-02-07
+原则: 奥卡姆剃刀（逐条质疑必要性/假设/边界/复杂度，优先最小复杂度收敛）
 
-## 结论概述
+## 结论
 
-本次聚焦“error_code 归属表”闭环与阶段归属一致性。`E_PUBLIC_IP_MISSING` 已从错误码集合移除并降级为直连场景日志/指标，error_code 边界与阶段归属已封闭；归属表覆盖 `resolveHTTPProxyTarget` 与发送阶段全部错误码。当前无阻塞。
+`PASS`
 
-## 必须修正
+当前文本已满足进入设计门禁的三个必要条件：
 
-（无）
+- 可实现：输入边界、状态机、错误阶段、模式切换都已收敛为可编码约束。
+- 可验证：`R1-R15` 与 `T-R1-T-R15` 一一映射，负例断言覆盖关键失败路径。
+- 可回滚：模式命名、默认/灰度/回滚值与观测窗口已明确定义，可执行回切。
 
-## 可选优化
+## 关键收敛检查（只读结论）
 
-1. 明确 `E_PROXY_REQUEST_FAILED` 的边界与归一化口径
+1. 设计必要性
 
-- 质疑: 该错误码仅在“发送阶段才可能产生”，但未说明由哪个层面归一化网络错误（http-services 还是 vendor）。
-- 最小修改建议: 在“错误码归属”或接口注记中补一句“仅由 `fetchViaHTTPProxyTarget` 统一映射产生，resolve 阶段不得返回该码”，避免实现重复映射或遗漏。
+- `acquireProxyBucket` 作为统一入口保留，避免 vendor 侧重复实现与语义漂移，复杂度收益比成立。
 
-2. 将“候选枚举 MUST”提升到 Behavior Requirements
+2. 设计假设与边界
 
-- 质疑: 枚举 MUST 目前在接口注记中，可能被忽略而落回单 target 解析，破坏 no_service/no_match 区分。
-- 最小修改建议: 在 R20/R21 后追加一句“候选枚举 MUST 基于 `resolveTargetServicesSync`（或等价接口）”。
+- options 来源固定为 `getBucketOptions(baseKey)`，消除了 helper 隐式默认配置的歧义。
+- 错误边界通过 `pool|acquire|route|request` 归属表与 `R14/R15` 封闭，无跨阶段吞并。
 
-## 可实现性/可验证性/可回滚性检查
+3. 复杂度控制
 
-- 可实现性: error_code 归属表覆盖完整，resolve 枚举前提已说明。
-- 可验证性: 归属表闭环，测试可覆盖 resolve/发送阶段边界与错误映射。
-- 可回滚性: 无新增开关，仅代码回退即可。
+- 三模式并存但职责清晰：`helper_acquire_proxy_bucket`（目标）、`rr_multi_try`（默认）、`legacy_rr_single_try`（回滚）。
+- 未引入中心化状态或新持久化依赖，保持实现最小侵入。
 
-## 阻塞判断
+## 可选优化（非阻塞）
 
-无阻塞。
+1. 为 `T-R10` 增加并发判定锚点
+
+- 建议在测试描述中明确“以候选构造时 `read()` 快照分组”为断言基准，减少高并发抖动。
+
+2. 明确模式开关配置落点
+
+- 建议在 Rollout 补一行“配置键路径/环境变量名”，降低运维误配概率。
+
+3. 补充最小观测样例
+
+- 建议在 Observability 增加 1 条示例日志字段（`stage,error_code,base_key,ip`），便于跨团队对齐。

@@ -1,16 +1,318 @@
-import { Terminal, type ITerminalInfo } from '@yuants/protocol';
-import { formatTime, listWatchEvent, newError } from '@yuants/utils';
+import { GlobalPrometheusRegistry, Terminal, type ITerminalInfo } from '@yuants/protocol';
+import {
+  encodePath,
+  formatTime,
+  listWatchEvent,
+  newError,
+  tokenBucket,
+  type TokenBucketOptions,
+} from '@yuants/utils';
 import { isIP } from 'net';
 
 const DEFAULT_IP_FETCH_URL = 'https://ifconfig.me/ip';
 const MISSING_IP_LOG_INTERVAL = 3_600_000;
 const TRUSTED_PROXY_IP_SOURCE = 'http-services';
+const TRUSTED_PROXY_TERMINAL_IDS_ENV = 'TRUSTED_HTTP_PROXY_TERMINAL_IDS';
 const PROXY_IP_WAIT_TIMEOUT_MS = 30_000;
+const BucketOptionsConflictTotal = GlobalPrometheusRegistry.counter('bucket_options_conflict_total', '');
+const MAX_BASE_KEY_CURSOR_STATES = 1024;
+const DEFAULT_BUCKET_OPTIONS_FINGERPRINT_MAX_SIZE = 10_000;
+const DEFAULT_BUCKET_OPTIONS_FINGERPRINT_TTL_MS = 86_400_000;
+
+type BucketOptionsFingerprintState = {
+  fingerprint: string;
+  updatedAt: number;
+};
+
+type HTTPProxyTarget = {
+  terminalId: string;
+  ip: string;
+};
+
+const parseBoundedPositiveInteger = (value: string | undefined, fallback: number): number => {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+  return Math.floor(parsed);
+};
+
+const BUCKET_OPTIONS_FINGERPRINT_MAX_SIZE = parseBoundedPositiveInteger(
+  process.env.BUCKET_OPTIONS_FINGERPRINT_MAX_SIZE,
+  DEFAULT_BUCKET_OPTIONS_FINGERPRINT_MAX_SIZE,
+);
+const BUCKET_OPTIONS_FINGERPRINT_TTL_MS = parseBoundedPositiveInteger(
+  process.env.BUCKET_OPTIONS_FINGERPRINT_TTL_MS,
+  DEFAULT_BUCKET_OPTIONS_FINGERPRINT_TTL_MS,
+);
+
+const bucketOptionsFingerprintByKey = new Map<string, BucketOptionsFingerprintState>();
+
+let trustedProxyTerminalIdsCache = {
+  raw: '',
+  ids: new Set<string>(),
+};
+
+const getTrustedProxyTerminalIds = (): Set<string> => {
+  const raw = (process.env[TRUSTED_PROXY_TERMINAL_IDS_ENV] ?? '').trim();
+  if (raw === trustedProxyTerminalIdsCache.raw) {
+    return trustedProxyTerminalIdsCache.ids;
+  }
+  const ids = new Set(
+    raw
+      .split(',')
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0),
+  );
+  trustedProxyTerminalIdsCache = { raw, ids };
+  return ids;
+};
+
+const cleanupBucketOptionsFingerprints = (now: number): void => {
+  if (bucketOptionsFingerprintByKey.size > 0) {
+    for (const [bucketKey, state] of bucketOptionsFingerprintByKey) {
+      if (now - state.updatedAt > BUCKET_OPTIONS_FINGERPRINT_TTL_MS) {
+        bucketOptionsFingerprintByKey.delete(bucketKey);
+      }
+    }
+  }
+
+  while (bucketOptionsFingerprintByKey.size > BUCKET_OPTIONS_FINGERPRINT_MAX_SIZE) {
+    const oldestKey = bucketOptionsFingerprintByKey.keys().next().value;
+    if (!oldestKey) break;
+    bucketOptionsFingerprintByKey.delete(oldestKey);
+  }
+};
+
+const stableStringify = (value: unknown): string => {
+  if (value === null || value === undefined) return String(value);
+  if (typeof value !== 'object') return JSON.stringify(value);
+  if (Array.isArray(value)) {
+    return `[${value.map((item) => stableStringify(item)).join(',')}]`;
+  }
+  const record = value as Record<string, unknown>;
+  return `{${Object.keys(record)
+    .sort()
+    .map((key) => `${JSON.stringify(key)}:${stableStringify(record[key])}`)
+    .join(',')}}`;
+};
+
+const isSemaphoreInsufficientPermsError = (error: unknown): boolean => {
+  if (!error) return false;
+  if (typeof error === 'string') {
+    return error.includes('SEMAPHORE_INSUFFICIENT_PERMS');
+  }
+  if (error instanceof Error) {
+    if (error.message.includes('SEMAPHORE_INSUFFICIENT_PERMS')) return true;
+    return isSemaphoreInsufficientPermsError((error as Error & { cause?: unknown }).cause);
+  }
+  if (typeof error === 'object' && 'cause' in error) {
+    return isSemaphoreInsufficientPermsError((error as { cause?: unknown }).cause);
+  }
+  return false;
+};
+
+const getRoundRobinStartIndex = (terminal: Terminal, baseKey: string, size: number): number => {
+  if (size <= 0) return 0;
+  const cache = getCache(terminal.terminal_id);
+  if (!cache.cursorByBaseKey.has(baseKey) && cache.cursorByBaseKey.size >= MAX_BASE_KEY_CURSOR_STATES) {
+    const oldestBaseKey = cache.cursorByBaseKey.keys().next().value;
+    if (oldestBaseKey) {
+      cache.cursorByBaseKey.delete(oldestBaseKey);
+    }
+  }
+  const cursor = cache.cursorByBaseKey.get(baseKey) ?? 0;
+  const index = cursor % size;
+  cache.cursorByBaseKey.set(baseKey, (index + 1) % size);
+  return index;
+};
+
+const getRoundRobinOrderedIps = (terminal: Terminal, baseKey: string, ips: string[]): string[] => {
+  if (!ips.length) return ips;
+  const index = getRoundRobinStartIndex(terminal, baseKey, ips.length);
+  return [...ips.slice(index), ...ips.slice(0, index)];
+};
+
+const getRoundRobinOrderedTargets = (
+  terminal: Terminal,
+  baseKey: string,
+  targets: HTTPProxyTarget[],
+): HTTPProxyTarget[] => {
+  if (!targets.length) return targets;
+  const index = getRoundRobinStartIndex(terminal, baseKey, targets.length);
+  return [...targets.slice(index), ...targets.slice(0, index)];
+};
+
+const ensureBucketOptionsConsistent = (
+  baseKey: string,
+  bucketKey: string,
+  options: TokenBucketOptions,
+): void => {
+  const now = Date.now();
+  cleanupBucketOptionsFingerprints(now);
+
+  const fingerprint = stableStringify(options);
+  const existing = bucketOptionsFingerprintByKey.get(bucketKey);
+  if (existing && existing.fingerprint !== fingerprint) {
+    BucketOptionsConflictTotal.labels({ base_key: baseKey, bucket_key: bucketKey }).inc();
+    throw newError('E_BUCKET_OPTIONS_CONFLICT', {
+      stage: 'acquire',
+      reason: 'bucket_options_conflict',
+      base_key: baseKey,
+      bucket_key: bucketKey,
+    });
+  }
+  if (existing) {
+    existing.updatedAt = now;
+  } else {
+    bucketOptionsFingerprintByKey.set(bucketKey, {
+      fingerprint,
+      updatedAt: now,
+    });
+  }
+};
+
+/**
+ * @public
+ */
+export type AcquireProxyBucketInput = {
+  baseKey: string;
+  weight: number;
+  terminal: Terminal;
+  getBucketOptions: (baseKey: string) => TokenBucketOptions;
+};
+
+/**
+ * @public
+ */
+export type AcquireProxyBucketResult = {
+  ip: string;
+  terminalId: string;
+  bucketKey: string;
+};
+
+const listTrustedHTTPProxyTargetsSnapshot = (terminal: Terminal): HTTPProxyTarget[] => {
+  const trustedProxyTerminalIds = getTrustedProxyTerminalIds();
+  if (!trustedProxyTerminalIds.size) return [];
+
+  return terminal.terminalInfos
+    .filter((terminalInfo) => isHttpProxyTerminal(terminalInfo))
+    .map((terminalInfo) => ({
+      terminalInfo,
+      ip: normalizeIp(terminalInfo.tags?.ip),
+      ipSource: terminalInfo.tags?.ip_source,
+    }))
+    .filter(
+      ({ terminalInfo, ip, ipSource }) =>
+        trustedProxyTerminalIds.has(terminalInfo.terminal_id) &&
+        ipSource === TRUSTED_PROXY_IP_SOURCE &&
+        ip.length > 0,
+    )
+    .sort((a, b) => a.terminalInfo.terminal_id.localeCompare(b.terminalInfo.terminal_id))
+    .map(({ terminalInfo, ip }) => ({
+      terminalId: terminalInfo.terminal_id,
+      ip,
+    }));
+};
+
+/**
+ * @public
+ */
+export const acquireProxyBucket = (input: AcquireProxyBucketInput): AcquireProxyBucketResult => {
+  const { baseKey, weight, terminal, getBucketOptions } = input;
+  if (typeof getBucketOptions !== 'function') {
+    throw newError('E_BUCKET_OPTIONS_CONFLICT', {
+      stage: 'acquire',
+      reason: 'missing_getBucketOptions',
+      base_key: baseKey,
+    });
+  }
+  const bucketOptions = getBucketOptions(baseKey);
+  if (!bucketOptions) {
+    throw newError('E_BUCKET_OPTIONS_CONFLICT', {
+      stage: 'acquire',
+      reason: 'missing_bucket_options',
+      base_key: baseKey,
+    });
+  }
+
+  const targets = listTrustedHTTPProxyTargetsSnapshot(terminal);
+  if (!targets.length) {
+    throw newError('E_PROXY_TARGET_NOT_FOUND', {
+      stage: 'pool',
+      reason: 'empty_pool',
+      base_key: baseKey,
+      terminal_id: terminal.terminal_id,
+    });
+  }
+
+  const orderedTargets = getRoundRobinOrderedTargets(terminal, baseKey, targets);
+  const seenBucketKeys = new Set<string>();
+  const candidates = orderedTargets
+    .map((target) => {
+      const bucketKey = encodePath([baseKey, target.ip]);
+      if (seenBucketKeys.has(bucketKey)) return undefined;
+      seenBucketKeys.add(bucketKey);
+
+      ensureBucketOptionsConsistent(baseKey, bucketKey, bucketOptions);
+      const bucket = tokenBucket(bucketKey, bucketOptions);
+      return {
+        target,
+        bucketKey,
+        bucket,
+        available: bucket.read(),
+      };
+    })
+    .filter((candidate): candidate is Exclude<typeof candidate, undefined> => candidate !== undefined);
+  const preferred = candidates.filter((candidate) => candidate.available >= weight);
+  const fallback = candidates.filter((candidate) => candidate.available < weight);
+
+  let lastError: unknown;
+  for (const candidate of [...preferred, ...fallback]) {
+    try {
+      candidate.bucket.acquireSync(weight);
+      return {
+        ip: candidate.target.ip,
+        terminalId: candidate.target.terminalId,
+        bucketKey: candidate.bucketKey,
+      };
+    } catch (error) {
+      lastError = error;
+      if (isSemaphoreInsufficientPermsError(error)) {
+        continue;
+      }
+      throw newError(
+        'E_PROXY_ACQUIRE_INTERNAL_ERROR',
+        {
+          stage: 'acquire',
+          reason: 'unexpected_acquire_error',
+          base_key: baseKey,
+          bucket_key: candidate.bucketKey,
+          terminal_id: candidate.target.terminalId,
+          ip: candidate.target.ip,
+          weight,
+        },
+        error,
+      );
+    }
+  }
+
+  throw newError(
+    'E_PROXY_BUCKET_EXHAUSTED',
+    {
+      stage: 'acquire',
+      reason: 'all_candidates_failed',
+      base_key: baseKey,
+      weight,
+      candidate_count: candidates.length,
+    },
+    lastError,
+  );
+};
 
 type ProxyIpCache = {
   signature: string;
   ips: string[];
   cursor: number;
+  cursorByBaseKey: Map<string, number>;
   lastMissingIpLogAt: Map<string, number>;
   lastTimeoutLogAt: number;
   subscription?: { unsubscribe: () => void };
@@ -27,6 +329,7 @@ const getCache = (terminalId: string): ProxyIpCache => {
       signature: '',
       ips: [],
       cursor: 0,
+      cursorByBaseKey: new Map(),
       lastMissingIpLogAt: new Map(),
       lastTimeoutLogAt: 0,
       disposeBound: false,
@@ -213,6 +516,7 @@ const shouldRefreshFromEvents = (
   events.some(([oldInfo, newInfo]) => isHttpProxyTerminal(oldInfo) || isHttpProxyTerminal(newInfo));
 
 const rebuildProxyIpCache = (terminal: Terminal, cache: ProxyIpCache) => {
+  const trustedProxyTerminalIds = getTrustedProxyTerminalIds();
   const candidates = terminal.terminalInfos
     .filter((terminalInfo) => isHttpProxyTerminal(terminalInfo))
     .map((terminalInfo) => ({
@@ -232,7 +536,31 @@ const rebuildProxyIpCache = (terminal: Terminal, cache: ProxyIpCache) => {
 
   const nextIps: string[] = [];
   const now = Date.now();
+  if (trustedProxyTerminalIds.size === 0) {
+    const lastLoggedAt = cache.lastMissingIpLogAt.get('__trusted_proxy_terminal_ids_missing__') ?? 0;
+    if (now - lastLoggedAt > MISSING_IP_LOG_INTERVAL) {
+      cache.lastMissingIpLogAt.set('__trusted_proxy_terminal_ids_missing__', now);
+      console.info(
+        formatTime(Date.now()),
+        '[http-services] TRUSTED_HTTP_PROXY_TERMINAL_IDS is empty, deny all proxy terminals',
+      );
+    }
+  }
   for (const { terminalInfo, ip, ipSource } of candidates) {
+    if (!trustedProxyTerminalIds.has(terminalInfo.terminal_id)) {
+      const lastLoggedAt =
+        cache.lastMissingIpLogAt.get(`__untrusted_terminal__:${terminalInfo.terminal_id}`) ?? 0;
+      if (now - lastLoggedAt > MISSING_IP_LOG_INTERVAL) {
+        cache.lastMissingIpLogAt.set(`__untrusted_terminal__:${terminalInfo.terminal_id}`, now);
+        console.info(
+          formatTime(Date.now()),
+          '[http-services] http-proxy terminal not in trusted allowlist',
+          terminalInfo.terminal_id,
+        );
+      }
+      continue;
+    }
+
     if (ip && ipSource === TRUSTED_PROXY_IP_SOURCE) {
       nextIps.push(ip);
       continue;

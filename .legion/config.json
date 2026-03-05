@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "http-services-terminalinfos-ready",
+  "currentTask": "vendor-tokenbucket-proxy-ip",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -220,16 +220,16 @@
     {
       "id": "vendor-tokenbucket-proxy-ip",
       "name": "vendor-tokenbucket-proxy-ip",
-      "status": "paused",
+      "status": "active",
       "createdAt": "2026-02-03T16:40:42.595Z",
-      "updatedAt": "2026-02-05T11:41:19.733Z"
+      "updatedAt": "2026-03-05T12:17:12.798Z"
     },
     {
       "id": "http-services-terminalinfos-ready",
       "name": "http-services-terminalinfos-ready",
-      "status": "active",
+      "status": "paused",
       "createdAt": "2026-02-05T11:41:19.733Z",
-      "updatedAt": "2026-02-05T13:24:43.631Z"
+      "updatedAt": "2026-02-07T14:17:47.617Z"
     }
   ],
   "pendingProposals": [

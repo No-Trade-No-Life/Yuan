@@ -1,7 +1,6 @@
 import { scopeError, tokenBucket } from '@yuants/utils';
 
 import {
-  buildTokenBucketKey,
   createRequestContext,
   getDefaultCredential,
   getTokenBucketOptions,
@@ -264,12 +263,15 @@ export const getUnifiedAccountInfo = async (
   const endpoint = 'https://papi.binance.com/papi/v1/account';
   const url = new URL(endpoint);
   const weight = 20;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  const requestContext = await createRequestContext('order/unified/minute', weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey, getTokenBucketOptions('order/unified/minute')).acquireSync(weight),
+    () =>
+      tokenBucket(bucketKey, getTokenBucketOptions('order/unified/minute')).acquireSync(
+        requestContext.acquireWeight,
+      ),
   );
   return requestPrivate<IUnifiedAccountInfo | IApiError>(
     credential,
@@ -295,12 +297,15 @@ export const getUnifiedUmAccount = async (
   const endpoint = 'https://papi.binance.com/papi/v1/um/account';
   const url = new URL(endpoint);
   const weight = 5;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  const requestContext = await createRequestContext('order/unified/minute', weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey, getTokenBucketOptions('order/unified/minute')).acquireSync(weight),
+    () =>
+      tokenBucket(bucketKey, getTokenBucketOptions('order/unified/minute')).acquireSync(
+        requestContext.acquireWeight,
+      ),
   );
   return requestPrivate<IUnifiedUmAccount | IApiError>(
     credential,
@@ -329,8 +334,8 @@ export const getUnifiedUmOpenOrders = async (
   const endpoint = 'https://papi.binance.com/papi/v1/um/openOrders';
   const url = new URL(endpoint);
   const weight = params?.symbol ? 1 : 40;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  const requestContext = await createRequestContext(url.host, weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     {
@@ -342,7 +347,7 @@ export const getUnifiedUmOpenOrders = async (
       weight,
       hasSymbol: !!params?.symbol,
     },
-    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
   );
   return requestPrivate<IUnifiedUmOpenOrder[]>(credential, 'GET', endpoint, params, requestContext);
 };
@@ -365,12 +370,12 @@ export const getUnifiedAccountBalance = async (
   const endpoint = 'https://papi.binance.com/papi/v1/balance';
   const url = new URL(endpoint);
   const weight = 20;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  const requestContext = await createRequestContext(url.host, weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
   );
   return requestPrivate<IUnifiedAccountBalanceEntry[] | IApiError>(
     credential,
@@ -397,12 +402,12 @@ export const getSpotAccountInfo = async (
   const endpoint = 'https://api.binance.com/api/v3/account';
   const url = new URL(endpoint);
   const weight = 20;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  const requestContext = await createRequestContext(url.host, weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
   );
   return requestPrivate<ISpotAccountInfo | IApiError>(credential, 'GET', endpoint, params, requestContext);
 };
@@ -423,8 +428,8 @@ export const getSpotOpenOrders = async (
   const endpoint = 'https://api.binance.com/api/v3/openOrders';
   const url = new URL(endpoint);
   const weight = params?.symbol ? 6 : 80;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  const requestContext = await createRequestContext(url.host, weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     {
@@ -436,7 +441,7 @@ export const getSpotOpenOrders = async (
       weight,
       hasSymbol: !!params?.symbol,
     },
-    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
   );
   return requestPrivate<ISpotOrder[] | IApiError>(credential, 'GET', endpoint, params, requestContext);
 };
@@ -474,12 +479,12 @@ export const postSpotOrder = async (
   const endpoint = 'https://api.binance.com/api/v3/order';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  const requestContext = await createRequestContext(url.host, weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
   );
   return requestPrivate<ISpotNewOrderResponse | IApiError>(
     credential,
@@ -510,12 +515,12 @@ export const deleteSpotOrder = async (
   const endpoint = 'https://api.binance.com/api/v3/order';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  const requestContext = await createRequestContext(url.host, weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'DELETE', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
   );
   return requestPrivate<ISpotOrder | IApiError>(credential, 'DELETE', endpoint, params, requestContext);
 };
@@ -544,12 +549,12 @@ export const postAssetTransfer = async (
   const endpoint = 'https://api.binance.com/sapi/v1/asset/transfer';
   const url = new URL(endpoint);
   const weight = 900;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  const requestContext = await createRequestContext(url.host, weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
   );
   return requestPrivate<IAssetTransferResponse | IApiError>(
     credential,
@@ -575,12 +580,12 @@ export const postUnifiedAccountAutoCollection = async (credential: ICredential):
   const endpoint = 'https://papi.binance.com/papi/v1/auto-collection';
   const url = new URL(endpoint);
   const weight = 750;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  const requestContext = await createRequestContext(url.host, weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
   );
   return requestPrivate<{ msg: string }>(credential, 'POST', endpoint, undefined, requestContext);
 };
@@ -605,12 +610,12 @@ export const getDepositAddress = async (
   const endpoint = 'https://api.binance.com/sapi/v1/capital/deposit/address';
   const url = new URL(endpoint);
   const weight = 10;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  const requestContext = await createRequestContext(url.host, weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
   );
   return requestPrivate<IDepositAddress>(credential, 'GET', endpoint, params, requestContext);
 };
@@ -634,12 +639,12 @@ export const getSubAccountList = async (
   const endpoint = 'https://api.binance.com/sapi/v1/sub-account/list';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  const requestContext = await createRequestContext(url.host, weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
   );
   return requestPrivate<ISubAccountListResponse | IApiError>(
     credential,
@@ -674,12 +679,12 @@ export const postWithdraw = async (
   const endpoint = 'https://api.binance.com/sapi/v1/capital/withdraw/apply';
   const url = new URL(endpoint);
   const weight = 600;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  const requestContext = await createRequestContext(url.host, weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
   );
   return requestPrivate<{ id: string } | IApiError>(credential, 'POST', endpoint, params, requestContext);
 };
@@ -711,12 +716,12 @@ export const getWithdrawHistory = async (
   const endpoint = 'https://api.binance.com/sapi/v1/capital/withdraw/history';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  const requestContext = await createRequestContext(url.host, weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
   );
   return requestPrivate<IWithdrawRecord[]>(credential, 'GET', endpoint, params, requestContext);
 };
@@ -744,12 +749,12 @@ export const getDepositHistory = async (
   const endpoint = 'https://api.binance.com/sapi/v1/capital/deposit/hisrec';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  const requestContext = await createRequestContext(url.host, weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
   );
   return requestPrivate<IDepositRecord[]>(credential, 'GET', endpoint, params, requestContext);
 };
@@ -781,12 +786,12 @@ export const postUmOrder = async (
   const endpoint = 'https://papi.binance.com/papi/v1/um/order';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey('order/unified/minute', requestContext.ip);
+  const requestContext = await createRequestContext('order/unified/minute', weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_UNIFIED_ORDER_API_RATE_LIMIT',
     { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
   );
   return requestPrivate<IUnifiedUmOrderResponse | IApiError>(
     credential,
@@ -808,12 +813,12 @@ export const deleteUmOrder = async (
   const endpoint = 'https://papi.binance.com/papi/v1/um/order';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey('order/unified/minute', requestContext.ip);
+  const requestContext = await createRequestContext('order/unified/minute', weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_UNIFIED_ORDER_API_RATE_LIMIT',
     { method: 'DELETE', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
   );
   return requestPrivate<IUnifiedUmOrderResponse | IApiError>(
     credential,
@@ -846,12 +851,12 @@ export const getUMIncome = async (
   const endpoint = 'https://papi.binance.com/papi/v1/um/income';
   const url = new URL(endpoint);
   const weight = 30;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  const requestContext = await createRequestContext(url.host, weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
   );
   return requestPrivate<IUMIncomeRecord[]>(credential, 'GET', endpoint, params, requestContext);
 };
@@ -878,12 +883,12 @@ export const getAccountIncome = async (
   const endpoint = 'https://fapi.binance.com/fapi/v1/income';
   const url = new URL(endpoint);
   const weight = 30;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  const requestContext = await createRequestContext(url.host, weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
   );
   return requestPrivate<IAccountIncomeRecord[]>(credential, 'GET', endpoint, params, requestContext);
 };
@@ -925,12 +930,12 @@ export const postSpotOrderCancelReplace = async (
   const endpoint = 'https://api.binance.com/api/v3/order/cancelReplace';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  const requestContext = await createRequestContext(url.host, weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
   );
   return requestPrivate<ISpotNewOrderResponse | IApiError>(
     credential,
@@ -965,12 +970,12 @@ export const putUmOrder = async (
   const endpoint = 'https://papi.binance.com/papi/v1/um/order';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  const requestContext = await createRequestContext(url.host, weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'PUT', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
   );
   return requestPrivate<IUnifiedUmOrderResponse | IApiError>(
     credential,
@@ -1002,12 +1007,12 @@ export const getMarginAllPairs = async (params?: { symbol?: string }): Promise<I
   const endpoint = 'https://api.binance.com/sapi/v1/margin/allPairs';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  const requestContext = await createRequestContext(url.host, weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
   );
   return requestPrivate<IMarginPair[]>(credential, 'GET', endpoint, params, requestContext);
 };
@@ -1030,12 +1035,12 @@ export const getMarginNextHourlyInterestRate = async (params: {
   const endpoint = 'https://api.binance.com/sapi/v1/margin/next-hourly-interest-rate';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  const requestContext = await createRequestContext(url.host, weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
   );
   return requestPrivate<
     {
@@ -1068,12 +1073,12 @@ export const getMarginInterestRateHistory = async (params: {
   const endpoint = 'https://api.binance.com/sapi/v1/margin/interestRateHistory';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  const requestContext = await createRequestContext(url.host, weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
   );
   return requestPrivate<
     {
@@ -1104,12 +1109,12 @@ export const getUserAsset = async (
   const endpoint = 'https://api.binance.com/sapi/v3/asset/getUserAsset';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  const requestContext = await createRequestContext(url.host, weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
   );
   return requestPrivate<
     | {
@@ -1144,12 +1149,12 @@ export const getFundingAsset = async (
   const endpoint = 'https://api.binance.com/sapi/v1/asset/get-funding-asset';
   const url = new URL(endpoint);
   const weight = 1;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  const requestContext = await createRequestContext(url.host, weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'POST', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
   );
   return requestPrivate<
     | {
@@ -1187,12 +1192,12 @@ export const getUmAccountTradeList = async (
   const endpoint = 'https://papi.binance.com/papi/v1/um/userTrades';
   const url = new URL(endpoint);
   const weight = 5;
-  const requestContext = await createRequestContext();
-  const bucketKey = buildTokenBucketKey(url.host, requestContext.ip);
+  const requestContext = await createRequestContext(url.host, weight);
+  const bucketKey = requestContext.bucketKey;
   scopeError(
     'BINANCE_API_RATE_LIMIT',
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
-    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(weight),
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
   );
   return requestPrivate<
     | {

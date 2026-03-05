@@ -86,6 +86,58 @@
 - 验证：`rush build --to @yuants/vendor-binance` 通过。
 - 在 http-services 集成测试中增加 CI/CI_RUN 跳过逻辑，避免 CI 运行 E2E/Integration。
 - Gate 测试在 HOST_URL 未设置时跳过，并延迟导入依赖，避免 fromNodeEnv 在测试加载阶段直接报错。
+- 完成现状调研：已阅读 tokenBucket util、http-services/proxy-ip、http-proxy 启动注入、vendor-binance 按 weight 限流调用链。
+- 确认当前核心行为：ip 选择为 round robin，tokenBucket 维度为 encodePath([baseKey, ip])，请求通过 labels.ip 路由。
+- 识别关键约束：tokenBucket 仅暴露 acquire/acquireSync/read，acquireSync 在令牌不足时立即抛错；Terminal 路由对多候选服务默认随机。
+- 按最新任务目标完成 RFC 覆盖重写（v2）：聚焦“按权重自动负载均衡 + 主动限流”，明确方案 A/B 对比并推荐方案 B（`acquireProxyBucket`）。
+- 在 RFC 中补齐 Problem/Constraints（3 条调研事实）、状态机、数据模型、错误语义、可观测性、Testability（R1-R12）与回滚到 RR 策略。
+- 已同步更新 `plan.md` 摘要（核心流程/接口变更/文件清单/验证策略）并在 `tasks.md` 勾选“RFC 生成完成”。
+- 完成 v2 RFC 剃刀原则对抗审查并落盘报告：`.legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-rfc.md`。
+- 审查结论更新为 NEEDS_CHANGES，识别 4 项 blocking：接口输入不足、错误码边界重叠、回滚目标冲突、R10/T-R10 不可测。
+- 已按 latest review 完成 RFC 最小修订并闭环 4 个 blocking：
+  - `acquireProxyBucket` 明确 options 来源为 `getBucketOptions(baseKey)`，禁止隐式默认 options。
+  - 新增错误阶段归属表（`pool|acquire|route|request`），封闭 `E_PROXY_TARGET_NOT_FOUND` 与 `E_PROXY_REQUEST_FAILED` 边界。
+  - 固化灰度/回滚模式命名：`legacy_rr_single_try`、`rr_multi_try`、`helper_acquire_proxy_bucket`，并写明默认/灰度/回滚值和 30 分钟验证窗口。
+  - 将 R10/T-R10 改为可观测行为：`bucket_options_conflict_total` 计数 + `E_BUCKET_OPTIONS_CONFLICT` 返回语义。
+- 同步更新 `plan.md` 摘要与 `tasks.md` 进展记录，保持 RFC 作为设计真源。
+- 完成 RFC 再次对抗复审（聚焦上一轮 4 个 blocking 闭环与新增阻塞识别），结论为 NEEDS_CHANGES。
+- 复审确认已闭环：options 来源、错误阶段归属边界、灰度/回滚模式命名与操作窗口。
+- 识别新增 blocking：R10 为 SHOULD 而 T-R10 为硬断言，规范强度冲突导致可实现/可验证不一致。
+- 复审报告已写入 `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-rfc.md`。
+- 已完成 RFC 最小修订：将 R10 升级为 MUST，并同步将 Goals 中“可承载组优先”由 SHOULD 升级为 MUST，消除与 T-R10 硬断言的规范强度歧义。
+- 完成最新 RFC 最终只读复审：结论 PASS（可实现/可验证/可回滚均满足），审查报告已写入 `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-rfc.md`。
+- 本轮无必须修正项，仅保留 3 条可选优化建议（T-R10 并发判定锚点、模式开关配置落点、观测样例字段）。
+- 完成设计循环收敛：RFC 经多轮 spec-rfc/review-rfc 对抗审查，最终结论 PASS。
+- 已更新 plan.md 的 RFC 真源链接、摘要、范围与阶段，Scope 收敛到 http-services/http-proxy/vendor-binance。
+- 完成 http-services v2 helper：`acquireProxyBucket(input)`（强制 `getBucketOptions(baseKey)`、可承载组优先、候选失败切换、全失败 `E_PROXY_BUCKET_EXHAUSTED`、空池 `E_PROXY_TARGET_NOT_FOUND`、options 冲突 `E_BUCKET_OPTIONS_CONFLICT` + `bucket_options_conflict_total`）。
+- 完成 http-services route/request 阶段错误语义：`fetch` 路由异常归类为 `E_PROXY_TARGET_NOT_FOUND`（stage=route），代理响应失败归类为 `E_PROXY_REQUEST_FAILED`（stage=request）。
+- 完成 vendor-binance 接入：`createRequestContext(baseKey, weight)` 在代理模式改用 helper 获取 `{ip,bucketKey}`；public/private API 统一使用 `requestContext.bucketKey` 与 `requestContext.acquireWeight`，确保 key/路由同源并避免重复扣减。
+- 新增并通过单测：`proxy-ip.test.ts` 覆盖优先组、高权重选择、失败切换、空池、全失败、options 冲突；`client.test.ts` 覆盖 route/request 错误码边界。
+- 验证通过：`npx heft test --clean`（libraries/http-services）；`rush build --to @yuants/vendor-binance`。
+- 验证执行（http-services 单测）：`npx heft test --clean` @ `libraries/http-services`，4 suites/31 tests，0 失败。
+- 验证执行（http-services 构建）：`npm run build` @ `libraries/http-services`，通过（含 test+api-extractor+post-build）。
+- 验证执行（vendor-binance 最小构建）：`npm run build` @ `apps/vendor-binance`，通过（Jest 0 suites, code 0；TypeScript/API Extractor 通过）。
+- 交叉验证（依赖图构建）：`rush build --to @yuants/vendor-binance` @ repo root，通过（20/20 from cache）。
+- 验证执行（http-services 单测）：`npx heft test --clean` @ `libraries/http-services`，4 suites/34 total（30 passed, 0 failed），通过。
+- 验证执行（http-services 构建）：`npm run build` @ `libraries/http-services`，通过（heft test + API Extractor + post-build 全流程完成）。
+- 验证执行（vendor-binance 构建）：`npm run build` @ `apps/vendor-binance`，通过（Jest 0 suites code 0，TypeScript/API Extractor 通过）。
+- 完成最新代码只读安全复审并确认此前 3 个 blocking 已闭环。
+- 基于最新实现生成并落盘 walkthrough：`.legion/tasks/vendor-tokenbucket-proxy-ip/docs/report-walkthrough-impl.md`。
+- 基于最新实现生成并落盘 PR Body 建议：`.legion/tasks/vendor-tokenbucket-proxy-ip/docs/pr-body-impl.md`。
+- 汇总结论：实现验收通过（http-services 单测 4 suites/35 total/0 failed；定向构建通过；review-code PASS；review-security PASS）。
+- 阶段 A 完成：按 RFC 在 http-services/http-proxy/vendor-binance 落地 v2（acquireProxyBucket、stage 错误边界、terminal_id 绑定、冲突计数与 fail-closed）。
+- 阶段 B 完成：复测通过（heft test + rush build）且 review-code/review-security 最终均为 PASS。
+- 阶段 C 完成：生成 impl 版 walkthrough 与 PR body（report-walkthrough-impl.md / pr-body-impl.md）。
+- 已按 Scope 仅提交实现相关代码文件并创建提交：`feat(http-services): add weighted proxy bucket acquisition`。
+- 已推送分支 `legion/feature-proxy-bucket-v2` 到 fork。
+- 已创建上游 PR：`https://github.com/No-Trade-No-Life/Yuan/pull/2580`（head: `Thrimbda:legion/feature-proxy-bucket-v2`，base: `main`）。
+- 根据外部代码评审反馈修复高优问题：proxy 模式 `acquireWeight=0` 导致 `acquireSync(0)` 触发 `SEMAPHORE_INVALID_ACQUIRE_PERMS`。
+- 在 `libraries/utils/src/tokenBucket.ts` 将 `acquireSync(0)` 定义为 no-op，并在 `libraries/utils/src/tokenBucket.test.ts` 补充回归测试。
+- 验证通过：`npx heft test --clean`（libraries/utils）与 `rush build --to @yuants/vendor-binance`。
+- 已提交并推送修复提交：`fix(utils): treat tokenBucket acquireSync(0) as no-op`。
+- 根据 reviewer 反馈对齐 tokenBucket async/sync 语义：`acquire(0)` 与 `acquireSync(0)` 均为 no-op，负数仍报错。
+- 新增/更新 utils 回归测试覆盖 zero-token async/sync 行为与负数校验。
+- 验证通过：`npx heft test --clean`（libraries/utils）；修复提交已 push 到 PR 分支。
 
 ### 🟡 进行中
 
@@ -119,6 +171,8 @@
 | bench 默认仅允许本地 HOST_URL；远端需显式 ALLOW_REMOTE_HOST=true。                                                                                                                          | 避免共享 Host 干扰与外部请求导致 bench 失败。                                                                                                            | 始终使用 HOST_URL（可能引入外部流量与噪声）                                                                                            | 2026-02-04 |
 | Bench failure classified as impl-dev (proxy-ip watch undefined), not impl-test.                                                                                                             | Stack trace points to runtime undefined access in `ensureProxyIpWatch` before selector benchmark assertions run; no evidence of test assertion mismatch. | If environment variables or host setup are required for bench, could be env issue; currently error occurs before host-dependent steps. | 2026-02-05 |
 | 安全问题暂不处理：集群处于可信环境，ip_source 信任边界不再阻塞当前工作。                                                                                                                    | 用户明确表示安全暂时不要管，可信环境内运行。                                                                                                             | 补齐 Host 侧鉴权/签名或白名单机制                                                                                                      | 2026-02-05 |
+| 推荐 v2 采用方案 B（`http-services.acquireProxyBucket`），方案 A 作为最小侵入/回滚路径。                                                                                                    | 集中维护候选选择、acquire 失败切换与 cooldown，可统一错误语义与观测，并保证 `bucketKey.ip` 与 `labels.ip` 同源。                                         | 仅在 vendor 内做 RR+多次 acquire（实现快但会重复逻辑、行为易分叉）。                                                                   | 2026-02-07 |
+| 最新 RFC 修订中固定 `acquireProxyBucket` 的 options 来源为 `getBucketOptions(baseKey)`，并以错误阶段归属表封闭错误边界。                                                                    | 消除 helper 隐式默认 options 漂移与 route/request 错分，保证实现一致性与测试稳定性。                                                                     | 继续保留模糊 options 来源与宽泛请求失败归类（风险：实现歧义、断言不稳定）。                                                            | 2026-02-07 |
 
 ---
 
@@ -126,14 +180,12 @@
 
 **下次继续从这里开始：**
 
-1. Walkthrough 与 PR Body 已生成：`.legion/tasks/vendor-tokenbucket-proxy-ip/docs/report-walkthrough.md`、`.legion/tasks/vendor-tokenbucket-proxy-ip/docs/pr-body.md`（rollout 版本同目录）。
-2. 如需继续验证，可补充运行包级 `rushx test` 或指定测试集。
-3. 如要收敛安全建议，优先处理 public_ip 缺失的 fallback 隔离与 proxy 路由日志补齐。
+1. 等待 PR #2580 新一轮 CI 与 reviewer 复核。
 
 **注意事项：**
 
-- 构建输出无错误，仅提示 Node 版本未测试（Node.js 24.11.0）。
+- 此次修复直接针对 reviewer 报告中的系统性运行时失败（proxy 模式下所有 Binance 请求前置失败）。
 
 ---
 
-_最后更新: 2026-02-05 00:47 by Claude_
+_最后更新: 2026-02-09 by OpenCode_

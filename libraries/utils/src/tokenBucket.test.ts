@@ -25,9 +25,16 @@ describe('tokenBucket', () => {
       tb[Symbol.dispose]();
     });
 
-    it('should throw error when acquiring zero or negative tokens', async () => {
+    it('should treat acquire(0) as no-op', async () => {
       const tb = tokenBucket('test-7');
-      await expect(tb.acquire(0)).rejects.toThrow('TOKEN_BUCKET_INVALID_ACQUIRE_TOKENS');
+      expect(tb.read()).toBe(1);
+      await tb.acquire(0);
+      expect(tb.read()).toBe(1);
+      tb[Symbol.dispose]();
+    });
+
+    it('should throw error when acquiring negative tokens', async () => {
+      const tb = tokenBucket('test-7-negative');
       await expect(tb.acquire(-1)).rejects.toThrow('TOKEN_BUCKET_INVALID_ACQUIRE_TOKENS');
       tb[Symbol.dispose]();
     });
@@ -35,6 +42,15 @@ describe('tokenBucket', () => {
     it('should throw error when acquiring more than capacity', async () => {
       const tb = tokenBucket('test-8', { capacity: 2 });
       await expect(tb.acquire(3)).rejects.toThrow('TOKEN_BUCKET_INSUFFICIENT_CAPACITY');
+      tb[Symbol.dispose]();
+    });
+
+    it('should treat acquireSync(0) as no-op', () => {
+      const tb = tokenBucket('test-sync-zero', { capacity: 2 });
+      expect(tb.read()).toBe(2);
+      tb.acquireSync(0);
+      expect(tb.read()).toBe(2);
+      expect(() => tb.acquireSync(-1)).toThrow('SEMAPHORE_INVALID_ACQUIRE_PERMS');
       tb[Symbol.dispose]();
     });
   });

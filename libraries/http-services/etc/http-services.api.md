@@ -6,6 +6,25 @@
 
 import { IServiceOptions } from '@yuants/protocol';
 import { Terminal } from '@yuants/protocol';
+import { TokenBucketOptions } from '@yuants/utils';
+
+// @public (undocumented)
+export const acquireProxyBucket: (input: AcquireProxyBucketInput) => AcquireProxyBucketResult;
+
+// @public (undocumented)
+export type AcquireProxyBucketInput = {
+    baseKey: string;
+    weight: number;
+    terminal: Terminal;
+    getBucketOptions: (baseKey: string) => TokenBucketOptions;
+};
+
+// @public (undocumented)
+export type AcquireProxyBucketResult = {
+    ip: string;
+    terminalId: string;
+    bucketKey: string;
+};
 
 // @public (undocumented)
 export const computeAndInjectProxyIp: (terminal: Terminal, options?: {
