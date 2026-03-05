@@ -5,53 +5,47 @@ SLUG: vendor-tokenbucket-proxy-ip
 
 ## RFC
 
-- 设计真源: `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/rfc.md`
+- 设计真源: `/Users/c1/Work/Yuan/.legion/tasks/vendor-tokenbucket-proxy-ip/docs/rfc.md`
 
 ## 摘要
 
-- 核心流程: 代理场景枚举 HTTPProxy ip 池并 round robin 选 ip，key 使用该 ip，fetch 通过 labels.ip 路由；直连用 `terminal.terminalInfo.tags.public_ip`。
-- 接口变更: `@yuants/http-services` 增加 ip 枚举/选择 helper，并统一注入 `terminalInfo.tags.ip`。
-- 文件变更清单: `libraries/http-services/src/client.ts`、`apps/http-proxy/src/index.ts` 与各 vendor API 文件。
-- 验证策略: 覆盖 R1-R7 的最小测试 + binance 自测对比 labels.ip 与出口 IP。
+- 核心流程: v2 在发送前按 `weight` 做“可承载组优先”候选选择并逐个 `acquireSync`；成功后以同源 ip 写入 `bucketKey` 与 `labels.ip`，并按 stage 归属错误码。
+- 接口变更: 新增 `acquireProxyBucket(input)`，强制 `getBucketOptions(baseKey)` 作为 options 来源；灰度模式固定 `legacy_rr_single_try` / `rr_multi_try` / `helper_acquire_proxy_bucket`。
+- 文件变更清单: 设计范围限定 `libraries/http-services`、`apps/http-proxy`、`apps/vendor-binance`，后续可推广到其他 vendor。
+- 验证策略: 以 RFC `R1-R15` 为验收，重点覆盖高权重、多 IP 余量不均、IP 下线、空池、route 无匹配与 options 冲突。
 
 ## 目标
 
-为各 vendor 的 tokenBucket key 增加“目标 http-proxy 终端 ip 标签”维度，保证 USE_HTTP_PROXY 场景按实际出口 IP 限流，并先在 Binance 落地后推广到其他 vendor。
+设计并评审多 http-proxy IP 下按 weight 自动负载均衡的 tokenBucket v2 方案，确保 key 与路由同源并可灰度回滚。
 
 ## 要点
 
-- 梳理 USE_HTTP_PROXY 场景下 http-services 的路由机制与可获取的目标 terminal 标签
-- 定义 tokenBucket key 规范：baseKey + 目标 terminal ip（代理）或自身 terminal.tags.public_ip（直连）
-- Binance 先行改造并验证 key 拼接逻辑与请求路由一致
-- 推广到 aster/hyperliquid/gate/bitget/huobi/okx，保持一致性与最小侵入
-- 必要时补充共享 helper（避免多处复制逻辑）
+- 以 tokenBucket 现有约束为前提（acquireSync 立即失败、read 无 ETA、bucketId 首次 options 生效）设计可执行调度。
+- 在发送请求前完成 IP 选择与 acquire，确保 bucketKey 的 ip 与 labels.ip 同源。
+- 优先在 vendor-binance 落地 v2 helper，保留 rr_multi_try/legacy 回滚模式。
+- 用 stage 化错误语义与可观测指标闭环（pool/acquire/route/request）。
+- 以 R1-R15 与 T-R1..T-R15 作为设计验收门槛。
 
 ## 范围
 
+- libraries/http-services/src/proxy-ip.ts
+- libraries/http-services/src/index.ts
+- libraries/http-services/src/client.ts
+- apps/http-proxy/src/index.ts
 - apps/vendor-binance/src/api/client.ts
 - apps/vendor-binance/src/api/public-api.ts
 - apps/vendor-binance/src/api/private-api.ts
-- apps/vendor-aster/src/api/public-api.ts
-- apps/vendor-aster/src/api/private-api.ts
-- apps/vendor-bitget/src/api/client.ts
-- apps/vendor-gate/src/api/http-client.ts
-- apps/vendor-huobi/src/api/public-api.ts
-- apps/vendor-huobi/src/api/private-api.ts
-- apps/vendor-hyperliquid/src/api/client.ts
-- apps/vendor-hyperliquid/src/api/rate-limit.ts
-- apps/vendor-okx/src/api/public-api.ts
-- apps/vendor-okx/src/api/private-api.ts
-- libraries/http-services/src/client.ts
-- libraries/protocol/src/client.ts
+- .legion/tasks/vendor-tokenbucket-proxy-ip/docs/rfc.md
+- .legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-rfc.md
 
 ## 阶段概览
 
-1. **调研** - 1 个任务
-2. **设计** - 2 个任务
-3. **实现** - 2 个任务
-4. **验证** - 1 个任务
-5. **评审与报告** - 1 个任务
+1. **调研与约束收敛** - 1 个任务
+2. **RFC 设计与对抗审查循环** - 1 个任务
+3. **设计门禁确认（等待用户批准）** - 1 个任务
+4. **实现（用户批准后）** - 1 个任务
+5. **验证与报告** - 1 个任务
 
 ---
 
-_创建于: 2026-02-04 | 最后更新: 2026-02-05_
+_创建于: 2026-02-04 | 最后更新: 2026-02-07_
