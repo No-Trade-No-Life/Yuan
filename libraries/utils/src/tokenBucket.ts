@@ -162,6 +162,7 @@ export const tokenBucket = (bucketId: string, options: TokenBucketOptions = {}):
   };
 
   const acquireSync = (tokens: number = 1): void => {
+    if (tokens === 0) return;
     sem.acquireSync(tokens);
   };
 

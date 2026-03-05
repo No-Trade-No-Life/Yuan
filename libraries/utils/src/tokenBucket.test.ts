@@ -37,6 +37,15 @@ describe('tokenBucket', () => {
       await expect(tb.acquire(3)).rejects.toThrow('TOKEN_BUCKET_INSUFFICIENT_CAPACITY');
       tb[Symbol.dispose]();
     });
+
+    it('should treat acquireSync(0) as no-op', () => {
+      const tb = tokenBucket('test-sync-zero', { capacity: 2 });
+      expect(tb.read()).toBe(2);
+      tb.acquireSync(0);
+      expect(tb.read()).toBe(2);
+      expect(() => tb.acquireSync(-1)).toThrow('SEMAPHORE_INVALID_ACQUIRE_PERMS');
+      tb[Symbol.dispose]();
+    });
   });
 
   describe('token refill', () => {

@@ -131,6 +131,10 @@
 - 已按 Scope 仅提交实现相关代码文件并创建提交：`feat(http-services): add weighted proxy bucket acquisition`。
 - 已推送分支 `legion/feature-proxy-bucket-v2` 到 fork。
 - 已创建上游 PR：`https://github.com/No-Trade-No-Life/Yuan/pull/2580`（head: `Thrimbda:legion/feature-proxy-bucket-v2`，base: `main`）。
+- 根据外部代码评审反馈修复高优问题：proxy 模式 `acquireWeight=0` 导致 `acquireSync(0)` 触发 `SEMAPHORE_INVALID_ACQUIRE_PERMS`。
+- 在 `libraries/utils/src/tokenBucket.ts` 将 `acquireSync(0)` 定义为 no-op，并在 `libraries/utils/src/tokenBucket.test.ts` 补充回归测试。
+- 验证通过：`npx heft test --clean`（libraries/utils）与 `rush build --to @yuants/vendor-binance`。
+- 已提交并推送修复提交：`fix(utils): treat tokenBucket acquireSync(0) as no-op`。
 
 ### 🟡 进行中
 
@@ -173,12 +177,11 @@
 
 **下次继续从这里开始：**
 
-1. 等待代码评审与 CI 结果。
-2. 如需补充说明，优先更新 `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/pr-body.md` 并同步到 PR。
+1. 等待 PR #2580 新一轮 CI 与 reviewer 复核。
 
 **注意事项：**
 
-- 本次提交严格限定在实现 Scope 内文件，未纳入 `.legion` 运行态文件（config/ledger/context/plan/tasks）。
+- 此次修复直接针对 reviewer 报告中的系统性运行时失败（proxy 模式下所有 Binance 请求前置失败）。
 
 ---
 
