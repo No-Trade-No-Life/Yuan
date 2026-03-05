@@ -25,9 +25,16 @@ describe('tokenBucket', () => {
       tb[Symbol.dispose]();
     });
 
-    it('should throw error when acquiring zero or negative tokens', async () => {
+    it('should treat acquire(0) as no-op', async () => {
       const tb = tokenBucket('test-7');
-      await expect(tb.acquire(0)).rejects.toThrow('TOKEN_BUCKET_INVALID_ACQUIRE_TOKENS');
+      expect(tb.read()).toBe(1);
+      await tb.acquire(0);
+      expect(tb.read()).toBe(1);
+      tb[Symbol.dispose]();
+    });
+
+    it('should throw error when acquiring negative tokens', async () => {
+      const tb = tokenBucket('test-7-negative');
       await expect(tb.acquire(-1)).rejects.toThrow('TOKEN_BUCKET_INVALID_ACQUIRE_TOKENS');
       tb[Symbol.dispose]();
     });

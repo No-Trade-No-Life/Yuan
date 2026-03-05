@@ -144,8 +144,13 @@ export const tokenBucket = (bucketId: string, options: TokenBucketOptions = {}):
   }
 
   const acquire = async (tokens: number = 1, signal?: AbortSignal): Promise<void> => {
+    // 0 令牌请求为 no-op，便于在条件分支中统一调用 acquire/acquireSync
+    if (tokens === 0) {
+      return;
+    }
+
     // 请求的令牌数必须为正整数
-    if (tokens <= 0) {
+    if (tokens < 0) {
       throw newError('TOKEN_BUCKET_INVALID_ACQUIRE_TOKENS', { bucketId, tokens });
     }
     // 请求的令牌数不能超过容量，否则永远无法满足请求
