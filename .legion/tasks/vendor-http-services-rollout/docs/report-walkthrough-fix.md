@@ -7,8 +7,8 @@
 
 ## 设计摘要
 
-- RFC：`/Users/c1/Work/Yuan/.legion/tasks/vendor-http-services-rollout/docs/rfc.md`
-- 评审：`/Users/c1/Work/Yuan/.legion/tasks/vendor-http-services-rollout/docs/review-code-fix.md`，`/Users/c1/Work/Yuan/.legion/tasks/vendor-http-services-rollout/docs/review-security-fix.md`
+- RFC：`.legion/tasks/vendor-http-services-rollout/docs/rfc.md`
+- 评审：`.legion/tasks/vendor-http-services-rollout/docs/review-code-fix.md`，`.legion/tasks/vendor-http-services-rollout/docs/review-security-fix.md`
 - 关键设计：在 http-services 覆盖前缓存 `globalThis.__yuantsNativeFetch`，为 proxy fetch 打标记；`Terminal` 构造中优先使用稳定 native fetch，且在 `USE_HTTP_PROXY=true` 或 native fetch 不可用/被标记时跳过 public IP 获取。
 
 ## 改动清单（按模块/文件类型）

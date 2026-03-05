@@ -1,7 +1,7 @@
 # RFC: Proxy IP TokenBucket v2（按权重负载均衡 + 主动限流）
 
 Status: Draft (Design Only)
-Target Path: `/Users/c1/Work/Yuan/.legion/tasks/vendor-tokenbucket-proxy-ip/docs/rfc.md`
+Target Path: `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/rfc.md`
 Date: 2026-02-07
 
 ## Abstract

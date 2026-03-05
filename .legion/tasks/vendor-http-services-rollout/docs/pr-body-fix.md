@@ -23,7 +23,7 @@
 
 # Links
 
-- RFC: `/Users/c1/Work/Yuan/.legion/tasks/vendor-http-services-rollout/docs/rfc.md`
-- Walkthrough: `/Users/c1/Work/Yuan/.legion/tasks/vendor-http-services-rollout/docs/report-walkthrough-fix.md`
-- Review Code: `/Users/c1/Work/Yuan/.legion/tasks/vendor-http-services-rollout/docs/review-code-fix.md`
-- Review Security: `/Users/c1/Work/Yuan/.legion/tasks/vendor-http-services-rollout/docs/review-security-fix.md`
+- RFC: `.legion/tasks/vendor-http-services-rollout/docs/rfc.md`
+- Walkthrough: `.legion/tasks/vendor-http-services-rollout/docs/report-walkthrough-fix.md`
+- Review Code: `.legion/tasks/vendor-http-services-rollout/docs/review-code-fix.md`
+- Review Security: `.legion/tasks/vendor-http-services-rollout/docs/review-security-fix.md`

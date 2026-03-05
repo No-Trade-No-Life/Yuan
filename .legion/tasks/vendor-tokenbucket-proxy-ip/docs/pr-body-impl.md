@@ -24,6 +24,6 @@
 
 # Links
 
-- RFC: `/Users/c1/Work/Yuan/.legion/tasks/vendor-tokenbucket-proxy-ip/docs/rfc.md`
-- Review RFC: `/Users/c1/Work/Yuan/.legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-rfc.md`
-- Walkthrough: `/Users/c1/Work/Yuan/.legion/tasks/vendor-tokenbucket-proxy-ip/docs/report-walkthrough-impl.md`
+- RFC: `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/rfc.md`
+- Review RFC: `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-rfc.md`
+- Walkthrough: `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/report-walkthrough-impl.md`

@@ -4,16 +4,16 @@
 
 - 目标：为 HTTP Proxy 增加“目标域名 + 路径”维度的请求计数标签，便于按 host/path 聚合观测，不改变现有请求处理与 SSRF 行为。
 - 范围（Scope 绑定）：
-  - 代码：`/Users/c1/Work/Yuan/libraries/http-services/src/server.ts`
-  - 测试：`/Users/c1/Work/Yuan/libraries/http-services/src/__tests__/server.test.ts`
+  - 代码：`libraries/http-services/src/server.ts`
+  - 测试：`libraries/http-services/src/__tests__/server.test.ts`
   - 设计与评审：
-    - RFC：`/Users/c1/Work/Yuan/.legion/tasks/http-proxy-app-implementation/docs/rfc-metrics.md`
-    - 代码审查：`/Users/c1/Work/Yuan/.legion/tasks/http-proxy-app-implementation/docs/review-code-metrics.md`
-    - 安全审查：`/Users/c1/Work/Yuan/.legion/tasks/http-proxy-app-implementation/docs/review-security-metrics.md`
+    - RFC：`.legion/tasks/http-proxy-app-implementation/docs/rfc-metrics.md`
+    - 代码审查：`.legion/tasks/http-proxy-app-implementation/docs/review-code-metrics.md`
+    - 安全审查：`.legion/tasks/http-proxy-app-implementation/docs/review-security-metrics.md`
 
 ## 设计摘要
 
-- 设计真源：`/Users/c1/Work/Yuan/.legion/tasks/http-proxy-app-implementation/docs/rfc-metrics.md`
+- 设计真源：`.legion/tasks/http-proxy-app-implementation/docs/rfc-metrics.md`
 - 关键设计点：
   - 指标解析仅复用 handler 内 `new URL(req.url)` 的 `parse_result`，不做二次解析。
   - `target_host`：IP 字面量固定为 `ip`，解析失败或 hostname 为空为 `invalid`，其余按 hostname 规范化记录。
@@ -34,7 +34,7 @@
 1. 运行构建与测试（库内）：
 
 ```bash
-cd /Users/c1/Work/Yuan/libraries/http-services
+cd libraries/http-services
 rushx build
 ```
 

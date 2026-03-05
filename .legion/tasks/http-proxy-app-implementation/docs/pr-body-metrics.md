@@ -16,7 +16,7 @@
 ## Testing
 
 ```bash
-cd /Users/c1/Work/Yuan/libraries/http-services
+cd libraries/http-services
 rushx build
 ```
 
@@ -27,7 +27,7 @@ rushx build
 
 ## Links
 
-- RFC: `/Users/c1/Work/Yuan/.legion/tasks/http-proxy-app-implementation/docs/rfc-metrics.md`
-- Walkthrough: `/Users/c1/Work/Yuan/.legion/tasks/http-proxy-app-implementation/docs/report-walkthrough-metrics.md`
-- Code Review: `/Users/c1/Work/Yuan/.legion/tasks/http-proxy-app-implementation/docs/review-code-metrics.md`
-- Security Review: `/Users/c1/Work/Yuan/.legion/tasks/http-proxy-app-implementation/docs/review-security-metrics.md`
+- RFC: `.legion/tasks/http-proxy-app-implementation/docs/rfc-metrics.md`
+- Walkthrough: `.legion/tasks/http-proxy-app-implementation/docs/report-walkthrough-metrics.md`
+- Code Review: `.legion/tasks/http-proxy-app-implementation/docs/review-code-metrics.md`
+- Security Review: `.legion/tasks/http-proxy-app-implementation/docs/review-security-metrics.md`

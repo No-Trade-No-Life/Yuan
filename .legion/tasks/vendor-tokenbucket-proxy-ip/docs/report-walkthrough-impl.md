@@ -16,8 +16,8 @@
 
 ## 设计摘要
 
-- RFC：`/Users/c1/Work/Yuan/.legion/tasks/vendor-tokenbucket-proxy-ip/docs/rfc.md`
-- 最终 RFC 复审：`/Users/c1/Work/Yuan/.legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-rfc.md`
+- RFC：`.legion/tasks/vendor-tokenbucket-proxy-ip/docs/rfc.md`
+- 最终 RFC 复审：`.legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-rfc.md`
 - 方案主线（问题 -> 方案）：
   - 问题：旧流程先 RR 选 IP 再单次 `acquireSync(weight)`，对实时余量不敏感，导致高权重请求更易失败、全局容量利用不足。
   - 方案：在 `http-services` 集中提供 `acquireProxyBucket`，先按 `read() >= weight` 的候选优先尝试，再 fallback 到其余候选；并把 route/request 错误阶段化，避免语义混淆。

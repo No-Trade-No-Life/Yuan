@@ -1,6 +1,6 @@
 # RFC 对抗审查报告: Proxy IP TokenBucket v2（最终只读复审）
 
-目标文档: `/Users/c1/Work/Yuan/.legion/tasks/vendor-tokenbucket-proxy-ip/docs/rfc.md`
+目标文档: `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/rfc.md`
 审查日期: 2026-02-07
 原则: 奥卡姆剃刀（逐条质疑必要性/假设/边界/复杂度，优先最小复杂度收敛）
 
