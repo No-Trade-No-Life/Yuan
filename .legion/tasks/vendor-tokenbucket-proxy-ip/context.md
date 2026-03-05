@@ -135,6 +135,9 @@
 - 在 `libraries/utils/src/tokenBucket.ts` 将 `acquireSync(0)` 定义为 no-op，并在 `libraries/utils/src/tokenBucket.test.ts` 补充回归测试。
 - 验证通过：`npx heft test --clean`（libraries/utils）与 `rush build --to @yuants/vendor-binance`。
 - 已提交并推送修复提交：`fix(utils): treat tokenBucket acquireSync(0) as no-op`。
+- 根据 reviewer 反馈对齐 tokenBucket async/sync 语义：`acquire(0)` 与 `acquireSync(0)` 均为 no-op，负数仍报错。
+- 新增/更新 utils 回归测试覆盖 zero-token async/sync 行为与负数校验。
+- 验证通过：`npx heft test --clean`（libraries/utils）；修复提交已 push 到 PR 分支。
 
 ### 🟡 进行中
 

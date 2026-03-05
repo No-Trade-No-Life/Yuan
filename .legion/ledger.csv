@@ -2226,3 +2226,4 @@
 2026-02-13T16:19:38.969Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: 创建实现 PR 并记录 URL,success
 2026-03-05T09:49:08.839Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-03-05T09:57:57.234Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 根据外部代码评审反馈修复高优问题：proxy 模式 `acquireWeight=0` 导致 `acquireSync(0)` 触发 `SEMAPHORE_INVALID_ACQUIRE_PERMS`。,success
+2026-03-05T12:17:12.800Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 根据 reviewer 反馈对齐 tokenBucket async/sync 语义：`acquire(0)` 与 `acquireSync(0)` 均为 no-op，负数仍报错。,success
