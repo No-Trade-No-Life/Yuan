@@ -726,6 +726,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/live-trading",
+      "projectFolder": "libraries/live-trading",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/app-virtual-exchange",
       "projectFolder": "apps/virtual-exchange",
       "shouldPublish": true
