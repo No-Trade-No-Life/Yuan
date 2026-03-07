@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "vendor-tokenbucket-proxy-ip",
+  "currentTask": "heavy-rfc",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -220,9 +220,9 @@
     {
       "id": "vendor-tokenbucket-proxy-ip",
       "name": "vendor-tokenbucket-proxy-ip",
-      "status": "active",
+      "status": "paused",
       "createdAt": "2026-02-03T16:40:42.595Z",
-      "updatedAt": "2026-03-05T12:17:12.798Z"
+      "updatedAt": "2026-03-05T13:22:27.101Z"
     },
     {
       "id": "http-services-terminalinfos-ready",
@@ -230,6 +230,13 @@
       "status": "paused",
       "createdAt": "2026-02-05T11:41:19.733Z",
       "updatedAt": "2026-02-07T14:17:47.617Z"
+    },
+    {
+      "id": "heavy-rfc",
+      "name": "实盘交易库 heavy RFC 设计",
+      "status": "active",
+      "createdAt": "2026-03-05T13:22:27.101Z",
+      "updatedAt": "2026-03-07T14:46:12.868Z"
     }
   ],
   "pendingProposals": [
@@ -2711,6 +2718,81 @@
       "decidedAt": "2026-02-05T11:41:19.733Z",
       "decidedBy": "Claude",
       "createdTaskId": "http-services-terminalinfos-ready"
+    },
+    {
+      "id": "proposal-mmdhw35e-62b0de",
+      "name": "实盘交易库 heavy RFC 设计",
+      "goal": "为新 library 设计可审查的实盘交易系统方案（先收敛设计，不写生产代码），覆盖 push 信号、独立投资者状态、以损定仓、止盈止损、风控与可测试性。",
+      "rationale": "用户明确要求走 Epic/High-risk 的重 RFC 流程，并基于根目录两张参考图与会议纪要先收敛设计，再进入实现。该任务涉及新 library 的领域建模、API 抽象、风险控制、测试策略、里程碑与回滚方案，属于跨文件/跨阶段的高风险设计工作，必须以 LegionMind 持久化追踪。",
+      "points": [
+        "输入信号采用外部 push（0 平仓 / 1 做多 / -1 做空），支持异质来源（模型/人工/Agent）",
+        "仓位按 VC（风险资金）与历史最大浮亏比例计算，止损线与止盈线可参数化",
+        "投资者状态独立记录，不采用统一份额模式，支持随时加入",
+        "模块化 API 设计，核心能力可用 mock 交易所做单元测试",
+        "交易账户与资金账户分离，止盈后资金回流资金账户，保留最小基本手"
+      ],
+      "scope": [
+        "libraries/live-trading/**",
+        "libraries/live-trading/src/**",
+        ".legion/tasks/<task-id>/docs/task-brief.md",
+        ".legion/tasks/<task-id>/docs/research.md",
+        ".legion/tasks/<task-id>/docs/rfc.md",
+        ".legion/tasks/<task-id>/docs/review-rfc.md",
+        ".legion/tasks/<task-id>/docs/report-walkthrough.md",
+        ".legion/tasks/<task-id>/docs/pr-body.md"
+      ],
+      "phases": [
+        {
+          "name": "任务定义与边界收敛",
+          "tasks": [
+            {
+              "description": "读取根目录两张参考图与用户补充说明，产出 task-brief（目标/验收/假设/风险/验证）。",
+              "acceptance": "task-brief.md 完成，包含 High-risk 判定理由与待确认问题列表。"
+            },
+            {
+              "description": "在 context 决策表登记 rfcProfile=heavy 与 stage=design-only。",
+              "acceptance": "context.md 决策表可追溯并标注仅设计阶段。"
+            }
+          ]
+        },
+        {
+          "name": "Heavy 研究与 RFC",
+          "tasks": [
+            {
+              "description": "生成 research.md，整理领域模型、约束、接口抽象、风控与测试策略。",
+              "acceptance": "research.md 覆盖信号、仓位、投资者状态、资金安全和工程可测试性。"
+            },
+            {
+              "description": "生成 heavy rfc.md，给出架构、状态机、API、数据模型、失败语义、里程碑与回滚策略。",
+              "acceptance": "rfc.md 达到可审查可执行标准，未决问题显式列在 Open Questions。"
+            }
+          ]
+        },
+        {
+          "name": "RFC 对抗审查",
+          "tasks": [
+            {
+              "description": "运行 review-rfc 并生成 review-rfc.md。",
+              "acceptance": "review-rfc.md 给出 blocking/non-blocking 结论和修改建议。"
+            }
+          ]
+        },
+        {
+          "name": "RFC-only Draft PR 产物",
+          "tasks": [
+            {
+              "description": "生成 walkthrough 与 RFC-only PR body。",
+              "acceptance": "report-walkthrough.md 与 pr-body.md 可直接用于 Draft PR（docs-only）。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-03-05T13:22:12.342Z",
+      "status": "approved",
+      "decidedAt": "2026-03-05T13:22:27.101Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "heavy-rfc"
     }
   ]
 }

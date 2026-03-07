@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/live-trading",
+  "entries": [
+    {
+      "version": "0.1.0",
+      "tag": "@yuants/live-trading_v0.1.0",
+      "date": "Thu, 05 Mar 2026 00:00:00 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Initial release"
+          }
+        ]
+      }
+    }
+  ]
+}
