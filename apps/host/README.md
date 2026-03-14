@@ -47,6 +47,34 @@
 
 所有以 `/external/` 开头的 HTTP 请求会被封装后转发给 Host Terminal，由终端侧自定义逻辑处理响应。可以利用这一机制暴露 REST API、指标或健康检查接口。src/host-manager.ts:290
 
+## 内部服务 HTTP 直连（`/request`）
+
+Host 已支持通过 `POST /request` 直接调用内部服务（即 Terminal 的 service method），适合用 HTTP 客户端（如 `curl`）在不建立 WebSocket 的情况下发起一次服务请求。src/host-manager.ts:360
+
+- 请求体必须是 JSON，结构为 `{ "method": string, "req": object }`。
+- 响应类型为 `application/x-ndjson`，每一行是一个 JSON 消息（对应内部流式响应）。
+- 浏览器跨域预检可使用 `OPTIONS /request`，Host 会返回 `204` 和 `Access-Control-Allow-*` 头。
+
+示例（调用内部服务）：
+
+```bash
+curl -sS -N \
+  -X POST "http://127.0.0.1:8888/request" \
+  -H "Content-Type: application/json" \
+  -H "host_token: <HOST_TOKEN>" \
+  --data '{
+    "method": "Ping",
+    "req": { "now": 1740000000000 }
+  }'
+```
+
+多租户模式（`MULTI_TENANCY=ED25519`）下，请按现有认证要求携带 `public_key` 与 `signature` 查询参数。src/host-manager.ts:261
+
+常见返回：
+
+- `401 Unauthorized`：认证失败（`HOST_TOKEN` 不匹配、或多租户签名校验失败）。
+- `500 Internal Server Error`：请求体格式错误、`method/req` 缺失或服务执行异常。
+
 ## 监控
 
 Host 通过 `GlobalPrometheusRegistry` 注册多项指标（如连接建立数量、消息大小直方图等），并在终端通道中发布，便于 Prometheus 或其他监控系统拉取。src/host-manager.ts:37
