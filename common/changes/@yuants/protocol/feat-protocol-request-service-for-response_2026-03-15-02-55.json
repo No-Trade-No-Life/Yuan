@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Add requestServiceForResponse HTTP util in @yuants/protocol",
+      "type": "minor",
+      "packageName": "@yuants/protocol"
+    }
+  ],
+  "packageName": "@yuants/protocol",
+  "email": "cz@ntnl.io"
+}
