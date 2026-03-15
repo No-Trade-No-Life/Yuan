@@ -32,6 +32,22 @@ export interface IConnection<T> {
 }
 
 // @public
+export interface IRequestServiceCredential {
+    // (undocumented)
+    [k: string]: unknown;
+    // (undocumented)
+    host_url: string;
+}
+
+// @public
+export interface IRequestServiceReq<TReq = unknown> {
+    // (undocumented)
+    method: string;
+    // (undocumented)
+    req: TReq;
+}
+
+// @public
 export interface IResponse<T = void> {
     code: number | string;
     // (undocumented)
@@ -140,6 +156,9 @@ export interface ITerminalMessage {
 
 // @public @deprecated
 export const PromRegistry: Registry;
+
+// @public
+export const requestServiceForResponse: <TReq = unknown, TRes = void>(credential: IRequestServiceCredential, req: IRequestServiceReq<TReq>) => Promise<IResponse<TRes>>;
 
 // @public
 export class Terminal {

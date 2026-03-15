@@ -11,5 +11,6 @@ export * from './client';
 export * from './create-connection';
 export * from './metrics';
 export * from './model';
+export * from './request-service-for-response';
 export * from './server';
 export * from './terminal';

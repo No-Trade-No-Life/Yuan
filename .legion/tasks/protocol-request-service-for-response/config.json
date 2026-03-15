@@ -1,0 +1,11 @@
+{
+  "taskId": "protocol-request-service-for-response",
+  "risk": "medium",
+  "labels": ["continue"],
+  "scope": [
+    "libraries/protocol/src/**",
+    "libraries/protocol/etc/protocol.api.md",
+    ".legion/tasks/protocol-request-service-for-response/**"
+  ],
+  "nonGoals": ["不修改 apps/host 的 /request 协议", "不处理流式 frame 聚合", "不新增 Terminal 实例"]
+}
