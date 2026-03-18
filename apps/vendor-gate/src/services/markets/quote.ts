@@ -23,6 +23,16 @@ const terminal = Terminal.fromNodeEnv();
 
 // 获取所有USDT永续合约
 const usdtFutureContracts$ = defer(() => getFuturesContracts('usdt', {})).pipe(
+  mergeMap((contracts) => contracts),
+  map(
+    (contract): Partial<IQuote> => ({
+      interest_rate_next_settled_at: contract.funding_next_apply
+        ? `${contract.funding_next_apply * 1000}`
+        : undefined,
+      datasource_id: 'GATE',
+      product_id: encodePath('GATE', 'FUTURE', contract.name),
+    }),
+  ),
   repeat({ delay: 3600_000 }),
   retry({ delay: 60_000 }),
   shareReplay(1),
@@ -73,7 +83,7 @@ const quoteFromSpotTickers$ = defer(() => getSpotTickers({})).pipe(
   retry({ delay: 1000 }),
 );
 
-const quoteSources$ = [quoteFromTickers$, quoteFromSpotTickers$];
+const quoteSources$ = [quoteFromTickers$, quoteFromSpotTickers$, usdtFutureContracts$];
 
 const quote$ = defer(() =>
   merge(
