@@ -2,6 +2,37 @@
   "name": "@yuants/app-http-proxy",
   "entries": [
     {
+      "version": "0.2.8",
+      "tag": "@yuants/app-http-proxy_v0.2.8",
+      "date": "Wed, 18 Mar 2026 16:27:24 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add weighted proxy bucket acquisition"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/http-services\" to `0.5.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.55.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.19.7`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.43`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.7",
       "tag": "@yuants/app-http-proxy_v0.2.7",
       "date": "Sat, 07 Feb 2026 06:46:45 GMT",

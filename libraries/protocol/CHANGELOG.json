@@ -2,6 +2,31 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.55.0",
+      "tag": "@yuants/protocol_v0.55.0",
+      "date": "Wed, 18 Mar 2026 16:27:24 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Add requestServiceForResponse HTTP util in @yuants/protocol"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.19.7`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/cache\" to `0.3.15`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.54.4",
       "tag": "@yuants/protocol_v0.54.4",
       "date": "Sat, 07 Feb 2026 05:24:37 GMT",

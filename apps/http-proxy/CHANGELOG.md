@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-http-proxy
 
-This log was last generated on Sat, 07 Feb 2026 06:46:45 GMT and should not be manually modified.
+This log was last generated on Wed, 18 Mar 2026 16:27:24 GMT and should not be manually modified.
+
+## 0.2.8
+Wed, 18 Mar 2026 16:27:24 GMT
+
+### Patches
+
+- add weighted proxy bucket acquisition
 
 ## 0.2.7
 Sat, 07 Feb 2026 06:46:45 GMT
