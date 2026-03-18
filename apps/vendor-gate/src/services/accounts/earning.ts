@@ -46,7 +46,7 @@ export const getEarningAccountInfo = async (credential: ICredential): Promise<IP
   const balances = await getEarnBalance(credential, {});
 
   const positions = await Promise.all(
-    balances.map(async (balance) => {
+    (balances ?? []).map(async (balance) => {
       // 过滤零余额条目
       if (+balance.amount <= 0) return undefined;
 
