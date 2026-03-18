@@ -2,6 +2,29 @@
   "name": "@yuants/app-asg-eventbridge-notifier",
   "entries": [
     {
+      "version": "0.2.4",
+      "tag": "@yuants/app-asg-eventbridge-notifier_v0.2.4",
+      "date": "Wed, 18 Mar 2026 16:27:24 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.55.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.19.7`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.43`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.3",
       "tag": "@yuants/app-asg-eventbridge-notifier_v0.2.3",
       "date": "Sat, 07 Feb 2026 05:24:37 GMT",

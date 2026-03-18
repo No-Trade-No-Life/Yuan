@@ -2,6 +2,31 @@
   "name": "@yuants/http-services",
   "entries": [
     {
+      "version": "0.5.2",
+      "tag": "@yuants/http-services_v0.5.2",
+      "date": "Wed, 18 Mar 2026 16:27:24 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add weighted proxy bucket acquisition"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.55.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.19.7`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.1",
       "tag": "@yuants/http-services_v0.5.1",
       "date": "Sat, 07 Feb 2026 05:24:37 GMT",

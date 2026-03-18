@@ -1,6 +1,13 @@
 # Change Log - @yuants/http-services
 
-This log was last generated on Sat, 07 Feb 2026 05:24:37 GMT and should not be manually modified.
+This log was last generated on Wed, 18 Mar 2026 16:27:24 GMT and should not be manually modified.
+
+## 0.5.2
+Wed, 18 Mar 2026 16:27:24 GMT
+
+### Patches
+
+- add weighted proxy bucket acquisition
 
 ## 0.5.1
 Sat, 07 Feb 2026 05:24:37 GMT

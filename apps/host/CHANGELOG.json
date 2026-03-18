@@ -2,6 +2,32 @@
   "name": "@yuants/app-host",
   "entries": [
     {
+      "version": "0.11.14",
+      "tag": "@yuants/app-host_v0.11.14",
+      "date": "Wed, 18 Mar 2026 16:27:24 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Document HTTP /request usage in app-host README"
+          },
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.55.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.19.7`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.43`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.11.13",
       "tag": "@yuants/app-host_v0.11.13",
       "date": "Sat, 07 Feb 2026 06:46:45 GMT",
