@@ -1,258 +1,337 @@
-# RFC: Proxy IP TokenBucket v2（按权重负载均衡 + 主动限流）
+# RFC: Proxy IP TokenBucket v2（去除 terminal_id 信任边界）
 
-Status: Draft (Design Only)
-Target Path: `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/rfc.md`
-Date: 2026-02-07
+状态: Draft（增量修订）
+目标文件: `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/rfc.md`
+日期: 2026-03-21
+风险分级: Medium
 
-## Abstract
+## 摘要 / 动机
 
-本文定义多 `http-proxy` IP 场景下的 v2 协议：在发送请求前先完成 IP 选择与令牌获取，优先尝试可承载当前 `weight` 的 bucket，降低 `acquireSync(weight)` 失败与上游 429 概率。本文是实现阶段唯一设计真源。
+本次修订收敛 HTTPProxy 的信任模型：`terminal_id` 不再被视为稳定身份，也不得再作为 HTTPProxy 白名单或路由 pin 的依据。同一 host 网络中可见的 `HTTPProxy` terminal 默认互信；请求仅按 `labels.ip` 选择出口，token bucket 也仅按 `encodePath([baseKey, ip])` 隔离。
 
-## Motivation
+动机有三点：
 
-现网流程是先 RR 选 IP，再对该 IP 执行一次 `acquireSync(weight)`。在多 IP、混合权重流量下，该流程对实时余量不敏感，导致局部耗尽与全局容量浪费。
+1. `terminal_id` 不稳定，继续把它当作 trust boundary 会导致配置漂移、误拒绝、回滚复杂度升高。
+2. 当前限流与实际出口已经以 `ip` 为核心维度；继续把 `terminal_id` 混入 helper 返回值和请求标签，只会制造“同一出口、不同身份”的伪差异。
+3. 用户最新要求已经明确：同一 host 网络内所有 terminal 默认互信，因此信任边界应上移到 host 网络/接入面，而不是终端自报的 `terminal_id`。
 
-### Problem / Constraints（来自现状调研）
+结论：本 RFC 将 v2 方案改为“host 内默认互信 + IP 维度选路/限流”，并显式删除 `TRUSTED_HTTP_PROXY_TERMINAL_IDS` 相关设计与实现。
 
-1. `tokenBucket` 以 `bucketId` 全局共享；同 `bucketId` 后续 options 会被忽略；`acquireSync(tokens)` 令牌不足即抛错；`read()` 无 ETA。
-2. `fetch` 使用 `labels.ip` 路由；当 `labels.ip` 无匹配目标时会在路由阶段失败。
-3. 现网 vendor 的 bucket options 来源在 vendor 侧，若 helper 使用隐式默认 options 会与现网容量语义漂移。
+## 目标与非目标
 
-## Goals & Non-Goals
+### 目标
 
-### Goals
+- 代理模式下，helper MUST 仅基于同 host 网络中可见的 `HTTPProxy` 服务、合法 `tags.ip`、可信 `ip_source` 生成候选池。
+- helper MUST 不再读取、解析、缓存或依赖 `TRUSTED_HTTP_PROXY_TERMINAL_IDS`。
+- `libraries/http-services/src/proxy-ip.ts` 内所有导出的 HTTPProxy 候选枚举/选择 helper MUST 统一复用同一个“host 内默认互信 + 合法 `ip` + `ip_source=http-services` + IP 去重”候选构造逻辑。
+- helper 返回值 MUST 从 `{ ip, terminalId, bucketKey }` 收敛为 `{ ip, bucketKey }`。
+- vendor 请求路由 MUST 只写入 `labels.ip`，MUST NOT 再写入 `labels.terminal_id`。
+- `apps/http-proxy` 服务注册 MUST 删除 `labels.terminal_id`；不得继续暴露 terminal 级 route pin 能力。
+- 同一 host 网络内多个 terminal 共享同一出口 IP 时，MUST 视为同一个限流/路由等价类。
+- RFC 必须明确回答：后续不应继续在请求 `labels` 或 helper 返回值中使用 `terminal_id` 充当 trust boundary 或稳定身份。
 
-- 在 `USE_HTTP_PROXY=true` 时，请求 MUST 在发送前完成“选 IP + acquire”。
-- 调度 MUST 优先尝试“当前 `read() >= weight` 的候选组”，再尝试其余候选组。
-- `bucketKey` 中 IP 与 `fetch.labels.ip` MUST 同源，确保限流与路由一致。
-- 首次落地 `apps/vendor-binance`，随后 MAY 推广到其他 vendor。
+### 非目标
 
-### Non-Goals
+- 不修改 `tokenBucket` 底层算法、`acquireSync` 语义和 semaphore 实现。
+- 不改造协议层 `terminal_id` 作为消息寻址字段的既有职责。
+- 不在本次 scope 内引入新的 host 级鉴权、mTLS 或网络分区机制。
+- 不扩大到所有 vendor 的立即实现；本次落地范围仍以 `http-services`、`http-proxy`、`vendor-binance` 为主。
 
-- 不修改 `tokenBucket` 底层算法与 semaphore 机制。
-- 不改造交易所业务语义（签名、业务错误处理、业务重试）。
-- 不引入中心化存储；调度状态仅进程内维护。
+## 定义
 
-## Definitions
-
-- `BaseKey`: 现网 vendor 的限流基键。
-- `IPPool`: 当前可用 proxy IP 集合，来源于 `http-services`。
-- `BucketKey`: `encodePath([BaseKey, ip])`。
-- `BucketOptionsSource`: bucket options 来源函数，定义为 `getBucketOptions(baseKey)`。
+- `Host 网络`: 同一个 Terminal Host 视图内可见、可被当前 terminal 枚举到的终端集合。
+- `HTTPProxy 候选`: 同 host 网络内声明了 `HTTPProxy` 服务，且 `tags.ip` 为合法 IP、`tags.ip_source === 'http-services'` 的 terminal。
+- `IP 等价类`: 具有相同 `tags.ip` 的一个或多个 `HTTPProxy` terminal；调度和限流只看 IP，不区分 terminal。
+- `BaseKey`: vendor 现有的限流基键。
+- `BucketKey`: `encodePath([baseKey, ip])`。
 - `Stage`: 错误归属阶段，取值 `{pool|acquire|route|request}`。
-- `Mode`: 灰度模式，固定为 `legacy_rr_single_try` / `rr_multi_try` / `helper_acquire_proxy_bucket`。
 
-## Protocol Overview（端到端流程）
+## 现状与问题
 
-1. vendor 计算 `baseKey` 与 `weight`，并传入 `getBucketOptions(baseKey)`。
-2. `USE_HTTP_PROXY=true` 时，helper 拉取 `IPPool` 并过滤非法/重复 IP。
-3. helper 按“可承载组优先”构造候选顺序：先 `read() >= weight` 组，再其余组。
-4. helper 对候选逐个执行 `acquireSync(weight)`；成功即返回 `{ ip, bucketKey }`。
-5. helper 成功后，vendor MUST 使用返回 `ip` 写入 `labels.ip` 并发起请求。
-6. 失败按阶段映射错误码，不允许跨阶段吞并错误码。
+基于当前代码与任务上下文，可确认以下现状：
 
-## 设计选项与推荐
+1. `libraries/http-services/src/proxy-ip.ts` 通过 `TRUSTED_HTTP_PROXY_TERMINAL_IDS` 过滤候选 terminal，并把 `terminalId` 放入 `AcquireProxyBucketResult`。
+2. `apps/http-proxy/src/index.ts` 会把 `labels.terminal_id = terminal.terminal_id` 注册到服务标签中。
+3. `apps/vendor-binance/src/api/client.ts` 在代理模式下把 `{ ip, terminal_id }` 一起写入请求 `labels`，等价于用 `terminal_id` 对相同 IP 的多个代理做二次 pin。
 
-### 方案 A：`rr_multi_try`
+这三处共同构成了当前错误的身份模型：虽然 bucket 已经按 IP 维度工作，但信任准入和路由仍被 `terminal_id` 绑住，导致 `terminal_id` 被误当成稳定身份与 trust boundary。
 
-- RR 产出候选顺序，逐个尝试 acquire，失败切下一候选。
-- 优点：改动较小。
-- 缺点：状态分散在 vendor，易产生行为漂移。
+## 拟议设计
 
-### 方案 B：`helper_acquire_proxy_bucket`（推荐）
+### 1. 信任模型
 
-- 在 `libraries/http-services` 提供统一 helper，集中维护候选选择、cooldown、错误映射、观测。
-- vendor 仅消费 `{ip, bucketKey}` 并发请求。
+- 同一 host 网络中的所有 terminal 默认互信。
+- `terminal_id` 不再参与 HTTPProxy 候选准入。
+- HTTPProxy 候选的最小准入条件收敛为：
+  - 提供 `HTTPProxy` 服务；
+  - `tags.ip` 为合法 IP；
+  - `tags.ip_source === 'http-services'`。
 
-### 方案 C：`legacy_rr_single_try`（仅回滚）
+这意味着 trust boundary 从“terminal allowlist”上移为“是否已经进入同一个 host 网络并暴露合法 HTTPProxy 服务”。如果未来需要更细粒度隔离，应在 host 接入层做，而不是恢复 `terminal_id` 白名单。
 
-- 现网旧行为：RR 选一个 IP，只尝试一次 acquire。
-- 不推荐继续演进，仅用于故障回滚。
+### 2. 候选池与去重
 
-## State Machine
+- helper 从 `terminal.terminalInfos` 枚举全部 `HTTPProxy` terminal。
+- 先过滤非法 IP、缺失 `ip_source`、非 `HTTPProxy` 服务。
+- 再按 `ip` 去重，得到 `IPPool`。
+- 同一 IP 对应多个 terminal 时，helper 只保留一个 IP 候选；不对外暴露 terminal 级身份。
+- `listHTTPProxyIps`、`waitForHTTPProxyIps`、`selectHTTPProxyIpRoundRobin`、`selectHTTPProxyIpRoundRobinAsync`、`acquireProxyBucket` 等导出 helper MUST 统一复用这一候选构造逻辑，避免一部分链路去掉 allowlist、另一部分链路仍保留旧 env/cache/log 分支。
 
-States:
+理由：
 
-- `S0_INIT`: 输入 `(baseKey, weight, terminal, getBucketOptions)`。
-- `S1_POOL_READY`: 得到有效 `IPPool`。
-- `S2_SELECT`: 构造候选顺序（可承载组优先 + cooldown 过滤）。
-- `S3_ACQUIRE`: 对候选执行 `acquireSync(weight)`。
-- `S4_ROUTE`: 写入 `labels.ip` 并由 `fetch` 路由。
-- `S5_REQUEST`: 已路由到目标代理，执行请求。
-- `S_DONE`: 请求完成。
-- `S_ERR`: 错误终态。
+- token bucket 已按 IP 维度隔离；
+- 请求路由也只需 `labels.ip`；
+- 同一 host 网络内多个 terminal 共享同一出口 IP 时，额外携带 `terminal_id` 只会制造不必要的路由 pin 和身份耦合。
 
-Transitions:
+### 3. 调度与请求流程
 
-- `S0_INIT -> S1_POOL_READY`: 进入 proxy 分支。
-- `S1_POOL_READY -> S_ERR`: `IPPool` 为空（`E_PROXY_TARGET_NOT_FOUND`）。
-- `S1_POOL_READY -> S2_SELECT`: 有候选。
-- `S2_SELECT -> S_ERR`: 候选遍历完（`E_PROXY_BUCKET_EXHAUSTED`）。
-- `S2_SELECT -> S3_ACQUIRE`: 选到下一候选。
-- `S3_ACQUIRE -> S2_SELECT`: acquire 不足或可恢复失败。
-- `S3_ACQUIRE -> S4_ROUTE`: acquire 成功。
-- `S4_ROUTE -> S_ERR`: 路由无匹配（`E_PROXY_TARGET_NOT_FOUND`）。
-- `S4_ROUTE -> S5_REQUEST`: 路由成功。
-- `S5_REQUEST -> S_ERR`: 代理网络/上游失败（`E_PROXY_REQUEST_FAILED`）。
-- `S5_REQUEST -> S_DONE`: 请求完成。
+端到端流程如下：
 
-## Data Model
+1. vendor 计算 `baseKey` 与 `weight`，传入 `getBucketOptions(baseKey)`。
+2. helper 枚举同 host 网络内全部 `HTTPProxy` 候选，并按 IP 去重得到 `IPPool`。
+3. helper 维持现有“可承载组优先”策略：优先尝试 `read() >= weight` 的 IP，再尝试其余 IP。
+4. 对每个 IP 候选执行 `acquireSync(weight)`；成功即返回 `{ ip, bucketKey }`。
+5. vendor 将返回的 `ip` 写入 `fetch.labels.ip`，不再写入 `labels.terminal_id`。
+6. `fetch` 依赖协议层现有 schema 匹配能力，按 `labels.ip` 路由到任一满足该 IP 标签的 `HTTPProxy` 服务。
 
-### AcquireProxyBucketInput
+### 4. 接口收敛
+
+`AcquireProxyBucketResult` 调整为：
+
+```ts
+type AcquireProxyBucketResult = {
+  ip: string;
+  bucketKey: string;
+};
+```
+
+`IRequestContext` 在代理模式下调整为：
+
+```ts
+type IRequestContext = {
+  ip: string;
+  bucketKey: string;
+  acquireWeight: number;
+};
+```
+
+请求标签调整为：
+
+```ts
+labels: {
+  ip: proxyIp;
+}
+```
+
+明确回答：后续不应继续在 helper 返回值或请求 `labels` 中使用 `terminal_id` 作为 trust boundary、稳定身份或路由 pin；若保留 `terminal_id`，只能用于日志、指标、诊断上下文，且不得影响授权、候选筛选或目标选择。
+
+额外 gate：`AcquireProxyBucketResult`、`IRequestContext` 与 `libraries/http-services/etc/http-services.api.md` 对 `terminalId` 的删除 MUST 同次落地、同次验证，禁止出现实现已删但类型/导出面残留，或类型已改但消费方未收敛的半改状态。
+
+### 5. `apps/http-proxy` 标签契约
+
+- 保留 `labels.ip`，因为它是路由键。
+- 删除 `labels.terminal_id`，因为它不再承担任何必须语义。
+- `labels.hostname` 可保留，仅作为观测维度，不参与信任决策。
+
+### 6. 关于同 IP 多 terminal 的行为
+
+- 同一 IP 下多个 `HTTPProxy` terminal 默认互信。
+- 路由命中该 IP 时，允许由协议层随机命中任一匹配 terminal。
+- 这不是不确定性 bug，而是新的显式约定：同 IP 代表同一个出口等价类，terminal 级别不是稳定身份。
+
+## 备选方案
+
+### 方案 A：继续保留 `TRUSTED_HTTP_PROXY_TERMINAL_IDS`
+
+- 放弃原因：与“`terminal_id` 不稳定”这一事实正面冲突；每次 terminal 重建/迁移都要更新白名单，运维成本和误配置风险过高。
+
+### 方案 B：改用 `terminal_id + ip` 双因子
+
+- 放弃原因：本质上仍把 `terminal_id` 当成稳定身份，只是把失败模式藏得更深；同时会继续污染 helper 返回值与请求标签。
+
+### 方案 C：引入 host 级显式信任域配置
+
+- 放弃原因：方向上比 terminal allowlist 正确，但超出本次 scope；当前用户已明确接受“同 host 网络默认互信”，无需在此 RFC 中扩成新系统。
+
+本次选择：直接采用“host 内默认互信 + IP 等价类”模型。
+
+## 数据模型与接口
+
+### `AcquireProxyBucketInput`
 
 ```ts
 type AcquireProxyBucketInput = {
   baseKey: string;
   weight: number;
-  terminal: ITerminal;
+  terminal: Terminal;
   getBucketOptions: (baseKey: string) => TokenBucketOptions;
 };
 ```
 
-- 兼容策略：本 RFC 在“`bucketOptions` 直接传入 / `getBucketOptions(baseKey)` 回调”二选一中固定采用回调方案。
-- 约束：调用方若为固定 options，MUST 通过回调返回常量；MUST NOT 使用 helper 内置隐式默认 options。
+约束：
 
-### BucketRuntimeState
+- `getBucketOptions` 仍是唯一 options 来源；本次修订不改变这一点。
+- helper MUST NOT 引入隐式默认 options。
+- helper MUST NOT 读取任何 terminal allowlist 环境变量。
 
-- `bucketKey: string`
-- `tokensAvailable: number`
-- `lastAcquireResult: "ok" | "insufficient" | "error"`
-- `cooldownUntil?: number`
+### `AcquireProxyBucketResult`
 
-### 冲突观测
+```ts
+type AcquireProxyBucketResult = {
+  ip: string;
+  bucketKey: string;
+};
+```
 
-- `bucket_options_conflict_total{base_key,bucket_key}`: counter
-- 触发条件：同 `bucketKey` 首次 options 与后续 options 指纹不一致。
+兼容策略：
 
-## Requirements
+- 删除 `terminalId` 字段，属于有意 API 收敛。
+- 所有消费方必须改为只依赖 `ip` 与 `bucketKey`。
+- `http-services.api.md` 必须同步更新，避免导出面残留旧身份模型。
 
-- `R1` 代理模式下，helper MUST 在请求发送前完成 IP 选择与 `acquireSync(weight)`。
-- `R2` helper MUST 使用 `getBucketOptions(baseKey)` 作为唯一 options 来源。
-- `R3` helper MUST NOT 使用隐式默认 options；options 来源 MUST 与现网 vendor 一致。
-- `R4` 被选中 IP 的 `bucketKey` MUST 为 `encodePath([baseKey, ip])`。
-- `R5` 请求 `labels.ip` MUST 与 `bucketKey` 的 ip 完全一致。
-- `R6` 单次请求若某 IP acquire 失败，MUST 尝试下一候选 IP。
-- `R7` 候选全部失败时，MUST 返回 `E_PROXY_BUCKET_EXHAUSTED`，且 MUST NOT 外发请求。
-- `R8` `IPPool` 为空时，MUST 返回 `E_PROXY_TARGET_NOT_FOUND`。
-- `R9` `SEMAPHORE_INSUFFICIENT_PERMS` MUST 映射为可恢复容量失败，不得作为未分类系统异常抛出。
-- `R10` helper MUST 先尝试 `read() >= weight` 候选组，再尝试其余候选组。
-- `R11` 对同一 `baseKey`，helper MUST 维护独立选择状态，避免跨桶串扰。
-- `R12` 同 `bucketKey` 出现 options 冲突时，helper MUST 增加 `bucket_options_conflict_total`，并 MUST 返回 `E_BUCKET_OPTIONS_CONFLICT` 终止本次流程。
-- `R13` `USE_HTTP_PROXY=false` 时，MUST 保持现有直连限流路径，不进入 proxy 调度。
+### `apps/http-proxy` 服务标签
 
-## Error Semantics
+- MUST 包含 `ip`。
+- MAY 包含 `hostname`。
+- MUST NOT 包含用于信任/路由 pin 的 `terminal_id`。
 
-### 错误阶段归属表
+## 错误语义
 
-| stage     | 触发条件                              | MUST 返回错误码             | 可恢复性         |
-| --------- | ------------------------------------- | --------------------------- | ---------------- |
-| `pool`    | 无可用 proxy 服务或 `IPPool` 为空     | `E_PROXY_TARGET_NOT_FOUND`  | 可重试（长退避） |
-| `acquire` | 候选均 acquire 失败 / cooldown 不可用 | `E_PROXY_BUCKET_EXHAUSTED`  | 可重试（短退避） |
-| `acquire` | 同 `bucketKey` options 冲突           | `E_BUCKET_OPTIONS_CONFLICT` | 需修配置后重试   |
-| `route`   | `labels.ip` 无匹配或路由解析失败      | `E_PROXY_TARGET_NOT_FOUND`  | 可重试（长退避） |
-| `request` | 已路由后代理网络/上游失败             | `E_PROXY_REQUEST_FAILED`    | 按既有策略重试   |
+| stage     | 触发条件                                 | 错误码                      | 恢复语义     |
+| --------- | ---------------------------------------- | --------------------------- | ------------ |
+| `pool`    | host 网络内无可用 `HTTPProxy` IP         | `E_PROXY_TARGET_NOT_FOUND`  | 长退避重试   |
+| `acquire` | 所有 IP 候选均无法 `acquireSync(weight)` | `E_PROXY_BUCKET_EXHAUSTED`  | 短退避重试   |
+| `acquire` | 同 `bucketKey` options 指纹冲突          | `E_BUCKET_OPTIONS_CONFLICT` | 修配置后重试 |
+| `route`   | 仅按 `labels.ip` 路由但无匹配服务        | `E_PROXY_TARGET_NOT_FOUND`  | 长退避重试   |
+| `request` | 已路由成功但代理请求失败/上游失败        | `E_PROXY_REQUEST_FAILED`    | 按既有策略   |
 
-### 边界封闭规则
+补充约束：
 
-- `R14` route 阶段失败（含 `labels.ip` 无匹配）MUST 映射为 `E_PROXY_TARGET_NOT_FOUND`。
-- `R15` `E_PROXY_REQUEST_FAILED` MUST 仅允许在 request 阶段产生。
+- `SEMAPHORE_INSUFFICIENT_PERMS` 仍映射为 acquire 阶段的可恢复失败。
+- 删除 allowlist 后，`empty_pool` 不再包含“白名单为空”这一原因分支，只保留“当前 host 视图中无可用 proxy IP”。
 
-### 重试语义
+## 安全考虑
 
-- `E_PROXY_BUCKET_EXHAUSTED` SHOULD 使用短退避 + 抖动重试。
-- `E_PROXY_TARGET_NOT_FOUND` SHOULD 使用长退避并触发告警。
-- `E_PROXY_REQUEST_FAILED` MAY 按 vendor 既有请求重试策略执行。
-- `E_BUCKET_OPTIONS_CONFLICT` MUST NOT 自动重试。
+### 结论
 
-## Security Considerations
+风险分级为 Medium。
 
-- `labels.ip` MUST 仅来自 helper 选择结果，不接受外部透传。
-- proxy IP 来源 MUST 限定 `ip_source=http-services`。
-- IP 文本 MUST 通过格式校验（IPv4/IPv6）；非法值不得参与 `bucketKey`。
-- MUST 控制 key cardinality，防止异常标签放大 bucket 数量。
-- MUST 对错误日志做限频，避免失败风暴导致资源耗尽。
+理由：
 
-## Backward Compatibility & Rollout
+1. 变更会扩大同 host 网络内默认可用的 proxy 范围，从“显式 allowlist”变为“host 内默认互信”。
+2. 但实际 trust boundary 已由用户明确上移到 host 网络，本次只是让实现与该模型对齐；影响面主要集中在 `http-services`/`http-proxy`/`vendor-binance`。
+3. 现有安全控制仍保留两道最小约束：必须是 `HTTPProxy` 服务，且 `tags.ip`/`ip_source` 必须合法。
 
-### 模式命名（固定）
+安全要求：
 
-- `legacy_rr_single_try`: 现网旧行为，仅单次 acquire。
-- `rr_multi_try`: 方案 A，RR 候选 + 多次 acquire。
-- `helper_acquire_proxy_bucket`: 方案 B，统一 helper。
+- MUST 校验 `tags.ip` 为合法 IP，非法值不得进入候选池。
+- MUST 校验 `tags.ip_source === 'http-services'`，避免把未注入或脏标签当作路由键。
+- MUST 对 IP 候选按 `ip` 去重，避免通过 terminal fan-out 放大 bucket cardinality。
+- MUST NOT 以 `terminal_id` 作为授权、白名单、路由 pin 或稳定身份。
+- SHOULD 在文档中明确：若未来需要隔离不同代理租户，必须在 host 级接入面做隔离，而不是恢复 terminal allowlist。
 
-### 默认值 / 灰度值 / 回滚值
+## 向后兼容、发布与回滚
 
-- 默认值（新部署）: `rr_multi_try`。
-- 灰度值（目标）: `helper_acquire_proxy_bucket`。
-- 回滚值（故障）: `legacy_rr_single_try`。
+### 向后兼容
 
-### 最小可执行灰度步骤
+- `TRUSTED_HTTP_PROXY_TERMINAL_IDS` 从本次开始失效并从实现中删除。
+- `AcquireProxyBucketResult.terminalId` 删除，属于编译期可发现的不兼容变更。
+- 代理请求不再发送 `labels.terminal_id`；只要 `HTTPProxy` 服务按 `labels.ip` 路由，行为即保持可用。
 
-1. 在 `vendor-binance` 选定 1-2 个高频 endpoint，模式从 `rr_multi_try` 切到 `helper_acquire_proxy_bucket`。
-2. 连续观测 30 分钟窗口：`E_PROXY_BUCKET_EXHAUSTED`、`E_PROXY_TARGET_NOT_FOUND`、429、请求成功率。
-3. 指标劣化超阈值时，5 分钟内切回 `legacy_rr_single_try`，并保留同窗口对比数据。
+### 发布步骤
 
-## Observability
+1. 先修改 `http-services`：删除 allowlist 与 `terminalId` 返回值，更新 API report 与单测。
+2. 再修改 `apps/http-proxy`：移除服务标签中的 `terminal_id`。
+3. 最后修改 `apps/vendor-binance`：请求上下文与 `fetch.labels` 只保留 `ip`。
 
-必须输出以下指标：
+### 回滚策略
 
-- `proxy_bucket_acquire_total{base_key,ip,result}`。
-- `proxy_bucket_fallback_total{base_key}`（候选切换次数）。
-- `proxy_request_total{base_key,ip,status_code}`。
-- `proxy_error_total{stage,error_code,base_key}`。
-- `bucket_options_conflict_total{base_key,bucket_key}`。
+- 若新逻辑出现异常，回滚到上一个 commit/版本；不再保留运行时开关恢复 terminal allowlist。
+- 回滚判据：`E_PROXY_TARGET_NOT_FOUND` 异常升高且排查确认为 host 网络内标签/路由不一致，而非容量耗尽。
 
-要求：错误类指标 MUST 包含 `stage={pool|acquire|route|request}` 与 `error_code` 维度。
+## 验证计划
 
-## Testability
+关键行为到测试/验收的映射如下：
 
-每条 MUST 需求映射测试断言：
+- `V1` 删除 allowlist 后，只要同 host 网络内存在合法 `HTTPProxy` + `ip_source=http-services` + 合法 `ip`，helper 就能拿到候选池。
+- `V2` `TRUSTED_HTTP_PROXY_TERMINAL_IDS` 即使设置，也不会影响候选结果。
+- `V3` helper 返回值不再包含 `terminalId`，API report 同步收敛。
+- `V4` vendor 代理请求只携带 `labels.ip`，不再携带 `labels.terminal_id`。
+- `V5` 同 IP 多 terminal 时，helper 只生成一个 `bucketKey`，不会因 terminal 数量放大 bucket。
+- `V6` 同 IP 多 terminal 时，请求只带 `labels.ip` 仍可成功路由到任一匹配代理。
+- `V7` 可承载组优先、失败切换、空池、全失败、options 冲突等旧 v2 行为保持不变。
+- `V8` `apps/http-proxy` 不再注册 `labels.terminal_id`；若仅按 `labels.ip` 路由无匹配，错误必须落到 `stage=route` / `E_PROXY_TARGET_NOT_FOUND`。
 
-- `T-R1`: 发送前必须先拿到 `{ip,bucketKey}`。
-- `T-R2`: helper 使用 `getBucketOptions(baseKey)`；缺失回调时构造失败。
-- `T-R3`: helper 无隐式默认 options；来源与现网 vendor 提供值一致。
-- `T-R4`: `bucketKey == encodePath([baseKey, ip])`。
-- `T-R5`: `labels.ip` 与 `bucketKey` 的 ip 一致。
-- `T-R6`: 首候选 acquire 失败后切换次候选并成功。
-- `T-R7`: 候选全失败返回 `E_PROXY_BUCKET_EXHAUSTED` 且无外发请求。
-- `T-R8`: 空池返回 `E_PROXY_TARGET_NOT_FOUND`。
-- `T-R9`: `SEMAPHORE_INSUFFICIENT_PERMS` 被映射为容量失败。
-- `T-R10`: 存在 `read() >= weight` 候选时优先尝试该组。
-- `T-R11`: 不同 `baseKey` 的状态互不影响。
-- `T-R12`: 同 `bucketKey` options 冲突时，`bucket_options_conflict_total` +1 且返回 `E_BUCKET_OPTIONS_CONFLICT`。
-- `T-R13`: 非 proxy 模式不触发 proxy 调度。
-- `T-R14` (负例): acquire 成功后若 `labels.ip` 无匹配，必须返回 `E_PROXY_TARGET_NOT_FOUND`。
-- `T-R15` (负例): request 阶段之前不得返回 `E_PROXY_REQUEST_FAILED`。
+建议最小测试集合：
 
-覆盖场景至少包括：高权重请求、多 IP 余量不均、IP 下线、空池、route 无匹配、options 冲突。
+1. `proxy-ip.test.ts`
+   - 删除“allowlist 为空 fail-closed”断言。
+   - 新增“环境变量存在但被忽略”断言。
+   - 新增“同 IP 多 terminal 去重后只创建一个 bucket”断言。
+   - 新增“所有导出 helper 统一忽略 allowlist/env 分支”的等价覆盖。
+2. `client`/vendor 测试
+   - 断言代理请求只传 `labels.ip`。
+   - 断言 `IRequestContext` 不再暴露 `terminalId`。
+   - 断言 `apps/http-proxy` 服务标签不再包含 `terminal_id`。
+   - 新增最小 route 验收：两个 `HTTPProxy` terminal 共享同一 IP 时，请求仅带 `labels.ip` 仍可成功；若 `labels.ip` 无匹配，则返回 `stage=route` / `E_PROXY_TARGET_NOT_FOUND`。
+3. 构建验收
+   - `libraries/http-services` 单测通过。
+   - `apps/vendor-binance` 构建通过。
 
-## Open Questions
+## 开放问题
 
-1. `cooldown` 参数是否需要按交易所或 endpoint 分层配置（当前先固定默认值）？
-2. `acquireProxyBucket` 是否需要返回 `attemptedIps` 用于调试追踪（不影响主流程）？
+1. 当前保留 `ip_source === 'http-services'` 作为最小标签可信信号；若未来同样被证明不够稳定，需另起 RFC 讨论 host 级签名/鉴权方案。
+2. 同 IP 多 terminal 的随机命中是否需要额外 observability（如命中 terminal 分布）？本次不是阻塞项。
 
-## Plan
+## 落地计划
 
-### 核心流程
+### 文件变更点
 
-1. 在 `http-services` 暴露统一入口：`acquireProxyBucket(input)`，强制 `getBucketOptions` 输入。
-2. helper 执行：`IPPool` 获取 -> 可承载组优先 -> acquire 多次尝试 -> 返回 `{ip,bucketKey}` 或标准错误。
-3. vendor 仅消费返回值并发请求，错误按阶段归属表统一处理。
+- `libraries/http-services/src/proxy-ip.ts`
+  - 删除 `TRUSTED_HTTP_PROXY_TERMINAL_IDS` 常量、缓存、解析与 allowlist 过滤。
+  - 将候选池逻辑改为“host 内全部 HTTPProxy terminal + IP 去重”，并抽成统一候选构造函数供全部导出 helper 复用。
+  - 删除 `AcquireProxyBucketResult.terminalId`。
+- `libraries/http-services/src/client.ts`
+  - 文档与接口注释更新为“路由依赖 `labels.ip`，不依赖 `labels.terminal_id`”。
+- `libraries/http-services/src/index.ts`
+  - 仅确认导出面与收敛后的类型一致。
+- `libraries/http-services/src/__tests__/proxy-ip.test.ts`
+  - 删除 allowlist 相关测试；补充“env 被忽略”“同 IP 去重”测试。
+- `libraries/http-services/src/__tests__/client.test.ts`
+  - 维持 route/request 错误阶段断言，并确认请求标签仅包含 `ip`。
+- `libraries/http-services/src/__tests__/integration.test.ts`
+  - 补充“同 IP 多 terminal 时仅按 `labels.ip` 仍可成功路由”的最小自动化验收。
+- `libraries/http-services/etc/http-services.api.md`
+  - 删除 `AcquireProxyBucketResult.terminalId`。
+- `apps/http-proxy/src/index.ts`
+  - 删除 `labels.terminal_id` 注入，并把“服务标签仅保留 `ip`/`hostname` 观测维度”作为硬验收。
+- `apps/vendor-binance/src/api/client.ts`
+  - 删除 `IRequestContext.terminalId`。
+  - 删除对 `AcquireProxyBucketResult.terminalId` 的消费。
+  - 代理请求标签只保留 `{ ip }`。
 
-### 接口定义
+### 最小验证步骤
 
-- `listHTTPProxyIps(terminal): string[]`（现有）
-- `selectHTTPProxyIpRoundRobinAsync(terminal): Promise<string>`（现有，回滚模式保留）
-- `acquireProxyBucket(input: AcquireProxyBucketInput): { ip: string; bucketKey: string } | throws ProxyBucketError`（新增）
+1. 跑 `libraries/http-services` 单测，确认去 allowlist 后候选池/去重/旧错误语义仍通过。
+2. 跑 `apps/vendor-binance` 构建，确认类型收敛没有残留 `terminalId` 依赖。
+3. 自动化验证：两个同 host 的 `HTTPProxy` terminal 共享同一 IP 时，请求只带 `labels.ip` 仍可成功；若无匹配，必须得到 `stage=route` / `E_PROXY_TARGET_NOT_FOUND`。
+4. 如有条件，再做一次本地 smoke：确认任一 terminal 可被路由命中且 bucketKey 仍只按 IP 维度变化。
 
-### 文件变更明细（设计范围）
+## 发现的类似 `terminal_id` 依赖与处置建议
 
-- `libraries/http-services`: 增加 `acquireProxyBucket` 与冲突观测、阶段错误映射。
-- `apps/vendor-binance`: 接入 helper 与模式开关（仅设计约束，不含实现细节）。
-- `apps/http-proxy`: 维持 `tags.ip + ip_source=http-services` 契约。
+以下位置仍把 `terminal_id` 放在 HTTPProxy 相关链路中，应在本次实现内一并收敛或至少明确不再承担 trust 语义：
 
-### 验证策略
+1. `apps/http-proxy/src/index.ts`
+   - 当前把 `terminal.terminal_id` 注入服务 `labels.terminal_id`。
+   - 处置建议：删除该标签；保留 `hostname` 作为观测即可。
+2. `apps/vendor-binance/src/api/client.ts`
+   - 当前消费 helper 返回的 `terminalId`，并把它写入请求 `labels.terminal_id`。
+   - 处置建议：删除 `terminalId` 字段与对应标签，只按 `labels.ip` 路由。
+3. `libraries/http-services/src/proxy-ip.ts`
+   - 当前以 allowlist 和返回值形式把 `terminal_id` 用作候选准入与稳定身份。
+   - 处置建议：本次直接删除；后续 `terminal_id` 仅允许用于日志、指标、缓存命名空间，不得进入 trust decision。
 
-1. 单测覆盖 `T-R1` 到 `T-R15`（含两条负例）。
-2. 集成测试验证 `bucketKey.ip == labels.ip` 与 stage 错误码边界。
-3. 灰度验证按 30 分钟窗口执行，出现劣化按回滚值切换。
+以下位置也出现 `terminal_id`，但本次判断不属于“trust boundary/稳定身份”问题，可暂不改：
+
+- `libraries/http-services/src/proxy-ip.ts` 中以 `terminal.terminal_id` 区分本地缓存命名空间或日志上下文；这类用途不参与授权与路由，可保留。
+- 协议层 `libraries/protocol/*` 中的 `terminal_id` 仍是消息寻址字段，不在本 RFC 调整范围。

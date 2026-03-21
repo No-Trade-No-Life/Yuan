@@ -79,6 +79,33 @@ describe('fetch', () => {
     ).rejects.toThrow('E_PROXY_TARGET_NOT_FOUND');
   });
 
+  it('should pass through only labels.ip for proxy routing', async () => {
+    jest.spyOn(terminal.client, 'requestForResponse').mockResolvedValue({
+      code: 0,
+      message: 'OK',
+      data: {
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        body: '',
+        ok: true,
+        url: 'https://api.example.com/data',
+      },
+    });
+
+    await fetch('https://api.example.com/data', {
+      labels: { ip: '10.0.0.1' },
+      terminal,
+    });
+
+    expect(terminal.client.requestForResponse).toHaveBeenCalledWith(
+      'HTTPProxy',
+      expect.objectContaining({
+        labels: { ip: '10.0.0.1' },
+      }),
+    );
+  });
+
   it('should map request stage failure to E_PROXY_REQUEST_FAILED', async () => {
     jest.spyOn(terminal.client, 'requestForResponse').mockResolvedValue({
       code: 500,

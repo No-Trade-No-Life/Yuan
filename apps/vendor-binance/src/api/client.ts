@@ -28,7 +28,6 @@ type RequestParams = Record<string, string | number | boolean | undefined>;
 
 export interface IRequestContext {
   ip: string;
-  terminalId?: string;
   bucketKey: string;
   acquireWeight: number;
 }
@@ -110,7 +109,7 @@ const resolveLocalPublicIp = (): string => {
 
 export const createRequestContext = async (baseKey: string, weight: number): Promise<IRequestContext> => {
   if (shouldUseHttpProxy) {
-    const { ip, terminalId, bucketKey } = acquireProxyBucket({
+    const { ip, bucketKey } = acquireProxyBucket({
       baseKey,
       weight,
       terminal,
@@ -126,7 +125,7 @@ export const createRequestContext = async (baseKey: string, weight: number): Pro
         return options;
       },
     });
-    return { ip, terminalId, bucketKey, acquireWeight: 0 };
+    return { ip, bucketKey, acquireWeight: 0 };
   }
   const ip = resolveLocalPublicIp();
   return {
@@ -214,19 +213,13 @@ const callApi = async <T>(
   MetricBinanceApiCounter.labels({ path: url.pathname, terminal_id: terminal.terminal_id }).inc();
 
   const proxyIp = shouldUseHttpProxy ? requestContext?.ip : undefined;
-  const proxyTerminalId = shouldUseHttpProxy ? requestContext?.terminalId : undefined;
   const res = await fetchImpl(
     url.href,
     shouldUseHttpProxy
       ? {
           method,
           headers,
-          labels:
-            proxyIp && proxyTerminalId
-              ? { ip: proxyIp, terminal_id: proxyTerminalId }
-              : proxyIp
-              ? { ip: proxyIp }
-              : undefined,
+          labels: proxyIp ? { ip: proxyIp } : undefined,
           terminal,
         }
       : {

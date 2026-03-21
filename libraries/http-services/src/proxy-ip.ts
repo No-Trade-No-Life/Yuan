@@ -12,7 +12,6 @@ import { isIP } from 'net';
 const DEFAULT_IP_FETCH_URL = 'https://ifconfig.me/ip';
 const MISSING_IP_LOG_INTERVAL = 3_600_000;
 const TRUSTED_PROXY_IP_SOURCE = 'http-services';
-const TRUSTED_PROXY_TERMINAL_IDS_ENV = 'TRUSTED_HTTP_PROXY_TERMINAL_IDS';
 const PROXY_IP_WAIT_TIMEOUT_MS = 30_000;
 const BucketOptionsConflictTotal = GlobalPrometheusRegistry.counter('bucket_options_conflict_total', '');
 const MAX_BASE_KEY_CURSOR_STATES = 1024;
@@ -24,9 +23,10 @@ type BucketOptionsFingerprintState = {
   updatedAt: number;
 };
 
-type HTTPProxyTarget = {
+type HTTPProxyCandidate = {
   terminalId: string;
   ip: string;
+  ipSource?: string;
 };
 
 const parseBoundedPositiveInteger = (value: string | undefined, fallback: number): number => {
@@ -45,26 +45,6 @@ const BUCKET_OPTIONS_FINGERPRINT_TTL_MS = parseBoundedPositiveInteger(
 );
 
 const bucketOptionsFingerprintByKey = new Map<string, BucketOptionsFingerprintState>();
-
-let trustedProxyTerminalIdsCache = {
-  raw: '',
-  ids: new Set<string>(),
-};
-
-const getTrustedProxyTerminalIds = (): Set<string> => {
-  const raw = (process.env[TRUSTED_PROXY_TERMINAL_IDS_ENV] ?? '').trim();
-  if (raw === trustedProxyTerminalIdsCache.raw) {
-    return trustedProxyTerminalIdsCache.ids;
-  }
-  const ids = new Set(
-    raw
-      .split(',')
-      .map((item) => item.trim())
-      .filter((item) => item.length > 0),
-  );
-  trustedProxyTerminalIdsCache = { raw, ids };
-  return ids;
-};
 
 const cleanupBucketOptionsFingerprints = (now: number): void => {
   if (bucketOptionsFingerprintByKey.size > 0) {
@@ -131,16 +111,6 @@ const getRoundRobinOrderedIps = (terminal: Terminal, baseKey: string, ips: strin
   return [...ips.slice(index), ...ips.slice(0, index)];
 };
 
-const getRoundRobinOrderedTargets = (
-  terminal: Terminal,
-  baseKey: string,
-  targets: HTTPProxyTarget[],
-): HTTPProxyTarget[] => {
-  if (!targets.length) return targets;
-  const index = getRoundRobinStartIndex(terminal, baseKey, targets.length);
-  return [...targets.slice(index), ...targets.slice(0, index)];
-};
-
 const ensureBucketOptionsConsistent = (
   baseKey: string,
   bucketKey: string,
@@ -185,32 +155,34 @@ export type AcquireProxyBucketInput = {
  */
 export type AcquireProxyBucketResult = {
   ip: string;
-  terminalId: string;
   bucketKey: string;
 };
 
-const listTrustedHTTPProxyTargetsSnapshot = (terminal: Terminal): HTTPProxyTarget[] => {
-  const trustedProxyTerminalIds = getTrustedProxyTerminalIds();
-  if (!trustedProxyTerminalIds.size) return [];
-
-  return terminal.terminalInfos
+const listHTTPProxyCandidates = (terminal: Terminal): HTTPProxyCandidate[] =>
+  terminal.terminalInfos
     .filter((terminalInfo) => isHttpProxyTerminal(terminalInfo))
     .map((terminalInfo) => ({
       terminalInfo,
       ip: normalizeIp(terminalInfo.tags?.ip),
       ipSource: terminalInfo.tags?.ip_source,
     }))
-    .filter(
-      ({ terminalInfo, ip, ipSource }) =>
-        trustedProxyTerminalIds.has(terminalInfo.terminal_id) &&
-        ipSource === TRUSTED_PROXY_IP_SOURCE &&
-        ip.length > 0,
-    )
     .sort((a, b) => a.terminalInfo.terminal_id.localeCompare(b.terminalInfo.terminal_id))
-    .map(({ terminalInfo, ip }) => ({
+    .map(({ terminalInfo, ip, ipSource }) => ({
       terminalId: terminalInfo.terminal_id,
       ip,
+      ipSource,
     }));
+
+const listTrustedHTTPProxyIpsSnapshot = (terminal: Terminal): string[] => {
+  const ips: string[] = [];
+  const seenIps = new Set<string>();
+  for (const candidate of listHTTPProxyCandidates(terminal)) {
+    if (!candidate.ip || candidate.ipSource !== TRUSTED_PROXY_IP_SOURCE) continue;
+    if (seenIps.has(candidate.ip)) continue;
+    seenIps.add(candidate.ip);
+    ips.push(candidate.ip);
+  }
+  return ips;
 };
 
 /**
@@ -234,8 +206,8 @@ export const acquireProxyBucket = (input: AcquireProxyBucketInput): AcquireProxy
     });
   }
 
-  const targets = listTrustedHTTPProxyTargetsSnapshot(terminal);
-  if (!targets.length) {
+  const ips = listTrustedHTTPProxyIpsSnapshot(terminal);
+  if (!ips.length) {
     throw newError('E_PROXY_TARGET_NOT_FOUND', {
       stage: 'pool',
       reason: 'empty_pool',
@@ -243,25 +215,18 @@ export const acquireProxyBucket = (input: AcquireProxyBucketInput): AcquireProxy
       terminal_id: terminal.terminal_id,
     });
   }
-
-  const orderedTargets = getRoundRobinOrderedTargets(terminal, baseKey, targets);
-  const seenBucketKeys = new Set<string>();
-  const candidates = orderedTargets
-    .map((target) => {
-      const bucketKey = encodePath([baseKey, target.ip]);
-      if (seenBucketKeys.has(bucketKey)) return undefined;
-      seenBucketKeys.add(bucketKey);
-
-      ensureBucketOptionsConsistent(baseKey, bucketKey, bucketOptions);
-      const bucket = tokenBucket(bucketKey, bucketOptions);
-      return {
-        target,
-        bucketKey,
-        bucket,
-        available: bucket.read(),
-      };
-    })
-    .filter((candidate): candidate is Exclude<typeof candidate, undefined> => candidate !== undefined);
+  const orderedIps = getRoundRobinOrderedIps(terminal, baseKey, ips);
+  const candidates = orderedIps.map((ip) => {
+    const bucketKey = encodePath([baseKey, ip]);
+    ensureBucketOptionsConsistent(baseKey, bucketKey, bucketOptions);
+    const bucket = tokenBucket(bucketKey, bucketOptions);
+    return {
+      ip,
+      bucketKey,
+      bucket,
+      available: bucket.read(),
+    };
+  });
   const preferred = candidates.filter((candidate) => candidate.available >= weight);
   const fallback = candidates.filter((candidate) => candidate.available < weight);
 
@@ -270,8 +235,7 @@ export const acquireProxyBucket = (input: AcquireProxyBucketInput): AcquireProxy
     try {
       candidate.bucket.acquireSync(weight);
       return {
-        ip: candidate.target.ip,
-        terminalId: candidate.target.terminalId,
+        ip: candidate.ip,
         bucketKey: candidate.bucketKey,
       };
     } catch (error) {
@@ -286,8 +250,7 @@ export const acquireProxyBucket = (input: AcquireProxyBucketInput): AcquireProxy
           reason: 'unexpected_acquire_error',
           base_key: baseKey,
           bucket_key: candidate.bucketKey,
-          terminal_id: candidate.target.terminalId,
-          ip: candidate.target.ip,
+          ip: candidate.ip,
           weight,
         },
         error,
@@ -516,70 +479,34 @@ const shouldRefreshFromEvents = (
   events.some(([oldInfo, newInfo]) => isHttpProxyTerminal(oldInfo) || isHttpProxyTerminal(newInfo));
 
 const rebuildProxyIpCache = (terminal: Terminal, cache: ProxyIpCache) => {
-  const trustedProxyTerminalIds = getTrustedProxyTerminalIds();
-  const candidates = terminal.terminalInfos
-    .filter((terminalInfo) => isHttpProxyTerminal(terminalInfo))
-    .map((terminalInfo) => ({
-      terminalInfo,
-      ip: normalizeIp(terminalInfo.tags?.ip),
-      ipSource: terminalInfo.tags?.ip_source,
-    }))
-    .sort((a, b) => a.terminalInfo.terminal_id.localeCompare(b.terminalInfo.terminal_id));
-
-  const signature = candidates
-    .map(({ terminalInfo, ip, ipSource }) => `${terminalInfo.terminal_id}:${ip}:${ipSource ?? ''}`)
-    .join('|');
+  const candidates = listHTTPProxyCandidates(terminal);
+  const nextIps = listTrustedHTTPProxyIpsSnapshot(terminal);
+  const signature = nextIps.join('|');
   if (signature === cache.signature) {
     cache.ready = true;
     return;
   }
 
-  const nextIps: string[] = [];
   const now = Date.now();
-  if (trustedProxyTerminalIds.size === 0) {
-    const lastLoggedAt = cache.lastMissingIpLogAt.get('__trusted_proxy_terminal_ids_missing__') ?? 0;
-    if (now - lastLoggedAt > MISSING_IP_LOG_INTERVAL) {
-      cache.lastMissingIpLogAt.set('__trusted_proxy_terminal_ids_missing__', now);
-      console.info(
-        formatTime(Date.now()),
-        '[http-services] TRUSTED_HTTP_PROXY_TERMINAL_IDS is empty, deny all proxy terminals',
-      );
-    }
-  }
-  for (const { terminalInfo, ip, ipSource } of candidates) {
-    if (!trustedProxyTerminalIds.has(terminalInfo.terminal_id)) {
-      const lastLoggedAt =
-        cache.lastMissingIpLogAt.get(`__untrusted_terminal__:${terminalInfo.terminal_id}`) ?? 0;
-      if (now - lastLoggedAt > MISSING_IP_LOG_INTERVAL) {
-        cache.lastMissingIpLogAt.set(`__untrusted_terminal__:${terminalInfo.terminal_id}`, now);
-        console.info(
-          formatTime(Date.now()),
-          '[http-services] http-proxy terminal not in trusted allowlist',
-          terminalInfo.terminal_id,
-        );
-      }
-      continue;
-    }
-
+  for (const { terminalId, ip, ipSource } of candidates) {
     if (ip && ipSource === TRUSTED_PROXY_IP_SOURCE) {
-      nextIps.push(ip);
       continue;
     }
-    const lastLoggedAt = cache.lastMissingIpLogAt.get(terminalInfo.terminal_id) ?? 0;
+    const lastLoggedAt = cache.lastMissingIpLogAt.get(terminalId) ?? 0;
     if (now - lastLoggedAt > MISSING_IP_LOG_INTERVAL) {
-      cache.lastMissingIpLogAt.set(terminalInfo.terminal_id, now);
+      cache.lastMissingIpLogAt.set(terminalId, now);
       console.info(
         formatTime(Date.now()),
         ip
           ? '[http-services] http-proxy terminal ip source not trusted'
           : '[http-services] http-proxy terminal missing ip label',
-        terminalInfo.terminal_id,
+        terminalId,
       );
     }
   }
 
   cache.signature = signature;
-  cache.ips = Array.from(new Set(nextIps));
+  cache.ips = nextIps;
   if (cache.cursor >= cache.ips.length) {
     cache.cursor = 0;
   }

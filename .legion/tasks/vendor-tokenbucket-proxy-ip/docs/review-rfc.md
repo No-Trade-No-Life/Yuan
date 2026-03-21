@@ -1,45 +1,39 @@
-# RFC 对抗审查报告: Proxy IP TokenBucket v2（最终只读复审）
+# RFC 审查报告
 
 目标文档: `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/rfc.md`
-审查日期: 2026-02-07
-原则: 奥卡姆剃刀（逐条质疑必要性/假设/边界/复杂度，优先最小复杂度收敛）
+审查日期: 2026-03-21
+审查原则: 奥卡姆剃刀（复核上一轮 4 个 blocking 是否已用最小复杂度闭环）
 
 ## 结论
 
-`PASS`
+PASS
 
-当前文本已满足进入设计门禁的三个必要条件：
+本轮只读复审确认：上一轮提出的 4 个 blocking 已全部闭环，当前 RFC 已满足可实现、可验证、可回滚的设计门槛。
 
-- 可实现：输入边界、状态机、错误阶段、模式切换都已收敛为可编码约束。
-- 可验证：`R1-R15` 与 `T-R1-T-R15` 一一映射，负例断言覆盖关键失败路径。
-- 可回滚：模式命名、默认/灰度/回滚值与观测窗口已明确定义，可执行回切。
+## 闭环复核
 
-## 关键收敛检查（只读结论）
+### 1. 所有导出 helper 统一 trust model
 
-1. 设计必要性
+- 已闭环。
+- RFC 在目标与“候选池与去重”两处都明确要求：`libraries/http-services/src/proxy-ip.ts` 内所有导出的 HTTPProxy 候选枚举/选择 helper 必须统一复用同一个“host 内默认互信 + 合法 ip + ip_source=http-services + IP 去重”的候选构造逻辑，不允许部分链路继续保留 allowlist/env/cache/log 分支。参见 `rfc.md:26`、`rfc.md:78`、`rfc.md:290`。
 
-- `acquireProxyBucket` 作为统一入口保留，避免 vendor 侧重复实现与语义漂移，复杂度收益比成立。
+### 2. 删除 `apps/http-proxy` 的 `labels.terminal_id` 已写成硬门槛
 
-2. 设计假设与边界
+- 已闭环。
+- RFC 已把该要求从正文偏好升级为 MUST，并写入目标、标签契约、验证计划与文件变更点，形成独立验收门槛。参见 `rfc.md:29`、`rfc.md:194`、`rfc.md:261`、`rfc.md:301`。
 
-- options 来源固定为 `getBucketOptions(baseKey)`，消除了 helper 隐式默认配置的歧义。
-- 错误边界通过 `pool|acquire|route|request` 归属表与 `R14/R15` 封闭，无跨阶段吞并。
+### 3. `AcquireProxyBucketResult` / `IRequestContext` / API report 的 `terminalId` 收敛已写成同改同验 gate
 
-3. 复杂度控制
+- 已闭环。
+- RFC 新增了明确 gate：三处删除 `terminalId` 必须同次落地、同次验证，禁止半改状态；同时在验证计划与文件变更点中都有对应落点。参见 `rfc.md:126`、`rfc.md:186`、`rfc.md:256`、`rfc.md:299`、`rfc.md:303`。
 
-- 三模式并存但职责清晰：`helper_acquire_proxy_bucket`（目标）、`rr_multi_try`（默认）、`legacy_rr_single_try`（回滚）。
-- 未引入中心化状态或新持久化依赖，保持实现最小侵入。
+### 4. 新增了最小自动化 route 验收
 
-## 可选优化（非阻塞）
+- 已闭环。
+- RFC 已把“两个 `HTTPProxy` terminal 共享同一 IP 时，仅带 `labels.ip` 仍可成功；无匹配时返回 `stage=route` / `E_PROXY_TARGET_NOT_FOUND`”写入验证计划、建议测试集合与最小验证步骤，不再只是 smoke 建议。参见 `rfc.md:259`、`rfc.md:261`、`rfc.md:274`、`rfc.md:311`。
 
-1. 为 `T-R10` 增加并发判定锚点
+## 结论说明
 
-- 建议在测试描述中明确“以候选构造时 `read()` 快照分组”为断言基准，减少高并发抖动。
-
-2. 明确模式开关配置落点
-
-- 建议在 Rollout 补一行“配置键路径/环境变量名”，降低运维误配概率。
-
-3. 补充最小观测样例
-
-- 建议在 Observability 增加 1 条示例日志字段（`stage,error_code,base_key,ip`），便于跨团队对齐。
+- 当前文本已经把旧 trust model 的关键残留点都收敛成硬约束，而不是实现者自行理解。
+- 没有新增不必要抽象；修订都集中在 scope 内现有 helper、标签契约、类型导出和测试门槛，复杂度增量可接受。
+- 本轮无新增 blocking。

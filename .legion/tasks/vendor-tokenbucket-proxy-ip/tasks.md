@@ -18,3 +18,9 @@
 - [x] 阶段 A：工程实现完成（http-services/http-proxy/vendor-binance + 单测）
 - [x] 阶段 B：验证与审查完成（run-tests PASS / review-code PASS / review-security PASS）
 - [x] 阶段 C：报告生成完成（report-walkthrough-impl.md / pr-body-impl.md）
+- [x] continue：修订 RFC，删除 `terminal_id` allowlist / route pin，review-rfc PASS
+- [x] continue：移除 `TRUSTED_HTTP_PROXY_TERMINAL_IDS` 与 `AcquireProxyBucketResult.terminalId`
+- [x] continue：`apps/http-proxy` / `vendor-binance` 只保留 `labels.ip` 路由
+- [x] continue：补充 env ignored / same-ip dedupe / labels.ip-only route 验收
+- [x] continue：验证完成（rush install、app-host build、http-services tests、targeted rush build、vendor-binance build）
+- [x] continue：报告生成完成（test-report / review-code / review-security / report-walkthrough / pr-body）

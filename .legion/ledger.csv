@@ -2227,3 +2227,30 @@
 2026-03-05T09:49:08.839Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-03-05T09:57:57.234Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 根据外部代码评审反馈修复高优问题：proxy 模式 `acquireWeight=0` 导致 `acquireSync(0)` 触发 `SEMAPHORE_INVALID_ACQUIRE_PERMS`。,success
 2026-03-05T12:17:12.800Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 根据 reviewer 反馈对齐 tokenBucket async/sync 语义：`acquire(0)` 与 `acquireSync(0)` 均为 no-op，负数仍报错。,success
+2026-03-21T13:09:56.906Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-03-21T13:10:02.370Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-03-21T13:19:12.482Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-03-21T13:19:12.500Z,legion_list_reviews,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,status: open,success
+2026-03-21T13:21:08.732Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 移除 `TRUSTED_HTTP_PROXY_TERMINAL_IDS` 白名单并复核同链路中的 terminal_id 依赖,success
+2026-03-21T13:21:08.759Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,setCurrentTask: 移除 proxy terminal allowlist，收敛同链路 terminal_id 依赖,success
+2026-03-21T13:21:08.786Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDecision: 接受用户新的信任模型：同一 host 网络中的 terminal 默认互信，移除以 `terminal_id` 为维度的 HTTPProxy 白名单设计。,success
+2026-03-21T13:21:08.795Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-03-21T13:21:52.064Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-03-21T13:21:52.087Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-03-21T13:25:33.965Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-03-21T13:25:33.973Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-03-21T13:33:06.275Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-03-21T13:33:06.301Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-03-21T13:49:23.783Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: continue：移除 HTTPProxy 的 terminal allowlist 与 `labels.terminal_id` 耦合,success
+2026-03-21T13:49:23.787Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,setCurrentTask: continue：移除 HTTPProxy 的 terminal allowlist 与 `labels.terminal_id` 耦合,success
+2026-03-21T13:50:23.986Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-03-21T13:50:24.008Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-03-21T13:53:17.960Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-03-21T13:53:17.999Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-03-21T13:55:53.520Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-03-21T13:55:53.527Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-03-21T13:58:23.953Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 按用户指定的 host 内互信模型重写并复审 RFC，删除 `terminal_id` allowlist / route pin 设计，review-rfc 结论 PASS。,success
+2026-03-21T13:58:23.997Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDecision: 在当前部署模型下，HTTPProxy 候选信任边界上移到 host 网络：删除 `terminal_id` allowlist 与 route pin，代理链路统一只按 `ip` 选路/限流。,success
+2026-03-21T13:58:24.002Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addConstraint: `terminal_id`、`hostname`、`ip_source` 只允许用于观测、缓存、诊断上下文，不得重新进入 HTTPProxy trust boundary 或自动 route pin。,success
+2026-03-21T13:58:24.033Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addFile: .legion/playbook.md,success
+2026-03-21T13:58:24.036Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,handoff: 如需提交/开 PR，可直接使用 `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/pr-body.md` 作为 PR 描述。,success
