@@ -8,7 +8,7 @@ jest.mock('@yuants/utils', () => {
   };
 });
 
-import { acquireProxyBucket } from '../proxy-ip';
+import { acquireProxyBucket, listHTTPProxyIps } from '../proxy-ip';
 import { encodePath, tokenBucket } from '@yuants/utils';
 
 const TRUSTED_PROXY_TERMINAL_IDS_ENV = 'TRUSTED_HTTP_PROXY_TERMINAL_IDS';
@@ -22,25 +22,29 @@ const mockTokenBucket = tokenBucket as unknown as jest.Mock;
 
 const originalTrustedProxyTerminalIds = process.env[TRUSTED_PROXY_TERMINAL_IDS_ENV];
 
-const createTerminal = (terminalId: string, ips: string[]): Terminal =>
+const createTerminal = (
+  terminalId: string,
+  entries: Array<{ ip: string; ipSource?: string }> | string[],
+): Terminal =>
   ({
     terminal_id: terminalId,
-    terminalInfos: ips.map((ip, index) => ({
-      terminal_id: `${terminalId}-proxy-${index + 1}`,
-      tags: { ip, ip_source: 'http-services' },
-      serviceInfo: {
-        [`HTTPProxy-${index + 1}`]: {
-          method: 'HTTPProxy',
-          schema: { type: 'object' },
+    terminalInfos: entries.map((entry, index) => {
+      const normalizedEntry = typeof entry === 'string' ? { ip: entry, ipSource: 'http-services' } : entry;
+      return {
+        terminal_id: `${terminalId}-proxy-${index + 1}`,
+        tags: {
+          ip: normalizedEntry.ip,
+          ...(normalizedEntry.ipSource === undefined ? {} : { ip_source: normalizedEntry.ipSource }),
         },
-      },
-    })),
+        serviceInfo: {
+          [`HTTPProxy-${index + 1}`]: {
+            method: 'HTTPProxy',
+            schema: { type: 'object' },
+          },
+        },
+      };
+    }),
   } as unknown as Terminal);
-
-const allowTerminalProxies = (terminal: Terminal): void => {
-  const trustedTerminalIds = terminal.terminalInfos.map((info) => info.terminal_id).join(',');
-  process.env[TRUSTED_PROXY_TERMINAL_IDS_ENV] = trustedTerminalIds;
-};
 
 describe('acquireProxyBucket', () => {
   beforeEach(() => {
@@ -58,7 +62,6 @@ describe('acquireProxyBucket', () => {
 
   it('should prioritize candidates with read() >= weight', () => {
     const terminal = createTerminal('terminal-priority', ['10.0.0.1', '10.0.0.2', '10.0.0.3']);
-    allowTerminalProxies(terminal);
     const attempts: string[] = [];
     const bucketsByKey = new Map<string, MockBucket>([
       [
@@ -110,7 +113,6 @@ describe('acquireProxyBucket', () => {
 
   it('should switch to next candidate when acquireSync fails', () => {
     const terminal = createTerminal('terminal-switch', ['10.0.1.1', '10.0.1.2']);
-    allowTerminalProxies(terminal);
     const attempts: string[] = [];
     const bucketsByKey = new Map<string, MockBucket>([
       [
@@ -153,7 +155,6 @@ describe('acquireProxyBucket', () => {
 
   it('should throw E_PROXY_TARGET_NOT_FOUND when pool is empty', () => {
     const terminal = createTerminal('terminal-empty', []);
-    process.env[TRUSTED_PROXY_TERMINAL_IDS_ENV] = 'terminal-empty-proxy-1';
 
     expect(() =>
       acquireProxyBucket({
@@ -167,7 +168,6 @@ describe('acquireProxyBucket', () => {
 
   it('should throw E_PROXY_BUCKET_EXHAUSTED when all candidates fail', () => {
     const terminal = createTerminal('terminal-exhausted', ['10.0.2.1', '10.0.2.2']);
-    allowTerminalProxies(terminal);
     const bucketsByKey = new Map<string, MockBucket>([
       [
         encodePath(['exhausted-base', '10.0.2.1']),
@@ -207,7 +207,6 @@ describe('acquireProxyBucket', () => {
 
   it('should throw E_BUCKET_OPTIONS_CONFLICT for same bucketKey options mismatch', () => {
     const terminal = createTerminal('terminal-conflict', ['10.0.3.1']);
-    allowTerminalProxies(terminal);
 
     mockTokenBucket.mockImplementation(() => {
       return {
@@ -235,7 +234,6 @@ describe('acquireProxyBucket', () => {
 
   it('should maintain independent round robin cursor for different baseKey', () => {
     const terminal = createTerminal('terminal-r11', ['10.0.4.1', '10.0.4.2']);
-    allowTerminalProxies(terminal);
 
     mockTokenBucket.mockImplementation(() => {
       return {
@@ -275,8 +273,9 @@ describe('acquireProxyBucket', () => {
     expect(keyB2.ip).toBe('10.0.4.2');
   });
 
-  it('should fail closed when trusted terminal allowlist is empty', () => {
-    const terminal = createTerminal('terminal-allowlist-empty', ['10.0.5.1']);
+  it('should ignore TRUSTED_HTTP_PROXY_TERMINAL_IDS when building candidates', () => {
+    const terminal = createTerminal('terminal-env-ignored', ['10.0.5.1']);
+    process.env[TRUSTED_PROXY_TERMINAL_IDS_ENV] = 'some-other-terminal';
 
     mockTokenBucket.mockImplementation(() => {
       return {
@@ -285,19 +284,21 @@ describe('acquireProxyBucket', () => {
       };
     });
 
-    expect(() =>
+    expect(
       acquireProxyBucket({
         baseKey: 'allowlist-base',
         weight: 1,
         terminal,
         getBucketOptions: () => ({ capacity: 100, refillAmount: 100, refillInterval: 60_000 }),
       }),
-    ).toThrow('E_PROXY_TARGET_NOT_FOUND');
+    ).toEqual({
+      ip: '10.0.5.1',
+      bucketKey: encodePath(['allowlist-base', '10.0.5.1']),
+    });
   });
 
   it('should throw E_PROXY_ACQUIRE_INTERNAL_ERROR for unexpected acquire errors', () => {
     const terminal = createTerminal('terminal-acquire-error', ['10.0.6.1']);
-    allowTerminalProxies(terminal);
 
     mockTokenBucket.mockImplementation(() => {
       return {
@@ -318,12 +319,12 @@ describe('acquireProxyBucket', () => {
     ).toThrow('E_PROXY_ACQUIRE_INTERNAL_ERROR');
   });
 
-  it('should bind selected result to trusted terminalId when same ip appears multiple times', () => {
+  it('should de-duplicate same ip candidates for helper result and cache list', () => {
     const terminal = {
       terminal_id: 'terminal-binding',
       terminalInfos: [
         {
-          terminal_id: 'trusted-proxy',
+          terminal_id: 'proxy-a',
           tags: { ip: '10.0.7.1', ip_source: 'http-services' },
           serviceInfo: {
             HTTPProxyA: {
@@ -333,7 +334,7 @@ describe('acquireProxyBucket', () => {
           },
         },
         {
-          terminal_id: 'untrusted-proxy',
+          terminal_id: 'proxy-b',
           tags: { ip: '10.0.7.1', ip_source: 'http-services' },
           serviceInfo: {
             HTTPProxyB: {
@@ -344,8 +345,6 @@ describe('acquireProxyBucket', () => {
         },
       ],
     } as unknown as Terminal;
-
-    process.env[TRUSTED_PROXY_TERMINAL_IDS_ENV] = 'trusted-proxy';
 
     mockTokenBucket.mockImplementation(() => {
       return {
@@ -361,7 +360,38 @@ describe('acquireProxyBucket', () => {
       getBucketOptions: () => ({ capacity: 100, refillAmount: 100, refillInterval: 60_000 }),
     });
 
+    expect(listHTTPProxyIps(terminal)).toEqual(['10.0.7.1']);
     expect(result.ip).toBe('10.0.7.1');
-    expect(result.terminalId).toBe('trusted-proxy');
+    expect(result.bucketKey).toBe(encodePath(['binding-base', '10.0.7.1']));
+    expect(mockTokenBucket).toHaveBeenCalledTimes(1);
+  });
+
+  it('should ignore candidates with untrusted ip source or invalid ip across helpers', () => {
+    const terminal = createTerminal('terminal-filtering', [
+      { ip: '10.0.8.1', ipSource: 'http-services' },
+      { ip: '10.0.8.2', ipSource: 'other-source' },
+      { ip: 'not-an-ip', ipSource: 'http-services' },
+      { ip: '10.0.8.1', ipSource: 'http-services' },
+    ]);
+
+    mockTokenBucket.mockImplementation(() => {
+      return {
+        read: () => 10,
+        acquireSync: () => {},
+      };
+    });
+
+    expect(listHTTPProxyIps(terminal)).toEqual(['10.0.8.1']);
+    expect(
+      acquireProxyBucket({
+        baseKey: 'filtering-base',
+        weight: 1,
+        terminal,
+        getBucketOptions: () => ({ capacity: 100, refillAmount: 100, refillInterval: 60_000 }),
+      }),
+    ).toEqual({
+      ip: '10.0.8.1',
+      bucketKey: encodePath(['filtering-base', '10.0.8.1']),
+    });
   });
 });

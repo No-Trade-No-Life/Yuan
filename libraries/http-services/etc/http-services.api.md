@@ -22,7 +22,6 @@ export type AcquireProxyBucketInput = {
 // @public (undocumented)
 export type AcquireProxyBucketResult = {
     ip: string;
-    terminalId: string;
     bucketKey: string;
 };
 

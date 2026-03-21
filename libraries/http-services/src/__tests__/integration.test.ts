@@ -116,6 +116,7 @@ import path from 'path';
     provideHTTPProxyService(
       proxyTerminal1,
       {
+        ip: '10.0.9.1',
         region: 'us-west',
         id: '1',
       },
@@ -131,6 +132,7 @@ import path from 'path';
     provideHTTPProxyService(
       proxyTerminal2,
       {
+        ip: '10.0.9.1',
         region: 'us-east',
         id: '2',
       },
@@ -211,6 +213,16 @@ import path from 'path';
         terminal: clientTerminal,
       }),
     ).rejects.toBeTruthy();
+  }, 10000);
+
+  it('should route successfully with only labels.ip when multiple proxies share the same ip', async () => {
+    const response = await fetch(`http://localhost:${httpServerPort}/get`, {
+      labels: { ip: '10.0.9.1' },
+      headers: { Connection: 'close' },
+      terminal: clientTerminal,
+    });
+
+    expect(response.ok).toBe(true);
   }, 10000);
 
   it('should support POST request', async () => {
