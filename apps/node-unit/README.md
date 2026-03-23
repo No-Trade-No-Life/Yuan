@@ -57,15 +57,19 @@ Kubernetes 提供了强大的容器编排能力，但其复杂性往往超出实
 
 主 / 从节点模式都支持的环境变量:
 
-| 变量名                 | 说明                                                                                          | 默认值                                            |
-| ---------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| NODE_UNIT_NAME         | 节点的名字 (任意字符串)，用于身份标识和加密通信，可以明文传输                                 | `os.hostname()`                                   |
-| NODE_UNIT_PASSWORD     | 节点的密码 (任意字符串)，用于身份标识和加密通信，需要妥善保存                                 | `randomUUID()`                                    |
-| NODE_UNIT_CLAIM_POLICY | 抢占策略：`deployment_count`、`resource_usage` 或 `none`（不区分大小写）                      | `deployment_count`                                |
-| POSTGRES_URI           | PostgreSQL 连接字符串，如果非空将创建本地的 PG 连接服务                                       | `''`                                              |
-| TRUSTED_PACKAGE_REGEXP | 信任的包名正则表达式，允许从节点运行这些包的代码，正则表达式会检验字符串 `${name}@${version}` | `'^@yuants/'` (信任 @yuants 下的所有包的所有版本) |
-| ENABLE_CUSTOM_COMMAND  | 是否启用自定义命令功能，如果启用，将允许自定义命令 (建议仅在容器沙盒的安全环境使用)           | `'false'`                                         |
-| PG_PACKAGE_VERSION     | `@yuants/app-postgres-storage` 的版本号，仅对 POSTGRES_URI 的本地 PG 连接服务有效             | `'latest'`                                        |
+| 变量名                                    | 说明                                                                                          | 默认值                                            |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| NODE_UNIT_NAME                            | 节点的名字 (任意字符串)，用于身份标识和加密通信，可以明文传输                                 | `os.hostname()`                                   |
+| NODE_UNIT_PASSWORD                        | 节点的密码 (任意字符串)，用于身份标识和加密通信，需要妥善保存                                 | `randomUUID()`                                    |
+| NODE_UNIT_CLAIM_POLICY                    | 抢占策略：`deployment_count`、`resource_usage` 或 `none`（不区分大小写）                      | `deployment_count`                                |
+| NODE_UNIT_ASSIGNMENT_FEATURE_FLAG         | 是否启用 assignment/lease 调度路径；`true` 时执行器只读 assignment，不再用 `address` 兜底     | `'false'`                                         |
+| NODE_UNIT_ASSIGNMENT_GENERATION           | 当前节点已应用的调度模式代际；node-unit 会周期上报到 `terminalInfos.tags.applied_generation`  | `'0'`                                             |
+| NODE_UNIT_MODE_HEARTBEAT_INTERVAL_SECONDS | node 级模式心跳上报周期（秒）                                                                 | `5`                                               |
+| NODE_UNIT_ACTIVE_TTL_SECONDS              | 调度器判定 node-unit 仍活跃的 TTL（秒）                                                       | `30`                                              |
+| POSTGRES_URI                              | PostgreSQL 连接字符串，如果非空将创建本地的 PG 连接服务                                       | `''`                                              |
+| TRUSTED_PACKAGE_REGEXP                    | 信任的包名正则表达式，允许从节点运行这些包的代码，正则表达式会检验字符串 `${name}@${version}` | `'^@yuants/'` (信任 @yuants 下的所有包的所有版本) |
+| ENABLE_CUSTOM_COMMAND                     | 是否启用自定义命令功能，如果启用，将允许自定义命令 (建议仅在容器沙盒的安全环境使用)           | `'false'`                                         |
+| PG_PACKAGE_VERSION                        | `@yuants/app-postgres-storage` 的版本号，仅对 POSTGRES_URI 的本地 PG 连接服务有效             | `'latest'`                                        |
 
 主节点环境专用变量表:
 
@@ -86,9 +90,17 @@ Kubernetes 提供了强大的容器编排能力，但其复杂性往往超出实
 
 ## 调度策略与 deployment 类型
 
-- `deployment.type=deployment`：使用 `address` 绑定与抢占逻辑，行为与现有版本一致。
-- `deployment.type=daemon`：不参与抢占且不绑定 `address`，启用后每个 node-unit 都会运行一个实例。
+- `deployment.type=deployment`：默认副本语义为 `desired_replicas=1`；在 Phase A 下仅允许 1 个副本。
+- `deployment.type=daemon`：使用 `selector` 匹配活跃 node-unit 标签，为每个匹配节点生成 1 个 assignment。
 - `NODE_UNIT_CLAIM_POLICY=none`：调度循环继续运行但不执行 `claim`/`assign`，不会写入 `deployment.address`。
+
+## Assignment / Lease 模式
+
+- `NODE_UNIT_ASSIGNMENT_FEATURE_FLAG=false`：保持旧 `address` 路径，但若检测到有效 assignment，会触发 fencing 并忽略对应 deployment 的 `address` 启动路径。
+- `NODE_UNIT_ASSIGNMENT_FEATURE_FLAG=true`：scheduler 以 `deployment_assignment` 为唯一真值；executor 仅执行本节点且 lease 有效、`state in ('Assigned','Running')` 的 assignment。
+- 调度器会把 `deployment.address` 作为兼容派生字段异步更新；回滚时仍以 `address` 为旧路径真值，且要求 selector / paused / `desired_replicas>1` / address 未收敛等场景先被人工收敛。
+- executor 会周期续租并写 heartbeat；若 lease CAS 失败或 assignment 失效，会停止该实例并写入 `exit_reason`。
+- node-unit 会周期上报 `terminalInfos.tags.applied_generation` 与 `assignment_mode_enabled`；当前实现只完成节点就绪筛选，`switch_state` 持久化切换事务仍未落地。
 
 ## Docker 部署
 

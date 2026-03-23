@@ -1,5 +1,5 @@
 import '@yuants/deploy';
-import { IDeployment } from '@yuants/deploy';
+import { IDeployment, IDeploymentAssignment } from '@yuants/deploy';
 import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import { setupSecretProxyService } from '@yuants/secret';
 import { escapeSQL, requestSQL } from '@yuants/sql';
@@ -23,10 +23,13 @@ import {
   catchError,
   concat,
   concatMap,
+  ReplaySubject,
   defer,
   EMPTY,
+  endWith,
   firstValueFrom,
   fromEvent,
+  ignoreElements,
   interval,
   timer,
   map,
@@ -36,6 +39,8 @@ import {
   repeat,
   retry,
   share,
+  switchMap,
+  take,
   takeUntil,
   tap,
 } from 'rxjs';
@@ -43,7 +48,14 @@ import treeKill from 'tree-kill';
 import { getAbsolutePath, NODE_PATH, WORKSPACE_DIR } from './const';
 import { DEFAULT_LOG_ROTATE_OPTIONS, RotatingLogStream } from './logging';
 import { installWorkspaceTo } from './prepare-workspace';
-import { startDeploymentScheduler } from './scheduler';
+import {
+  isAssignmentActiveAt,
+  isAssignmentModeEnabled,
+  normalizeHeartbeatIntervalSeconds,
+  normalizeLeaseTtlSeconds,
+  shouldUseAssignmentSource,
+  startDeploymentScheduler,
+} from './scheduler';
 import { spawnChild } from './spawnChild';
 
 // 如果没有制定主机地址，则创建一个默认的主机管理器
@@ -81,18 +93,35 @@ const MetricDeploymentInfo = GlobalPrometheusRegistry.gauge(
   'node_unit_deployment_info',
   'Deployment info for joining with nodejs_process_resource_usage',
 );
+const MetricAssignmentRunning = GlobalPrometheusRegistry.gauge(
+  'node_unit_assignment_running',
+  'Assignment running state reported by node-unit',
+);
 // NOTE: Socket-level network metrics are temporarily disabled
+
+interface IRuntimeDeploymentTarget extends IDeployment {
+  runtime_id: string;
+  runtime_version: string;
+  assignment_id?: string;
+  assignment_generation?: number;
+}
 
 const mapDeploymentIdToProcess = new Map<
   string,
-  { pid: number; package_name: string; package_version: string; terminal_id: string }
+  {
+    pid: number;
+    package_name: string;
+    package_version: string;
+    terminal_id: string;
+    assignment_id: string;
+  }
 >();
 // NOTE: Socket-level network metrics are temporarily disabled
 
 const makeDeploymentInfoMetricLabels = (
   deploymentId: string,
   terminalId: string,
-  meta: { package_name: string; package_version: string },
+  meta: { package_name: string; package_version: string; assignment_id?: string },
 ) => ({
   deployment_id: deploymentId,
   terminal_id: terminalId,
@@ -100,6 +129,7 @@ const makeDeploymentInfoMetricLabels = (
   package_version: meta.package_version,
   node_unit_name: NODE_UNIT_NAME,
   node_unit_address: nodeUnitAddress,
+  assignment_id: meta.assignment_id ?? '',
 });
 
 const normalizeDeploymentType = (deployment: IDeployment): 'daemon' | 'deployment' | undefined => {
@@ -113,32 +143,49 @@ const normalizeDeploymentType = (deployment: IDeployment): 'daemon' | 'deploymen
   return undefined;
 };
 
-const registerDeploymentProcess = (deployment: IDeployment, pid: number | undefined, terminalId: string) => {
+const registerDeploymentProcess = (
+  deployment: IRuntimeDeploymentTarget,
+  pid: number | undefined,
+  terminalId: string,
+) => {
   if (!pid) return;
   const prev = mapDeploymentIdToProcess.get(deployment.id);
   if (prev) {
-    // 删除旧的 info 指标
     const oldLabels = makeDeploymentInfoMetricLabels(deployment.id, prev.terminal_id, prev);
     MetricDeploymentInfo.labels(oldLabels).delete();
+    MetricAssignmentRunning.labels({
+      deployment_id: deployment.id,
+      node_id: nodeUnitAddress,
+      assignment_id: prev.assignment_id,
+    }).delete();
   }
   const meta = {
     pid,
     terminal_id: terminalId,
     package_name: deployment.package_name,
     package_version: deployment.package_version,
+    assignment_id: deployment.assignment_id ?? '',
   };
   mapDeploymentIdToProcess.set(deployment.id, meta);
-  // 设置新的 info 指标为 1
   const newLabels = makeDeploymentInfoMetricLabels(deployment.id, terminalId, meta);
   MetricDeploymentInfo.labels(newLabels).set(1);
+  MetricAssignmentRunning.labels({
+    deployment_id: deployment.id,
+    node_id: nodeUnitAddress,
+    assignment_id: meta.assignment_id,
+  }).set(meta.assignment_id ? 1 : 0);
 };
 
 const unregisterDeploymentProcess = (deploymentId: string) => {
   const meta = mapDeploymentIdToProcess.get(deploymentId);
   if (!meta) return;
-  // 删除 info 指标
   const labels = makeDeploymentInfoMetricLabels(deploymentId, meta.terminal_id, meta);
   MetricDeploymentInfo.labels(labels).delete();
+  MetricAssignmentRunning.labels({
+    deployment_id: deploymentId,
+    node_id: nodeUnitAddress,
+    assignment_id: meta.assignment_id,
+  }).delete();
   mapDeploymentIdToProcess.delete(deploymentId);
 };
 
@@ -198,7 +245,52 @@ const startResourceCollector = (intervalMs: number) => {
     .subscribe();
 };
 
-const runDeployment = (nodeUnitKeyPair: IEd25519KeyPair, deployment: IDeployment) => {
+const renewAssignmentLease = async (
+  terminal: Terminal | null,
+  deployment: IRuntimeDeploymentTarget,
+): Promise<boolean> => {
+  if (!terminal || !deployment.assignment_id) return true;
+  const ttlSeconds = normalizeLeaseTtlSeconds(deployment);
+  const assignmentGeneration = deployment.assignment_generation ?? 0;
+  const result = await requestSQL<Array<{ assignment_id: string }>>(
+    terminal,
+    `update deployment_assignment set
+      heartbeat_at = CURRENT_TIMESTAMP,
+      lease_expire_at = CURRENT_TIMESTAMP + make_interval(secs => ${ttlSeconds})
+      where assignment_id = ${escapeSQL(deployment.assignment_id)}
+      and deployment_id = ${escapeSQL(deployment.id)}::uuid
+      and node_id = ${escapeSQL(nodeUnitAddress)}
+      and lease_holder = ${escapeSQL(nodeUnitAddress)}
+      and generation = ${assignmentGeneration}
+      and state in ('Assigned','Running')
+      and lease_expire_at >= CURRENT_TIMESTAMP
+      returning assignment_id`,
+  );
+  return result.length > 0;
+};
+
+const writeAssignmentExitReason = async (
+  terminal: Terminal | null,
+  deployment: IRuntimeDeploymentTarget,
+  exitReason: string,
+): Promise<void> => {
+  if (!terminal || !deployment.assignment_id) return;
+  const assignmentGeneration = deployment.assignment_generation ?? 0;
+  await requestSQL(
+    terminal,
+    `update deployment_assignment set exit_reason = ${escapeSQL(
+      exitReason,
+    )} where assignment_id = ${escapeSQL(deployment.assignment_id)} and deployment_id = ${escapeSQL(
+      deployment.id,
+    )}::uuid and node_id = ${escapeSQL(nodeUnitAddress)} and generation = ${assignmentGeneration}`,
+  );
+};
+
+const runDeployment = (
+  terminal: Terminal | null,
+  nodeUnitKeyPair: IEd25519KeyPair,
+  deployment: IRuntimeDeploymentTarget,
+) => {
   const terminalName = `${deployment.package_name}@${deployment.package_version}`;
 
   const deploymentDir = join(WORKSPACE_DIR, 'deployments', deployment.id);
@@ -207,7 +299,10 @@ const runDeployment = (nodeUnitKeyPair: IEd25519KeyPair, deployment: IDeployment
   // 使用 node 运行这个包目录本身，会通过 main 字段去加载入口文件
   const entryFile = join(deploymentDir, 'node_modules', deployment.package_name);
 
-  return defer(() =>
+  let exitReason = deployment.assignment_id ? 'stopped_by_node_unit' : 'legacy_stopped';
+  const assignmentLifecycle$ = new ReplaySubject<void>(1);
+
+  const deployment$ = defer(() =>
     concat(
       defer(async () => {
         await mkdir(logHome, { recursive: true });
@@ -228,9 +323,7 @@ const runDeployment = (nodeUnitKeyPair: IEd25519KeyPair, deployment: IDeployment
 
         const isCustomCommandMode = process.env.ENABLE_CUSTOM_COMMAND === 'true' && !!deployment.command;
 
-        // Mode 1: no command, use node to run the package (from main entry)
-        // Mode 2: custom command, use the command to run the package
-        return spawnChild({
+        const child$ = spawnChild({
           command: isCustomCommandMode
             ? getAbsolutePath(deployment.command) || deployment.command
             : NODE_PATH,
@@ -246,15 +339,21 @@ const runDeployment = (nodeUnitKeyPair: IEd25519KeyPair, deployment: IDeployment
             },
             deployment.env,
           ),
-          // Current working directory is the installed package directory
           cwd: join(deploymentDir, 'node_modules', deployment.package_name),
           stdoutFilename: join(logHome, `${deployment.id}.log`),
           stderrFilename: join(logHome, `${deployment.id}.log`),
           streamFactory: (filename) => new RotatingLogStream(filename, LOG_ROTATE_OPTIONS),
-          onSpawn: (child) => registerDeploymentProcess(deployment, child.pid, childKeyPair.public_key),
+          onSpawn: (child) => {
+            registerDeploymentProcess(deployment, child.pid, childKeyPair.public_key);
+            assignmentLifecycle$.next();
+          },
         }).pipe(
           tap({
+            subscribe: () => {
+              exitReason = deployment.assignment_id ? 'stopped_by_node_unit' : 'legacy_stopped';
+            },
             finalize: () => {
+              assignmentLifecycle$.complete();
               console.info(
                 formatTime(Date.now()),
                 'DeploymentRemoveChildKey',
@@ -264,8 +363,35 @@ const runDeployment = (nodeUnitKeyPair: IEd25519KeyPair, deployment: IDeployment
               childPublicKeys.delete(childKeyPair.public_key);
               unregisterDeploymentProcess(deployment.id);
             },
+            error: (err) => {
+              exitReason = `spawn_error:${String(err?.message ?? err)}`;
+            },
           }),
+          share({ resetOnRefCountZero: false }),
         );
+
+        const heartbeat$ =
+          terminal && deployment.assignment_id
+            ? child$.pipe(
+                take(1),
+                switchMap(() =>
+                  timer(0, normalizeHeartbeatIntervalSeconds(deployment) * 1000).pipe(
+                    takeUntil(assignmentLifecycle$),
+                    concatMap(() =>
+                      defer(async () => {
+                        const renewed = await renewAssignmentLease(terminal, deployment);
+                        if (!renewed) {
+                          exitReason = 'lease_lost';
+                          throw new Error(`E_LEASE_CONFLICT:${deployment.assignment_id}`);
+                        }
+                      }),
+                    ),
+                  ),
+                ),
+              )
+            : EMPTY;
+
+        return merge(child$, heartbeat$);
       }),
     ),
   ).pipe(
@@ -274,6 +400,7 @@ const runDeployment = (nodeUnitKeyPair: IEd25519KeyPair, deployment: IDeployment
         console.info(formatTime(Date.now()), 'DeploymentStart', deployment.id, terminalName);
       },
       error: (err) => {
+        exitReason = `runtime_error:${String(err?.message ?? err)}`;
         console.info(
           formatTime(Date.now()),
           'DeploymentFailed',
@@ -283,6 +410,13 @@ const runDeployment = (nodeUnitKeyPair: IEd25519KeyPair, deployment: IDeployment
         );
       },
       finalize: () => {
+        writeAssignmentExitReason(terminal, deployment, exitReason).catch((error) => {
+          console.error(formatTime(Date.now()), 'DeploymentExitReasonWriteFailed', {
+            deployment_id: deployment.id,
+            assignment_id: deployment.assignment_id ?? '',
+            error: String(error),
+          });
+        });
         console.info(formatTime(Date.now()), `DeploymentComplete`, deployment.id, terminalName);
       },
     }),
@@ -290,6 +424,106 @@ const runDeployment = (nodeUnitKeyPair: IEd25519KeyPair, deployment: IDeployment
     retry({ delay: 1000 }),
     repeat({ delay: 1000 }),
   );
+
+  return deployment$;
+};
+
+const loadAssignmentTargets = async (
+  terminal: Terminal,
+  nodeId: string,
+): Promise<IRuntimeDeploymentTarget[]> => {
+  const rows = await requestSQL<
+    Array<
+      IDeployment & {
+        assignment_id: string;
+        assignment_generation: number;
+      }
+    >
+  >(
+    terminal,
+    `select d.*, da.assignment_id, da.generation as assignment_generation
+      from deployment_assignment da
+      join deployment d on d.id = da.deployment_id
+      where d.enabled = true
+      and da.node_id = ${escapeSQL(nodeId)}
+      and da.state in ('Assigned','Running')
+      and da.lease_expire_at >= CURRENT_TIMESTAMP`,
+  );
+  return rows.map((item) => ({
+    ...item,
+    runtime_id: item.assignment_id,
+    runtime_version: `${item.updated_at}:${item.assignment_generation}:${item.assignment_id}`,
+    assignment_id: item.assignment_id,
+    assignment_generation: item.assignment_generation,
+  }));
+};
+
+const loadLegacyTargets = async (terminal: Terminal, nodeId: string): Promise<IRuntimeDeploymentTarget[]> => {
+  const assignments = await requestSQL<IDeploymentAssignment[]>(
+    terminal,
+    `select * from deployment_assignment where state in ('Assigned','Running') and lease_expire_at >= CURRENT_TIMESTAMP`,
+  );
+  const fencedDeploymentIds = new Set(
+    assignments
+      .filter((assignment) => isAssignmentActiveAt(assignment, Date.now()))
+      .map((assignment) => assignment.deployment_id),
+  );
+  const deployments = await requestSQL<IDeployment[]>(
+    terminal,
+    `select * from deployment where enabled = true and ((type = 'deployment' and address = ${escapeSQL(
+      nodeId,
+    )}) or type = 'daemon')`,
+  );
+  return deployments
+    .filter((deployment) => {
+      if (fencedDeploymentIds.has(deployment.id)) return false;
+      if (deployment.paused) return false;
+      if ((deployment.desired_replicas ?? 1) > 1) return false;
+      if (deployment.type === 'daemon' && (deployment.selector ?? '') !== '') return false;
+      return true;
+    })
+    .map((deployment) => ({
+      ...deployment,
+      runtime_id: deployment.id,
+      runtime_version: deployment.updated_at,
+    }));
+};
+
+const loadRuntimeTargets = async (
+  terminal: Terminal,
+  nodeId: string,
+): Promise<IRuntimeDeploymentTarget[]> => {
+  if (isAssignmentModeEnabled()) {
+    return loadAssignmentTargets(terminal, nodeId);
+  }
+  return loadLegacyTargets(terminal, nodeId);
+};
+
+const startNodeModeHeartbeat = (terminal: Terminal) => {
+  const intervalSeconds = Number(process.env.NODE_UNIT_MODE_HEARTBEAT_INTERVAL_SECONDS ?? '5');
+  const intervalMs = Number.isFinite(intervalSeconds) && intervalSeconds > 0 ? intervalSeconds * 1000 : 5000;
+  timer(0, intervalMs)
+    .pipe(
+      takeUntil(kill$),
+      tap(() => {
+        terminal.terminalInfo.tags = terminal.terminalInfo.tags ?? {};
+        terminal.terminalInfo.tags.applied_generation = String(getNodeAppliedGeneration());
+        terminal.terminalInfo.tags.assignment_mode_enabled = isAssignmentModeEnabled() ? 'true' : 'false';
+        terminal.terminalInfoUpdated$.next();
+      }),
+      catchError((err) => {
+        console.error(formatTime(Date.now()), 'NodeModeHeartbeatError', err);
+        return EMPTY;
+      }),
+    )
+    .subscribe();
+};
+
+const getNodeAppliedGeneration = (): number => {
+  const parsed = Number(
+    process.env.NODE_UNIT_ASSIGNMENT_GENERATION ?? (isAssignmentModeEnabled() ? '1' : '0'),
+  );
+  return Number.isFinite(parsed) && parsed >= 0 ? Math.floor(parsed) : 0;
 };
 
 // Setup
@@ -343,13 +577,17 @@ defer(async () => {
 
   if (localHostDeployment) {
     await firstValueFrom(
-      runDeployment(nodeKeyPair, localHostDeployment).pipe(share({ resetOnRefCountZero: false })),
+      runDeployment(null, nodeKeyPair, localHostDeployment as IRuntimeDeploymentTarget).pipe(
+        share({ resetOnRefCountZero: false }),
+      ),
     );
   }
 
   if (localPgDeployment) {
     await firstValueFrom(
-      runDeployment(nodeKeyPair, localPgDeployment).pipe(share({ resetOnRefCountZero: false })),
+      runDeployment(null, nodeKeyPair, localPgDeployment as IRuntimeDeploymentTarget).pipe(
+        share({ resetOnRefCountZero: false }),
+      ),
     );
   }
 
@@ -378,6 +616,7 @@ defer(async () => {
       ? schedulerIntervalFromEnv
       : 5000;
   startResourceCollector(resourceIntervalMs);
+  startNodeModeHeartbeat(terminal);
   startDeploymentScheduler(terminal, nodeKeyPair.public_key);
 
   terminal.server.provideService('NodeUnit/InspectResourceUsage', {}, async () => {
@@ -509,20 +748,13 @@ defer(async () => {
 
   const trustedPackageRegExp = new RegExp(process.env.TRUSTED_PACKAGE_REGEXP || '^@yuants/');
 
-  defer(() =>
-    requestSQL<IDeployment[]>(
-      terminal,
-      `select * from deployment where enabled = true and ((type = 'deployment' and address = ${escapeSQL(
-        nodeKeyPair.public_key,
-      )}) or type = 'daemon')`,
-    ),
-  )
+  defer(() => loadRuntimeTargets(terminal, nodeKeyPair.public_key))
     .pipe(
       map((deployments) => {
         const validDeployments = deployments.filter((deployment) => {
           const type = normalizeDeploymentType(deployment);
           if (!type) return false;
-          if (type === 'daemon' && deployment.address) {
+          if (!deployment.assignment_id && type === 'daemon' && deployment.address) {
             console.error(formatTime(Date.now()), 'DeploymentDaemonAddressSet', {
               error_code: 'ERR_DAEMON_ADDRESS_SET',
               deployment_id: deployment.id,
@@ -540,11 +772,12 @@ defer(async () => {
           `${trusted.length} trusted, ${validDeployments.length} total`,
         );
         console.table(
-          validDeployments.map(({ id, package_name, package_version, updated_at }) => ({
+          validDeployments.map(({ id, package_name, package_version, updated_at, assignment_id }) => ({
             id,
             package_name,
             package_version,
             updated_at,
+            assignment_id: assignment_id ?? '',
             is_trusted: !!trusted.find((x) => x.id === id),
           })),
         );
@@ -556,9 +789,9 @@ defer(async () => {
       takeUntil(kill$),
       //
       listWatch(
-        (item) => item.id,
-        (x) => runDeployment(nodeKeyPair, x),
-        (a, b) => a.updated_at === b.updated_at,
+        (item) => item.runtime_id,
+        (x) => runDeployment(terminal, nodeKeyPair, x),
+        (a, b) => a.runtime_version === b.runtime_version,
       ),
     )
     .subscribe();

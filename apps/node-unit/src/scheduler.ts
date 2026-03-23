@@ -1,21 +1,15 @@
-import { IDeployment } from '@yuants/deploy';
+import { IDeployment, IDeploymentAssignment, IDeploymentAssignmentState } from '@yuants/deploy';
 import { ITerminalInfo, Terminal } from '@yuants/protocol';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
-import {
-  catchError,
-  concatMap,
-  defer,
-  EMPTY,
-  interval,
-  takeUntil,
-  firstValueFrom,
-  timeout,
-  filter,
-  first,
-} from 'rxjs';
+import { catchError, concatMap, defer, EMPTY, interval, takeUntil } from 'rxjs';
 
 const DEFAULT_SCHEDULER_INTERVAL_MS = 5_000;
+const DEFAULT_NODE_ACTIVE_TTL_SECONDS = 30;
+const DEFAULT_LEASE_TTL_SECONDS = 60;
+const DEFAULT_HEARTBEAT_INTERVAL_SECONDS = 15;
+
+const ACTIVE_ASSIGNMENT_STATES: IDeploymentAssignmentState[] = ['Assigned', 'Running'];
 
 export type ClaimMetricKey = 'deployment_count' | 'resource_usage' | string;
 
@@ -42,6 +36,26 @@ export interface ClaimPolicy {
 
 type DeploymentType = 'daemon' | 'deployment';
 
+export interface INodeUnitState {
+  node_id: string;
+  terminal_id: string;
+  labels: Record<string, string>;
+  applied_generation: number;
+  last_seen_at: number;
+}
+
+const isNodeReadyForAssignmentMode = (node: INodeUnitState, generation: number): boolean =>
+  node.labels.assignment_mode_enabled === 'true' && node.applied_generation >= generation;
+
+export interface IRollbackBlocker {
+  error_code:
+    | 'E_ROLLBACK_BLOCKED_SELECTOR'
+    | 'E_ROLLBACK_BLOCKED_REPLICAS'
+    | 'E_ROLLBACK_BLOCKED_PAUSED'
+    | 'E_ROLLBACK_NOT_CONVERGED_ADDRESS';
+  deployment_id: string;
+}
+
 const normalizeDeploymentType = (deployment: IDeployment): DeploymentType | undefined => {
   const rawType = (deployment as { type?: string }).type;
   if (rawType === 'daemon' || rawType === 'deployment') return rawType;
@@ -51,6 +65,174 @@ const normalizeDeploymentType = (deployment: IDeployment): DeploymentType | unde
     type: rawType ?? null,
   });
   return undefined;
+};
+
+const normalizeDesiredReplicas = (deployment: IDeployment): number => {
+  const value = Number(deployment.desired_replicas ?? 1);
+  return Number.isFinite(value) && value > 0 ? Math.floor(value) : 1;
+};
+
+const normalizeSelector = (deployment: IDeployment): string => String(deployment.selector ?? '');
+
+const normalizeLeaseTtlSeconds = (deployment: IDeployment): number => {
+  const value = Number(deployment.lease_ttl_seconds ?? DEFAULT_LEASE_TTL_SECONDS);
+  return Number.isFinite(value) && value > 0 ? Math.floor(value) : DEFAULT_LEASE_TTL_SECONDS;
+};
+
+const normalizeHeartbeatIntervalSeconds = (deployment: IDeployment): number => {
+  const value = Number(deployment.heartbeat_interval_seconds ?? DEFAULT_HEARTBEAT_INTERVAL_SECONDS);
+  return Number.isFinite(value) && value > 0 ? Math.floor(value) : DEFAULT_HEARTBEAT_INTERVAL_SECONDS;
+};
+
+const isPausedDeployment = (deployment: IDeployment): boolean => deployment.paused === true;
+
+const isAssignmentModeEnabled = (): boolean => process.env.NODE_UNIT_ASSIGNMENT_FEATURE_FLAG === 'true';
+
+const getNodeActiveTtlSeconds = (): number => {
+  const parsed = Number(process.env.NODE_UNIT_ACTIVE_TTL_SECONDS);
+  return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : DEFAULT_NODE_ACTIVE_TTL_SECONDS;
+};
+
+const getAssignmentGeneration = (): number => {
+  const parsed = Number(process.env.NODE_UNIT_ASSIGNMENT_GENERATION ?? '0');
+  return Number.isFinite(parsed) && parsed >= 0 ? Math.floor(parsed) : 0;
+};
+
+export const parseSelector = (
+  selector: string,
+): { labels: Record<string, string> } | { error_code: 'E_SELECTOR_INVALID' } => {
+  if (selector === '') return { labels: {} };
+  const labels: Record<string, string> = {};
+  const partPattern = /^[A-Za-z0-9_.-]{1,64}$/;
+  for (const part of selector.split(',')) {
+    const eqIdx = part.indexOf('=');
+    if (eqIdx <= 0 || eqIdx >= part.length - 1) return { error_code: 'E_SELECTOR_INVALID' };
+    const key = part.slice(0, eqIdx);
+    const value = part.slice(eqIdx + 1);
+    if (!partPattern.test(key) || !partPattern.test(value)) return { error_code: 'E_SELECTOR_INVALID' };
+    labels[key] = value;
+  }
+  return { labels };
+};
+
+export const matchSelector = (selector: string, labels: Record<string, string>): boolean => {
+  const parsed = parseSelector(selector);
+  if ('error_code' in parsed) return false;
+  return Object.entries(parsed.labels).every(([key, value]) => labels[key] === value);
+};
+
+export const buildDeploymentAssignmentId = (deploymentId: string, replicaIndex: number): string =>
+  `${deploymentId}#${replicaIndex}`;
+
+export const buildDaemonAssignmentId = (deploymentId: string, nodeId: string): string =>
+  `${deploymentId}#${nodeId}`;
+
+const toTimestampMs = (value: string | null | undefined): number => {
+  if (!value) return 0;
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+export const isAssignmentActiveAt = (assignment: IDeploymentAssignment, nowMs: number): boolean =>
+  ACTIVE_ASSIGNMENT_STATES.includes(assignment.state) && toTimestampMs(assignment.lease_expire_at) >= nowMs;
+
+export const shouldUseAssignmentSource = (assignments: IDeploymentAssignment[], nowMs: number): boolean =>
+  assignments.some((assignment) => isAssignmentActiveAt(assignment, nowMs));
+
+export const loadActiveNodeStates = (
+  terminalInfos: ITerminalInfo[],
+  nowMs = Date.now(),
+  ttlSeconds = getNodeActiveTtlSeconds(),
+): INodeUnitState[] => {
+  const latestByNode = new Map<string, INodeUnitState>();
+  for (const info of terminalInfos) {
+    const tags = info.tags ?? {};
+    if (tags.node_unit !== 'true' || !tags.node_unit_address || !info.terminal_id) continue;
+    const lastSeenAt = info.updated_at ?? info.created_at ?? 0;
+    if (!lastSeenAt || nowMs - lastSeenAt > ttlSeconds * 1000) continue;
+    const next: INodeUnitState = {
+      node_id: tags.node_unit_address,
+      terminal_id: info.terminal_id,
+      labels: { ...tags },
+      applied_generation: Number(tags.applied_generation ?? '0') || 0,
+      last_seen_at: lastSeenAt,
+    };
+    const current = latestByNode.get(next.node_id);
+    if (!current || current.last_seen_at < next.last_seen_at) {
+      latestByNode.set(next.node_id, next);
+    }
+  }
+  return [...latestByNode.values()].sort((a, b) => a.node_id.localeCompare(b.node_id));
+};
+
+const buildAssignmentsByDeploymentId = (
+  assignments: IDeploymentAssignment[],
+): Map<string, IDeploymentAssignment[]> => {
+  const map = new Map<string, IDeploymentAssignment[]>();
+  for (const assignment of assignments) {
+    const list = map.get(assignment.deployment_id) ?? [];
+    list.push(assignment);
+    map.set(assignment.deployment_id, list);
+  }
+  return map;
+};
+
+export const deriveDeploymentAddress = (
+  deployment: IDeployment,
+  assignments: IDeploymentAssignment[],
+  nowMs: number,
+): string => {
+  if (normalizeDeploymentType(deployment) !== 'deployment') return '';
+  if (normalizeDesiredReplicas(deployment) !== 1) return '';
+  const active = assignments.filter((assignment) => isAssignmentActiveAt(assignment, nowMs));
+  return active.length === 1 ? active[0].node_id : '';
+};
+
+export const getRollbackBlockers = (
+  deployments: IDeployment[],
+  assignments: IDeploymentAssignment[],
+  nowMs: number,
+): IRollbackBlocker[] => {
+  const blockers: IRollbackBlocker[] = [];
+  const assignmentsByDeploymentId = buildAssignmentsByDeploymentId(assignments);
+  for (const deployment of deployments) {
+    const type = normalizeDeploymentType(deployment);
+    if (!type) continue;
+    if (type === 'daemon' && normalizeSelector(deployment) !== '') {
+      blockers.push({ error_code: 'E_ROLLBACK_BLOCKED_SELECTOR', deployment_id: deployment.id });
+    }
+    if (normalizeDesiredReplicas(deployment) > 1) {
+      blockers.push({ error_code: 'E_ROLLBACK_BLOCKED_REPLICAS', deployment_id: deployment.id });
+    }
+    if (isPausedDeployment(deployment)) {
+      blockers.push({ error_code: 'E_ROLLBACK_BLOCKED_PAUSED', deployment_id: deployment.id });
+    }
+    if (type !== 'deployment') continue;
+    const relatedAssignments = assignmentsByDeploymentId.get(deployment.id) ?? [];
+    if (relatedAssignments.length === 0) continue;
+    const derivedAddress = deriveDeploymentAddress(deployment, relatedAssignments, nowMs);
+    if (!derivedAddress || derivedAddress !== deployment.address) {
+      blockers.push({ error_code: 'E_ROLLBACK_NOT_CONVERGED_ADDRESS', deployment_id: deployment.id });
+    }
+  }
+  return blockers;
+};
+
+const buildAssignmentCounts = (
+  deployments: IDeployment[],
+  assignments: IDeploymentAssignment[],
+  activeNodeUnits: string[],
+  nowMs: number,
+): Map<string, number> => {
+  const deploymentById = new Map(deployments.map((deployment) => [deployment.id, deployment]));
+  const counts = new Map(activeNodeUnits.map((address) => [address, 0]));
+  for (const assignment of assignments) {
+    if (!isAssignmentActiveAt(assignment, nowMs)) continue;
+    const deployment = deploymentById.get(assignment.deployment_id);
+    if (!deployment || normalizeDeploymentType(deployment) !== 'deployment') continue;
+    counts.set(assignment.node_id, (counts.get(assignment.node_id) ?? 0) + 1);
+  }
+  return counts;
 };
 
 const deploymentCountProvider: ClaimMetricProvider = {
@@ -68,25 +250,12 @@ const parseWeight = (value: string | undefined, fallback: number): number => {
 
 const resolveNodeUnitTerminalIds = (terminalInfos: ITerminalInfo[]): Map<string, string> => {
   const map = new Map<string, string>();
-  console.info(formatTime(Date.now()), 'resolveNodeUnitTerminalIds:input', {
-    terminalInfos: terminalInfos.map((info) => ({
-      terminal_id: info.terminal_id,
-      tags: info.tags,
-    })),
-  });
   for (const info of terminalInfos) {
     const tags = info.tags ?? {};
     if (tags.node_unit === 'true' && tags.node_unit_address && info.terminal_id) {
       map.set(tags.node_unit_address, info.terminal_id);
-      console.info(formatTime(Date.now()), 'resolveNodeUnitTerminalIds:mapping', {
-        node_unit_address: tags.node_unit_address,
-        terminal_id: info.terminal_id,
-      });
     }
   }
-  console.info(formatTime(Date.now()), 'resolveNodeUnitTerminalIds:result', {
-    mappings: Object.fromEntries(map.entries()),
-  });
   return map;
 };
 
@@ -95,24 +264,12 @@ const fetchResourceUsage = async (
   activeNodeUnits: string[],
   addressToTerminalId: Map<string, string>,
 ): Promise<Map<string, { cpuPercent: number; memoryMb: number }>> => {
-  console.info(formatTime(Date.now()), 'fetchResourceUsage', {
-    activeNodeUnits,
-    addressToTerminalId: Object.fromEntries(addressToTerminalId.entries()),
-  });
   const usage = new Map<string, { cpuPercent: number; memoryMb: number }>();
   await Promise.all(
     activeNodeUnits.map(async (address) => {
       const terminalId = addressToTerminalId.get(address);
-      console.info(formatTime(Date.now()), 'fetchResourceUsage:processing', { address, terminalId });
-      if (!terminalId) {
-        console.info(formatTime(Date.now()), 'fetchResourceUsage:skip', {
-          address,
-          reason: 'no_terminal_id',
-        });
-        return;
-      }
+      if (!terminalId) return;
       try {
-        console.info(formatTime(Date.now()), 'fetchResourceUsage:requesting', { address, terminalId });
         const service = terminal.client.resolveTargetServiceByMethodAndTargetTerminalIdSync(
           'NodeUnit/InspectResourceUsage',
           terminalId,
@@ -122,24 +279,17 @@ const fetchResourceUsage = async (
           service.service_id,
           {},
         );
-        console.info(formatTime(Date.now()), 'fetchResourceUsage:response', { address, terminalId, res });
         if (res.code === 0 && res.data) {
           usage.set(address, {
             cpuPercent: res.data.cpu_percent,
             memoryMb: res.data.memory_mb,
           });
-          console.info(formatTime(Date.now()), 'ResourceUsageFetched', { address, data: res.data });
-        } else {
-          console.info(formatTime(Date.now()), 'fetchResourceUsage:error', { address, terminalId, res });
         }
       } catch (e) {
         console.info(formatTime(Date.now()), 'ResourceUsageFetchFailed', { address, error: String(e) });
       }
     }),
   );
-  console.info(formatTime(Date.now()), 'fetchResourceUsage:result', {
-    usage: Object.fromEntries(usage.entries()),
-  });
   return usage;
 };
 
@@ -154,7 +304,6 @@ const resourceUsageProvider: ClaimMetricProvider = {
     const weightSum = cpuWeight + memoryWeight;
     const normalizedCpuWeight = weightSum > 0 ? cpuWeight / weightSum : 0.5;
     const normalizedMemoryWeight = weightSum > 0 ? memoryWeight / weightSum : 0.5;
-
     const normalizedMemory = usage.memoryMb / 1024;
 
     return {
@@ -167,13 +316,11 @@ const resourceUsageProvider: ClaimMetricProvider = {
 const buildResourceUsageSnapshot = (
   nodeUnits: string[],
   resourceUsage: Map<string, { cpuPercent: number; memoryMb: number }>,
-): Record<string, { cpuPercent: number; memoryMb: number }> => {
-  return nodeUnits.reduce<Record<string, { cpuPercent: number; memoryMb: number }>>((result, address) => {
-    const usage = resourceUsage.get(address) ?? { cpuPercent: 0, memoryMb: 0 };
-    result[address] = usage;
+): Record<string, { cpuPercent: number; memoryMb: number }> =>
+  nodeUnits.reduce<Record<string, { cpuPercent: number; memoryMb: number }>>((result, address) => {
+    result[address] = resourceUsage.get(address) ?? { cpuPercent: 0, memoryMb: 0 };
     return result;
   }, {});
-};
 
 const defaultClaimPolicy: ClaimPolicy = {
   providers: [deploymentCountProvider],
@@ -200,19 +347,17 @@ const resourceOnlyPolicy: ClaimPolicy = {
   },
 };
 
-const loadActiveNodeUnits = (terminalInfos: ITerminalInfo[]): string[] => {
-  const addresses = new Set<string>();
-  for (const info of terminalInfos) {
-    const tags = info.tags ?? {};
-    if (tags.node_unit === 'true' && tags.node_unit_address) {
-      addresses.add(tags.node_unit_address);
-    }
-  }
-  return [...addresses];
-};
+const loadActiveNodeUnits = (terminalInfos: ITerminalInfo[]): string[] =>
+  loadActiveNodeStates(terminalInfos).map((state) => state.node_id);
 
 const listDeployments = async (terminal: Terminal): Promise<IDeployment[]> =>
-  requestSQL<IDeployment[]>(terminal, 'select * from deployment where enabled = true');
+  requestSQL<IDeployment[]>(
+    terminal,
+    'select * from deployment where enabled = true order by updated_at asc, created_at asc, id asc',
+  );
+
+const listAssignments = async (terminal: Terminal): Promise<IDeploymentAssignment[]> =>
+  requestSQL<IDeploymentAssignment[]>(terminal, 'select * from deployment_assignment');
 
 const getLostAddresses = (deployments: IDeployment[], activeNodeUnits: string[]): string[] => {
   const activeSet = new Set(activeNodeUnits);
@@ -328,7 +473,6 @@ const claimDeployment = async (
     lostAddresses.length > 0
       ? `address = '' or address in (${lostAddresses.map((address) => escapeSQL(address)).join(',')})`
       : "address = ''";
-  // Only claim deployment type records, never daemon type
   const sql = `update deployment set address = ${escapeSQL(nodeUnitAddress)} where id = ${escapeSQL(
     deployment.id,
   )} and type = 'deployment' and (${addressFilter}) returning id`;
@@ -336,17 +480,147 @@ const claimDeployment = async (
   return result.length > 0;
 };
 
-const runSchedulerCycle = async (
-  terminal: Terminal,
+const chooseNodeForDeployment = (
   nodeUnitAddress: string,
   activeNodeUnits: string[],
+  snapshots: Map<string, ClaimMetricSnapshot[]>,
+  policy: ClaimPolicy,
+): string | undefined => {
+  const eligibleNodeUnits = policy.pickEligible(activeNodeUnits, snapshots).sort();
+  if (eligibleNodeUnits.length === 0) return undefined;
+  if (eligibleNodeUnits.includes(nodeUnitAddress)) return nodeUnitAddress;
+  return eligibleNodeUnits[0];
+};
+
+const markAssignmentsDraining = async (
+  terminal: Terminal,
+  deploymentId: string,
+  assignmentIds?: string[],
+): Promise<void> => {
+  const assignmentFilter =
+    assignmentIds && assignmentIds.length > 0
+      ? ` and assignment_id in (${assignmentIds.map((item) => escapeSQL(item)).join(',')})`
+      : '';
+  await requestSQL(
+    terminal,
+    `update deployment_assignment set state = 'Draining' where deployment_id = ${escapeSQL(
+      deploymentId,
+    )} and state in ('Assigned','Running')${assignmentFilter}`,
+  );
+};
+
+const upsertAssignmentLease = async (
+  terminal: Terminal,
+  assignment: {
+    assignment_id: string;
+    deployment_id: string;
+    node_id: string;
+    replica_index: number | null;
+    lease_ttl_seconds: number;
+    generation: number;
+  },
+): Promise<void> => {
+  const replicaValue = assignment.replica_index === null ? 'null' : String(assignment.replica_index);
+  const updateSql = `update deployment_assignment set
+    deployment_id = ${escapeSQL(assignment.deployment_id)},
+    node_id = ${escapeSQL(assignment.node_id)},
+    replica_index = ${replicaValue},
+    lease_holder = ${escapeSQL(assignment.node_id)},
+    lease_expire_at = CURRENT_TIMESTAMP + make_interval(secs => ${assignment.lease_ttl_seconds}),
+    heartbeat_at = null,
+    exit_reason = '',
+    state = 'Assigned',
+    generation = GREATEST(generation + 1, ${assignment.generation})
+    where assignment_id = ${escapeSQL(
+      assignment.assignment_id,
+    )} and lease_expire_at < CURRENT_TIMESTAMP returning assignment_id`;
+  const updated = await requestSQL<Array<{ assignment_id: string }>>(terminal, updateSql);
+  if (updated.length > 0) return;
+
+  const insertSql = `insert into deployment_assignment (
+    assignment_id,
+    deployment_id,
+    node_id,
+    replica_index,
+    lease_holder,
+    lease_expire_at,
+    heartbeat_at,
+    exit_reason,
+    state,
+    generation
+  )
+  select
+    ${escapeSQL(assignment.assignment_id)},
+    ${escapeSQL(assignment.deployment_id)}::uuid,
+    ${escapeSQL(assignment.node_id)},
+    ${replicaValue},
+    ${escapeSQL(assignment.node_id)},
+    CURRENT_TIMESTAMP + make_interval(secs => ${assignment.lease_ttl_seconds}),
+    null,
+    '',
+    'Assigned',
+    ${assignment.generation}
+  where not exists (
+    select 1 from deployment_assignment where assignment_id = ${escapeSQL(assignment.assignment_id)}
+  ) on conflict (assignment_id) do nothing returning assignment_id`;
+  await requestSQL<Array<{ assignment_id: string }>>(terminal, insertSql);
+};
+
+const refreshAssignmentStates = async (terminal: Terminal): Promise<void> => {
+  await requestSQL(
+    terminal,
+    "update deployment_assignment set state = 'Running' where state = 'Assigned' and heartbeat_at is not null",
+  );
+  await requestSQL(
+    terminal,
+    "update deployment_assignment set state = 'Draining' where state in ('Assigned','Running') and lease_expire_at < CURRENT_TIMESTAMP",
+  );
+  await requestSQL(
+    terminal,
+    "update deployment_assignment set state = 'Terminated' where state = 'Draining' and (exit_reason <> '' or lease_expire_at < CURRENT_TIMESTAMP)",
+  );
+};
+
+const syncDeploymentAddresses = async (
+  terminal: Terminal,
+  deployments: IDeployment[],
+  assignments: IDeploymentAssignment[],
+  nowMs: number,
+): Promise<void> => {
+  const assignmentsByDeploymentId = buildAssignmentsByDeploymentId(assignments);
+  for (const deployment of deployments) {
+    const nextAddress = deriveDeploymentAddress(
+      deployment,
+      assignmentsByDeploymentId.get(deployment.id) ?? [],
+      nowMs,
+    );
+    if (deployment.address === nextAddress) continue;
+    await requestSQL(
+      terminal,
+      `update deployment set address = ${escapeSQL(nextAddress)} where id = ${escapeSQL(
+        deployment.id,
+      )} and address <> ${escapeSQL(nextAddress)}`,
+    );
+  }
+};
+
+const runLegacySchedulerCycle = async (
+  terminal: Terminal,
+  nodeUnitAddress: string,
   terminalInfos: ITerminalInfo[],
   policyName: string,
   policy: ClaimPolicy,
 ): Promise<void> => {
+  const activeNodeUnits = loadActiveNodeUnits(terminalInfos);
   if (activeNodeUnits.length === 0) return;
 
-  let deployments = await listDeployments(terminal);
+  const deployments = await listDeployments(terminal);
+  const blockers = getRollbackBlockers(deployments, await listAssignments(terminal), Date.now());
+  if (blockers.length > 0) {
+    console.error(formatTime(Date.now()), 'RollbackBlocked', blockers);
+    return;
+  }
+
   const deploymentOnly: IDeployment[] = [];
   for (const deployment of deployments) {
     const type = normalizeDeploymentType(deployment);
@@ -363,11 +637,10 @@ const runSchedulerCycle = async (
     }
     deploymentOnly.push(deployment);
   }
-  const lostAddresses = getLostAddresses(deploymentOnly, activeNodeUnits);
 
+  const lostAddresses = getLostAddresses(deploymentOnly, activeNodeUnits);
   const addressToTerminalId = resolveNodeUnitTerminalIds(terminalInfos);
   const resourceUsage = await fetchResourceUsage(terminal, activeNodeUnits, addressToTerminalId);
-
   const counts = buildDeploymentCounts(deploymentOnly, activeNodeUnits);
   const context: ClaimMetricContext = {
     deployments: deploymentOnly,
@@ -383,6 +656,7 @@ const runSchedulerCycle = async (
     });
     return;
   }
+
   const snapshots = buildSnapshots(activeNodeUnits, context, policy);
   const eligibleNodeUnits = policy.pickEligible(activeNodeUnits, snapshots);
   const isEligible = eligibleNodeUnits.includes(nodeUnitAddress);
@@ -401,44 +675,175 @@ const runSchedulerCycle = async (
     notEligibleReasons,
   });
 
-  if (!isEligible) {
-    console.info(formatTime(Date.now()), 'DeploymentClaimSkipped', {
-      reason: 'not_eligible',
-      metrics: selfMetrics,
-      minMetrics,
-      notEligibleReasons,
-    });
-    return;
-  }
+  if (!isEligible) return;
 
   const candidate = await pickCandidateDeployment(terminal, lostAddresses);
-  if (!candidate) {
-    console.info(formatTime(Date.now()), 'DeploymentClaimSkipped', {
-      reason: 'no_candidate',
-    });
-    return;
-  }
+  if (!candidate) return;
 
-  const usageSnapshot = buildResourceUsageSnapshot(activeNodeUnits, resourceUsage);
   console.info(formatTime(Date.now()), 'DeploymentClaimAttempt', {
     deployment_id: candidate.id,
     claimant: nodeUnitAddress,
-    usage: usageSnapshot,
+    usage: buildResourceUsageSnapshot(activeNodeUnits, resourceUsage),
   });
 
   const claimed = await claimDeployment(terminal, candidate, nodeUnitAddress, lostAddresses);
-  if (claimed) {
-    console.info(formatTime(Date.now()), 'DeploymentClaimed', {
-      deployment_id: candidate.id,
-      claimant: nodeUnitAddress,
-    });
-  } else {
-    console.info(formatTime(Date.now()), 'DeploymentClaimSkipped', {
-      reason: 'claim_conflict',
-      deployment_id: candidate.id,
-      claimant: nodeUnitAddress,
-    });
+  console.info(formatTime(Date.now()), claimed ? 'DeploymentClaimed' : 'DeploymentClaimSkipped', {
+    deployment_id: candidate.id,
+    claimant: nodeUnitAddress,
+    reason: claimed ? undefined : 'claim_conflict',
+  });
+};
+
+const runAssignmentSchedulerCycle = async (
+  terminal: Terminal,
+  nodeUnitAddress: string,
+  terminalInfos: ITerminalInfo[],
+  policy: ClaimPolicy,
+): Promise<void> => {
+  const nowMs = Date.now();
+  const generation = getAssignmentGeneration();
+  const activeNodes = loadActiveNodeStates(terminalInfos, nowMs).filter((node) =>
+    isNodeReadyForAssignmentMode(node, generation),
+  );
+  const activeNodeUnits = activeNodes.map((node) => node.node_id);
+  if (activeNodeUnits.length === 0) return;
+
+  await refreshAssignmentStates(terminal);
+
+  const deployments = await listDeployments(terminal);
+  let assignments = await listAssignments(terminal);
+  const addressToTerminalId = resolveNodeUnitTerminalIds(terminalInfos);
+  const resourceUsage = await fetchResourceUsage(terminal, activeNodeUnits, addressToTerminalId);
+  const counts = buildAssignmentCounts(deployments, assignments, activeNodeUnits, nowMs);
+  const context: ClaimMetricContext = {
+    deployments,
+    deploymentCounts: counts,
+    resourceUsage,
+  };
+  const snapshots = buildSnapshots(activeNodeUnits, context, policy);
+  const assignmentsByDeploymentId = buildAssignmentsByDeploymentId(assignments);
+
+  for (const deployment of deployments) {
+    const type = normalizeDeploymentType(deployment);
+    if (!type) continue;
+    const deploymentAssignments = assignmentsByDeploymentId.get(deployment.id) ?? [];
+
+    if (isPausedDeployment(deployment)) {
+      await markAssignmentsDraining(terminal, deployment.id);
+      continue;
+    }
+
+    if (type === 'deployment') {
+      if (normalizeSelector(deployment) !== '') {
+        console.error(formatTime(Date.now()), 'DeploymentSelectorInvalid', {
+          error_code: 'E_SELECTOR_INVALID',
+          deployment_id: deployment.id,
+        });
+        continue;
+      }
+      if (normalizeDesiredReplicas(deployment) > 1) {
+        console.error(formatTime(Date.now()), 'PhaseBGateBlocked', {
+          error_code: 'E_PHASE_B_REQUIRED',
+          deployment_id: deployment.id,
+          desired_replicas: normalizeDesiredReplicas(deployment),
+        });
+        await markAssignmentsDraining(terminal, deployment.id);
+        continue;
+      }
+
+      const assignmentId = buildDeploymentAssignmentId(deployment.id, 0);
+      const current = deploymentAssignments.find((assignment) => assignment.assignment_id === assignmentId);
+      if (!current || !isAssignmentActiveAt(current, nowMs)) {
+        const targetNodeId = chooseNodeForDeployment(nodeUnitAddress, activeNodeUnits, snapshots, policy);
+        if (targetNodeId) {
+          await upsertAssignmentLease(terminal, {
+            assignment_id: assignmentId,
+            deployment_id: deployment.id,
+            node_id: targetNodeId,
+            replica_index: 0,
+            lease_ttl_seconds: normalizeLeaseTtlSeconds(deployment),
+            generation,
+          });
+          console.info(formatTime(Date.now()), 'DeploymentAssignmentScheduled', {
+            deployment_id: deployment.id,
+            assignment_id: assignmentId,
+            node_id: targetNodeId,
+          });
+        }
+      }
+      const extraAssignments = deploymentAssignments
+        .filter(
+          (assignment) => assignment.assignment_id !== assignmentId && assignment.state !== 'Terminated',
+        )
+        .map((assignment) => assignment.assignment_id);
+      if (extraAssignments.length > 0) {
+        await markAssignmentsDraining(terminal, deployment.id, extraAssignments);
+      }
+      continue;
+    }
+
+    const selector = normalizeSelector(deployment);
+    const parsedSelector = parseSelector(selector);
+    if ('error_code' in parsedSelector) {
+      console.error(formatTime(Date.now()), 'DaemonSelectorInvalid', {
+        error_code: parsedSelector.error_code,
+        deployment_id: deployment.id,
+        selector,
+      });
+      await markAssignmentsDraining(terminal, deployment.id);
+      continue;
+    }
+
+    const matchedNodes = activeNodes.filter((node) => matchSelector(selector, node.labels));
+    const matchedNodeIds = new Set(matchedNodes.map((node) => node.node_id));
+    for (const node of matchedNodes) {
+      const assignmentId = buildDaemonAssignmentId(deployment.id, node.node_id);
+      const current = deploymentAssignments.find((assignment) => assignment.assignment_id === assignmentId);
+      if (current && isAssignmentActiveAt(current, nowMs)) continue;
+      await upsertAssignmentLease(terminal, {
+        assignment_id: assignmentId,
+        deployment_id: deployment.id,
+        node_id: node.node_id,
+        replica_index: null,
+        lease_ttl_seconds: normalizeLeaseTtlSeconds(deployment),
+        generation,
+      });
+      console.info(formatTime(Date.now()), 'DaemonAssignmentScheduled', {
+        deployment_id: deployment.id,
+        assignment_id: assignmentId,
+        node_id: node.node_id,
+        selector,
+      });
+    }
+
+    const obsoleteAssignments = deploymentAssignments
+      .filter(
+        (assignment) =>
+          assignment.state !== 'Terminated' &&
+          (!matchedNodeIds.has(assignment.node_id) || !activeNodeUnits.includes(assignment.node_id)),
+      )
+      .map((assignment) => assignment.assignment_id);
+    if (obsoleteAssignments.length > 0) {
+      await markAssignmentsDraining(terminal, deployment.id, obsoleteAssignments);
+    }
   }
+
+  assignments = await listAssignments(terminal);
+  await syncDeploymentAddresses(terminal, deployments, assignments, nowMs);
+};
+
+const runSchedulerCycle = async (
+  terminal: Terminal,
+  nodeUnitAddress: string,
+  terminalInfos: ITerminalInfo[],
+  policyName: string,
+  policy: ClaimPolicy,
+): Promise<void> => {
+  if (isAssignmentModeEnabled()) {
+    await runAssignmentSchedulerCycle(terminal, nodeUnitAddress, terminalInfos, policy);
+    return;
+  }
+  await runLegacySchedulerCycle(terminal, nodeUnitAddress, terminalInfos, policyName, policy);
 };
 
 export const startDeploymentScheduler = (
@@ -446,12 +851,10 @@ export const startDeploymentScheduler = (
   nodeUnitAddress: string,
   options: { intervalMs?: number; policy?: ClaimPolicy } = {},
 ) => {
-  let activeNodeUnits: string[] = [];
   let terminalInfos: ITerminalInfo[] = [];
 
   terminal.terminalInfos$.pipe(takeUntil(terminal.dispose$)).subscribe((infos) => {
     terminalInfos = infos;
-    activeNodeUnits = loadActiveNodeUnits(infos);
   });
 
   const policyName = (process.env.NODE_UNIT_CLAIM_POLICY ?? 'deployment_count').toLowerCase();
@@ -472,9 +875,7 @@ export const startDeploymentScheduler = (
     .pipe(
       takeUntil(terminal.dispose$),
       concatMap(() =>
-        defer(() =>
-          runSchedulerCycle(terminal, nodeUnitAddress, activeNodeUnits, terminalInfos, policyName, policy),
-        ).pipe(
+        defer(() => runSchedulerCycle(terminal, nodeUnitAddress, terminalInfos, policyName, policy)).pipe(
           catchError((err) => {
             console.error(formatTime(Date.now()), 'DeploymentSchedulerError', err);
             return EMPTY;
@@ -485,20 +886,28 @@ export const startDeploymentScheduler = (
     .subscribe();
 };
 
-// 导出内部函数用于单元测试
 export {
-  loadActiveNodeUnits,
-  getLostAddresses,
+  buildAssignmentCounts,
   buildDeploymentCounts,
-  buildSnapshots,
-  pickCandidateDeployment,
-  claimDeployment,
-  fetchResourceUsage,
-  resolveNodeUnitTerminalIds,
+  buildMetricTable,
+  buildMinMetrics,
+  buildNotEligibleReasons,
   buildResourceUsageSnapshot,
-  parseWeight,
-  deploymentCountProvider,
-  resourceUsageProvider,
+  buildSnapshots,
+  claimDeployment,
   defaultClaimPolicy,
+  deploymentCountProvider,
+  fetchResourceUsage,
+  getLostAddresses,
+  isAssignmentModeEnabled,
+  loadActiveNodeUnits,
+  normalizeDesiredReplicas,
+  normalizeHeartbeatIntervalSeconds,
+  normalizeLeaseTtlSeconds,
+  normalizeSelector,
+  parseWeight,
+  pickCandidateDeployment,
+  resolveNodeUnitTerminalIds,
   resourceOnlyPolicy,
+  resourceUsageProvider,
 };
