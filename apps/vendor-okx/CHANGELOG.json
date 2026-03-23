@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.33.9",
+      "tag": "@yuants/vendor-okx_v0.33.9",
+      "date": "Mon, 23 Mar 2026 12:33:34 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/http-services\" to `0.5.3`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.33.8",
       "tag": "@yuants/vendor-okx_v0.33.8",
       "date": "Wed, 18 Mar 2026 16:27:24 GMT",
