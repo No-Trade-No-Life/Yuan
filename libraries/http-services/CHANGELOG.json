@@ -2,6 +2,23 @@
   "name": "@yuants/http-services",
   "entries": [
     {
+      "version": "0.5.3",
+      "tag": "@yuants/http-services_v0.5.3",
+      "date": "Mon, 23 Mar 2026 12:33:34 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove whitelist"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.2",
       "tag": "@yuants/http-services_v0.5.2",
       "date": "Wed, 18 Mar 2026 16:27:24 GMT",
