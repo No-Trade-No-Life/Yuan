@@ -37,6 +37,16 @@
 - 实现：新增 http-services 异步 proxy ip 选择（固定 30s），并将 vendor 调用点改为 await 版本。
 - 生成 code/security review 报告与 walkthrough/PR body。
 - 已推送分支 `legion/http-services-terminalinfos-ready` 并创建 PR：https://github.com/No-Trade-No-Life/Yuan/pull/2565。
+- 用户确认设计后已进入实现阶段。
+- 已完成 `deployment` 扩展字段与 `deployment_assignment` 表/索引迁移。
+- 已扩展 `libraries/deploy` 类型定义，接入 assignment 数据模型。
+- 已实现 scheduler 的 Phase A assignment/selector/address 派生与 rollback gate 最小闭环。
+- 已实现 executor 的 assignment 读取、heartbeat/lease CAS 续租、legacy fencing 与节点代际上报。
+- 已完成 `apps/node-unit` build/test 与 `rush build --to @yuants/node-unit` 验证。
+- 已完成 pg17 环境下的两轮 daemon assignment E2E 尝试，并确认 assignment 创建成功。
+- 已改造 `apps/node-unit/scripts/e2e-daemon-type.sh`，支持 `TIMESCALE_IMAGE`（默认 pg17）、assignment mode 开关、assignment 行断言与可选 heartbeat 断言。
+- 已用改造后的现成脚本完成两轮验证：默认 daemon 路径通过；assignment mode（`NODE_UNIT_ASSIGNMENT_FEATURE_FLAG=true`）下 assignment 行数断言通过。
+- 已新增 daemon/selectors 实现说明文档，解释 daemon 的 assignment 方案与 selector 的解析/匹配/调度逻辑。
 
 ### ⚠️ 阻塞/待定
 

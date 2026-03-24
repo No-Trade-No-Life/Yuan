@@ -2254,3 +2254,29 @@
 2026-03-21T13:58:24.002Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addConstraint: `terminal_id`、`hostname`、`ip_source` 只允许用于观测、缓存、诊断上下文，不得重新进入 HTTPProxy trust boundary 或自动 route pin。,success
 2026-03-21T13:58:24.033Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addFile: .legion/playbook.md,success
 2026-03-21T13:58:24.036Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,handoff: 如需提交/开 PR，可直接使用 `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/pr-body.md` 作为 PR 描述。,success
+2026-03-23T06:06:00.001Z,legion_list_tasks,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
+2026-03-23T06:06:00.005Z,legion_get_status,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
+2026-03-23T06:06:11.026Z,legion_switch_task,node-unit-daemon-deployment-design-refresh,,Claude,taskId: node-unit-daemon-deployment-design-refresh,failed
+2026-03-23T06:06:11.027Z,legion_list_reviews,node-unit-daemon-deployment-design-refresh,,Claude,"status: open, type: all",failed
+2026-03-23T06:07:57.921Z,legion_get_status,node-unit-daemon-deployment-design-refresh,,Claude,,failed
+2026-03-23T06:07:57.937Z,legion_list_reviews,node-unit-daemon-deployment-design-refresh,,Claude,"status: open, type: all",failed
+2026-03-23T06:07:57.938Z,legion_read_context,node-unit-daemon-deployment-design-refresh,,Claude,"section: all, includeReviews: true",failed
+2026-03-23T06:32:30.990Z,legion_get_status,node-unit-daemon-deployment-design-refresh,,Claude,,failed
+2026-03-23T06:32:30.993Z,legion_read_context,node-unit-daemon-deployment-design-refresh,,Claude,"section: all, includeReviews: true",failed
+2026-03-23T06:32:36.195Z,legion_get_status,node-unit-daemon-deployment-design-refresh,,Claude,,failed
+2026-03-23T06:32:36.203Z,legion_read_context,node-unit-daemon-deployment-design-refresh,,Claude,"section: all, includeReviews: true",failed
+2026-03-23T06:32:39.102Z,legion_list_tasks,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
+2026-03-23T06:50:28.786Z,legion_read_context,node-unit-daemon-deployment-design-refresh,,Claude,"section: all, includeReviews: true",failed
+2026-03-23T06:50:28.789Z,legion_get_status,node-unit-daemon-deployment-design-refresh,,Claude,,failed
+2026-03-23T06:50:32.897Z,legion_get_status,node-unit-daemon-deployment-design-refresh,,Claude,,failed
+2026-03-23T06:50:32.904Z,legion_read_context,node-unit-daemon-deployment-design-refresh,,Claude,"section: all, includeReviews: true",failed
+2026-03-23T06:50:39.058Z,legion_list_tasks,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
+2026-03-23T07:01:34.163Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addDecision: E2E 改用 pg17 镜像继续验证 assignment 路径。,success
+2026-03-23T07:01:40.685Z,legion_update_tasks,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,completeTask: 实现 `deployment_assignment` 数据模型、调度器 lease/state 流程与回滚 gate。,success
+2026-03-23T07:01:40.693Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addFile: .legion/tasks/node-unit-daemon-deployment-design-refresh/docs/review-code.md,success
+2026-03-23T07:10:42.164Z,legion_list_reviews,node-unit-daemon-deployment-design-refresh,,Claude,"status: open, type: all",failed
+2026-03-23T07:13:27.636Z,legion_update_tasks,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,completeTask: 执行构建与端到端验证。,success
+2026-03-23T07:13:27.636Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addDecision: 优先改造现有 `e2e-daemon-type.sh`，而不是继续维护手写 E2E 命令。,success
+2026-03-23T09:28:09.318Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addFile: .legion/tasks/node-unit-daemon-deployment-design-refresh/docs/daemon-selector-implementation.md,success
+2026-03-23T09:28:09.392Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,progress.completed: 已新增 daemon/selectors 实现说明文档，解释 daemon 的 assignment 方案与 selector 的解析/匹配/调度逻辑。,success
+2026-03-23T09:33:58.643Z,legion_update_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,addFile: apps/node-unit/DAEMON_SELECTOR_IMPLEMENTATION.md,success

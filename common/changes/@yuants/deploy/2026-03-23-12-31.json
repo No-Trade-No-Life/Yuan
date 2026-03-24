@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/deploy",
+      "comment": "add real schedule infoi",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/deploy"
+}
