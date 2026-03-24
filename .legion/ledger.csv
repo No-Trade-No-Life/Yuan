@@ -697,9 +697,6 @@
 2026-01-05T09:29:59.546Z,legion_update_tasks,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,completeTask: phase 2,success
 2026-01-05T09:31:37.653Z,legion_update_tasks,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,completeTask: phase 2,success
 2026-01-05T09:32:21.884Z,legion_update_context,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,progress.completed: 升级 Rush 到 5.165.0，PNPM 到 10.27.0，并完成 `rush update --full`/`rush install`,success
-2026-01-07T08:22:16.395Z,legion_get_status,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,,success
-2026-01-07T08:22:19.554Z,legion_read_context,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,"section: all, includeReviews: true",success
-2026-01-07T08:29:51.803Z,legion_propose_task,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,name: 移除旧 ohlc 表引用并切换到 ohlc_v2,success
 2026-01-07T02:55:02.986Z,legion_get_status,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,,success
 2026-01-07T02:55:19.415Z,legion_switch_task,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,taskId: hyperliquid-api-tokenbucket,success
 2026-01-07T02:55:22.696Z,legion_list_reviews,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,status: open,success
@@ -708,8 +705,9 @@
 2026-01-07T03:03:28.451Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,addFile: apps/vendor-hyperliquid/src/api/public-api.ts,success
 2026-01-07T03:03:31.219Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,addFile: apps/vendor-hyperliquid/src/api/private-api.ts,success
 2026-01-07T03:03:41.495Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,handoff: 如需继续扩充 Hyperliquid API 封装：沿用本次模式先加 `build*RequestBody`/`build*Action` 再补离线单测，避免引入网络或 mock,success
-2026-01-07T10:32:05.508Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,addFile: apps/vendor-hyperliquid/src/api/rate-limit.test.ts,success
-2026-01-07T11:03:38.110Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,addFile: apps/vendor-hyperliquid/src/api/rate-limit.ts,success
+2026-01-07T08:22:16.395Z,legion_get_status,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,,success
+2026-01-07T08:22:19.554Z,legion_read_context,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,"section: all, includeReviews: true",success
+2026-01-07T08:29:51.803Z,legion_propose_task,rush-pnpm-tsheft-2026-01,全仓 Rush + PNPM + TS/Heft 工具链升级（2026-01）,Claude,name: 移除旧 ohlc 表引用并切换到 ohlc_v2,success
 2026-01-07T08:31:34.459Z,legion_approve_proposal,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,proposalId: proposal-mk3rcks9-273cc4,success
 2026-01-07T08:31:38.899Z,legion_switch_task,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,taskId: ohlc-ohlc-v2,success
 2026-01-07T08:31:44.328Z,legion_read_context,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,"section: all, includeReviews: true",success
@@ -729,6 +727,8 @@
 2026-01-07T09:00:28.350Z,legion_update_tasks,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,setCurrentTask: 逐文件替换 `ohlc` -> `ohlc_v2`，并同步调整 `series_id` 编码/解码与写入列集合，移除旧表写入。,success
 2026-01-07T09:35:08.082Z,legion_update_context,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,progress.completed: 已删除所有基于 createSeriesProvider 的旧 OHLC/interest_rate 脚本与入口（binance/bitget/okx/aster/gate/hyperliquid/tq 等）并清理对应 import。,success
 2026-01-07T09:35:13.641Z,legion_update_tasks,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,completeTask: 逐文件替换 `ohlc` -> `ohlc_v2`，并同步调整 `series_id` 编码/解码与写入列集合，移除旧表写入。,success
+2026-01-07T10:32:05.508Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,addFile: apps/vendor-hyperliquid/src/api/rate-limit.test.ts,success
+2026-01-07T11:03:38.110Z,legion_update_context,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,addFile: apps/vendor-hyperliquid/src/api/rate-limit.ts,success
 2026-01-11T05:50:57.582Z,legion_init,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,workingDirectory: /Users/c1/Work/Yuan,success
 2026-01-11T05:51:00.576Z,legion_get_status,hyperliquid-api-tokenbucket,Hyperliquid API tokenBucket：按官方限额主动限流,Claude,,success
 2026-01-11T05:51:05.560Z,legion_switch_task,ohlc-ohlc-v2,移除旧 ohlc 表引用并切换到 ohlc_v2,Claude,taskId: ohlc-ohlc-v2,success
@@ -1583,8 +1583,8 @@
 2026-02-03T10:50:32.302Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics 修订：Host 头匹配需大小写不敏感或先小写化,success
 2026-02-03T10:51:20.397Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addConstraint: 修订 RFC：host_header 小写化/大小写不敏感；ip_literal 识别收敛；限定支持的 URL scheme 列表。,success
 2026-02-03T10:51:20.497Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：host_header 大小写与尾点规则（先小写化再校验）,success
-2026-02-03T10:51:20.498Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：限定允许的绝对 URL scheme 列表（http/https）,success
 2026-02-03T10:51:20.498Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：收敛 ip_literal 识别规则，避免 '%' 误判,success
+2026-02-03T10:51:20.498Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：限定允许的绝对 URL scheme 列表（http/https）,success
 2026-02-03T10:51:28.787Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
 2026-02-03T10:51:31.406Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
 2026-02-03T10:55:17.463Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
@@ -1629,8 +1629,8 @@
 2026-02-03T13:47:42.594Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,handoff: 修订 rfc-metrics.md：明确 host_header 预处理顺序与 URL 构造字符串，消除 R12/R14 歧义。,success
 2026-02-03T13:47:45.875Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics 对抗复审完成（结论 NEEDS_CHANGES，输出 review-rfc-metrics.md）,success
 2026-02-03T13:47:51.439Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：明确 host_header 预处理顺序与 URL 构造字符串，消除 R12/R14 歧义,success
-2026-02-03T13:47:51.453Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：补齐 allowedHosts fail-fast 既有基线证据或加入兼容/迁移与回滚说明,success
 2026-02-03T13:47:51.453Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：声明指标解析必须复用现有 SSRF/请求解析结果或引用同一解析函数，避免解析分歧,success
+2026-02-03T13:47:51.453Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：补齐 allowedHosts fail-fast 既有基线证据或加入兼容/迁移与回滚说明,success
 2026-02-03T13:49:33.775Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
 2026-02-03T13:55:54.565Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
 2026-02-03T13:55:56.636Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
@@ -1639,9 +1639,9 @@
 2026-02-03T14:05:20.927Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
 2026-02-03T14:08:04.645Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 完成 RFC metrics 对抗复审（结论 NEEDS_CHANGES）。,success
 2026-02-03T14:08:11.123Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 写入 review-rfc-metrics.md（输出对抗复审报告）,success
-2026-02-03T14:08:11.164Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：明确 allowedHosts 缺失/非法/超限时的启动行为仅复用既有逻辑，指标注册随配置有效性变化,success
 2026-02-03T14:08:11.164Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：对齐 absolute-form-only 与现有请求解析行为（必要时删除/调整 R5）,success
 2026-02-03T14:08:11.164Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：明确 IP 字面量判定来源（复用 parse_result 或现有 SSRF 判定函数）并补测试,success
+2026-02-03T14:08:11.164Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：明确 allowedHosts 缺失/非法/超限时的启动行为仅复用既有逻辑，指标注册随配置有效性变化,success
 2026-02-03T14:16:47.575Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addConstraint: 修订 RFC：用现有 schema 证明 absolute-form-only；明确 allowedHosts 启动行为复用既有逻辑；IP 判定复用 parsed_url + net.isIP。,success
 2026-02-03T14:16:47.742Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：澄清 allowedHosts 启动行为复用既有逻辑,success
 2026-02-03T14:16:47.743Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：补充 absolute-form-only 的现有证据/引用并新增验证用例,success
@@ -1661,26 +1661,52 @@
 2026-02-03T14:24:44.867Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
 2026-02-03T14:27:14.906Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
 2026-02-03T14:28:45.242Z,legion_update_tasks,,,Claude,addDiscoveredTask: RFC metrics：定义 allowedHosts 合法性与上限（或引用既有校验实现），补可验证用例,success
-2026-02-03T14:28:45.243Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：明确 writeback_success/writeback_failure 的可观察性与优先级，保证可测试,success
 2026-02-03T14:28:45.243Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：修正 parse_result 字段命名一致性并明确 scheme 范围（http/https 或 invalid_url）,success
 2026-02-03T14:28:45.243Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：对齐 allowedHosts 缺失/非法时启动语义与实际实现，并补兼容/回滚说明,success
+2026-02-03T14:28:45.243Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: RFC metrics：明确 writeback_success/writeback_failure 的可观察性与优先级，保证可测试,success
 2026-02-03T14:28:45.244Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addFile: .legion/tasks/http-proxy-app-implementation/docs/review-rfc-metrics.md,success
 2026-02-03T14:29:34.071Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
 2026-02-03T16:35:08.680Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
 2026-02-03T16:37:17.181Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
 2026-02-03T16:37:21.149Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T16:38:00.896Z,legion_get_status,,,Claude,,success
+2026-02-03T16:40:14.615Z,legion_propose_task,,,Claude,name: vendor-tokenbucket-proxy-ip,success
+2026-02-03T16:40:42.609Z,legion_approve_proposal,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,proposalId: proposal-ml6tr7kc-530490,success
 2026-02-03T16:41:04.649Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
 2026-02-03T16:41:08.846Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-03T16:41:38.297Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,setCurrentTask: 定位各 vendor 的 tokenBucket key 生成位置与 USE_HTTP_PROXY 路径，并梳理 http-proxy 终端标签（ip/hostname）注入与路由流程。,success
+2026-02-03T16:41:43.350Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-03T16:42:18.226Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-03T16:42:20.456Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-03T16:44:23.353Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-03T16:44:27.189Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
 2026-02-03T16:44:33.531Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T16:47:15.610Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,handoff: 一旦允许写文件，落盘审查报告到 `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-rfc.md`。,success
+2026-02-03T16:47:15.626Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 将 RFC 对抗审查报告写入 `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-rfc.md` 并在 tasks.md 标记完成。,success
 2026-02-03T16:48:25.599Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-03T16:50:45.475Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,setCurrentTask: 设计 tokenBucket key 拼接规则与获取目标 proxy ip 标签的机制（含一致性与随机路由的处理）。,success
+2026-02-03T16:50:52.787Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"addDecision: tokenBucket key 统一使用 `encodePath([BaseKey, ip])`，代理场景优先 `tags.ip`、fallback 到 `tags.public_ip`，直连使用 `terminal.terminalInfo.tags.public_ip`；不新增开关，回滚通过版本回退。",success
+2026-02-04T03:27:57.058Z,legion_list_reviews,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,status: open,success
+2026-02-04T03:29:50.604Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 已响应 RFC review：明确 `req.labels.ip` 已指定时直接使用该 ip 并保持 labels 发送请求，避免重复 resolve。,success
+2026-02-04T03:31:22.866Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 已根据 review 增补 RFC：引入 Label-Pinned Proxy IP 概念，明确 labels.ip 已指定时不再 resolve，并在设计/计划中区分两条路径。,success
+2026-02-04T03:31:28.978Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-02-04T03:31:31.135Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
 2026-02-04T03:32:11.494Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 设计审批通过（用户确认）- HTTP Proxy 目标域名指标 RFC,success
 2026-02-04T03:32:18.633Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 设计审批通过（用户确认）- HTTP Proxy 目标域名指标 RFC,success
 2026-02-04T03:32:23.101Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: 进入实现阶段（HTTP Proxy 目标域名指标）,success
 2026-02-04T03:32:34.798Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
 2026-02-04T03:32:37.445Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-04T03:33:20.544Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 更新 RFC 对抗审查要点，聚焦 labels.ip 绑定出口一致性与风险。,success
+2026-02-04T03:33:24.465Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addTask: RFC 对抗审查报告更新并落盘（聚焦 labels.ip 绑定出口一致性风险）。,success
+2026-02-04T03:33:28.938Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修正 RFC：明确 labels.ip 绑定出口的一致性契约、来源/权限、冲突处置与可验证性。,success
+2026-02-04T03:35:52.468Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-02-04T03:37:30.480Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
 2026-02-04T03:37:32.839Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-04T03:38:43.215Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addConstraint: 当前工具权限限制无法直接写入 review-rfc.md 文件内容。,success
+2026-02-04T03:38:48.038Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 将更新后的 RFC 对抗审查报告正文写入 `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-rfc.md` 并在 tasks.md 标记完成。,success
+2026-02-04T03:40:38.075Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 已按最新对抗审查补充 RFC：新增 labels.ip 验证顺序与错误码（E_PROXY_IP_INVALID/NOT_AVAILABLE），定义多 target 同 IP 的确定性选择规则，并补齐 Testability/Observability。,success
+2026-02-04T03:40:44.819Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T03:40:47.674Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
 2026-02-04T03:41:59.710Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: target_host 指标仅在 allowedHosts 非空时注册，allowedHosts 含端口仅告警且不参与匹配；result 映射复用 error.code 等价信号,success
 2026-02-04T03:41:59.712Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addFile: libraries/http-services/src/__tests__/server.test.ts,success
 2026-02-04T03:41:59.714Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addTask: 实现 target_host 指标采集与 result 映射,success
@@ -1689,8 +1715,14 @@
 2026-02-04T03:41:59.754Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 新增 target_host 指标最小单测覆盖,success
 2026-02-04T03:42:31.934Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
 2026-02-04T03:42:32.539Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-04T03:43:27.817Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addConstraint: labels.ip 可信来源校验缺少可执行信号，导致 R11 不可实现/不可验证。,success
+2026-02-04T03:43:27.817Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 补齐 RFC：定义可验证的 labels.ip 可信来源信号与校验失败错误码映射闭环。,success
+2026-02-04T03:43:27.818Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 补齐 RFC：labels.ip 路径强制 target-aware fetch（resolve -> 确定性选择 -> 固定 target 发送）。,success
+2026-02-04T03:43:27.818Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 补齐 RFC：测试与可观测断言覆盖校验顺序与确定性 target 选择（含 resolve 未触发断言）。,success
 2026-02-04T03:44:40.491Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: 测试失败判定为 impl-dev 问题（实现未将 INVALID_URL 映射为 invalid_url，或 error.code 未正确设置）。,success
 2026-02-04T03:44:44.715Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 测试执行（libraries/http-services `rushx build`）失败：invalid_url 结果映射错误需修复,success
+2026-02-04T03:44:58.888Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 已根据最新审查意见更新 RFC：labels.ip 仅允许 helper 写入；校验顺序明确为格式/来源/匹配；labels.ip 路径强制 target-aware fetch；补充错误语义映射与校验阶段观测。,success
+2026-02-04T03:45:53.367Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-02-04T03:46:27.926Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
 2026-02-04T03:46:58.358Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: 本次测试失败归因 impl-dev（错误码/结果映射与规范/测试不一致）,success
 2026-02-04T03:46:58.424Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,setCurrentTask: 测试执行（libraries/http-services `rushx build`）失败：invalid_url 结果映射错误需修复,success
@@ -1698,80 +1730,6 @@
 2026-02-04T03:47:52.171Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: 确认 http-services `rushx build` 通过，无需回到 impl 阶段修复。,success
 2026-02-04T03:47:54.300Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 测试执行,success
 2026-02-04T03:48:10.650Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
-2026-02-04T03:56:26.723Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
-2026-02-04T03:58:07.649Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
-2026-02-04T04:02:06.980Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addConstraint: security review FAIL，需先处理 blocking 再继续报告阶段。,success
-2026-02-04T04:02:06.993Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 修复安全阻塞：allowedHosts 为空时开放代理风险（需 fail-fast/强限制）,success
-2026-02-04T04:02:07.162Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 修复安全阻塞：req.timeout 缺少上限导致 DoS 风险,success
-2026-02-04T04:07:23.833Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: 接受安全阻塞风险（开放代理/timeout 无上限）并在 RFC 明确隔离前提,success
-2026-02-04T04:07:24.037Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 记录风险接受：allowedHosts 为空与 timeout 无上限的隔离前提（RFC R27a/R27b）,success
-2026-02-04T04:07:38.498Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
-2026-02-04T04:09:54.661Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 安全审查复审完成：review-security-metrics.md 结论 FAIL。,success
-2026-02-04T04:09:54.888Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 处理安全阻塞或明确 wontfix：allowedHosts 为空开放代理风险,success
-2026-02-04T04:09:54.902Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 处理安全阻塞或明确 wontfix：req.timeout 无上限 DoS 风险,success
-2026-02-04T04:11:34.000Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: 安全审查 blocking 标记为 wontfix,success
-2026-02-04T04:11:34.071Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 处理安全阻塞或明确 wontfix：allowedHosts 为空开放代理风险,success
-2026-02-04T04:11:34.116Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 处理安全阻塞或明确 wontfix：req.timeout 无上限 DoS 风险,success
-2026-02-04T04:11:45.498Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
-2026-02-04T04:11:50.161Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
-2026-02-04T04:11:50.161Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: handoff, includeReviews: true",success
-2026-02-04T04:13:16.493Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 阶段 4 - Review: 完成 code/security review（security 标记 wontfix）,success
-2026-02-04T04:13:16.496Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 阶段 3 - Verification: 运行 rushx build 并通过,success
-2026-02-04T04:13:16.496Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 阶段 2 - Implementation: 实现 http-proxy target_host 指标与单测,success
-2026-02-04T04:13:16.497Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 阶段 5 - Report: 生成 report-walkthrough-metrics 与 pr-body-metrics,success
-2026-02-04T04:13:16.517Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 实现完成：新增 target_host 指标与最小单测，修复 INVALID_URL 映射并通过 rushx build。,success
-2026-02-04T07:22:06.142Z,legion_list_reviews,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,status: open,success
-2026-02-04T07:27:08.784Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: 指标统计覆盖所有 fetch 目标 host+path，不再依赖 allowedHosts 过滤,success
-2026-02-04T07:27:40.034Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 已响应 rfc-metrics review 并调整 RFC/代码：指标统计覆盖所有 host+path，target_path 标签落地。,success
-2026-02-04T07:27:40.055Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 处理 rfc-metrics review：去除 allowedHosts gating，新增 target_path 指标并同步实现与测试,success
-2026-02-04T07:27:40.120Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 处理 rfc-metrics review：去除 allowedHosts gating，新增 target_path 指标并同步实现与测试,success
-2026-02-04T07:36:18.438Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
-2026-02-04T07:36:20.958Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
-2026-02-04T07:43:02.041Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
-2026-02-04T07:43:04.190Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
-2026-02-04T07:49:35.661Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 按 review 意见改码：新增 target_path 维度、移除 allowedHosts gating、删除未用函数并补充单测。,success
-2026-02-04T07:49:35.685Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 按 review 意见改码并补充单测（target_path + labels）,success
-2026-02-04T07:49:35.709Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 按 review 意见改码并补充单测（target_path + labels）,success
-2026-02-04T07:56:28.210Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 记录高基数风险的预留方案：target_path 归一化/前缀过滤/分层指标。,failed
-2026-02-04T07:56:28.218Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 评估 target_path 高基数风险：路径归一化/前缀过滤/分层指标方案,success
-2026-02-04T07:56:33.247Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 记录高基数风险的预留方案：target_path 归一化/前缀过滤/分层指标。,success
-2026-02-04T07:59:54.858Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
-2026-02-04T08:00:32.671Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 移除 unused warnedAllowedHostsWithPort 逻辑并更新测试/RFC/plan。,success
-2026-02-04T08:00:32.672Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 移除 warnedAllowedHostsWithPort 并更新测试/RFC/plan,success
-2026-02-04T08:00:32.750Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 移除 warnedAllowedHostsWithPort 并更新测试/RFC/plan,success
-2026-02-04T08:02:23.141Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
-2026-02-03T16:38:00.896Z,legion_get_status,,,Claude,,success
-2026-02-03T16:40:14.615Z,legion_propose_task,,,Claude,name: vendor-tokenbucket-proxy-ip,success
-2026-02-03T16:40:42.609Z,legion_approve_proposal,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,proposalId: proposal-ml6tr7kc-530490,success
-2026-02-03T16:41:38.297Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,setCurrentTask: 定位各 vendor 的 tokenBucket key 生成位置与 USE_HTTP_PROXY 路径，并梳理 http-proxy 终端标签（ip/hostname）注入与路由流程。,success
-2026-02-03T16:41:43.350Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
-2026-02-03T16:42:18.226Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
-2026-02-03T16:42:20.456Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
-2026-02-03T16:44:23.353Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
-2026-02-03T16:44:27.189Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
-2026-02-03T16:47:15.610Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,handoff: 一旦允许写文件，落盘审查报告到 `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-rfc.md`。,success
-2026-02-03T16:47:15.626Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 将 RFC 对抗审查报告写入 `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-rfc.md` 并在 tasks.md 标记完成。,success
-2026-02-03T16:50:45.475Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,setCurrentTask: 设计 tokenBucket key 拼接规则与获取目标 proxy ip 标签的机制（含一致性与随机路由的处理）。,success
-2026-02-03T16:50:52.787Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"addDecision: tokenBucket key 统一使用 `encodePath([BaseKey, ip])`，代理场景优先 `tags.ip`、fallback 到 `tags.public_ip`，直连使用 `terminal.terminalInfo.tags.public_ip`；不新增开关，回滚通过版本回退。",success
-2026-02-04T03:27:57.058Z,legion_list_reviews,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,status: open,success
-2026-02-04T03:29:50.604Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 已响应 RFC review：明确 `req.labels.ip` 已指定时直接使用该 ip 并保持 labels 发送请求，避免重复 resolve。,success
-2026-02-04T03:31:22.866Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 已根据 review 增补 RFC：引入 Label-Pinned Proxy IP 概念，明确 labels.ip 已指定时不再 resolve，并在设计/计划中区分两条路径。,success
-2026-02-04T03:31:28.978Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
-2026-02-04T03:33:20.544Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 更新 RFC 对抗审查要点，聚焦 labels.ip 绑定出口一致性与风险。,success
-2026-02-04T03:33:24.465Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addTask: RFC 对抗审查报告更新并落盘（聚焦 labels.ip 绑定出口一致性风险）。,success
-2026-02-04T03:33:28.938Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修正 RFC：明确 labels.ip 绑定出口的一致性契约、来源/权限、冲突处置与可验证性。,success
-2026-02-04T03:35:52.468Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
-2026-02-04T03:38:43.215Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addConstraint: 当前工具权限限制无法直接写入 review-rfc.md 文件内容。,success
-2026-02-04T03:38:48.038Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 将更新后的 RFC 对抗审查报告正文写入 `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-rfc.md` 并在 tasks.md 标记完成。,success
-2026-02-04T03:40:38.075Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 已按最新对抗审查补充 RFC：新增 labels.ip 验证顺序与错误码（E_PROXY_IP_INVALID/NOT_AVAILABLE），定义多 target 同 IP 的确定性选择规则，并补齐 Testability/Observability。,success
-2026-02-04T03:40:44.819Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
-2026-02-04T03:40:47.674Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
-2026-02-04T03:43:27.817Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 补齐 RFC：定义可验证的 labels.ip 可信来源信号与校验失败错误码映射闭环。,success
-2026-02-04T03:43:27.817Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addConstraint: labels.ip 可信来源校验缺少可执行信号，导致 R11 不可实现/不可验证。,success
-2026-02-04T03:43:27.818Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 补齐 RFC：labels.ip 路径强制 target-aware fetch（resolve -> 确定性选择 -> 固定 target 发送）。,success
-2026-02-04T03:43:27.818Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 补齐 RFC：测试与可观测断言覆盖校验顺序与确定性 target 选择（含 resolve 未触发断言）。,success
-2026-02-04T03:44:58.888Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 已根据最新审查意见更新 RFC：labels.ip 仅允许 helper 写入；校验顺序明确为格式/来源/匹配；labels.ip 路径强制 target-aware fetch；补充错误语义映射与校验阶段观测。,success
-2026-02-04T03:45:53.367Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-02-04T03:49:15.420Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDecision: 本次审查建议补齐 labels.ip 可信来源/绑定机制与错误语义闭环后再进入实现阶段。,success
 2026-02-04T03:49:15.475Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修正 RFC：定义 labels.ip 可信来源信号与绑定字段/校验方式，保证校验顺序可实现。,success
 2026-02-04T03:49:15.476Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修正 RFC：明确 labels.ip 与 tags.ip/tags.public_ip 的匹配边界，补齐错误语义映射与测试断言闭环。,success
@@ -1789,7 +1747,9 @@
 2026-02-04T03:56:01.163Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-02-04T03:56:05.330Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-02-04T03:56:10.405Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T03:56:26.723Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
 2026-02-04T03:58:01.239Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T03:58:07.649Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
 2026-02-04T03:59:12.253Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-02-04T04:00:02.635Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addConstraint: 当前工具权限无法写入/编辑文件（Write/Edit/apply_patch 被禁），仅可输出正文与更新 legionmind 状态。,success
 2026-02-04T04:00:05.754Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 将本次对抗审查正文写入 `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-rfc.md`。,success
@@ -1798,11 +1758,14 @@
 2026-02-04T04:00:14.900Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修正 RFC：补齐错误语义映射表与可验证断言（格式失败/来源不可信/匹配失败/resolve 失败），包含 resolve 未触发与确定性选择测试。,success
 2026-02-04T04:01:20.409Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 已明确 Proxy IP Fallback 仅适用于无 hint 分支，并补充 hint 分支缺失 tags.ip 的错误语义。,success
 2026-02-04T04:01:26.501Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T04:02:06.980Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addConstraint: security review FAIL，需先处理 blocking 再继续报告阶段。,success
+2026-02-04T04:02:06.993Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 修复安全阻塞：allowedHosts 为空时开放代理风险（需 fail-fast/强限制）,success
+2026-02-04T04:02:07.162Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 修复安全阻塞：req.timeout 缺少上限导致 DoS 风险,success
 2026-02-04T04:03:40.405Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addConstraint: 审查报告文件需人工写入，当前工具无直接写文件能力。,success
 2026-02-04T04:03:40.437Z,legion_update_tasks,,,Claude,addDiscoveredTask: 修正 RFC：明确 hint 分支禁止 fallback，并同步到 R4/Data Model/错误语义（缺失 tags.ip -> E_PROXY_IP_NOT_AVAILABLE）。,success
 2026-02-04T04:03:40.438Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 将本次对抗审查正文写入 `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-rfc.md`。,success
-2026-02-04T04:03:40.439Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修正 RFC：统一校验顺序与错误语义映射（格式/来源 -> E_PROXY_IP_INVALID，匹配失败 -> E_PROXY_IP_NOT_AVAILABLE，resolve 失败 -> E_PROXY_TARGET_NOT_FOUND），并规定失败时不得触发 resolve。,success
 2026-02-04T04:03:40.439Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修正 RFC Testability：labels.ip 术语改为 proxy_ip_hint，补齐 hint 分支缺失 tags.ip 与 resolve 未触发的断言。,success
+2026-02-04T04:03:40.439Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修正 RFC：统一校验顺序与错误语义映射（格式/来源 -> E_PROXY_IP_INVALID，匹配失败 -> E_PROXY_IP_NOT_AVAILABLE，resolve 失败 -> E_PROXY_TARGET_NOT_FOUND），并规定失败时不得触发 resolve。,success
 2026-02-04T04:04:48.464Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: RFC 已同步修正：R4 明确 fallback 仅无 hint 分支；确定性选择改为 terminal_id+service_id；修复 Testability/Review 响应中的 labels.ip 术语。,success
 2026-02-04T04:04:56.079Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-02-04T04:04:58.552Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
@@ -1810,14 +1773,31 @@
 2026-02-04T04:06:46.357Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修订 RFC：收敛 hint 分支“禁止 fallback”与 Data Model/兼容策略/Plan 的表述，明确 hint 分支缺失 tags.ip 即硬失败。,success
 2026-02-04T04:06:49.283Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修订 RFC：补齐错误语义映射（分支+阶段 -> 错误码），并明确 format/source 失败不触发 resolve。,success
 2026-02-04T04:06:52.089Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修订 RFC Testability：确定性选择断言改为 terminal_id+service_id，并增加 hint 分支缺失 tags.ip 的失败断言（禁止 fallback）。,success
+2026-02-04T04:07:23.833Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: 接受安全阻塞风险（开放代理/timeout 无上限）并在 RFC 明确隔离前提,success
+2026-02-04T04:07:24.037Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 记录风险接受：allowedHosts 为空与 timeout 无上限的隔离前提（RFC R27a/R27b）,success
+2026-02-04T04:07:38.498Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
 2026-02-04T04:07:50.742Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: RFC 已补齐 hint 分支无 fallback 的数据模型/兼容策略，并修正 Testability（terminal_id+service_id、hint 分支禁用 fallback）。,success
 2026-02-04T04:07:58.652Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-02-04T04:08:02.236Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T04:09:54.661Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 安全审查复审完成：review-security-metrics.md 结论 FAIL。,success
+2026-02-04T04:09:54.888Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 处理安全阻塞或明确 wontfix：allowedHosts 为空开放代理风险,success
+2026-02-04T04:09:54.902Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 处理安全阻塞或明确 wontfix：req.timeout 无上限 DoS 风险,success
 2026-02-04T04:10:00.449Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 完成对最新 RFC 的对抗审查，核对 hint 分支无 fallback 与错误映射闭环；发现 ProxyTargetBinding 约束与 Testability R4 断言不一致，仍需修订。,success
 2026-02-04T04:10:04.425Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修订 RFC：ProxyTargetBinding 的 proxy_ip 约束需明确 hint 分支禁止 fallback（仅允许 tags.ip）。,success
 2026-02-04T04:10:04.439Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修订 RFC Testability：R4 断言需体现 ip 缺失时先 fallback 到 public_ip，仅在双缺失时使用 proxy-unknown。,success
 2026-02-04T04:10:41.759Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: RFC 已修正 ProxyTargetBinding 分支约束，并补齐 Testability 的 R4 fallback 断言。,success
 2026-02-04T04:10:48.550Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-02-04T04:11:34.000Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: 安全审查 blocking 标记为 wontfix,success
+2026-02-04T04:11:34.071Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 处理安全阻塞或明确 wontfix：allowedHosts 为空开放代理风险,success
+2026-02-04T04:11:34.116Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 处理安全阻塞或明确 wontfix：req.timeout 无上限 DoS 风险,success
+2026-02-04T04:11:45.498Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-04T04:11:50.161Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
+2026-02-04T04:11:50.161Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: handoff, includeReviews: true",success
+2026-02-04T04:13:16.493Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 阶段 4 - Review: 完成 code/security review（security 标记 wontfix）,success
+2026-02-04T04:13:16.496Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 阶段 2 - Implementation: 实现 http-proxy target_host 指标与单测,success
+2026-02-04T04:13:16.496Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 阶段 3 - Verification: 运行 rushx build 并通过,success
+2026-02-04T04:13:16.497Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 阶段 5 - Report: 生成 report-walkthrough-metrics 与 pr-body-metrics,success
+2026-02-04T04:13:16.517Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 实现完成：新增 target_host 指标与最小单测，修复 INVALID_URL 映射并通过 rushx build。,success
 2026-02-04T04:13:25.314Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: RFC 已补齐 hint 分支 binding 与 proxy_ip_hint 一致性要求，并在 Testability 增加对应断言。,success
 2026-02-04T04:13:33.276Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-02-04T04:13:35.253Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
@@ -1848,18 +1828,38 @@
 2026-02-04T07:19:17.093Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: RFC 已补充 resolveHTTPProxyTarget 的错误码归属表，封闭 error_code 边界与阶段归属。,success
 2026-02-04T07:19:23.915Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-02-04T07:19:26.030Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T07:22:06.142Z,legion_list_reviews,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,status: open,success
 2026-02-04T07:22:54.095Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: RFC 已移除 E_PUBLIC_IP_MISSING 作为返回错误码，改为直连场景日志/指标处理。,success
 2026-02-04T07:23:02.233Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-02-04T07:25:05.582Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: RFC 对抗审查已完成并确认无阻塞，报告写入 `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/review-rfc.md`。,success
 2026-02-04T07:25:15.549Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: 设计 tokenBucket key 拼接规则与获取目标 proxy ip 标签的机制（含一致性与随机路由的处理）。,success
+2026-02-04T07:27:08.784Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDecision: 指标统计覆盖所有 fetch 目标 host+path，不再依赖 allowedHosts 过滤,success
+2026-02-04T07:27:40.034Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 已响应 rfc-metrics review 并调整 RFC/代码：指标统计覆盖所有 host+path，target_path 标签落地。,success
+2026-02-04T07:27:40.055Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 处理 rfc-metrics review：去除 allowedHosts gating，新增 target_path 指标并同步实现与测试,success
+2026-02-04T07:27:40.120Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 处理 rfc-metrics review：去除 allowedHosts gating，新增 target_path 指标并同步实现与测试,success
+2026-02-04T07:36:18.438Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-04T07:36:20.958Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
 2026-02-04T07:40:44.971Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 已按 review 调整 RFC：取消新增 fetchViaHTTPProxyTarget，改为扩展现有 fetch 支持 proxy_ip_hint，并由 fetch 内部固定 target；labels.ip 仅用于观测。,success
+2026-02-04T07:43:02.041Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-04T07:43:04.190Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
 2026-02-04T07:45:08.694Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 按新增 review 调整 RFC：同 IP 多 proxy 允许随机路由，移除确定性选择要求。,success
 2026-02-04T07:48:03.543Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 已在 RFC 中响应“proxy_ip_hint 为什么需要”的 review，并解释其作为 labels.ip 路由提示的角色。,success
+2026-02-04T07:49:35.661Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 按 review 意见改码：新增 target_path 维度、移除 allowedHosts gating、删除未用函数并补充单测。,success
+2026-02-04T07:49:35.685Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 按 review 意见改码并补充单测（target_path + labels）,success
+2026-02-04T07:49:35.709Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 按 review 意见改码并补充单测（target_path + labels）,success
 2026-02-04T07:56:19.894Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 已按最新 review 重写 RFC：删除 proxy_ip_hint/固定 target 逻辑，改为 http-services helper 枚举 http-proxy ip 池并 round robin 选择，fetch 仅用 labels.ip 路由。,success
+2026-02-04T07:56:28.210Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 记录高基数风险的预留方案：target_path 归一化/前缀过滤/分层指标。,failed
+2026-02-04T07:56:28.218Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 评估 target_path 高基数风险：路径归一化/前缀过滤/分层指标方案,success
+2026-02-04T07:56:33.247Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 记录高基数风险的预留方案：target_path 归一化/前缀过滤/分层指标。,success
 2026-02-04T07:59:44.329Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 已按你的确认更新 RFC：将 ip 标签计算移到 http-services（computeAndInjectProxyIp），并加入 ip 池缓存与在 http-proxy 终端变更时刷新策略。,success
+2026-02-04T07:59:54.858Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
+2026-02-04T08:00:32.671Z,legion_update_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,progress.completed: 移除 unused warnedAllowedHostsWithPort 逻辑并更新测试/RFC/plan。,success
+2026-02-04T08:00:32.672Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,addDiscoveredTask: 移除 warnedAllowedHostsWithPort 并更新测试/RFC/plan,success
+2026-02-04T08:00:32.750Z,legion_update_tasks,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,completeTask: 移除 warnedAllowedHostsWithPort 并更新测试/RFC/plan,success
 2026-02-04T08:01:15.895Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-02-04T08:01:31.985Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-02-04T08:01:33.860Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-02-04T08:02:23.141Z,legion_get_status,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,,success
 2026-02-04T08:08:48.901Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-02-04T08:08:49.609Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-02-04T08:08:51.100Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
@@ -1883,8 +1883,8 @@
 2026-02-04T08:24:30.016Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
 2026-02-04T08:31:29.058Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: 记录与执行 vendor-binance 最小自测,success
 2026-02-04T08:31:29.059Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: vendor-binance tokenBucket key 增加 proxy ip 维度并通过 labels.ip 路由,success
-2026-02-04T08:31:29.061Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addFile: apps/vendor-binance/src/api/client.ts,success
 2026-02-04T08:31:29.060Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addTask: 记录与执行 vendor-binance 最小自测,success
+2026-02-04T08:31:29.061Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addFile: apps/vendor-binance/src/api/client.ts,success
 2026-02-04T08:31:29.063Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addTask: vendor-binance tokenBucket key 增加 proxy ip 维度并通过 labels.ip 路由,success
 2026-02-04T08:31:29.064Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addFile: apps/vendor-binance/src/api/private-api.ts,success
 2026-02-04T08:31:29.074Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addFile: apps/vendor-binance/src/api/public-api.ts,success
@@ -2134,13 +2134,13 @@
 2026-02-07T14:17:24.199Z,legion_get_status,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
 2026-02-07T14:17:40.720Z,legion_list_tasks,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,,success
 2026-02-07T14:17:47.625Z,legion_switch_task,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,taskId: vendor-tokenbucket-proxy-ip,success
-2026-02-07T14:17:50.444Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
 2026-02-07T14:17:50.444Z,legion_list_reviews,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,status: open,success
+2026-02-07T14:17:50.444Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
 2026-02-07T14:19:37.389Z,legion_read_context,http-proxy-service,HTTP Proxy Service 实现,Claude,"section: all, includeReviews: true",success
 2026-02-07T14:19:37.409Z,legion_read_context,http-proxy-app-implementation,HTTP Proxy App Implementation,Claude,"section: all, includeReviews: true",success
 2026-02-07T14:19:37.409Z,legion_read_context,http-services-terminalinfos-ready,http-services-terminalinfos-ready,Claude,"section: all, includeReviews: true",success
-2026-02-07T14:19:50.133Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 调研 tokenBucket util、http-services/http-proxy、vendor-binance 现状并形成约束清单,success
 2026-02-07T14:19:50.133Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 生成并迭代 RFC：多 IP 下按权重避免限流的负载均衡方案,success
+2026-02-07T14:19:50.133Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 调研 tokenBucket util、http-services/http-proxy、vendor-binance 现状并形成约束清单,success
 2026-02-07T14:19:50.134Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 完成设计门禁：更新 plan.md RFC 链接并等待用户确认,success
 2026-02-07T14:20:09.067Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDecision: 本轮沿用任务 vendor-tokenbucket-proxy-ip，RFC 输出路径固定为 `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/rfc.md`，设计目标升级为“多 IP 下按权重自动负载均衡并降低限流冲突”。,success
 2026-02-07T14:20:42.545Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
@@ -2148,8 +2148,8 @@
 2026-02-07T14:23:33.308Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-02-07T14:23:34.982Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
 2026-02-07T14:25:19.773Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDecision: 在进入实现前，RFC 必须先闭环 4 条 blocking（接口输入、错误归属、回滚模式、R10 可测性）。,success
-2026-02-07T14:25:28.151Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修订 RFC：为 acquireProxyBucket 补齐 bucket options 输入来源（参数或回调），消除 helper 调用 tokenBucket 的配置歧义,success
 2026-02-07T14:25:28.151Z,legion_update_tasks,,,Claude,addDiscoveredTask: 修订 RFC：补充错误码阶段归属表，封闭 E_PROXY_TARGET_NOT_FOUND 与 E_PROXY_REQUEST_FAILED 边界,success
+2026-02-07T14:25:28.151Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修订 RFC：为 acquireProxyBucket 补齐 bucket options 输入来源（参数或回调），消除 helper 调用 tokenBucket 的配置歧义,success
 2026-02-07T14:25:28.153Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修订 RFC：重写 R10/T-R10 为可观测可断言行为（冲突 options 计数器/日志与返回语义）,success
 2026-02-07T14:25:28.154Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修订 RFC：收敛灰度/回滚模式命名与开关取值，明确 legacy_rr_single_try / rr_multi_try / helper_acquire_proxy_bucket,success
 2026-02-07T14:25:46.281Z,legion_list_reviews,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,status: open,success
@@ -2191,8 +2191,8 @@
 2026-02-08T15:53:56.556Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 执行验证测试：libraries/http-services 单测+构建，apps/vendor-binance 最小构建验证,success
 2026-02-08T15:53:58.827Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,completeTask: 执行验证测试：libraries/http-services 单测+构建，apps/vendor-binance 最小构建验证,success
 2026-02-08T15:54:05.515Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDecision: 本轮验证结论为 PASS；当前未发现 impl-dev 或 impl-test 阻塞失败项。,success
-2026-02-08T15:57:10.809Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 补齐 T-R11：不同 baseKey 状态互不影响测试,success
 2026-02-08T15:57:10.809Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 修复 R11：acquireProxyBucket 轮询游标按 baseKey 隔离,success
+2026-02-08T15:57:10.809Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 补齐 T-R11：不同 baseKey 状态互不影响测试,success
 2026-02-08T15:57:10.810Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 安全修复：acquireSync 仅对容量不足错误 fallback，其他错误 fail-closed,success
 2026-02-08T15:57:10.811Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 安全修复：bucketOptionsFingerprintByKey 增加容量上限与淘汰策略,success
 2026-02-08T15:57:10.811Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 安全修复：为 proxy terminal 增加可信 terminal allowlist 校验（fail-closed）,success
@@ -2227,20 +2227,357 @@
 2026-03-05T09:49:08.839Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-03-05T09:57:57.234Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 根据外部代码评审反馈修复高优问题：proxy 模式 `acquireWeight=0` 导致 `acquireSync(0)` 触发 `SEMAPHORE_INVALID_ACQUIRE_PERMS`。,success
 2026-03-05T12:17:12.800Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,progress.completed: 根据 reviewer 反馈对齐 tokenBucket async/sync 语义：`acquire(0)` 与 `acquireSync(0)` 均为 no-op，负数仍报错。,success
+2026-03-17T12:43:48.989Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-03-17T12:43:56.290Z,legion_list_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-03-17T12:44:21.439Z,legion_create_task,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,goal: 基于现有 RFC 文档落地新的 `libraries/signal-trader` 库，并产出完整 Legion 任务文档与可直接用于 PR 的交付材料。,failed
+2026-03-17T12:44:44.163Z,legion_propose_task,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,name: signal-trader,success
+2026-03-17T12:45:30.348Z,legion_approve_proposal,signal-trader,signal-trader,Claude,proposalId: proposal-mmulu4fr-5d5cb2,success
+2026-03-17T12:45:35.405Z,legion_switch_task,signal-trader,signal-trader,Claude,taskId: signal-trader,success
+2026-03-17T12:47:55.507Z,legion_update_tasks,signal-trader,signal-trader,Claude,completeTask: phase 1,success
+2026-03-17T12:47:55.508Z,legion_update_context,signal-trader,signal-trader,Claude,addDecision: 将根目录 `signal-trader-rfc-v1-事件溯源重排版.md` 直接作为本任务 RFC 真源，不复制为新的 task-local RFC 文件。,success
+2026-03-17T12:47:55.548Z,legion_update_tasks,signal-trader,signal-trader,Claude,setCurrentTask: phase 1,success
+2026-03-17T12:48:53.570Z,legion_get_status,signal-trader,signal-trader,Claude,,success
+2026-03-17T12:48:58.378Z,legion_read_context,signal-trader,signal-trader,Claude,"section: all, includeReviews: true",success
+2026-03-17T12:48:58.382Z,legion_list_reviews,signal-trader,signal-trader,Claude,status: open,success
+2026-03-17T12:53:58.361Z,legion_get_status,signal-trader,signal-trader,Claude,,success
+2026-03-17T12:54:03.957Z,legion_read_context,signal-trader,signal-trader,Claude,"section: all, includeReviews: true",success
+2026-03-17T12:55:18.756Z,legion_update_context,signal-trader,signal-trader,Claude,addDecision: V1 首版仅实现四条命令主链（upsert_subscription / submit_signal / apply_execution_report / capture_authorized_account_snapshot），不包含 `update_risk_policy`。,success
+2026-03-17T12:55:18.756Z,legion_update_tasks,signal-trader,signal-trader,Claude,completeTask: 基于 RFC 评估风险与最小实现边界，记录关键假设与约束。,success
+2026-03-17T12:55:18.809Z,legion_update_tasks,signal-trader,signal-trader,Claude,setCurrentTask: 按 RFC 在 `libraries/signal-trader` 实现最小可用库结构、源码、导出与包配置，并接入仓库构建体系。,success
+2026-03-17T12:55:55.451Z,legion_get_status,signal-trader,signal-trader,Claude,,success
+2026-03-17T13:55:08.770Z,legion_get_status,signal-trader,signal-trader,Claude,,success
+2026-03-17T13:55:08.946Z,legion_read_context,signal-trader,signal-trader,Claude,"section: all, includeReviews: true",success
+2026-03-17T14:23:46.743Z,legion_get_status,signal-trader,signal-trader,Claude,,success
+2026-03-17T14:23:47.333Z,legion_get_status,signal-trader,signal-trader,Claude,,success
+2026-03-17T14:23:49.397Z,legion_get_status,signal-trader,signal-trader,Claude,,success
+2026-03-17T14:23:49.780Z,legion_read_context,signal-trader,signal-trader,Claude,"section: all, includeReviews: true",success
+2026-03-17T14:23:57.382Z,legion_list_reviews,signal-trader,signal-trader,Claude,status: open,success
+2026-03-17T14:23:57.383Z,legion_read_context,signal-trader,signal-trader,Claude,"section: all, includeReviews: true",success
+2026-03-17T14:24:00.055Z,legion_read_context,signal-trader,signal-trader,Claude,"section: all, includeReviews: true",success
+2026-03-17T14:26:17.734Z,legion_update_context,signal-trader,signal-trader,Claude,addFile: .legion/tasks/signal-trader/docs/review-security.md,success
+2026-03-17T14:29:56.674Z,legion_get_status,signal-trader,signal-trader,Claude,,success
+2026-03-17T14:29:56.865Z,legion_get_status,signal-trader,signal-trader,Claude,,success
+2026-03-17T14:29:56.940Z,legion_read_context,signal-trader,signal-trader,Claude,"section: all, includeReviews: true",success
+2026-03-17T14:29:56.943Z,legion_list_reviews,signal-trader,signal-trader,Claude,status: open,success
+2026-03-17T14:31:01.460Z,legion_update_context,signal-trader,signal-trader,Claude,progress.completed: 已基于最新代码重新完成 `libraries/signal-trader` 安全复审，并覆盖更新 `docs/review-security.md`；先前 4 条 blocking 均已关闭。,success
+2026-03-17T14:33:37.141Z,legion_get_status,signal-trader,signal-trader,Claude,,success
+2026-03-17T14:36:27.335Z,legion_get_status,signal-trader,signal-trader,Claude,,success
+2026-03-17T14:37:27.061Z,legion_get_status,signal-trader,signal-trader,Claude,,success
+2026-03-17T14:37:27.071Z,legion_read_context,signal-trader,signal-trader,Claude,"section: all, includeReviews: true",success
+2026-03-17T14:39:45.135Z,legion_update_tasks,signal-trader,signal-trader,Claude,completeTask: 按 RFC 在 `libraries/signal-trader` 实现最小可用库结构、源码、导出与包配置，并接入仓库构建体系。,success
+2026-03-17T14:39:45.136Z,legion_update_tasks,signal-trader,signal-trader,Claude,completeTask: 补充必要测试或示例验证，覆盖核心行为。,success
+2026-03-17T14:39:45.196Z,legion_update_tasks,signal-trader,signal-trader,Claude,completeTask: 运行测试、代码评审，必要时补充安全评审。,success
+2026-03-17T14:39:45.197Z,legion_update_tasks,signal-trader,signal-trader,Claude,completeTask: 生成 walkthrough 报告与 PR body。,success
+2026-03-17T14:39:45.198Z,legion_update_context,signal-trader,signal-trader,Claude,addDecision: 停用订阅时，planned effects 按 product 维度聚合活跃订单：`desired_delta=0` 取消全部，非零时仅保留一张 keeper 订单做 `modify_order`，其余订单统一 `cancel_order`。,success
+2026-03-18T03:26:54.652Z,legion_get_status,signal-trader,signal-trader,Claude,,success
+2026-03-18T03:26:54.660Z,legion_read_context,signal-trader,signal-trader,Claude,"section: all, includeReviews: true",success
+2026-03-18T03:44:28.145Z,legion_propose_task,signal-trader,signal-trader,Claude,name: app-signal-trader-live-integration,success
+2026-03-18T09:20:34.556Z,legion_list_reviews,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"status: open, type: all",success
+2026-03-18T09:20:34.557Z,legion_approve_proposal,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,proposalId: proposal-mmvhz6qn-a71270,success
+2026-03-18T09:21:01.091Z,legion_switch_task,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,taskId: app-signal-trader-live-integration,success
+2026-03-18T09:28:56.408Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,progress.completed: 已批准并创建 `app-signal-trader-live-integration` 任务，并切换为当前 active task。,success
+2026-03-18T09:28:56.408Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,setCurrentTask: phase 1,success
+2026-03-18T09:30:05.465Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-18T09:39:58.791Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-18T09:40:13.499Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-18T09:55:31.857Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-18T09:58:40.888Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-18T10:00:16.023Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDecision: 首版 live 白名单冻结为 `OKX/SWAP/* + okx_swap_sql_order_history`，其它 vendor 不进入本轮 live 支持矩阵。,success
+2026-03-18T10:00:16.164Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,completeTask: phase 1,success
+2026-03-18T10:02:12.965Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-18T10:02:17.598Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-18T10:23:42.271Z,legion_approve_proposal,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,proposalId: proposal-mmvhz6qn-a71270,failed
+2026-03-18T10:23:47.379Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-18T10:23:47.397Z,legion_list_proposals,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,status: all,success
+2026-03-18T10:23:47.397Z,legion_list_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-18T10:23:56.322Z,legion_list_reviews,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,status: open,success
+2026-03-18T10:26:28.507Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-18T10:26:28.508Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-18T10:26:34.313Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-18T10:26:37.524Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-18T10:29:55.370Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addFile: .legion/tasks/app-signal-trader-live-integration/docs/test-report.md,success
+2026-03-18T10:29:55.418Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDiscoveredTask: 修复 `RuntimeWorker` / `RuntimeManager`：保留 checkpoint 锁态、为所有写操作增加 runtime 级串行队列，并避免读接口触发写副作用。,success
+2026-03-18T10:29:55.418Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDiscoveredTask: 将 observer/reconciliation 主链路接入生产路径：基于 binding + history/open orders/account snapshot 产生回灌命令，并在缺失观测时升级到 degraded/audit_only。,success
+2026-03-18T10:29:55.419Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDiscoveredTask: 收紧 `SignalTrader/*` 控制面：默认高危写服务需要显式授权；`backfill/unlock` 仅允许受限状态转换并记录审计事件/说明。,success
+2026-03-18T10:31:41.009Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDecision: Terminal 服务默认只开放只读面；写服务与人工接管面需要显式授权策略或显式开启，避免默认暴露高危控制面。,success
+2026-03-18T10:31:41.010Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDecision: live runtime 只有在显式注入 observer/reconciliation provider 时才允许进入正常执行态；缺失 provider 时保持 `audit_only`，避免“能下单但不能观测”的半成品 live。,success
+2026-03-18T10:31:41.012Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDecision: 新增 append-only runtime audit log，用于记录 `backfill` / `unlock` 等人工接管与控制面动作，避免只把说明覆写进 `last_error`。,success
+2026-03-18T10:32:14.864Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-18T10:46:33.627Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-18T10:46:33.632Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-18T10:46:40.166Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-18T11:04:44.140Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-18T11:04:44.166Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-18T11:04:46.596Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-18T11:04:50.953Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-18T11:25:25.300Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-18T11:25:25.359Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-18T11:30:41.118Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-18T11:30:41.119Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-18T11:36:55.592Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-18T11:36:55.691Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-18T11:42:36.636Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-18T11:52:12.331Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-18T11:52:19.133Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-18T11:52:19.134Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-18T12:05:26.636Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-18T12:05:37.083Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-18T12:08:50.782Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,completeTask: 创建新的 Rush project `apps/signal-trader`，接入 package/config/build，集成 `@yuants/signal-trader` 并实现宿主编排层。,success
+2026-03-18T12:08:58.469Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,completeTask: 实现 mock/paper 与 live execution 适配：paper 可本地演示与测试，live 可通过现有 Terminal/vendor 生态实际下单，并把 execution report 回灌 event stream。,success
+2026-03-18T12:09:08.390Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,completeTask: 按需补齐 SQL migration / schema 与运行配置，确保事件存储、查询与重放闭环成立。,success
+2026-03-18T12:09:14.128Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,completeTask: 补充单测/集成验证/最小 smoke 用例，覆盖 replay、一条信号闭环、mock execution、live adapter 安全校验。,success
+2026-03-18T12:09:22.945Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,completeTask: 产出运行文档：本地 mock/paper 启动方式、live 配置方式、风控注意事项、部署/Node Unit 接入说明。,success
+2026-03-18T12:09:42.654Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDecision: live readiness 与 unlock 判定统一改为“当前 reconciliation 已 matched 且 freshness 仍在窗口内”，不再要求 snapshot id 本轮必须变化。,success
+2026-03-18T12:09:52.817Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDecision: boot 成功恢复到 normal 后立即持久化 normal checkpoint，避免把启动阶段的临时 audit_only 健康态留在 checkpoint 中。,success
+2026-03-18T12:10:02.927Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,progress.completed: 已完成 reconciliation freshness gate 最后收口：observer tick 与 submit 前统一执行 freshness gate，并持久化最近 matched reconciliation / account snapshot 状态。,success
+2026-03-18T12:10:13.884Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addFile: .legion/playbook.md,success
+2026-03-18T12:10:31.322Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addFile: .legion/tasks/app-signal-trader-live-integration/docs/report-walkthrough.md,success
+2026-03-18T12:10:40.528Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,handoff: 如需提交/开 PR，直接复用 `.legion/tasks/app-signal-trader-live-integration/docs/pr-body.md`。,success
+2026-03-18T12:11:00.334Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-18T12:11:15.718Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,completeTask: 收紧 `SignalTrader/*` 控制面：默认高危写服务需要显式授权；`backfill/unlock` 仅允许受限状态转换并记录审计事件/说明。,success
+2026-03-19T04:07:56.693Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-19T04:07:56.721Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-19T04:09:16.450Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDiscoveredTask: 补充 `apps/signal-trader` 本地 paper bootstrap：提供 docker-compose、启动脚本、smoke 脚本与 README runbook，降低手工联调成本。,success
+2026-03-19T04:09:27.817Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,setCurrentTask: 补充 `apps/signal-trader` 本地 paper bootstrap：提供 docker-compose、启动脚本、smoke 脚本与 README runbook，降低手工联调成本。,success
+2026-03-19T04:09:57.617Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-19T04:09:59.975Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-19T04:17:37.393Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,completeTask: 补充 `apps/signal-trader` 本地 paper bootstrap：提供 docker-compose、启动脚本、smoke 脚本与 README runbook，降低手工联调成本。,success
+2026-03-19T04:17:48.453Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,progress.completed: 已为 `apps/signal-trader` 补充本地 paper bootstrap：新增 docker-compose、permissive bootstrap app、启动脚本与 smoke 脚本。,success
+2026-03-19T04:18:01.587Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDecision: 本地 bootstrap 只用 docker-compose 承载 postgres，Host / Postgres Storage / SignalTrader bootstrap 仍由仓库内本地 Node 进程启动，日志与 pid 默认落到系统临时目录。,success
+2026-03-19T04:18:17.836Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addFile: apps/signal-trader/dev/docker-compose.yml,success
+2026-03-19T04:18:27.508Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addFile: apps/signal-trader/dev/bootstrap-paper-app.js,success
+2026-03-19T04:18:35.468Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addFile: apps/signal-trader/dev/run-local-paper-stack.sh,success
+2026-03-19T04:18:46.614Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addFile: apps/signal-trader/dev/smoke-paper.sh,success
+2026-03-19T04:18:55.050Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addFile: apps/signal-trader/README.md,success
+2026-03-19T04:37:24.630Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDiscoveredTask: 补充 `apps/signal-trader` 详细指南文档：覆盖启动方式、使用流程、运维语义、副作用、SQL 建模与 GUI/外部系统集成。,success
+2026-03-19T04:37:31.999Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,setCurrentTask: 补充 `apps/signal-trader` 详细指南文档：覆盖启动方式、使用流程、运维语义、副作用、SQL 建模与 GUI/外部系统集成。,success
+2026-03-19T04:37:39.707Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,progress.completed: 已新增 `apps/signal-trader/GUIDE.md`，系统化说明 signal-trader 的职责边界、运行模式、启动方式、服务面、运维语义、副作用、SQL 建模与 GUI/外部系统集成。,success
+2026-03-19T04:37:47.141Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addFile: apps/signal-trader/GUIDE.md,success
+2026-03-19T04:38:06.304Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,completeTask: 补充 `apps/signal-trader` 详细指南文档：覆盖启动方式、使用流程、运维语义、副作用、SQL 建模与 GUI/外部系统集成。,success
+2026-03-19T06:37:07.211Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDiscoveredTask: 取消 `app-signal-trader` 对 `OKX/SWAP/* + okx_swap_sql_order_history` 的硬编码白名单，改为通用 live 宿主：由注入的 `liveVenue` / `observerProvider` 决定实际支持矩阵，并同步收敛文档与测试。,success
+2026-03-19T06:37:21.078Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,setCurrentTask: 取消 `app-signal-trader` 对 `OKX/SWAP/* + okx_swap_sql_order_history` 的硬编码白名单，改为通用 live 宿主：由注入的 `liveVenue` / `observerProvider` 决定实际支持矩阵，并同步收敛文档与测试。,success
+2026-03-19T06:37:41.537Z,legion_update_plan,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-19T06:37:58.641Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDecision: `app-signal-trader` 不再在 app 内部硬编码 `OKX/SWAP/* + okx_swap_sql_order_history` 白名单；live 支持矩阵改由宿主注入的 `liveVenue` / `observerProvider` 与外部观测链能力决定。,success
+2026-03-19T06:43:55.064Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-19T06:43:55.185Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-19T07:25:56.420Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-19T07:26:02.343Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-19T07:38:20.947Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-19T07:38:20.948Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-19T07:38:20.953Z,legion_list_reviews,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"status: open, type: all",success
+2026-03-19T07:41:15.089Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-19T07:41:15.100Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addFile: .legion/tasks/app-signal-trader-live-integration/plan.md,success
+2026-03-19T07:41:15.231Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDecision: live 准入改为 capability descriptor 方案：`observer_backend` 是 canonical capability key，descriptor 缺失/不匹配/能力不足时必须在 boot 时 fail-close，并把校验结果写入 runtime audit log。,success
+2026-03-19T07:42:02.226Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-19T07:49:03.663Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-19T08:25:11.744Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-19T08:25:11.792Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-19T08:29:06.609Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-19T08:29:06.615Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-19T08:33:00.756Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-19T11:40:25.691Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-19T11:40:26.247Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-19T11:40:26.279Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-19T11:55:00.363Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-19T11:55:00.366Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-19T11:55:01.833Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-19T11:55:01.849Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-19T11:58:03.616Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-19T11:58:03.709Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-19T11:58:07.003Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-19T11:58:07.068Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-19T12:04:57.815Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-19T12:12:39.430Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-19T12:12:39.570Z,legion_list_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-19T12:13:09.334Z,legion_propose_task,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,name: signal-trader-frontend-feasibility,success
+2026-03-19T12:15:37.290Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-19T12:15:43.781Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-19T12:25:32.784Z,legion_propose_task,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,name: signal-trader-ui-console,success
+2026-03-19T12:25:52.590Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDecision: signal-trader 的首版人工控制台优先做进 `ui/web`，不先单独起一个新前端。,success
+2026-03-19T13:06:33.713Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,progress.completed: 已把 signal-trader 前端控制台细化到可直接开工的 MVP 方案：建议单页 `SignalTraderConsole`，分为 runtime 选择、状态卡、SubmitSignal、projection、event stream、audit log 6 个区块。,success
+2026-03-19T13:17:35.221Z,legion_approve_proposal,signal-trader-ui-console,signal-trader-ui-console,Claude,proposalId: proposal-mmxg15cu-0d49ef,success
+2026-03-19T13:17:44.175Z,legion_switch_task,signal-trader-ui-console,signal-trader-ui-console,Claude,taskId: signal-trader-ui-console,success
+2026-03-19T13:17:44.186Z,legion_get_status,signal-trader-ui-console,signal-trader-ui-console,Claude,,success
+2026-03-19T13:18:29.390Z,legion_update_tasks,signal-trader-ui-console,signal-trader-ui-console,Claude,setCurrentTask: phase 1,success
+2026-03-19T13:20:02.028Z,legion_get_status,signal-trader-ui-console,signal-trader-ui-console,Claude,,success
+2026-03-19T13:23:16.179Z,legion_update_context,signal-trader-ui-console,signal-trader-ui-console,Claude,addDecision: signal-trader 控制台首版采用“服务优先、SQL 兜底”的数据读取策略。,success
+2026-03-19T13:23:41.620Z,legion_get_status,signal-trader-ui-console,signal-trader-ui-console,Claude,,success
+2026-03-19T13:23:41.661Z,legion_read_context,signal-trader-ui-console,signal-trader-ui-console,Claude,"section: all, includeReviews: true",success
+2026-03-19T13:27:33.854Z,legion_get_status,signal-trader-ui-console,signal-trader-ui-console,Claude,,success
+2026-03-19T13:27:33.867Z,legion_read_context,signal-trader-ui-console,signal-trader-ui-console,Claude,"section: all, includeReviews: true",success
+2026-03-19T13:29:55.658Z,legion_update_context,signal-trader-ui-console,signal-trader-ui-console,Claude,addDecision: signal-trader 控制台首版不复用通用 SQL 入口读取审计表，而是补一个标准只读服务 `SignalTrader/QueryRuntimeAuditLog`。,success
+2026-03-19T13:30:30.772Z,legion_get_status,signal-trader-ui-console,signal-trader-ui-console,Claude,,success
+2026-03-19T13:30:30.782Z,legion_read_context,signal-trader-ui-console,signal-trader-ui-console,Claude,"section: all, includeReviews: true",success
+2026-03-19T13:34:36.701Z,legion_update_tasks,signal-trader-ui-console,signal-trader-ui-console,Claude,completeTask: phase 1,success
+2026-03-19T13:37:07.084Z,legion_get_status,signal-trader-ui-console,signal-trader-ui-console,Claude,,success
+2026-03-19T13:54:30.464Z,legion_get_status,signal-trader-ui-console,signal-trader-ui-console,Claude,,success
+2026-03-19T13:54:33.330Z,legion_read_context,signal-trader-ui-console,signal-trader-ui-console,Claude,"section: all, includeReviews: true",success
+2026-03-19T13:56:56.353Z,legion_get_status,signal-trader-ui-console,signal-trader-ui-console,Claude,,success
+2026-03-19T13:56:56.447Z,legion_list_reviews,signal-trader-ui-console,signal-trader-ui-console,Claude,"status: open, type: all",success
+2026-03-19T13:56:56.447Z,legion_read_context,signal-trader-ui-console,signal-trader-ui-console,Claude,"section: all, includeReviews: true",success
+2026-03-19T14:03:08.924Z,legion_get_status,signal-trader-ui-console,signal-trader-ui-console,Claude,,success
+2026-03-19T14:03:08.925Z,legion_read_context,signal-trader-ui-console,signal-trader-ui-console,Claude,"section: all, includeReviews: true",success
+2026-03-19T14:03:08.928Z,legion_list_reviews,signal-trader-ui-console,signal-trader-ui-console,Claude,"status: open, type: all",success
+2026-03-19T14:06:36.510Z,legion_get_status,signal-trader-ui-console,signal-trader-ui-console,Claude,,success
+2026-03-19T14:06:39.870Z,legion_read_context,signal-trader-ui-console,signal-trader-ui-console,Claude,"section: all, includeReviews: true",success
+2026-03-19T14:11:33.820Z,legion_get_status,signal-trader-ui-console,signal-trader-ui-console,Claude,,success
+2026-03-19T14:11:33.837Z,legion_read_context,signal-trader-ui-console,signal-trader-ui-console,Claude,"section: all, includeReviews: true",success
+2026-03-19T14:13:56.784Z,legion_update_context,signal-trader-ui-console,signal-trader-ui-console,Claude,addFile: .legion/tasks/signal-trader-ui-console/docs/pr-body.md,success
+2026-03-19T14:14:10.989Z,legion_update_context,signal-trader-ui-console,signal-trader-ui-console,Claude,addFile: apps/signal-trader/src/services/signal-trader-services.ts,success
+2026-03-19T14:14:10.997Z,legion_update_context,signal-trader-ui-console,signal-trader-ui-console,Claude,addFile: ui/web/src/modules/SignalTrader/SignalTraderConsole.tsx,success
+2026-03-19T14:14:11.052Z,legion_update_context,signal-trader-ui-console,signal-trader-ui-console,Claude,addFile: apps/signal-trader/src/runtime/runtime-manager.ts,success
+2026-03-19T17:44:23.247Z,legion_get_status,signal-trader-ui-console,signal-trader-ui-console,Claude,,success
+2026-03-19T17:46:44.583Z,legion_get_status,signal-trader-ui-console,signal-trader-ui-console,Claude,,success
+2026-03-19T17:47:40.008Z,legion_switch_task,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,taskId: app-signal-trader-live-integration,success
+2026-03-19T17:47:40.018Z,legion_list_reviews,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"status: open, type: all",success
+2026-03-19T17:56:48.895Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addTask: 补充本地 live 联调脚手架：提供 OKX 本地 profile 的 docker compose、live bootstrap 脚本与一键启动脚本（前端继续本地启动）。,success
+2026-03-19T17:56:48.895Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,setCurrentTask: 补充本地 live 联调脚手架：提供 OKX 本地 profile 的 docker compose、live bootstrap 脚本与一键启动脚本（前端继续本地启动）。,success
+2026-03-19T17:56:48.897Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,progress.completed: 已恢复 `app-signal-trader-live-integration` 任务并确认无待处理 review。,success
+2026-03-19T17:56:48.899Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"addDecision: 本轮本地 live 脚手架采用“前端本地启动 + signal-trader live bootstrap 本地 Node 进程 + 其余依赖通过 docker compose 拉起”的形态；首个可复现 profile 收敛为 OKX account/order/order-history 侧车 + SQL `""ord",success
+2026-03-19T18:07:09.919Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-19T18:07:09.947Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-19T18:07:10.645Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-19T18:07:10.646Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-19T18:13:33.378Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-19T18:13:34.410Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-19T18:13:34.415Z,legion_list_reviews,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"status: open, type: all",success
+2026-03-19T18:13:34.415Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-19T18:13:35.997Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-19T18:16:25.540Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,completeTask: 补充本地 live 联调脚手架：提供 OKX 本地 profile 的 docker compose、live bootstrap 脚本与一键启动脚本（前端继续本地启动）。,success
+2026-03-19T18:17:06.937Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDecision: 本地 live bootstrap 改为 secure-by-default：要求显式 `HOST_TOKEN` 才允许启动；`AUTO_UPSERT_RUNTIME` 默认关闭；operator 服务默认关闭，只有显式开启时才要求并使用受信 `SIGNAL_TRADER_OPERATOR_PRINCIPAL`。,success
+2026-03-19T18:17:21.450Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addFile: apps/signal-trader/dev/docker-compose.live-okx.yml,success
+2026-03-19T18:17:21.450Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addFile: apps/signal-trader/dev/run-local-live-stack.sh,success
+2026-03-19T18:17:21.451Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addFile: apps/signal-trader/dev/bootstrap-live-app.js,success
+2026-03-20T02:28:52.437Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-20T02:28:52.445Z,legion_list_reviews,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"status: open, type: all",success
+2026-03-20T02:29:02.893Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: handoff, includeReviews: true",success
+2026-03-20T02:29:20.970Z,legion_list_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-20T06:40:36.988Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-20T06:40:37.029Z,legion_list_reviews,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"status: open, type: all",success
+2026-03-20T06:40:40.506Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-20T07:07:23.784Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-20T07:07:23.790Z,legion_list_reviews,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"status: open, type: all",success
+2026-03-20T07:08:07.828Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDiscoveredTask: 将默认 live 启动收口为基于 VEX account-bound 服务的 env 驱动入口，移除 app 直接解析 secret / 直连 vendor 的假设。,success
+2026-03-20T07:08:07.830Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDecision: signal-trader 的默认 live 边界改为 VEX account-bound 服务：signal-trader 作为 VEX 上游，仅负责 signal/effect/runtime/fail-close；secret 与真实下单/撤单由 VEX 处理。,success
+2026-03-20T07:08:15.758Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,setCurrentTask: 将默认 live 启动收口为基于 VEX account-bound 服务的 env 驱动入口，移除 app 直接解析 secret / 直连 vendor 的假设。,success
+2026-03-20T07:12:26.909Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-20T07:12:26.916Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-20T07:29:19.284Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-20T07:29:23.357Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-20T07:29:23.366Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-20T07:29:24.823Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-20T07:29:24.828Z,legion_list_reviews,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"status: open, type: all",success
+2026-03-20T07:29:24.835Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-20T07:33:09.860Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addFile: .legion/tasks/app-signal-trader-live-integration/docs/review-security.md,success
+2026-03-20T07:38:38.147Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-20T07:38:38.163Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-20T07:38:45.033Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-20T07:38:45.039Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-20T07:38:45.042Z,legion_list_reviews,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"status: open, type: all",success
+2026-03-20T07:40:18.551Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addFile: .legion/tasks/app-signal-trader-live-integration/docs/test-report.md,success
+2026-03-20T07:46:58.244Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-20T07:46:58.284Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-20T07:46:58.820Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-20T07:47:04.678Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-20T07:48:19.593Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addFile: .legion/tasks/app-signal-trader-live-integration/docs/review-security.md,success
+2026-03-20T07:53:00.525Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-20T07:53:00.545Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-20T07:54:10.812Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addFile: .legion/tasks/app-signal-trader-live-integration/docs/review-security.md,success
+2026-03-20T07:54:59.112Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDecision: VEX account-bound live 的 admission proof 必须在 upsert 时固化为 runtime metadata 的 `vex_account_bound_route_proof`，并在 submit/cancel/query 全链路只按 proof 中的 `terminal_id/s,success
+2026-03-20T07:54:59.112Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,progress.completed: 已将 `apps/signal-trader/src/index.ts` 收口为 env-driven 默认入口，直接注入 VEX account-bound live 依赖；`bootstrap-live-app.js` 降级为兼容薄包装。,success
+2026-03-20T07:54:59.113Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addFile: apps/signal-trader/dev/register-vex-credential.js,success
+2026-03-20T07:54:59.114Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addFile: apps/signal-trader/src/bootstrap-from-env.ts,success
+2026-03-20T07:55:11.793Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,completeTask: 将默认 live 启动收口为基于 VEX account-bound 服务的 env 驱动入口，移除 app 直接解析 secret / 直连 vendor 的假设。,success
+2026-03-20T07:55:11.796Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,handoff: 如需真实联调，先填好本地 env（`HOST_TOKEN`、OKX 凭证、可选 `SIGNAL_TRADER_ENABLE_MUTATING_SERVICES=1` 与 `SIGNAL_TRADER_TRUST_ALL_REQUESTS=1`），再执行 `bash apps/signal-trader/dev/run-,success
+2026-03-20T08:16:51.531Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,progress.completed: 已按用户要求把 signal-trader 自身收进 `apps/signal-trader/dev/docker-compose.live-okx.yml`，不再由 `run-local-live-stack.sh` 在宿主机本地起 Node 进程。,success
+2026-03-20T08:16:51.565Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDecision: 本地 live 联调形态进一步收口为“所有运行时服务都进 docker compose”，其中 signal-trader 也作为 compose 服务直接读取 env 启动；不再默认推荐额外写薄宿主。,success
+2026-03-20T08:16:51.570Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addFile: apps/signal-trader/dev/docker-compose.live-okx.yml,success
+2026-03-20T08:44:56.944Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-20T08:45:00.061Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-20T08:54:17.167Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-20T08:54:17.173Z,legion_list_reviews,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"status: open, type: all",success
+2026-03-20T08:54:46.372Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDiscoveredTask: 保留 SQL order 表依赖但移除 signal-trader 默认交付中的 okx-order-writer 软件依赖，并将其表数据生产责任下沉到 VEX/叶子节点。,success
+2026-03-20T08:54:46.411Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"addDecision: signal-trader 默认 live 继续依赖 SQL `""order""` 表作为 closed order history 证据源，但不再在默认 compose/runbook 中捆绑 `okx-order-writer` 进程；该表的数据生产责任下沉到 VEX/叶子节点或外部基础设施。",success
+2026-03-20T08:54:55.986Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,setCurrentTask: 保留 SQL order 表依赖但移除 signal-trader 默认交付中的 okx-order-writer 软件依赖，并将其表数据生产责任下沉到 VEX/叶子节点。,success
+2026-03-20T08:58:57.950Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-20T08:58:57.973Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-20T08:59:04.175Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-20T08:59:04.185Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-20T09:00:39.093Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addFile: .legion/tasks/app-signal-trader-live-integration/docs/test-report.md,success
+2026-03-20T09:00:45.906Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"addDecision: 移除默认 bundled writer 后，`supports_closed_order_history=true` 的 live backend 一旦失去 SQL `""order""` 证据源，不应在同一 observe 周期自动恢复为 `normal`。",success
+2026-03-20T09:05:51.585Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-20T09:05:51.606Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-20T09:05:52.112Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-20T09:05:52.126Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-20T09:05:52.223Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-20T09:05:52.224Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-20T09:07:14.177Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,progress.completed: 已完成 `apps/signal-trader/**` 终版安全/风控复审，并覆盖写入 `docs/review-security.md`；结论仍为 FAIL。,success
+2026-03-20T09:10:59.973Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-20T09:10:59.974Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-20T09:11:03.567Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-20T09:11:03.583Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-20T09:11:09.790Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-20T09:11:19.228Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-20T09:12:36.400Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,progress.completed: 已对当前最新 `apps/signal-trader/**` 做最终安全/风控复审，并覆盖写入 `docs/review-security.md`；结论为 FAIL，唯一 blocker 仍是 `ORDER_HISTORY_SOURCE_UNAVAILABLE` 在无 in-flight binding 时可从 `de,success
+2026-03-20T09:14:55.422Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-20T09:14:55.446Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-20T09:16:26.762Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"progress.completed: 已基于当前最新 `apps/signal-trader/**` 完成 blocker-only 安全/风控复审，并覆盖 `docs/review-security.md`；结论 PASS，确认 `ORDER_HISTORY_SOURCE_UNAVAILABLE` 已 fail-close，SQL `""order""` 外",success
+2026-03-20T09:17:10.341Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,progress.completed: 已将 `apps/signal-trader/dev/docker-compose.live-okx.yml` 从默认交付中移除 `okx-order-writer`，compose 只保留 postgres/host/postgres-storage/okx-vex-exchange/virtual-exchange,success
+2026-03-20T09:17:10.343Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"addDecision: 外部 SQL `""order""` evidence source 一旦不可用，signal-trader 直接 fail-close，而不是先 degraded 后尝试自动恢复。",success
+2026-03-20T09:17:10.352Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,completeTask: 保留 SQL order 表依赖但移除 signal-trader 默认交付中的 okx-order-writer 软件依赖，并将其表数据生产责任下沉到 VEX/叶子节点。,success
+2026-03-20T09:17:10.354Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"handoff: 如需真实联调，启动前先确认 SQL `""order""` 表已有由 VEX/叶子节点/外部基础设施维护的数据生产链路，再执行 `bash apps/signal-trader/dev/run-local-live-stack.sh start`。",success
+2026-03-20T10:04:26.177Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,progress.completed: 已清理废弃的 `apps/signal-trader/dev/bootstrap-live-app.js`；该脚本已不再被 compose、package scripts、启动脚本或当前文档使用。,success
+2026-03-20T10:04:26.308Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addFile: apps/signal-trader/dev/bootstrap-live-app.js,success
+2026-03-20T10:16:54.485Z,legion_list_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-20T10:16:54.487Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-20T10:17:02.348Z,legion_read_context,signal-trader,signal-trader,Claude,"section: all, includeReviews: true",success
+2026-03-20T10:17:02.962Z,legion_read_context,signal-trader-ui-console,signal-trader-ui-console,Claude,"section: all, includeReviews: true",success
+2026-03-20T10:17:03.658Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-21T12:37:51.317Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,progress.completed: 已将 `apps/signal-trader/dev/docker-compose.live-okx.yml` 的基础镜像切到 `postgres:17-alpine` 与 `node:24-bookworm-slim`。,success
+2026-03-21T13:04:34.641Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDecision: signal-trader 默认假设同一 Host 内服务彼此可信：控制面默认开启读/写/operator，且不再通过 env 开关控制权限。,success
+2026-03-21T13:04:34.642Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDiscoveredTask: 移除 signal-trader 的权限/env 开关与 secret_ref 兼容 env；将 live backend/service policy 全部收口为代码内默认常量。,success
+2026-03-21T13:04:39.670Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,setCurrentTask: 移除 signal-trader 的权限/env 开关与 secret_ref 兼容 env；将 live backend/service policy 全部收口为代码内默认常量。,success
 2026-03-21T13:09:56.906Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-03-21T13:10:02.370Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-03-21T13:17:58.111Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-21T13:17:58.169Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-21T13:18:01.418Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-21T13:18:01.432Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
 2026-03-21T13:19:12.482Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-03-21T13:19:12.500Z,legion_list_reviews,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,status: open,success
+2026-03-21T13:19:52.366Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,progress.completed: 已对当前最新 `apps/signal-trader/**` 完成安全/风控复审并覆盖写入 `docs/review-security.md`；本轮结论为 FAIL，唯一 blocker 为 `GUIDE.md` 仍保留“默认入口不开匿名读/写”旧表述，与当前默认全开读/写/operator 的实现不一致，存在误导跨,success
 2026-03-21T13:21:08.732Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: 移除 `TRUSTED_HTTP_PROXY_TERMINAL_IDS` 白名单并复核同链路中的 terminal_id 依赖,success
 2026-03-21T13:21:08.759Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,setCurrentTask: 移除 proxy terminal allowlist，收敛同链路 terminal_id 依赖,success
 2026-03-21T13:21:08.786Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDecision: 接受用户新的信任模型：同一 host 网络中的 terminal 默认互信，移除以 `terminal_id` 为维度的 HTTPProxy 白名单设计。,success
 2026-03-21T13:21:08.795Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-03-21T13:21:41.405Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-21T13:21:41.441Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-21T13:21:44.064Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-21T13:21:44.081Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
 2026-03-21T13:21:52.064Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-03-21T13:21:52.087Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
 2026-03-21T13:25:33.965Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-03-21T13:25:33.973Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-03-21T13:25:57.885Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-21T13:25:57.930Z,legion_list_reviews,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"status: open, type: all",success
+2026-03-21T13:25:57.933Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-21T13:26:02.017Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-21T13:26:02.032Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-21T13:28:17.141Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addFile: .legion/tasks/app-signal-trader-live-integration/docs/test-report.md,success
+2026-03-21T13:28:17.149Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,setCurrentTask: 刷新 docs/test-report.md 并汇总最新 build/test 结果,success
+2026-03-21T13:32:17.528Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-21T13:32:17.533Z,legion_list_reviews,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"status: open, type: all",success
+2026-03-21T13:32:17.533Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-21T13:32:21.237Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-21T13:32:21.260Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
 2026-03-21T13:33:06.275Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-03-21T13:33:06.301Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-03-21T13:34:16.498Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,progress.completed: 已对当前最新 `apps/signal-trader/**` 完成最终 blocker-only 代码复审，并覆盖写入 `docs/review-code.md`；结论 PASS，确认默认入口不再依赖旧的 `SIGNAL_TRADER_*` 启动 env、固定 live backend / service policy,success
+2026-03-21T13:34:43.454Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,progress.completed: 基于当前最新 `apps/signal-trader/**` 重新执行 `npm run build` 与 `node common/scripts/install-run-rush.js build -t @yuants/app-signal-trader`，并再次刷新 `docs/test-report.md`；确,success
+2026-03-21T13:36:31.298Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,progress.completed: 已将 `apps/signal-trader/src/bootstrap-from-env.ts` 收口为代码内固定默认值：默认入口不再读取旧的 `SIGNAL_TRADER_*` 权限/live backend/service-name 启动 env。,success
+2026-03-21T13:36:31.313Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDecision: app-signal-trader 默认入口明确采用“同一 Host 内服务互信”模型：权限相关 env 删除，默认 service policy 固定全开；若需要跨 Host/共享环境权限收口，必须改为手工嵌入 `createSignalTraderApp(...)` 并自定义 `servicePolicy`。,success
+2026-03-21T13:36:31.357Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDecision: app-signal-trader 默认路径彻底放弃 secret-centered 接口语义：删除 `secret_ref` runtime 字段与兼容 env，并将公开扩展点改名为 `resolveLiveCredential`。,success
+2026-03-21T13:36:51.353Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,completeTask: 移除 signal-trader 的权限/env 开关与 secret_ref 兼容 env；将 live backend/service policy 全部收口为代码内默认常量。,success
 2026-03-21T13:49:23.783Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: continue：移除 HTTPProxy 的 terminal allowlist 与 `labels.terminal_id` 耦合,success
 2026-03-21T13:49:23.787Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,setCurrentTask: continue：移除 HTTPProxy 的 terminal allowlist 与 `labels.terminal_id` 耦合,success
 2026-03-21T13:50:23.986Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
@@ -2254,6 +2591,310 @@
 2026-03-21T13:58:24.002Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addConstraint: `terminal_id`、`hostname`、`ip_source` 只允许用于观测、缓存、诊断上下文，不得重新进入 HTTPProxy trust boundary 或自动 route pin。,success
 2026-03-21T13:58:24.033Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addFile: .legion/playbook.md,success
 2026-03-21T13:58:24.036Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,handoff: 如需提交/开 PR，可直接使用 `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/pr-body.md` 作为 PR 描述。,success
+2026-03-21T14:31:25.437Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDecision: 新增一个不依赖 VEX 的测试 live compose：由 dummy terminal 直接暴露 account-bound Submit/Cancel/Pending/Account 服务，并把请求落文件，供 signal-trader 做接口联调。,success
+2026-03-21T14:31:25.458Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDiscoveredTask: 新增无 VEX 的 dummy live compose：用文件落单脚本模拟 account-bound 服务接口供 signal-trader 联调。,success
+2026-03-21T14:31:33.613Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,setCurrentTask: 新增无 VEX 的 dummy live compose：用文件落单脚本模拟 account-bound 服务接口供 signal-trader 联调。,success
+2026-03-21T14:38:06.086Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDecision: 新增一条不启动 VEX 的 dummy live 测试链路：由单个 dummy backend 直接暴露 `VEX/ListCredentials`、`SubmitOrder`、`CancelOrder`、`QueryPendingOrders`、`QueryAccountInfo`，并把请求写入文件。,success
+2026-03-21T14:38:06.110Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDiscoveredTask: 新增 dummy live compose：不启动 VEX，改由 dummy backend 模拟 account-bound 服务并把请求写文件。,success
+2026-03-21T14:38:15.796Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,setCurrentTask: 新增 dummy live compose：不启动 VEX，改由 dummy backend 模拟 account-bound 服务并把请求写文件。,success
+2026-03-21T14:42:40.801Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-21T14:42:41.233Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-21T14:42:41.238Z,legion_list_reviews,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"status: open, type: all",success
+2026-03-21T14:42:41.238Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-21T14:42:41.939Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-21T14:42:41.961Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-21T14:42:43.128Z,legion_read_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"section: all, includeReviews: true",success
+2026-03-21T14:43:59.520Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addFile: .legion/tasks/app-signal-trader-live-integration/docs/test-report.md,success
+2026-03-21T14:45:20.821Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,"addDecision: dummy live 测试链路由单个 dummy backend 同时承担 account-bound 服务模拟、请求日志落盘和 SQL `""order""` 写入职责，而不是再拆一个额外 writer。",success
+2026-03-21T14:45:20.822Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,progress.completed: 已新增 `apps/signal-trader/dev/dummy-live-backend.js`：单进程模拟 `VEX/ListCredentials`、`SubmitOrder`、`CancelOrder`、`QueryPendingOrders`、`QueryAccountInfo`，并把 mutating 请,success
+2026-03-21T15:33:36.150Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,progress.completed: 已将 dummy live 栈手工拉起到可访问状态：`signal-trader-dummy-host` / `signal-trader-dummy-postgres` / `signal-trader-dummy-postgres-storage` / `signal-trader-dummy-backend` /,success
+2026-03-21T15:54:04.270Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDecision: 在当前 trusted-host 架构下，signal-trader 的 live submit 路径应尽量去掉健康/审计型前置门禁：默认允许提交，由下游执行与观测负责发现问题，而不是在 UI/submit 前就因为 stale/non-normal health 拦截。,success
+2026-03-21T15:54:04.278Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addDiscoveredTask: 移除 trusted-host 下 signal-trader 前端与后端 live submit 的健康/审计门禁，减少灰按钮与 fail-close 前置拦截。,success
+2026-03-21T15:54:15.708Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,setCurrentTask: 移除 trusted-host 下 signal-trader 前端与后端 live submit 的健康/审计门禁，减少灰按钮与 fail-close 前置拦截。,success
+2026-03-21T16:09:43.738Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,progress.completed: 已移除 `ui/web` SignalTraderConsole 的 health stale / non-normal / submit-service-visible 前置灰按钮门禁；提交按钮现在只在 terminal/runtime/加载/信号本身缺失时禁用。,success
+2026-03-21T16:09:43.798Z,legion_update_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,completeTask: 移除 trusted-host 下 signal-trader 前端与后端 live submit 的健康/审计门禁，减少灰按钮与 fail-close 前置拦截。,success
+2026-03-21T16:24:44.739Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,progress.completed: 已新增 `apps/signal-trader/doc/concepts-and-test-intent.md`，整理 signal-trader 的核心概念定义（signal / VC config / strategy profile / runtime / runtime_id / execution_mode,success
+2026-03-21T16:24:44.775Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,addFile: apps/signal-trader/doc/concepts-and-test-intent.md,success
+2026-03-21T16:44:32.456Z,legion_update_context,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,progress.completed: 已继续完善 `apps/signal-trader/doc/concepts-and-test-intent.md`，补充概念关系总览图、health 状态机 ASCII 图，以及 `signal -> command -> event -> effect -> execution -> observer -> che,success
+2026-03-21T16:48:42.235Z,legion_get_status,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-21T16:48:59.730Z,legion_list_tasks,app-signal-trader-live-integration,app-signal-trader-live-integration,Claude,,success
+2026-03-21T16:49:15.107Z,legion_read_context,signal-trader-ui-console,signal-trader-ui-console,Claude,"section: all, includeReviews: true",success
+2026-03-21T16:49:15.112Z,legion_read_context,signal-trader,signal-trader,Claude,"section: all, includeReviews: true",success
+2026-03-21T16:50:24.892Z,legion_switch_task,signal-trader-ui-console,signal-trader-ui-console,Claude,taskId: signal-trader-ui-console,success
+2026-03-21T16:56:21.644Z,legion_create_task,signal-trader-ui-console,signal-trader-ui-console,Claude,goal: 新建一个独立于 `ui/web` 的 signal-trader 前端项目，完成设计、实现、Playwright 验证与 PR 交付文档。,failed
+2026-03-21T16:56:42.060Z,legion_propose_task,signal-trader-ui-console,signal-trader-ui-console,Claude,name: signal-trader-standalone-ui,success
+2026-03-21T16:56:45.424Z,legion_approve_proposal,signal-trader-standalone-ui,signal-trader-standalone-ui,Claude,proposalId: proposal-mn0klk4v-07b17c,success
+2026-03-21T16:56:53.742Z,legion_switch_task,signal-trader-standalone-ui,signal-trader-standalone-ui,Claude,taskId: signal-trader-standalone-ui,success
+2026-03-21T16:58:47.275Z,legion_update_context,signal-trader-standalone-ui,signal-trader-standalone-ui,Claude,addDecision: 新前端项目独立落在 `ui/signal-trader-web`，不再触碰 `ui/web` 的 signal-trader 页面。,success
+2026-03-21T16:59:13.954Z,legion_get_status,signal-trader-standalone-ui,signal-trader-standalone-ui,Claude,,success
+2026-03-21T17:02:42.139Z,legion_get_status,signal-trader-standalone-ui,signal-trader-standalone-ui,Claude,,success
+2026-03-21T17:07:12.784Z,legion_update_tasks,signal-trader-standalone-ui,signal-trader-standalone-ui,Claude,setCurrentTask: phase 2,success
+2026-03-21T17:07:12.785Z,legion_update_tasks,signal-trader-standalone-ui,signal-trader-standalone-ui,Claude,completeTask: phase 1,success
+2026-03-21T17:07:45.926Z,legion_update_context,signal-trader-standalone-ui,signal-trader-standalone-ui,Claude,progress.completed: 已完成 task-local RFC 与对抗性审查，blocker 已收敛为 PASS-WITH-NITS。,success
+2026-03-21T17:07:46.013Z,legion_update_context,signal-trader-standalone-ui,signal-trader-standalone-ui,Claude,addDecision: 前端统一调用同源 `/request`，开发态用 Vite proxy，构建后用 Node `serve-with-proxy` 托管静态文件并转发 Host 请求。,success
+2026-03-21T17:07:46.016Z,legion_update_context,signal-trader-standalone-ui,signal-trader-standalone-ui,Claude,addDecision: 风险层级硬规则采用 `env profile + runtime config + capability summary` 交叉校验，任一缺失或冲突都按 `live` 且默认禁写。,success
+2026-03-21T18:07:48.459Z,legion_update_context,signal-trader-standalone-ui,signal-trader-standalone-ui,Claude,addConstraint: 为跑通独立前端的 Host `/request` 联调，允许最小越界修改 `apps/host/src/host-manager.ts`：仅修复流式 `/request` 在 headers 已发送后再次写 500 导致本地 paper/dummy 栈崩溃的问题；不扩展任何新的 Host 能力或协议语义。,success
+2026-03-21T19:06:02.240Z,legion_update_tasks,signal-trader-standalone-ui,signal-trader-standalone-ui,Claude,completeTask: phase 2,success
+2026-03-21T19:06:42.969Z,legion_get_status,signal-trader-standalone-ui,signal-trader-standalone-ui,Claude,,success
+2026-03-21T19:08:58.107Z,legion_update_context,signal-trader-standalone-ui,signal-trader-standalone-ui,Claude,progress.completed: 已交付独立前端项目 `ui/signal-trader-web`：单页控制台覆盖 runtime rail、环境摘要、health/config/capability、projection/event/audit 与 SubmitSignal 写区。,success
+2026-03-21T19:08:58.188Z,legion_update_context,signal-trader-standalone-ui,signal-trader-standalone-ui,Claude,handoff: 直接使用 `.legion/tasks/signal-trader-standalone-ui/docs/pr-body.md` 作为 PR 描述发起 review。,success
+2026-03-21T19:08:58.203Z,legion_update_context,signal-trader-standalone-ui,signal-trader-standalone-ui,Claude,addFile: ui/signal-trader-web,success
+2026-03-21T19:08:58.206Z,legion_update_context,signal-trader-standalone-ui,signal-trader-standalone-ui,Claude,addFile: apps/host/src/host-manager.ts,success
+2026-03-21T19:09:14.458Z,legion_update_context,signal-trader-standalone-ui,signal-trader-standalone-ui,Claude,addDecision: 独立前端的 Node proxy 在转发 `SignalTrader/SubmitSignal` 前重复做 fail-close 校验，而不是只依赖浏览器按钮禁用。,success
+2026-03-21T19:09:14.575Z,legion_update_context,signal-trader-standalone-ui,signal-trader-standalone-ui,Claude,addDecision: `dummy-live` 的自动化验证采用 task-local fixture server，而 paper 仍使用真实本地 signal-trader 栈。,success
+2026-03-22T06:26:39.909Z,legion_get_status,signal-trader-standalone-ui,signal-trader-standalone-ui,Claude,,success
+2026-03-22T06:26:39.946Z,legion_list_tasks,signal-trader-standalone-ui,signal-trader-standalone-ui,Claude,,success
+2026-03-22T06:29:45.663Z,legion_create_task,signal-trader-standalone-ui,signal-trader-standalone-ui,Claude,goal: 补齐 signal-trader 的 `daily_burn_amount` lazy-evaluate 预算释放语义，使 paper 与 live 在同一 core 规则下支持按天释放 VC，并交付完整 Legion 文档。,failed
+2026-03-22T06:30:04.075Z,legion_propose_task,signal-trader-standalone-ui,signal-trader-standalone-ui,Claude,name: signal-trader-daily-burn-budget,success
+2026-03-22T06:30:14.176Z,legion_approve_proposal,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,proposalId: proposal-mn1dnk13-67d7e7,success
+2026-03-22T06:30:23.707Z,legion_switch_task,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,taskId: signal-trader-daily-burn-budget,success
+2026-03-22T06:35:07.464Z,legion_update_context,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,progress.completed: 已完成现状调研：确认 `daily_burn_amount` / `last_budget_eval_at` 目前只被存储，不影响 dispatch/query/reconciliation；paper 与 live 都未真正实现按天释放 VC。,success
+2026-03-22T06:35:07.465Z,legion_update_context,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,addDecision: 本轮把预算释放语义收口为 core lazy-evaluate：`released_vc_total` 按 full-day 增长，`effective_vc_budget = available_vc + current_reserved_vc`，paper/live 只负责提供当前时间。,success
+2026-03-22T06:35:07.468Z,legion_update_context,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,addDecision: 测试中的“下一天”按固定 24h 窗口推进，app 测试优先使用 Jest fake timers / `setSystemTime`，而不是额外发明新的 runtime 时钟协议。,success
+2026-03-22T06:35:29.989Z,legion_get_status,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,,success
+2026-03-22T06:38:10.991Z,legion_get_status,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,,success
+2026-03-22T06:38:14.521Z,legion_read_context,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,"section: all, includeReviews: true",success
+2026-03-22T06:42:56.254Z,legion_update_tasks,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,completeTask: phase 1,success
+2026-03-22T06:42:56.336Z,legion_update_tasks,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,setCurrentTask: phase 2,success
+2026-03-22T06:42:56.337Z,legion_update_tasks,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,completeTask: phase 1,success
+2026-03-22T06:43:24.473Z,legion_get_status,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,,success
+2026-03-22T06:43:27.703Z,legion_read_context,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,"section: all, includeReviews: true",success
+2026-03-22T07:01:17.845Z,legion_get_status,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,,success
+2026-03-22T07:01:22.055Z,legion_read_context,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,"section: all, includeReviews: true",success
+2026-03-22T07:03:18.302Z,legion_get_status,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,,success
+2026-03-22T07:03:23.199Z,legion_read_context,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,"section: all, includeReviews: true",success
+2026-03-22T07:09:31.680Z,legion_update_context,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,progress.completed: 已完成 task-local RFC 与 review-rfc，blocker 已收敛为 PASS-WITH-NITS。,success
+2026-03-22T07:09:31.761Z,legion_update_context,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,addDecision: 在 projection 中显式保留 `released_vc_total`，并将其作为 lazy-evaluate 的 cache 字段参与 replay/query/dispatch，而不是把该值拆到新的数据库 schema。,success
+2026-03-22T07:09:31.763Z,legion_update_context,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,addDecision: `over-reserved` 状态的处理策略为：允许维持现状、不隐式缩仓、但在 release 追平前禁止同向扩张。,success
+2026-03-22T07:09:31.769Z,legion_update_context,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,addFile: apps/signal-trader/src/__tests__/signal-trader-app.test.ts,success
+2026-03-22T07:09:31.769Z,legion_update_context,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,addFile: libraries/signal-trader/src/domain/evaluate-budget.ts,success
+2026-03-22T07:10:45.664Z,legion_get_status,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,,success
+2026-03-22T07:13:03.966Z,legion_update_context,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,handoff: 将 `.legion/tasks/signal-trader-daily-burn-budget/docs/pr-body.md` 作为 PR 描述发起 review。,success
+2026-03-22T07:13:04.036Z,legion_update_context,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,addFile: .legion/playbook.md,success
+2026-03-22T07:13:10.958Z,legion_get_status,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,,success
+2026-03-23T03:23:05.303Z,legion_get_status,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,,success
+2026-03-23T03:23:05.341Z,legion_read_context,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,"section: all, includeReviews: true",success
+2026-03-23T03:44:16.531Z,legion_get_status,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,,success
+2026-03-23T03:44:16.594Z,legion_list_tasks,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,,success
+2026-03-23T03:44:37.418Z,legion_propose_task,signal-trader-daily-burn-budget,signal-trader-daily-burn-budget,Claude,name: signal-trader-funding-transfer,success
+2026-03-23T03:44:46.171Z,legion_approve_proposal,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,proposalId: proposal-mn2n6n8h-5ac4ee,success
+2026-03-23T03:44:55.388Z,legion_switch_task,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,taskId: signal-trader-funding-transfer,success
+2026-03-23T04:13:38.658Z,legion_update_context,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,addDecision: transfer 编排拆成两段：下单前的 transfer-in 走 adapter ensure path，持仓/风险下降后的 transfer-out 走 observer reconcile path。,success
+2026-03-23T04:13:38.659Z,legion_update_context,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,addDecision: 本轮 transfer MVP 复用现有 `transfer_order` + `apps/transfer-controller`，不新建 transfer schema；runtime 级资金账户配置放在 `SignalTraderRuntimeConfig.metadata`。,success
+2026-03-23T04:13:38.659Z,legion_update_context,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,progress.completed: 已完成现状调研：确认 signal-trader 当前没有真实 funding/trading transfer，仓库已有 `ITransferOrder`、`transfer_order` 与 `transferController` 可复用。,success
+2026-03-23T04:14:13.841Z,legion_get_status,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,,success
+2026-03-23T04:18:57.578Z,legion_get_status,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,,success
+2026-03-23T04:19:03.148Z,legion_read_context,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,"section: all, includeReviews: true",success
+2026-03-23T04:23:48.582Z,legion_update_tasks,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,completeTask: phase 1,success
+2026-03-23T04:23:48.583Z,legion_update_tasks,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,setCurrentTask: phase 2,success
+2026-03-23T04:50:03.357Z,legion_get_status,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,,success
+2026-03-23T04:50:05.720Z,legion_get_status,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,,success
+2026-03-23T04:50:05.732Z,legion_list_tasks,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,,success
+2026-03-23T04:50:05.964Z,legion_read_context,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,"section: all, includeReviews: true",success
+2026-03-23T04:50:08.968Z,legion_read_context,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,"section: all, includeReviews: true",success
+2026-03-23T04:50:09.001Z,legion_list_reviews,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,"status: open, type: all",success
+2026-03-23T05:06:50.049Z,legion_update_context,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,addConstraint: 因 `transfer_order` 现有表无法携带 runtime 隔离信息，允许最小越界到 `tools/sql-migration/sql/transfer_order.sql`：仅在需要追加 `runtime_id` 列以消除跨 runtime 误复用 active transfer 时修改；不改 transf,success
+2026-03-23T05:12:31.814Z,legion_update_context,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,progress.completed: 已在 `libraries/signal-trader` 补齐 `funding_account` / `trading_account` projection 字段，并保持与 budget helper 同步。,success
+2026-03-23T05:12:31.815Z,legion_update_context,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,addDecision: `createSignalTraderServicePolicyFromEnv` 改为 secure-by-default：默认只开放匿名读，mutating/operator 写能力需显式 env 打开并声明内部信任。,success
+2026-03-23T05:12:31.815Z,legion_update_context,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,addFile: tools/sql-migration/sql/transfer_order.sql,success
+2026-03-23T05:12:31.817Z,legion_update_context,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,addDecision: 为消除跨 runtime 误复用 active transfer 的风险，允许在 `transfer_order` 表上追加最小 `runtime_id` 列，并在 live transfer venue 中按 `runtime_id` 过滤活动单。,success
+2026-03-23T05:13:09.246Z,legion_get_status,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,,success
+2026-03-23T05:13:09.268Z,legion_read_context,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,"section: all, includeReviews: true",success
+2026-03-23T05:16:45.114Z,legion_update_context,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,progress.completed: 已在 `libraries/signal-trader` 补齐 `funding_account` / `trading_account` projection 字段，并保持与 budget helper 同步。,success
+2026-03-23T05:16:45.115Z,legion_update_context,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,handoff: 将 `.legion/tasks/signal-trader-funding-transfer/docs/pr-body.md` 作为 PR 描述发起 review。,success
+2026-03-23T05:16:45.119Z,legion_update_context,signal-trader-funding-transfer,,Claude,addFile: apps/signal-trader/src/runtime/runtime-worker.ts,success
+2026-03-23T05:16:45.119Z,legion_update_context,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,addFile: tools/sql-migration/sql/transfer_order.sql,success
+2026-03-23T05:17:05.479Z,legion_get_status,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,,success
+2026-03-23T05:51:19.421Z,legion_propose_task,signal-trader-funding-transfer,signal-trader-funding-transfer,Claude,name: signal-trader-capital-system-completion,success
+2026-03-23T05:51:28.549Z,legion_approve_proposal,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,proposalId: proposal-mn2rpkzc-8bbec1,success
+2026-03-23T05:51:44.979Z,legion_switch_task,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,taskId: signal-trader-capital-system-completion,success
+2026-03-23T05:56:26.697Z,legion_update_context,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,progress.completed: 已完成现状调研：确认剩余主要缺口集中在 `buffer_account`、internal netting、profit target alert、investor/signal projection 与更可解释的 capital reconciliation。,success
+2026-03-23T05:56:26.707Z,legion_update_context,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,addDecision: 本轮剩余资本系统功能优先以 `libraries/signal-trader` 为主战场：buffer/netting/profit-target/projection 尽量落在 core，`apps/signal-trader` 仅做快照/测试/审计的最小配合。,success
+2026-03-23T05:56:26.715Z,legion_update_context,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,addDecision: 资本对账本轮只做最小升级，不尝试把 funding/trading/buffer/transfer 真相一次性塞进 reconciliation。,success
+2026-03-23T06:00:08.263Z,legion_get_status,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,,success
+2026-03-23T06:00:11.712Z,legion_read_context,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,"section: all, includeReviews: true",success
+2026-03-23T06:04:07.798Z,legion_update_tasks,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,completeTask: phase 1,success
+2026-03-23T06:04:07.820Z,legion_update_tasks,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,completeTask: phase 1,success
+2026-03-23T06:04:07.841Z,legion_update_tasks,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,setCurrentTask: phase 2,success
+2026-03-23T06:17:17.858Z,legion_get_status,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,,success
+2026-03-23T06:17:23.363Z,legion_read_context,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,"section: all, includeReviews: true",success
+2026-03-23T06:33:13.591Z,legion_update_tasks,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,completeTask: phase 2,success
+2026-03-23T06:33:13.600Z,legion_update_tasks,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,completeTask: phase 2,success
+2026-03-23T06:33:13.601Z,legion_update_tasks,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,setCurrentTask: phase 3,success
+2026-03-23T06:33:35.622Z,legion_update_context,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,progress.completed: 已在 `libraries/signal-trader` 落地 `precision_lock` 最小闭环，并让 investor buffer 在时间推进后的快照里保持自洽。,success
+2026-03-23T06:33:35.675Z,legion_update_context,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,addDecision: `buffer_account` 首版只落 `precision_lock`，并把守恒关系限定在 subscription 级后再汇总到 investor buffer。,success
+2026-03-23T06:33:35.707Z,legion_update_context,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,addDecision: `profit_target_reached` 首版降级为 account-scoped advisory alert，不宣称 investor/subscription 已达标。,success
+2026-03-23T06:33:35.716Z,legion_update_context,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,addDecision: reconciliation 改为按 `account_id / reserve_account_ref` 做 account-scoped projected balance，并默认关闭匿名读。,success
+2026-03-23T06:33:35.727Z,legion_update_context,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,addFile: libraries/signal-trader/src/engine/dispatch-command.ts,success
+2026-03-23T06:34:09.843Z,legion_get_status,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,,success
+2026-03-23T06:34:09.844Z,legion_read_context,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,"section: all, includeReviews: true",success
+2026-03-23T06:37:37.118Z,legion_update_context,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,progress.completed: 已在 `libraries/signal-trader` 落地 `precision_lock` 最小闭环，并让 `investor_buffers` 在 query/budget refresh 后保持自洽。,success
+2026-03-23T06:37:37.142Z,legion_update_context,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,addDecision: `reconciliation` 升级为 account-scoped projected balance，并把 `reserve_account_ref` 绑定到 runtime 的 trading account，而不是 funding account。,success
+2026-03-23T06:37:37.222Z,legion_update_context,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,addDecision: `createSignalTraderServicePolicyFromEnv()` 默认不开放匿名读，只在显式 `SIGNAL_TRADER_ALLOW_ANONYMOUS_READ=1` 时开启。,success
+2026-03-23T06:37:37.222Z,legion_update_context,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,handoff: 将 `.legion/tasks/signal-trader-capital-system-completion/docs/pr-body.md` 作为 PR 描述发起 review。,success
+2026-03-23T06:37:45.131Z,legion_get_status,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,,success
+2026-03-23T06:49:54.336Z,legion_get_status,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,,success
+2026-03-23T06:54:09.796Z,legion_propose_task,signal-trader-capital-system-completion,signal-trader-capital-system-completion,Claude,name: signal-trader-formal-quote-source,success
+2026-03-23T06:54:20.795Z,legion_approve_proposal,signal-trader-formal-quote-source,signal-trader-formal-quote-source,Claude,proposalId: proposal-mn2tye80-f00e38,success
+2026-03-23T06:54:31.465Z,legion_switch_task,signal-trader-formal-quote-source,signal-trader-formal-quote-source,Claude,taskId: signal-trader-formal-quote-source,success
+2026-03-23T07:08:07.086Z,legion_update_context,signal-trader-formal-quote-source,signal-trader-formal-quote-source,Claude,progress.completed: 已完成初步调研：确认正式价格源应直接使用 SQL `QUOTE` 表，当前 `MidPriceCaptured` 仍依赖 `submit_signal.entry_price`。,success
+2026-03-23T07:08:07.088Z,legion_update_context,signal-trader-formal-quote-source,signal-trader-formal-quote-source,Claude,addDecision: 正式价格源由 app 层 SQL quote provider 注入到 core；core 只消费规范化后的价格证据，不直接触 SQL。,success
+2026-03-23T07:08:07.157Z,legion_update_context,signal-trader-formal-quote-source,signal-trader-formal-quote-source,Claude,addDecision: quote 缺失时 internal netting fail-close，不再把 `submit_signal.entry_price` 当作正式价格真相回退。,success
+2026-03-23T07:12:05.266Z,legion_get_status,signal-trader-formal-quote-source,signal-trader-formal-quote-source,Claude,,success
+2026-03-23T07:12:07.534Z,legion_read_context,signal-trader-formal-quote-source,signal-trader-formal-quote-source,Claude,"section: all, includeReviews: true",success
+2026-03-23T07:29:15.255Z,legion_update_tasks,signal-trader-formal-quote-source,signal-trader-formal-quote-source,Claude,completeTask: phase 1,success
+2026-03-23T07:29:15.336Z,legion_update_tasks,signal-trader-formal-quote-source,signal-trader-formal-quote-source,Claude,completeTask: phase 1,success
+2026-03-23T07:29:15.337Z,legion_update_tasks,signal-trader-formal-quote-source,signal-trader-formal-quote-source,Claude,setCurrentTask: phase 2,success
+2026-03-23T07:40:20.853Z,legion_update_context,signal-trader-formal-quote-source,signal-trader-formal-quote-source,Claude,progress.completed: 已完成 task-local RFC 与 review-rfc，正式价格源方案已收敛：SQL `QUOTE` provider + worker 注入 + quote 缺失 fail-close。,success
+2026-03-23T07:40:20.930Z,legion_update_context,signal-trader-formal-quote-source,signal-trader-formal-quote-source,Claude,addDecision: 未显式指定 datasource 且同一 product 存在多条 quote 行时，直接 fail-close `QUOTE_AMBIGUOUS_DATASOURCE`，不做 latest-wins。,success
+2026-03-23T07:40:20.931Z,legion_update_context,signal-trader-formal-quote-source,signal-trader-formal-quote-source,Claude,addDecision: `reference_price*` 只作为 app->core 内部增强字段使用；外部 submit payload 即使带这些字段，也必须在 worker 内被忽略并由 provider 覆盖。,success
+2026-03-23T07:40:20.933Z,legion_update_context,signal-trader-formal-quote-source,signal-trader-formal-quote-source,Claude,addFile: apps/signal-trader/src/bootstrap-from-env.ts,success
+2026-03-23T07:40:53.888Z,legion_get_status,signal-trader-formal-quote-source,signal-trader-formal-quote-source,Claude,,success
+2026-03-23T07:43:00.070Z,legion_update_context,signal-trader-formal-quote-source,signal-trader-formal-quote-source,Claude,handoff: 将 `.legion/tasks/signal-trader-formal-quote-source/docs/pr-body.md` 作为 PR 描述发起 review。,success
+2026-03-23T07:43:00.155Z,legion_update_context,signal-trader-formal-quote-source,signal-trader-formal-quote-source,Claude,addFile: libraries/signal-trader/src/engine/dispatch-command.ts,success
+2026-03-23T07:43:00.174Z,legion_update_context,signal-trader-formal-quote-source,signal-trader-formal-quote-source,Claude,addFile: apps/signal-trader/src/runtime/runtime-worker.ts,success
+2026-03-23T07:43:32.857Z,legion_get_status,signal-trader-formal-quote-source,signal-trader-formal-quote-source,Claude,,success
+2026-03-23T07:53:39.681Z,legion_get_status,signal-trader-formal-quote-source,signal-trader-formal-quote-source,Claude,,success
+2026-03-23T07:53:39.790Z,legion_propose_task,signal-trader-formal-quote-source,signal-trader-formal-quote-source,Claude,name: signal-trader-ui-capital-sync,success
+2026-03-23T07:53:48.697Z,legion_approve_proposal,signal-trader-ui-capital-sync,signal-trader-ui-capital-sync,Claude,proposalId: proposal-mn2w2wui-714b71,success
+2026-03-23T07:54:06.309Z,legion_switch_task,signal-trader-ui-capital-sync,signal-trader-ui-capital-sync,Claude,taskId: signal-trader-ui-capital-sync,success
+2026-03-23T08:01:56.360Z,legion_get_status,signal-trader-ui-capital-sync,signal-trader-ui-capital-sync,Claude,,success
+2026-03-23T08:05:31.469Z,legion_get_status,signal-trader-ui-capital-sync,signal-trader-ui-capital-sync,Claude,,success
+2026-03-23T08:05:33.774Z,legion_read_context,signal-trader-ui-capital-sync,signal-trader-ui-capital-sync,Claude,"section: all, includeReviews: true",success
+2026-03-23T08:06:55.399Z,legion_get_status,signal-trader-ui-capital-sync,signal-trader-ui-capital-sync,Claude,,success
+2026-03-23T08:07:01.711Z,legion_list_reviews,signal-trader-ui-capital-sync,signal-trader-ui-capital-sync,Claude,"status: open, type: all",success
+2026-03-23T08:07:01.712Z,legion_read_context,signal-trader-ui-capital-sync,signal-trader-ui-capital-sync,Claude,"section: all, includeReviews: true",success
+2026-03-23T08:16:35.002Z,legion_update_tasks,signal-trader-ui-capital-sync,signal-trader-ui-capital-sync,Claude,completeTask: phase 1,success
+2026-03-23T08:16:35.039Z,legion_update_tasks,signal-trader-ui-capital-sync,,Claude,completeTask: phase 1,success
+2026-03-23T08:16:35.040Z,legion_update_tasks,signal-trader-ui-capital-sync,signal-trader-ui-capital-sync,Claude,completeTask: phase 2,success
+2026-03-23T08:16:35.041Z,legion_update_tasks,signal-trader-ui-capital-sync,signal-trader-ui-capital-sync,Claude,setCurrentTask: phase 3,success
+2026-03-23T08:16:35.042Z,legion_update_tasks,signal-trader-ui-capital-sync,signal-trader-ui-capital-sync,Claude,completeTask: phase 2,success
+2026-03-23T08:18:05.801Z,legion_update_context,signal-trader-ui-capital-sync,signal-trader-ui-capital-sync,Claude,addDecision: 原始证据面保留，但一律通过 `sanitize*` 过滤后展示，而不是整对象裸透传。,success
+2026-03-23T08:18:43.540Z,legion_get_status,signal-trader-ui-capital-sync,signal-trader-ui-capital-sync,Claude,,success
+2026-03-23T08:18:43.541Z,legion_read_context,signal-trader-ui-capital-sync,signal-trader-ui-capital-sync,Claude,"section: all, includeReviews: true",success
+2026-03-23T08:20:32.740Z,legion_update_tasks,signal-trader-ui-capital-sync,signal-trader-ui-capital-sync,Claude,completeTask: phase 3,success
+2026-03-23T08:20:32.800Z,legion_update_tasks,signal-trader-ui-capital-sync,signal-trader-ui-capital-sync,Claude,completeTask: phase 3,success
+2026-03-23T08:21:57.463Z,legion_update_context,signal-trader-ui-capital-sync,signal-trader-ui-capital-sync,Claude,handoff: 将 `.legion/tasks/signal-trader-ui-capital-sync/docs/pr-body.md` 作为 PR 描述发起 review。,success
+2026-03-23T09:01:18.857Z,legion_get_status,signal-trader-ui-capital-sync,signal-trader-ui-capital-sync,Claude,,success
+2026-03-23T09:01:18.985Z,legion_propose_task,signal-trader-ui-capital-sync,signal-trader-ui-capital-sync,Claude,name: signal-trader-paper-time-control,success
+2026-03-23T09:01:28.731Z,legion_approve_proposal,signal-trader-paper-time-control,signal-trader-paper-time-control,Claude,proposalId: proposal-mn2yhwxy-382299,success
+2026-03-23T09:01:43.693Z,legion_switch_task,signal-trader-paper-time-control,signal-trader-paper-time-control,Claude,taskId: signal-trader-paper-time-control,success
+2026-03-23T09:14:31.475Z,legion_update_context,signal-trader-paper-time-control,signal-trader-paper-time-control,Claude,progress.completed: 已完成现状调研：确认运行态 paper stack 没有 time-travel 能力，只有测试在用 fake timers。,success
+2026-03-23T09:14:31.593Z,legion_update_context,signal-trader-paper-time-control,signal-trader-paper-time-control,Claude,addDecision: paper 时间控制采用“全局 paper offset + live 真实时间”的双轨模型，由 manager/worker 在运行态按 execution_mode 取时。,success
+2026-03-23T09:14:31.609Z,legion_update_context,signal-trader-paper-time-control,signal-trader-paper-time-control,Claude,addDecision: 运行态控制入口选 paper-only services + CLI 脚本，而不是先做前端按钮。,success
+2026-03-23T09:15:10.604Z,legion_get_status,signal-trader-paper-time-control,signal-trader-paper-time-control,Claude,,success
+2026-03-23T09:17:56.918Z,legion_get_status,signal-trader-paper-time-control,signal-trader-paper-time-control,Claude,,success
+2026-03-23T09:24:35.021Z,legion_get_status,signal-trader-paper-time-control,signal-trader-paper-time-control,Claude,,success
+2026-03-23T09:30:39.016Z,legion_get_status,signal-trader-paper-time-control,signal-trader-paper-time-control,Claude,,success
+2026-03-23T09:32:45.668Z,legion_update_tasks,signal-trader-paper-time-control,signal-trader-paper-time-control,Claude,completeTask: phase 1,success
+2026-03-23T09:32:45.799Z,legion_update_tasks,signal-trader-paper-time-control,signal-trader-paper-time-control,Claude,completeTask: phase 1,success
+2026-03-23T09:32:45.811Z,legion_update_tasks,signal-trader-paper-time-control,signal-trader-paper-time-control,Claude,completeTask: phase 2,success
+2026-03-23T09:32:45.839Z,legion_update_tasks,signal-trader-paper-time-control,signal-trader-paper-time-control,Claude,completeTask: phase 2,success
+2026-03-23T09:32:46.422Z,legion_update_tasks,signal-trader-paper-time-control,signal-trader-paper-time-control,Claude,completeTask: phase 3,success
+2026-03-23T09:32:46.429Z,legion_update_tasks,signal-trader-paper-time-control,signal-trader-paper-time-control,Claude,completeTask: phase 3,success
+2026-03-23T09:34:01.135Z,legion_update_context,signal-trader-paper-time-control,signal-trader-paper-time-control,Claude,addFile: apps/signal-trader/src/runtime/paper-clock.ts,success
+2026-03-23T09:34:15.480Z,legion_update_context,signal-trader-paper-time-control,signal-trader-paper-time-control,Claude,handoff: 将 `.legion/tasks/signal-trader-paper-time-control/docs/pr-body.md` 作为 PR 描述发起 review。,success
+2026-03-23T12:23:08.113Z,legion_propose_task,signal-trader-paper-time-control,signal-trader-paper-time-control,Claude,name: signal-trader-daily-transfer-allocation,success
+2026-03-23T12:23:21.873Z,legion_approve_proposal,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,proposalId: proposal-mn35pgej-d3182d,success
+2026-03-23T12:23:36.304Z,legion_switch_task,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,taskId: signal-trader-daily-transfer-allocation,success
+2026-03-23T12:26:40.486Z,legion_update_context,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,progress.completed: 已完成差异确认：当前实现是预算每天释放 + 按需补资，不是用户要的“每天固定拨资到 trading account”。,success
+2026-03-23T12:26:40.544Z,legion_update_context,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,addDecision: 新的 logical account 语义冻结为：`funding_account = vc_budget - released_vc_total`，`trading_account = released_vc_total - precision_locked_amount`，`available_vc = max(0,success
+2026-03-23T12:26:40.559Z,legion_update_context,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,addDecision: transfer 调度改成 daily allocation 驱动：deficit 会在 live observer / paper clock advance / submit/boot 等入口补齐；excess 只回收超出 `trading_account + buffer` 的余额。,success
+2026-03-23T12:27:14.739Z,legion_get_status,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,,success
+2026-03-23T12:30:14.575Z,legion_get_status,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,,success
+2026-03-23T12:51:08.964Z,legion_get_status,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,,success
+2026-03-23T12:51:13.498Z,legion_get_status,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,,success
+2026-03-23T12:51:14.335Z,legion_read_context,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,"section: all, includeReviews: true",success
+2026-03-23T12:51:17.294Z,legion_read_context,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,"section: all, includeReviews: true",success
+2026-03-23T13:06:01.443Z,legion_get_status,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,,success
+2026-03-23T13:06:03.829Z,legion_read_context,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,"section: all, includeReviews: true",success
+2026-03-23T13:11:22.317Z,legion_update_tasks,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,completeTask: phase 1,success
+2026-03-23T13:11:22.326Z,legion_update_tasks,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,completeTask: phase 1,success
+2026-03-23T13:11:22.367Z,legion_update_tasks,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,completeTask: phase 2,success
+2026-03-23T13:11:22.378Z,legion_update_tasks,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,setCurrentTask: phase 3,success
+2026-03-23T13:11:22.379Z,legion_update_tasks,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,completeTask: phase 2,success
+2026-03-23T13:11:59.787Z,legion_update_context,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,progress.completed: 已在 `libraries/signal-trader` 重做 daily allocation 核心语义：`funding_account` 表示未拨资本，`trading_account` 表示已拨资本池，`available_vc` 表示交易池内仍可扩张容量。,success
+2026-03-23T13:11:59.854Z,legion_update_context,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,addDecision: `trading_account` 定义为已拨入 trading 的资本池总额，而不是已占用风险额度；`precision_locked_amount` 作为 trading 池内不可交易部分单独扣减 `available_vc`。,success
+2026-03-23T13:11:59.855Z,legion_update_context,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,"addDecision: runtime transfer 统一使用 `getTradingCapitalTarget()`，其下限为 `max(trading_account, current_reserved_vc + precision_locked_amount) + buffer`。",success
+2026-03-23T13:11:59.881Z,legion_update_context,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,addFile: libraries/signal-trader/src/domain/evaluate-budget.ts,success
+2026-03-23T13:11:59.882Z,legion_update_context,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,addFile: apps/signal-trader/src/runtime/runtime-worker.ts,success
+2026-03-23T13:11:59.883Z,legion_update_context,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,addDecision: paper 不通过 query side-effect 补资，而是通过 boot、paper clock advance 与 submit 后同步日拨 capital。,success
+2026-03-23T13:12:32.560Z,legion_get_status,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,,success
+2026-03-23T13:15:09.268Z,legion_update_context,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,handoff: 将 `.legion/tasks/signal-trader-daily-transfer-allocation/docs/pr-body.md` 作为 PR 描述发起 review。,success
+2026-03-24T06:09:09.592Z,legion_get_status,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,,success
+2026-03-24T06:09:09.659Z,legion_propose_task,signal-trader-daily-transfer-allocation,signal-trader-daily-transfer-allocation,Claude,name: signal-trader-jest-open-handles,success
+2026-03-24T06:09:31.232Z,legion_approve_proposal,signal-trader-jest-open-handles,signal-trader-jest-open-handles,Claude,proposalId: proposal-mn47sdg3-d53736,success
+2026-03-24T06:09:51.699Z,legion_switch_task,signal-trader-jest-open-handles,signal-trader-jest-open-handles,Claude,taskId: signal-trader-jest-open-handles,success
+2026-03-24T06:33:18.584Z,legion_update_context,signal-trader-jest-open-handles,signal-trader-jest-open-handles,Claude,progress.completed: 已定位到 warning 的主要来源：live runtime observer loop 的 `setTimeout` 在测试结束后仍持有进程。,success
+2026-03-24T06:33:18.615Z,legion_update_context,signal-trader-jest-open-handles,signal-trader-jest-open-handles,Claude,addDecision: 优先对 observer loop 定时器做 `unref()`，而不是靠 Jest `forceExit` 或更重的测试改造压制 warning。,success
+2026-03-24T06:33:18.628Z,legion_update_context,signal-trader-jest-open-handles,signal-trader-jest-open-handles,Claude,addFile: apps/signal-trader/src/runtime/runtime-worker.ts,success
+2026-03-24T06:33:18.629Z,legion_update_context,signal-trader-jest-open-handles,signal-trader-jest-open-handles,Claude,addFile: apps/signal-trader/src/runtime/runtime-manager.ts,success
+2026-03-24T06:36:54.478Z,legion_get_status,signal-trader-jest-open-handles,signal-trader-jest-open-handles,Claude,,success
+2026-03-24T06:37:03.155Z,legion_read_context,signal-trader-jest-open-handles,signal-trader-jest-open-handles,Claude,"section: all, includeReviews: true",success
+2026-03-24T06:41:24.027Z,legion_get_status,signal-trader-jest-open-handles,signal-trader-jest-open-handles,Claude,,success
+2026-03-24T06:42:39.867Z,legion_update_tasks,signal-trader-jest-open-handles,signal-trader-jest-open-handles,Claude,completeTask: phase 1,success
+2026-03-24T06:42:39.900Z,legion_update_tasks,signal-trader-jest-open-handles,signal-trader-jest-open-handles,Claude,completeTask: phase 1,success
+2026-03-24T06:42:40.043Z,legion_update_tasks,signal-trader-jest-open-handles,signal-trader-jest-open-handles,Claude,completeTask: phase 2,success
+2026-03-24T06:42:40.050Z,legion_update_tasks,signal-trader-jest-open-handles,signal-trader-jest-open-handles,Claude,completeTask: phase 2,success
+2026-03-24T06:42:40.059Z,legion_update_tasks,signal-trader-jest-open-handles,signal-trader-jest-open-handles,Claude,completeTask: phase 3,success
+2026-03-24T06:42:40.062Z,legion_update_tasks,signal-trader-jest-open-handles,signal-trader-jest-open-handles,Claude,completeTask: phase 3,success
+2026-03-24T06:44:53.847Z,legion_update_context,signal-trader-jest-open-handles,signal-trader-jest-open-handles,Claude,handoff: 将 `.legion/tasks/signal-trader-jest-open-handles/docs/pr-body.md` 作为 PR 描述发起 review。,success
+2026-03-24T08:05:09.520Z,legion_get_status,signal-trader-jest-open-handles,signal-trader-jest-open-handles,Claude,,success
+2026-03-24T08:05:09.627Z,legion_propose_task,signal-trader-jest-open-handles,signal-trader-jest-open-handles,Claude,name: signal-trader-formal-process-tests,success
+2026-03-24T08:05:24.684Z,legion_approve_proposal,signal-trader-formal-process-tests,signal-trader-formal-process-tests,Claude,proposalId: proposal-mn4bxjsg-29db7e,success
+2026-03-24T08:05:41.393Z,legion_switch_task,signal-trader-formal-process-tests,signal-trader-formal-process-tests,Claude,taskId: signal-trader-formal-process-tests,success
+2026-03-24T08:11:18.108Z,legion_get_status,signal-trader-formal-process-tests,signal-trader-formal-process-tests,Claude,,success
+2026-03-24T08:22:16.097Z,legion_update_context,signal-trader-formal-process-tests,signal-trader-formal-process-tests,Claude,addDecision: formal process 测试优先断言资金语义（released/funding/trading/available）和 observer 行为，而不是只断言事件条数。,success
+2026-03-24T08:22:48.337Z,legion_update_tasks,signal-trader-formal-process-tests,signal-trader-formal-process-tests,Claude,completeTask: phase 3,success
+2026-03-24T08:22:48.352Z,legion_update_tasks,signal-trader-formal-process-tests,signal-trader-formal-process-tests,Claude,completeTask: phase 2,success
+2026-03-24T08:22:48.353Z,legion_update_tasks,signal-trader-formal-process-tests,signal-trader-formal-process-tests,Claude,completeTask: phase 3,success
+2026-03-24T08:22:48.354Z,legion_update_tasks,signal-trader-formal-process-tests,signal-trader-formal-process-tests,Claude,completeTask: phase 1,success
+2026-03-24T08:22:48.360Z,legion_update_tasks,signal-trader-formal-process-tests,signal-trader-formal-process-tests,Claude,completeTask: phase 2,success
+2026-03-24T08:23:57.089Z,legion_update_context,signal-trader-formal-process-tests,signal-trader-formal-process-tests,Claude,handoff: 将 `.legion/tasks/signal-trader-formal-process-tests/docs/pr-body.md` 作为 PR 描述发起 review。,success
+2026-03-24T08:55:35.597Z,legion_get_status,signal-trader-formal-process-tests,signal-trader-formal-process-tests,Claude,,success
+2026-03-24T08:55:35.685Z,legion_propose_task,signal-trader-formal-process-tests,signal-trader-formal-process-tests,Claude,name: signal-trader-paper-to-mock-terminology,success
+2026-03-24T08:55:51.114Z,legion_approve_proposal,signal-trader-paper-to-mock-terminology,signal-trader-paper-to-mock-terminology,Claude,proposalId: proposal-mn4dqep3-8332f4,success
+2026-03-24T08:56:03.132Z,legion_switch_task,signal-trader-paper-to-mock-terminology,signal-trader-paper-to-mock-terminology,Claude,taskId: signal-trader-paper-to-mock-terminology,success
+2026-03-24T09:08:28.144Z,legion_update_context,signal-trader-paper-to-mock-terminology,signal-trader-paper-to-mock-terminology,Claude,addDecision: 术语替换只针对用户可见层：UI 标签、脚本输出、包脚本名、测试标题等统一改为 mock；底层 `execution_mode='paper'`、`paper_simulated`、现有文件名与 runtime id 保持兼容。,success
+2026-03-24T09:08:42.224Z,legion_update_tasks,signal-trader-paper-to-mock-terminology,signal-trader-paper-to-mock-terminology,Claude,completeTask: 修改用户可见的 paper 文案为 mock，并保持 execution_mode / stack / tests 兼容。,success
+2026-03-24T09:20:17.387Z,legion_update_context,signal-trader-paper-to-mock-terminology,signal-trader-paper-to-mock-terminology,Claude,addDecision: 术语替换继续坚持“用户可见改 mock，底层协议保留 paper 兼容”；同时补 mock wrapper 入口，而不是硬改内部文件名和协议枚举。,success
+2026-03-24T09:20:30.265Z,legion_update_tasks,signal-trader-paper-to-mock-terminology,signal-trader-paper-to-mock-terminology,Claude,completeTask: phase 1,success
+2026-03-24T09:20:45.976Z,legion_update_tasks,signal-trader-paper-to-mock-terminology,signal-trader-paper-to-mock-terminology,Claude,completeTask: phase 1,success
+2026-03-24T09:20:55.939Z,legion_update_tasks,signal-trader-paper-to-mock-terminology,signal-trader-paper-to-mock-terminology,Claude,completeTask: phase 2,success
+2026-03-24T09:21:08.772Z,legion_update_tasks,signal-trader-paper-to-mock-terminology,signal-trader-paper-to-mock-terminology,Claude,completeTask: phase 2,success
+2026-03-24T09:21:21.255Z,legion_update_tasks,signal-trader-paper-to-mock-terminology,signal-trader-paper-to-mock-terminology,Claude,completeTask: phase 3,success
+2026-03-24T09:21:35.848Z,legion_update_tasks,signal-trader-paper-to-mock-terminology,signal-trader-paper-to-mock-terminology,Claude,completeTask: phase 3,success
+2026-03-24T10:03:39.214Z,legion_propose_task,signal-trader-paper-to-mock-terminology,signal-trader-paper-to-mock-terminology,Claude,name: signal-trader-clean-final-shape,success
+2026-03-24T10:04:00.783Z,legion_approve_proposal,signal-trader-clean-final-shape,signal-trader-clean-final-shape,Claude,proposalId: proposal-mn4g5xke-90300a,success
+2026-03-24T10:04:18.948Z,legion_switch_task,signal-trader-clean-final-shape,signal-trader-clean-final-shape,Claude,taskId: signal-trader-clean-final-shape,success
+2026-03-24T10:19:53.977Z,legion_update_context,signal-trader-clean-final-shape,signal-trader-clean-final-shape,Claude,addDecision: cleanup 任务不再保留兼容层：mock 入口升级为正式入口，旧 paper 包装文件与 ui/web 废弃前端直接删除。,success
+2026-03-24T10:20:11.731Z,legion_update_tasks,signal-trader-clean-final-shape,signal-trader-clean-final-shape,Claude,completeTask: 删除 ui/web 废弃 signal-trader 前端与所有多余兼容文件，重命名剩余正式入口。,success
+2026-03-24T10:20:28.519Z,legion_update_tasks,signal-trader-clean-final-shape,signal-trader-clean-final-shape,Claude,completeTask: 修正文档、脚本、测试与引用到最终形态。,success
+2026-03-24T12:41:58.678Z,legion_get_status,signal-trader-clean-final-shape,signal-trader-clean-final-shape,Claude,,success
+2026-03-24T12:42:12.080Z,legion_read_context,signal-trader-clean-final-shape,signal-trader-clean-final-shape,Claude,"section: all, includeReviews: true",success
+2026-03-24T12:42:12.095Z,legion_list_reviews,signal-trader-clean-final-shape,signal-trader-clean-final-shape,Claude,"status: open, type: all",success
+2026-03-24T12:42:20.804Z,legion_list_tasks,signal-trader-clean-final-shape,signal-trader-clean-final-shape,Claude,,success
+2026-03-24T12:42:29.490Z,legion_read_context,signal-trader,signal-trader,Claude,"section: all, includeReviews: true",success
+2026-03-24T12:43:16.543Z,legion_create_task,signal-trader-clean-final-shape,signal-trader-clean-final-shape,Claude,goal: 在 signal-trader mock exchange 中实现最小仓位/账户管理、订单任意成交后的账户净值更新，并同步主前端与独立前端展示账户状况。,failed
+2026-03-24T12:44:03.564Z,legion_propose_task,signal-trader-clean-final-shape,signal-trader-clean-final-shape,Claude,name: signal-trader-mock-exchange-account-ui,success
+2026-03-24T12:56:59.767Z,legion_approve_proposal,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,proposalId: proposal-mn4lw7rf-df91ca,success
+2026-03-24T12:57:10.589Z,legion_get_status,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,,success
+2026-03-24T12:57:23.089Z,legion_read_context,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,"section: all, includeReviews: true",success
+2026-03-24T12:59:32.947Z,legion_update_tasks,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,setCurrentTask: phase 1,success
+2026-03-24T12:59:32.952Z,legion_update_context,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,addDecision: mock 账户能力优先落在 app 层 paper adapter，而不是改 `libraries/signal-trader` domain 真相。,success
+2026-03-24T13:13:32.237Z,legion_update_tasks,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,setCurrentTask: phase 2,success
+2026-03-24T13:13:32.243Z,legion_update_tasks,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,completeTask: phase 1,success
+2026-03-24T13:13:32.247Z,legion_update_context,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,addDecision: 对外标准账户流使用 runtime 派生的唯一 `mock account_id`，而不是直接复用 runtime 原始 `account_id`。,success
+2026-03-24T13:13:32.251Z,legion_update_tasks,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,completeTask: phase 1,success
+2026-03-24T13:16:06.080Z,legion_get_status,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,,success
+2026-03-24T13:46:00.167Z,legion_get_status,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,,success
+2026-03-24T13:46:05.602Z,legion_read_context,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,"section: all, includeReviews: true",success
+2026-03-24T13:46:07.730Z,legion_get_status,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,,success
+2026-03-24T13:46:11.354Z,legion_read_context,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,"section: all, includeReviews: true",success
+2026-03-24T13:51:10.901Z,legion_get_status,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,,success
+2026-03-24T13:51:10.909Z,legion_read_context,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,"section: all, includeReviews: true",success
+2026-03-24T13:53:23.185Z,legion_update_context,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,addFile: /Users/c1/Work/signal-trader/.legion/tasks/signal-trader-mock-exchange-account-ui/docs/review-security.md,success
+2026-03-24T14:05:49.775Z,legion_get_status,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,,success
 2026-03-25T11:58:57.155Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-03-25T11:59:04.225Z,legion_list_reviews,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"status: open, type: all",success
 2026-03-25T11:59:04.225Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
