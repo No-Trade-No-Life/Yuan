@@ -20,6 +20,22 @@ export interface LoadOptions {
 
 const defaultTerminalId = () => `Yuanctl/${hostname()}`;
 
+const normalizeAndValidateHostUrl = (hostUrl: string): string => {
+  let parsed: URL;
+  try {
+    parsed = new URL(hostUrl);
+  } catch {
+    throw new Error(`Invalid host URL "${hostUrl}"`);
+  }
+  if (parsed.username || parsed.password) {
+    throw new Error('Host URL must not include embedded credentials');
+  }
+  if (parsed.protocol !== 'ws:' && parsed.protocol !== 'wss:') {
+    throw new Error('Host URL must use ws:// or wss://');
+  }
+  return parsed.toString();
+};
+
 const normalizeHostConfig = (
   name: string,
   raw: YuanCtlConfig['hosts'][string],
@@ -31,7 +47,7 @@ const normalizeHostConfig = (
   }
   return {
     name,
-    hostUrl,
+    hostUrl: normalizeAndValidateHostUrl(hostUrl),
     terminalId: raw.terminal_id || defaultTerminalId(),
     tlsVerify: raw.tls_verify ?? true,
     connectTimeoutMs: raw.connect_timeout_ms ?? DEFAULT_CONNECT_TIMEOUT_MS,

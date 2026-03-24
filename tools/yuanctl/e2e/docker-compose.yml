@@ -15,6 +15,7 @@ services:
 
   nodeunit:
     image: ${YUANCTL_NODE_UNIT_IMAGE:-ghcr.io/no-trade-no-life/node-unit:0.12.16}
+    platform: ${YUANCTL_NODE_UNIT_PLATFORM:-linux/amd64}
     depends_on:
       postgres:
         condition: service_healthy

@@ -1,57 +1,124 @@
-import { Cli } from 'clipanion';
 import { PassThrough } from 'stream';
-import type { CliClients } from '../context';
-import type { IDeployment } from '@yuants/deploy';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'fs';
+import { join } from 'path';
+import { tmpdir } from 'os';
 
-jest.mock('../context', () => ({
-  loadCliClients: jest.fn(),
+jest.mock('../../updateChecker', () => ({
+  maybeCheckForUpdates: jest.fn().mockResolvedValue(undefined),
 }));
 
-const { loadCliClients } = jest.requireMock('../context') as { loadCliClients: jest.Mock };
-const { GetCommand } = require('../verbs/get') as typeof import('../verbs/get');
-const { LogsCommand } = require('../verbs/logs') as typeof import('../verbs/logs');
+jest.mock('../../client/terminalGateway', () => ({
+  TerminalGateway: {
+    ensure: jest.fn().mockResolvedValue({ terminal: {} }),
+  },
+}));
 
-const makeCli = () => {
-  const cli = new Cli({
-    binaryLabel: 'yuanctl-test',
-    binaryName: 'yuanctl',
-    binaryVersion: '0.0.0-test',
-  });
-  cli.register(GetCommand);
-  cli.register(LogsCommand);
-  return cli;
+jest.mock('../../client/deploymentsClient', () => ({
+  DeploymentsClient: jest.fn().mockImplementation(() => ({
+    list: jest.fn(),
+    getById: jest.fn(),
+    setEnabled: jest.fn(),
+    restart: jest.fn(),
+    delete: jest.fn(),
+  })),
+}));
+
+jest.mock('../../client/logsClient', () => ({
+  LogsClient: jest.fn().mockImplementation(() => ({
+    readSlice: jest.fn(),
+  })),
+}));
+
+jest.mock('../../config/clientConfig', () => ({
+  loadClientConfig: jest.fn(),
+}));
+
+const { run, registry } = require('../index') as typeof import('../index');
+const { resolveCommand, buildStaticRegistry } =
+  require('../static-registry') as typeof import('../static-registry');
+const { loadClientConfig } = jest.requireMock('../../config/clientConfig') as {
+  loadClientConfig: jest.Mock;
+};
+const { DeploymentsClient } = jest.requireMock('../../client/deploymentsClient') as {
+  DeploymentsClient: jest.Mock;
 };
 
-describe('CLI commands (mocked clients)', () => {
-  let logs: string[];
-  let errors: string[];
-  let restoreLog: (() => void) | undefined;
-  let restoreError: (() => void) | undefined;
+const makeIo = () => {
+  const configRoot = mkdtempSync(join(tmpdir(), 'yuanctl-test-'));
+  const stdin = new PassThrough() as unknown as NodeJS.ReadStream;
+  const stdout = new PassThrough() as unknown as NodeJS.WriteStream;
+  const stderr = new PassThrough() as unknown as NodeJS.WriteStream;
+  Object.assign(stdout, { isTTY: false });
+  Object.assign(stderr, { isTTY: false });
+  return {
+    stdin,
+    stdout,
+    stderr,
+    env: {
+      ...process.env,
+      YUANCTL_DISABLE_UPDATE_CHECK: '1',
+      XDG_CONFIG_HOME: configRoot,
+    },
+    cleanup: () => rmSync(configRoot, { recursive: true, force: true }),
+    configRoot,
+  };
+};
 
+const readStream = async (stream: PassThrough): Promise<string> => {
+  const chunks: Buffer[] = [];
+  stream.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
+  await new Promise((resolve) => setImmediate(resolve));
+  return Buffer.concat(chunks).toString('utf-8');
+};
+
+describe('yuanctl phase 1 CLI', () => {
   beforeEach(() => {
-    loadCliClients.mockReset();
-    if (!globalThis.crypto) {
-      Object.assign(globalThis, { crypto: require('crypto').webcrypto });
+    loadClientConfig.mockReset();
+    DeploymentsClient.mockClear();
+  });
+
+  it('resolves deploy namespace commands from static registry', () => {
+    const resolved = resolveCommand(['deploy', 'inspect', 'bot-1'], registry);
+    expect(resolved.kind).toBe('command');
+    if (resolved.kind === 'command') {
+      expect(resolved.command.path).toEqual(['deploy', 'inspect']);
+      expect(resolved.command.positionals).toEqual(['bot-1']);
     }
-    logs = [];
-    errors = [];
-    const logSpy = jest.spyOn(console, 'log').mockImplementation((...args: any[]) => {
-      logs.push(args.map((v) => String(v)).join(' '));
-    });
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation((...args: any[]) => {
-      errors.push(args.map((v) => String(v)).join(' '));
-    });
-    restoreLog = () => logSpy.mockRestore();
-    restoreError = () => errorSpy.mockRestore();
   });
 
-  afterEach(() => {
-    restoreLog?.();
-    restoreError?.();
+  it('rejects registry conflicts with source package details', () => {
+    expect(() =>
+      buildStaticRegistry([
+        {
+          commands: [
+            {
+              path: ['deploy', 'list'],
+              summary: '',
+              capabilityClass: 'read-safe',
+              sourcePackage: 'a',
+              runtime: 'none',
+              handler: jest.fn(),
+            },
+          ],
+        },
+        {
+          commands: [
+            {
+              path: ['deploy', 'list'],
+              summary: '',
+              capabilityClass: 'read-safe',
+              sourcePackage: 'b',
+              runtime: 'none',
+              handler: jest.fn(),
+            },
+          ],
+        },
+      ]),
+    ).toThrow('Command path conflict');
   });
 
-  it('renders deployments as json', async () => {
-    const deployments: IDeployment[] = [
+  it('runs deploy list and renders json result', async () => {
+    const deployments = [
       {
         id: 'bot-1',
         package_name: '@yuants/bot',
@@ -66,86 +133,129 @@ describe('CLI commands (mocked clients)', () => {
         updated_at: new Date().toISOString(),
       },
     ];
-    const clients: Partial<CliClients> = {
-      deployments: {
-        list: jest.fn().mockResolvedValue(deployments),
-        watch: jest.fn(),
-      } as any,
-      nodeUnits: { list: jest.fn() } as any,
-      logs: { readSlice: jest.fn(), follow: jest.fn() } as any,
-      config: { host: { defaultNodeUnit: 'node-1' } } as any,
-      gateway: {} as any,
-    };
-    loadCliClients.mockResolvedValue(clients);
-    const cli = makeCli();
-
-    const exit = await cli.run(['get', 'deployments', '--output', 'json', '--no-headers'], {
-      stdin: new PassThrough(),
-      stdout: new PassThrough(),
-      stderr: new PassThrough(),
+    loadClientConfig.mockReturnValue({
+      ok: true,
+      value: {
+        contextName: 'default',
+        host: { name: 'default', hostUrl: 'ws://host', terminalId: 't-1' },
+      },
     });
+    DeploymentsClient.mockImplementation(() => ({
+      list: jest.fn().mockResolvedValue(deployments),
+      getById: jest.fn(),
+      setEnabled: jest.fn(),
+      restart: jest.fn(),
+      delete: jest.fn(),
+    }));
 
-    expect(exit === undefined || exit === 0).toBe(true);
-    expect(errors.join('')).toBe('');
-    const parsed = JSON.parse(logs.join('\n').trim());
-    expect(parsed).toHaveLength(1);
-    expect(parsed[0].id).toBe('bot-1');
+    const io = makeIo();
+    try {
+      const exitCode = await run(['node', 'yuanctl', 'deploy', 'list', '--output', 'json'], io);
+      const stdout = await readStream(io.stdout as unknown as PassThrough);
+      const stderr = await readStream(io.stderr as unknown as PassThrough);
+
+      expect(exitCode).toBe(0);
+      expect(stderr).toBe('');
+      const parsed = JSON.parse(stdout);
+      expect(parsed.kind).toBe('deploy.list');
+      expect(parsed.data[0].id).toBe('bot-1');
+    } finally {
+      io.cleanup();
+    }
   });
 
-  it('reads log slice tail with explicit node unit', async () => {
-    const deploymentRows: IDeployment[] = [
-      {
-        id: 'bot-1',
-        package_name: '@yuants/bot',
-        package_version: '1.0.0',
-        command: '',
-        args: [],
-        env: {},
-        address: 'node-1',
-        type: 'deployment',
-        enabled: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      },
-    ];
-    const clients: Partial<CliClients> = {
-      deployments: {
-        list: jest.fn().mockResolvedValue(deploymentRows),
-        watch: jest.fn(),
-      } as any,
-      nodeUnits: { list: jest.fn() } as any,
-      logs: {
-        readSlice: jest.fn().mockResolvedValue({
-          content: 'line-1\nline-2\nline-3\n',
-          start: 0,
-          end: 0,
-          file_size: 0,
-        }),
-        follow: jest.fn(),
-      } as any,
-      config: { host: { defaultNodeUnit: 'node-1' } } as any,
-      gateway: {} as any,
-    };
-    loadCliClients.mockResolvedValue(clients);
-    const cli = makeCli();
+  it('runs config init without loading existing config', async () => {
+    const io = makeIo();
+    try {
+      const exitCode = await run(['node', 'yuanctl', 'config', 'init', '--host-url', 'ws://demo'], io);
+      const stdout = await readStream(io.stdout as unknown as PassThrough);
 
-    const exit = await cli.run(
-      ['logs', 'deployment/bot-1', '--tail', '2', '--node-unit', 'node-1', '--timestamps'],
-      {
-        stdin: new PassThrough(),
-        stdout: new PassThrough(),
-        stderr: new PassThrough(),
-      },
-    );
+      expect(exitCode).toBe(0);
+      expect(stdout).toContain('current_context');
+      expect(stdout).toContain('ws://demo');
+      expect(loadClientConfig).not.toHaveBeenCalled();
+    } finally {
+      io.cleanup();
+    }
+  });
 
-    expect(exit === undefined || exit === 0).toBe(true);
-    expect(errors.join('')).toBe('');
-    const lines = logs
-      .join('\n')
-      .split(/\r?\n/)
-      .filter((l) => l.trim().length > 0);
-    expect(lines).toHaveLength(2);
-    expect(lines[1]).toContain('line-3');
-    expect(clients.logs?.readSlice).toHaveBeenCalled();
+  it('shows namespace help for config', async () => {
+    const io = makeIo();
+    try {
+      const exitCode = await run(['node', 'yuanctl', 'config', '--help'], io);
+      const stdout = await readStream(io.stdout as unknown as PassThrough);
+
+      expect(exitCode).toBe(0);
+      expect(stdout).toContain('yuanctl config <subcommand>');
+      expect(stdout).toContain('get-contexts');
+    } finally {
+      io.cleanup();
+    }
+  });
+
+  it('runs config current basic path', async () => {
+    const io = makeIo();
+    try {
+      mkdirSync(join(io.configRoot, 'yuan'), { recursive: true });
+      writeFileSync(
+        join(io.configRoot, 'yuan', 'config.toml'),
+        [
+          'current_context = "prod"',
+          '',
+          '[hosts.prod-host]',
+          'host_url = "wss://prod/ws"',
+          'terminal_id = "term-1"',
+          '',
+          '[contexts.prod]',
+          'host = "prod-host"',
+          '',
+        ].join('\n'),
+      );
+
+      const exitCode = await run(['node', 'yuanctl', 'config', 'current', '--output', 'json'], io);
+      const stdout = await readStream(io.stdout as unknown as PassThrough);
+
+      expect(exitCode).toBe(0);
+      const parsed = JSON.parse(stdout);
+      expect(parsed.kind).toBe('config.current');
+      expect(parsed.data.currentContextName).toBe('prod');
+      expect(parsed.data.hostUrl).toBe('wss://prod/ws');
+    } finally {
+      io.cleanup();
+    }
+  });
+
+  it('blocks destructive command without --yes in non-tty mode', async () => {
+    loadClientConfig.mockReturnValue({
+      ok: true,
+      value: {
+        contextName: 'default',
+        host: { name: 'default', hostUrl: 'ws://host', terminalId: 't-1' },
+      },
+    });
+    const io = makeIo();
+    try {
+      const exitCode = await run(['node', 'yuanctl', 'deploy', 'delete', 'bot-1', '--output', 'json'], io);
+      const stderr = await readStream(io.stderr as unknown as PassThrough);
+
+      expect(exitCode).toBe(6);
+      const parsed = JSON.parse(stderr);
+      expect(parsed.error.code).toBe('E_CONFIRMATION_REQUIRED');
+    } finally {
+      io.cleanup();
+    }
+  });
+
+  it('rejects unsafe host url in config init', async () => {
+    const io = makeIo();
+    try {
+      const exitCode = await run(['node', 'yuanctl', 'config', 'init', '--host-url', 'file:///tmp/demo'], io);
+      const stderr = await readStream(io.stderr as unknown as PassThrough);
+
+      expect(exitCode).toBe(2);
+      expect(stderr).toContain('Host URL must use ws:// or wss://');
+    } finally {
+      io.cleanup();
+    }
   });
 });

@@ -1,14 +1,12 @@
-import { Cli, Builtins } from 'clipanion';
 import { createRequire } from 'module';
-import { GetCommand } from './verbs/get';
-import { DescribeCommand } from './verbs/describe';
-import { EnableCommand, DisableCommand } from './verbs/enableDisable';
-import { DeleteCommand } from './verbs/delete';
-import { RestartCommand } from './verbs/restart';
-import { LogsCommand } from './verbs/logs';
-import { ConfigInitCommand } from './verbs/configInit';
-import { configureRootHelp } from './help';
 import { maybeCheckForUpdates } from '../updateChecker';
+import { checkCapabilityGate } from './safety';
+import { createPreflightContext, createRuntimeContext, type YuanctlIo } from './runtime-context';
+import { buildStaticRegistry, resolveCommand } from './static-registry';
+import { configRegistryModule } from '../namespaces/config';
+import { deployRegistryModule } from '../namespaces/deploy';
+import { exitCodeForError, toErrorResult } from './error';
+import { renderError, renderResult } from './output';
 
 const requireForVersion = createRequire(__dirname);
 
@@ -26,40 +24,59 @@ const resolvePackageVersion = (): string => {
 
 const YUANCTL_VERSION = resolvePackageVersion();
 
-const createCli = () => {
-  const cli = new Cli({
-    binaryLabel: 'yuanctl',
-    binaryName: 'yuanctl',
-    binaryVersion: YUANCTL_VERSION,
-  });
-  cli.register(GetCommand);
-  cli.register(DescribeCommand);
-  cli.register(EnableCommand);
-  cli.register(DisableCommand);
-  cli.register(DeleteCommand);
-  cli.register(RestartCommand);
-  cli.register(LogsCommand);
-  cli.register(ConfigInitCommand);
-  cli.register(Builtins.HelpCommand);
-  configureRootHelp(cli);
-  return cli;
-};
+export const registry = buildStaticRegistry([deployRegistryModule, configRegistryModule]);
 
-export const run = async (argv: string[]) => {
-  const cli = createCli();
+export const run = async (
+  argv: string[],
+  io: YuanctlIo = {
+    stdin: process.stdin,
+    stdout: process.stdout,
+    stderr: process.stderr,
+    env: process.env,
+  },
+): Promise<number> => {
   await maybeCheckForUpdates(YUANCTL_VERSION);
-  const [, , ...args] = argv;
+  const args = argv.slice(2);
+  let context: undefined | Awaited<ReturnType<typeof createRuntimeContext>>;
+
   try {
-    const exitCode = await cli.run(args, {
-      stdin: process.stdin,
-      stdout: process.stdout,
-      stderr: process.stderr,
-    });
-    if (typeof exitCode === 'number') {
-      process.exitCode = exitCode;
+    const resolved = resolveCommand(args, registry);
+    if (
+      resolved.kind === 'root-help' ||
+      resolved.kind === 'namespace-help' ||
+      resolved.kind === 'command-help'
+    ) {
+      io.stdout.write(`${resolved.text}\n`);
+      return 0;
     }
-  } catch (err) {
-    console.error(err instanceof Error ? err.message : err);
-    process.exitCode = 1;
+    await checkCapabilityGate(resolved.command, createPreflightContext(resolved.command, io));
+    context = await createRuntimeContext(resolved.command, io);
+    const result = await resolved.command.registration.handler(context, resolved.command);
+    renderResult(context.printer, result, context.outputFormat);
+    return 0;
+  } catch (error) {
+    const mapped = toErrorResult(error);
+    const output =
+      args.includes('--output') || args.some((item) => item.startsWith('--output=')) || args.includes('-o')
+        ? ((): 'table' | 'json' => {
+            const flagIndex = args.findIndex((item) => item === '--output' || item === '-o');
+            if (flagIndex >= 0 && args[flagIndex + 1] === 'json') {
+              return 'json';
+            }
+            const inline = args.find((item) => item.startsWith('--output='));
+            return inline === '--output=json' ? 'json' : 'table';
+          })()
+        : 'table';
+    renderError(
+      {
+        stdout: (text) => io.stdout.write(text),
+        stderr: (text) => io.stderr.write(text),
+      },
+      mapped,
+      output,
+    );
+    return exitCodeForError(mapped);
+  } finally {
+    context?.close?.();
   }
 };

@@ -1,0 +1,37 @@
+{
+  "taskId": "yuanctl-cli",
+  "scope": {
+    "allow": [
+      "tools/yuanctl/**",
+      "apps/host/**",
+      "apps/node-unit/**",
+      "libraries/protocol/**",
+      "libraries/sql/**",
+      "libraries/deploy/**",
+      "ui/web/src/modules/Deploy/**",
+      "ui/web/src/modules/Terminals/**",
+      "ui/web/src/modules/Workbench/**",
+      "ui/web/src/modules/Products/**",
+      "ui/web/src/modules/DataRecord/**",
+      ".legion/tasks/yuanctl-cli/**"
+    ],
+    "deny": [
+      "apps/vendor-*/**",
+      "apps/trade-copier/**",
+      "apps/transfer-controller/**",
+      "apps/account-composer/**",
+      "apps/app-openai/**",
+      "common/changes/**"
+    ]
+  },
+  "docs": {
+    "docsDir": ".legion/tasks/yuanctl-cli/docs",
+    "rfcPath": ".legion/tasks/yuanctl-cli/docs/rfc.md",
+    "reviewRfcPath": ".legion/tasks/yuanctl-cli/docs/review-rfc.md",
+    "reviewCodePath": ".legion/tasks/yuanctl-cli/docs/review-code.md",
+    "reviewSecurityPath": ".legion/tasks/yuanctl-cli/docs/review-security.md",
+    "testReportPath": ".legion/tasks/yuanctl-cli/docs/test-report.md",
+    "walkthroughPath": ".legion/tasks/yuanctl-cli/docs/report-walkthrough.md",
+    "prBodyPath": ".legion/tasks/yuanctl-cli/docs/pr-body.md"
+  }
+}
