@@ -2,7 +2,7 @@
 
 ## 结论
 
-PASS
+PASS-WITH-NITS
 
 ## 阻塞问题
 
@@ -10,29 +10,34 @@ PASS
 
 ## 建议（非阻塞）
 
-- `apps/signal-trader/src/services/paper-account-publisher-registry.ts:67` - 目前标准 `QueryAccountInfo` / `AccountInfo` 只会在 `allowAnonymousRead === true` 时注册，且 `apps/signal-trader/src/__tests__/signal-trader-app.test.ts:1978` 已补负向回归测试验证匿名读关闭时不会暴露这条标准 mock 读面；此前“绕过 signal-trader 读策略”的阻塞风险已收敛。
-- `apps/signal-trader/src/services/paper-account-publisher-registry.ts:67` - 现有门禁仍只绑定 `allowAnonymousRead`，没有和 `authorizeRead` 做细粒度联动。这不构成当前安全阻塞，但如果未来要支持“需鉴权、不可匿名”的标准 `QueryAccountInfo` / `AccountInfo` 暴露，建议设计可继承 `authorizeRead` 的发布授权模型，避免后续为满足功能而重新放开未受控读面。
+- `libraries/signal-trader/src/engine/dispatch-command.ts:971-996`，`apps/signal-trader/src/runtime/runtime-worker.ts:1160-1200` - 当前 auto-flat 仍然基于单次 `observed_balance >= profit_target_value` 触发，且即便同一快照把 runtime 推入 `audit_only` / `reconciliation_status='mismatch'`，只要账户当前并非 flat，生命周期仍会启动 forced-flat。新补丁已经避免“纯充值关闭空仓 profile”，但尚未完全消除“异常余额快照/充值/transfer 抖动导致持仓被过早平掉”的操作风险。建议把 `reconciliation_status === 'matched'` 作为 auto-flat 前置条件，或至少要求连续命中/时间窗口确认后再执行。
+- `apps/signal-trader/src/runtime/runtime-worker.ts:1222-1232,1280-1289` - 审计日志已补 `observed_balance`、`profit_target_value`、`reconciliation_status`、`account_id`，可追溯性明显提升；但若要单靠 audit log 完整复盘，仍建议补 `snapshot_id` 对应的 `captured_at/updated_at` 或触发 event id，避免排查时还要反查 event stream 时间线。
+- `apps/signal-trader/src/__tests__/signal-trader-app.test.ts` / `libraries/signal-trader/src/index.test.ts` - 建议继续补回归用例，覆盖：1）`reconciliation mismatch` 且余额越阈值时是否应该 auto-flat；2）`flatten_requested` 期间重复 observer 快照与 retry 行为是否幂等；3）外部传入 `source='agent'` 被降级后的审计/事件表现是否稳定。
 
 ## 修复指导
 
-1. 保持当前 secure-by-default 行为：非匿名读策略下不注册标准 mock 读面。
-2. 如后续确实需要 authenticated-only 的标准账户读面，再引入与 `authorizeRead` 对齐的细粒度授权，不要回退到无条件注册。
+1. 若产品预期是“只有可信收益命中才 auto-flat”，则把 `matched reconciliation` 纳入触发门槛。
+2. 为 profit target 审计日志增加触发快照时间或 event id，进一步提升定位效率。
+3. 补足异常快照与重试路径测试，防止后续回归重新放大操作风险。
 
 [Handoff]
 summary:
 
-- 结论为 PASS。
-- 标准 `QueryAccountInfo` / `AccountInfo` 现在只在 `allowAnonymousRead === true` 时注册，且已补 `allowAnonymousRead: false` 的负向回归测试，原先绕过 signal-trader 读策略的风险已关闭。
-- 本轮未发现新的 blocking 安全问题。
+- 结论为 PASS-WITH-NITS。
+- 已确认外部 `source='agent'` 会在 runtime worker 被降级为 `manual`，原先 audit_only 写能力扩大问题已收敛。
+- 已确认 `flatten_requested` 窗口会拒绝非 agent 新 signal，自动平仓期间再次下单路径已收敛。
+- 已确认 flat 状态下不会因纯阈值快照直接关闭 profile，且审计日志已补关键定位字段。
   decisions:
-- 将最终结论定为 PASS，因为新增门禁与负向测试已覆盖本次审查关注的核心暴露面风险。
+- (none)
   risks:
-- 后续若要支持非匿名标准读面，需要补齐与 `authorizeRead` 一致的细粒度授权模型。
+- `reconciliation mismatch` 或异常余额快照下，持仓仍可能因单次越阈值被过早 auto-flat。
+- 审计日志仍缺少触发快照时间/事件 id，复杂故障下复盘仍需串查 event stream。
   files_touched:
 - path: /Users/c1/Work/signal-trader/.legion/tasks/signal-trader-mock-exchange-account-ui/docs/review-security.md
   commands:
 - (none)
   next:
-- 仅在未来扩展 authenticated-only 标准读面时再做一次权限模型复审。
+- 评估是否将 `reconciliation_status === 'matched'` 设为 auto-flat 必要条件。
+- 为 profit target 触发补快照时间或 event id。
   open_questions:
 - (none)

@@ -3,8 +3,10 @@ import { LiveExecutionAdapter } from '../execution/live-execution-adapter';
 import { PaperExecutionAdapter } from '../execution/paper-execution-adapter';
 import { normalizeObservation } from '../observer/observation-normalizer';
 import { createStaticLiveCapabilityRegistry } from '../runtime/live-capability';
+import { PaperClockController } from '../runtime/paper-clock';
 import { normalizeRuntimeConfig } from '../runtime/runtime-config';
 import { createDefaultExecutionAdapterFactory, RuntimeManager } from '../runtime/runtime-manager';
+import { RuntimeWorker } from '../runtime/runtime-worker';
 import { registerSignalTraderServices } from '../services/signal-trader-services';
 import {
   InMemoryCheckpointRepository,
@@ -666,7 +668,16 @@ describe('@yuants/app-signal-trader', () => {
       runtime_id: 'runtime-paper',
       query: { type: 'subscription', subscription_id: 'runtime-paper' },
     })) as any;
+    const product = (await manager.queryProjection({
+      runtime_id: 'runtime-paper',
+      query: { type: 'product', product_id: 'BTC-USDT' },
+    })) as any;
     expect(subscription.trading_account).toBe(100);
+    expect(product).toMatchObject({
+      current_net_qty: 0,
+      target_net_qty: 0,
+      pending_order_qty: 0,
+    });
     await expect(adapter.queryTradingBalance(runtime)).resolves.toMatchObject({
       balance: 100,
       currency: 'USDT',
@@ -1417,6 +1428,158 @@ describe('@yuants/app-signal-trader', () => {
     const health = await manager.getRuntimeHealth('runtime-live');
     expect(health.status).toBe('audit_only');
     expect(health.lock_reason).toBe('MISSING_TERMINAL_OBSERVATION');
+  });
+
+  it('profit target 命中后会自动平仓并关闭 profile 生命周期', async () => {
+    const repositories = createRepositories();
+    let observedBalance = 10;
+    let snapshotUpdatedAt = Date.now();
+    const runtime = {
+      ...baseLiveRuntime(),
+      vc_budget: 10,
+      daily_burn_amount: 10,
+      profit_target_value: 20,
+      poll_interval_ms: 1_000_000,
+      reconciliation_interval_ms: 5_000,
+    };
+    const observerProvider: RuntimeObserverProvider = {
+      observe: async ({ bindings }) => ({
+        observations: bindings.map((binding) => ({
+          binding,
+          history_order: {
+            account_id: 'acct-live',
+            product_id: binding.product_id,
+            order_status: 'FILLED',
+            traded_volume: '1',
+            traded_price: binding.signal_id.startsWith('profit-target') ? '120' : '100',
+          },
+        })),
+        account_snapshot: {
+          account_id: 'acct-live',
+          money: { balance: observedBalance },
+          updated_at: ++snapshotUpdatedAt,
+        } as any,
+      }),
+    };
+    await repositories.runtimeConfigRepository.upsert(runtime);
+    const worker = new RuntimeWorker(
+      repositories,
+      runtime,
+      new LiveExecutionAdapter(
+        repositories.orderBindingRepository,
+        async () => ({ type: 'OKX', payload: {} }),
+        {
+          authorizeOrder: async () => ({ account_id: runtime.account_id }),
+          submitOrder: async ({ signal_id }) => ({
+            external_submit_order_id: `submit-${signal_id}`,
+            external_operate_order_id: `operate-${signal_id}`,
+          }),
+          cancelOrder: async () => undefined,
+        },
+      ),
+      new PaperClockController(),
+      observerProvider,
+      createLiveCapabilityRegistry([createLiveCapabilityDescriptor()]),
+    );
+
+    try {
+      await worker.boot();
+      await worker.submitSignal({
+        command_type: 'submit_signal',
+        signal_id: 'signal-live-profit-open',
+        signal_key: 'sig-live',
+        product_id: LIVE_PRODUCT_ID,
+        signal: 1,
+        source: 'model',
+        entry_price: 100,
+        stop_loss_price: 90,
+      });
+
+      await worker.observeOnce();
+
+      const openedProduct = worker.queryProjection({
+        runtime_id: 'runtime-live',
+        query: { type: 'product', product_id: LIVE_PRODUCT_ID },
+      }) as any;
+      expect(openedProduct).toMatchObject({
+        current_net_qty: 1,
+        target_net_qty: 1,
+        pending_order_qty: 0,
+      });
+
+      observedBalance = 20;
+
+      await worker.observeOnce();
+
+      const submitDuringFlattening = await worker.submitSignal({
+        command_type: 'submit_signal',
+        signal_id: 'signal-live-profit-during-flatten',
+        signal_key: 'sig-live',
+        product_id: LIVE_PRODUCT_ID,
+        signal: 1,
+        source: 'agent',
+        entry_price: 100,
+        stop_loss_price: 90,
+      });
+      expect(submitDuringFlattening.accepted).toBe(false);
+      expect(submitDuringFlattening.reason).toBe('PROFIT_TARGET_FLATTENING');
+
+      await worker.observeOnce();
+
+      const product = worker.queryProjection({
+        runtime_id: 'runtime-live',
+        query: { type: 'product', product_id: LIVE_PRODUCT_ID },
+      }) as any;
+      const subscription = worker.queryProjection({
+        runtime_id: 'runtime-live',
+        query: { type: 'subscription', subscription_id: 'runtime-live' },
+      }) as any;
+      expect(product).toMatchObject({
+        current_net_qty: 0,
+        target_net_qty: 0,
+        pending_order_qty: 0,
+      });
+      expect(subscription.status).toBe('closed');
+
+      const runtimeConfig = await repositories.runtimeConfigRepository.get('runtime-live');
+      expect(runtimeConfig?.subscription_status).toBe('closed');
+
+      const events = worker.queryEventStream({ runtime_id: 'runtime-live', query: {} });
+      expect(
+        events.some(
+          (item: any) =>
+            item.event_type === 'AlertTriggered' &&
+            (item.payload as { type?: string }).type === 'profit_target_reached',
+        ),
+      ).toBe(true);
+      expect(events.some((item: any) => item.event_type === 'SignalForcedFlatHandled')).toBe(true);
+      expect(
+        events.some(
+          (item: any) =>
+            item.event_type === 'SubscriptionUpdated' &&
+            (item.payload as { status?: string }).status === 'closed',
+        ),
+      ).toBe(true);
+
+      const submitAfterClosed = await worker.submitSignal({
+        command_type: 'submit_signal',
+        signal_id: 'signal-live-profit-after-close',
+        signal_key: 'sig-live',
+        product_id: LIVE_PRODUCT_ID,
+        signal: 1,
+        source: 'manual',
+        entry_price: 100,
+        stop_loss_price: 90,
+      });
+      expect(submitAfterClosed.accepted).toBe(false);
+      expect(submitAfterClosed.reason).toBe('RUNTIME_SUBSCRIPTION_INACTIVE');
+
+      const auditLogs = await repositories.auditLogRepository.listByRuntime('runtime-live');
+      expect(auditLogs.some((item) => item.action === 'profit_target_flat_submitted')).toBe(true);
+      expect(auditLogs.some((item) => item.action === 'profit_target_lifecycle_completed')).toBe(true);
+    } finally {
+      worker.dispose();
+    }
   });
 
   it('modify_order effect 会直接 fail-close', async () => {

@@ -2895,6 +2895,19 @@
 2026-03-24T13:51:10.909Z,legion_read_context,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,"section: all, includeReviews: true",success
 2026-03-24T13:53:23.185Z,legion_update_context,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,addFile: /Users/c1/Work/signal-trader/.legion/tasks/signal-trader-mock-exchange-account-ui/docs/review-security.md,success
 2026-03-24T14:05:49.775Z,legion_get_status,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,,success
+2026-03-25T09:17:23.499Z,legion_get_status,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,,success
+2026-03-25T09:17:37.180Z,legion_read_context,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,"section: all, includeReviews: true",success
+2026-03-25T09:53:42.492Z,legion_get_status,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,,success
+2026-03-25T09:54:03.893Z,legion_list_reviews,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,"status: open, type: all",success
+2026-03-25T10:11:32.447Z,legion_update_context,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,addDecision: 本轮把 `profit_target_value` 的自动动作放在 app/runtime 层 orchestrate，core 继续只负责 `submit_signal(signal=0)` 与 event-sourcing，不直接在 `capture_authorized_account_snapshot` 里伪造,success
+2026-03-25T10:56:23.308Z,legion_get_status,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,,success
+2026-03-25T10:56:25.094Z,legion_read_context,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,"section: all, includeReviews: true",success
+2026-03-25T10:58:34.275Z,legion_update_tasks,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,setCurrentTask: 汇总验证结果、评审结论并刷新交付文档,success
+2026-03-25T10:58:34.294Z,legion_update_context,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,addDecision: profit target 生命周期终结采用“auto-flat -> subscription_status=closed”的双阶段，而不是直接停 runtime。,success
+2026-03-25T11:29:09.399Z,legion_get_status,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,,success
+2026-03-25T11:29:14.753Z,legion_read_context,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,"section: all, includeReviews: true",success
+2026-03-25T11:29:53.525Z,legion_get_status,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,,success
+2026-03-25T11:29:55.901Z,legion_read_context,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,"section: all, includeReviews: true",success
 2026-03-25T11:58:57.155Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-03-25T11:59:04.225Z,legion_list_reviews,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"status: open, type: all",success
 2026-03-25T11:59:04.225Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
@@ -2903,4 +2916,7 @@
 2026-03-25T12:01:56.044Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
 2026-03-25T12:03:04.348Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
 2026-03-25T12:03:04.376Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-03-25T12:06:59.551Z,legion_update_context,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,progress.completed: 已在重启后的 mock 联调环境上用浏览器自动化走通前端开仓/平仓：初始账户 `balance=10`，开仓后 `LONG 1 @ 10`、`used=10`，平仓后账户收敛到 `balance=20/equity=20` 且 `QueryProjection(product)` 回到空仓。,success
 2026-03-25T12:14:18.412Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-03-25T12:18:02.055Z,legion_update_context,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,progress.completed: 已验证 paper clock 跨天行为：对 `runtime-mock` 前进 1 天后，在无持仓且 runtime 仍 active 的情况下，系统自动再次执行 daily allocation，`trading_account`/mock account balance 从 20 提升到 30，product p,success
+2026-03-25T12:24:33.812Z,legion_update_context,signal-trader-mock-exchange-account-ui,signal-trader-mock-exchange-account-ui,Claude,progress.completed: 已继续验证多日 paper 行为：在当前 `runtime-mock` 上连续推进 9 天后，`trading_account` / `available_vc` 最终收敛到 `vc_budget=100`，之后再推进天数不再继续增长；mock account 最终稳定在 `balance/equity=110`、空仓,success

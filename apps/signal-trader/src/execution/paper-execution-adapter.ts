@@ -141,7 +141,7 @@ export class PaperExecutionAdapter implements TransferCapableExecutionAdapter {
 
     for (const effect of effects) {
       if (effect.effect_type === 'place_order') {
-        const fillContext = runtimeContexts?.get(
+        const fillContext: PaperMockFillContext = runtimeContexts?.get(
           this.makeMockFillContextKey(effect.signal_id, effect.product_id),
         ) ?? {
           signal_id: effect.signal_id,

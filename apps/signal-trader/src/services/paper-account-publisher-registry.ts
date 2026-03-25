@@ -4,6 +4,11 @@ import { buildPaperMockAccountId, PaperExecutionAdapter } from '../execution/pap
 import { RuntimeManager } from '../runtime/runtime-manager';
 import { SignalTraderRuntimeConfig, SignalTraderServicePolicy } from '../types';
 
+const observableKey = (() => {
+  const symbolObservable = (Symbol as typeof Symbol & { observable?: symbol }).observable;
+  return symbolObservable ?? '@@observable';
+})();
+
 class ReplayValue<T> {
   private readonly listeners = new Set<(value: T) => void>();
 
@@ -15,7 +20,12 @@ class ReplayValue<T> {
   }
 
   subscribe(observer: { next?: (value: T) => void } | ((value: T) => void)) {
-    const next = typeof observer === 'function' ? observer : observer.next;
+    const next =
+      typeof observer === 'function'
+        ? observer
+        : observer.next
+        ? (value: T) => observer.next?.call(observer, value)
+        : undefined;
     if (!next) return { unsubscribe() {} };
     next(this.value);
     this.listeners.add(next);
@@ -24,6 +34,10 @@ class ReplayValue<T> {
         this.listeners.delete(next);
       },
     };
+  }
+
+  [observableKey]() {
+    return this;
   }
 
   complete() {

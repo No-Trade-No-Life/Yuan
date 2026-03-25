@@ -4,7 +4,7 @@
 
 **当前阶段**: 已完成
 **当前任务**: (none)
-**进度**: 6/6 任务完成
+**进度**: 8/8 任务完成
 
 ---
 
@@ -31,8 +31,9 @@
 
 ## 发现的新任务
 
-(暂无)
+- [x] 修复 `signal=0` / forced-flat 的 order attribution，使平仓 fill 能正确回写 domain projection | 验收: mock 账户与 `QueryProjection(product)` 在平仓后都收敛到空仓。
+- [x] 将 `profit_target_value` 从 advisory 升级为 auto-flat + 生命周期终结 | 验收: 命中阈值后自动提交平仓，并在仓位归零后把 profile 关闭，后续 signal 不再被执行。
 
 ---
 
-_最后更新: 2026-03-24 22:05_
+_最后更新: 2026-03-25 11:02_

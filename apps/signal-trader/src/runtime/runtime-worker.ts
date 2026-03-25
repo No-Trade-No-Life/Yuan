@@ -111,6 +111,21 @@ const round = (value: number) => Math.round(value * 1_000_000_000) / 1_000_000_0
 const hasPlaceOrderEffect = (effects: unknown[]) =>
   effects.some((item) => (item as { effect_type?: string }).effect_type === PLACE_ORDER_EFFECT);
 
+type ProfitTargetLifecycleState =
+  | {
+      stage: 'flatten_requested';
+      snapshot_id: string;
+      signal_id: string;
+      triggered_at_ms: number;
+      attempts: number;
+    }
+  | {
+      stage: 'closed';
+      snapshot_id: string;
+      signal_id: string;
+      closed_at_ms: number;
+    };
+
 const getTransferOrderDirection = (
   runtime: SignalTraderRuntimeConfig,
   transfer: SignalTraderTransferConfig,
@@ -166,6 +181,7 @@ export class RuntimeWorker {
   private observerTransferOutReadyCycles = 0;
   private transferInCooldownSnapshotUpdatedAt?: number;
   private transferOutCooldownSnapshotUpdatedAt?: number;
+  private profitTargetLifecycle?: ProfitTargetLifecycleState;
 
   constructor(
     private readonly repositories: RuntimeRepositories,
@@ -255,6 +271,60 @@ export class RuntimeWorker {
     return this.executionAdapter.getMockAccountInfo(this.runtime);
   }
 
+  private getProductState() {
+    return this.state.snapshot.products[this.runtime.product_id];
+  }
+
+  private isFlatAndSettled() {
+    const product = this.getProductState();
+    return (
+      (product?.current_net_qty ?? 0) === 0 &&
+      (product?.target_net_qty ?? 0) === 0 &&
+      (product?.pending_order_qty ?? 0) === 0 &&
+      !hasInFlightOrderState(this.state.snapshot.orders)
+    );
+  }
+
+  private shouldRetryProfitTargetFlat() {
+    return (
+      this.runtime.subscription_status === 'active' &&
+      !this.isFlatAndSettled() &&
+      !hasInFlightOrderState(this.state.snapshot.orders)
+    );
+  }
+
+  private buildProfitTargetCloseSignal(
+    snapshot_id: string,
+    signal_id: string,
+    now_ms: number,
+  ): SubmitSignalCommand {
+    return {
+      command_type: 'submit_signal',
+      signal_id,
+      signal_key: this.runtime.signal_key,
+      product_id: this.runtime.product_id,
+      signal: 0,
+      source: 'agent',
+      upstream_emitted_at: now_ms,
+      metadata: {
+        auto_reason: 'profit_target_reached',
+        snapshot_id,
+      },
+    };
+  }
+
+  private async logProfitTarget(
+    action: 'profit_target_flat_submitted' | 'profit_target_lifecycle_completed',
+    detail: Record<string, unknown>,
+  ) {
+    await this.repositories.auditLogRepository.append({
+      runtime_id: this.runtime.runtime_id,
+      action,
+      note: typeof detail.snapshot_id === 'string' ? detail.snapshot_id : undefined,
+      detail,
+    });
+  }
+
   private sanitizeExternalSubmitSignalCommand(command: SubmitSignalCommand): SubmitSignalCommand {
     return {
       command_type: 'submit_signal',
@@ -262,7 +332,7 @@ export class RuntimeWorker {
       signal_key: command.signal_key,
       product_id: command.product_id,
       signal: command.signal,
-      source: command.source,
+      source: command.source === 'agent' ? 'manual' : command.source,
       entry_price: command.entry_price,
       stop_loss_price: command.stop_loss_price,
       upstream_emitted_at: command.upstream_emitted_at,
@@ -294,13 +364,12 @@ export class RuntimeWorker {
   }
 
   private async prepareSubmitSignalCommand(command: SubmitSignalCommand) {
-    const sanitized = this.sanitizeExternalSubmitSignalCommand(command);
     if (!this.quoteProvider) {
       await this.logReferencePrice('QUOTE_PROVIDER_NOT_CONFIGURED', {
         signal_id: command.signal_id,
         product_id: command.product_id,
       });
-      return sanitized;
+      return command;
     }
     try {
       const result = await this.quoteProvider.getLatestReferencePrice(this.runtime);
@@ -309,16 +378,16 @@ export class RuntimeWorker {
           signal_id: command.signal_id,
           product_id: command.product_id,
         });
-        return sanitized;
+        return command;
       }
-      return this.withReferencePriceEvidence(sanitized, result.evidence);
+      return this.withReferencePriceEvidence(command, result.evidence);
     } catch (error) {
       await this.logReferencePrice('QUOTE_QUERY_FAILED', {
         signal_id: command.signal_id,
         product_id: command.product_id,
         error: error instanceof Error ? error.message : String(error),
       });
-      return sanitized;
+      return command;
     }
   }
 
@@ -331,72 +400,98 @@ export class RuntimeWorker {
   }
 
   async submitSignal(command: SubmitSignalCommand): Promise<SignalTraderWriteResponse> {
-    return this.runExclusive(async () => {
-      const now_ms = this.now();
-      if (!this.runtime.enabled) {
-        return {
-          runtime_id: this.runtime.runtime_id,
-          accepted: false,
-          reason: 'RUNTIME_DISABLED',
-          correlation_id: correlationId(this.runtime.runtime_id, 'submit_signal_disabled', now_ms),
-        };
-      }
-      if (command.signal_key !== this.runtime.signal_key || command.product_id !== this.runtime.product_id) {
-        return {
-          runtime_id: this.runtime.runtime_id,
-          accepted: false,
-          reason: 'RUNTIME_SIGNAL_SCOPE_MISMATCH',
-          correlation_id: correlationId(this.runtime.runtime_id, 'submit_signal_scope_mismatch', now_ms),
-        };
-      }
-      let plannedEffects: unknown[] = [];
-      try {
-        const preparedCommand = await this.prepareSubmitSignalCommand(command);
-        const result = await this.appendCommand(preparedCommand, now_ms);
-        plannedEffects = result.planned_effects as unknown[];
-        if (this.executionAdapter instanceof PaperExecutionAdapter) {
-          this.executionAdapter.setMockFillContext(this.runtime, {
-            signal_id: command.signal_id,
-            product_id: command.product_id,
-            entry_price: preparedCommand.entry_price,
-            reference_price: (preparedCommand as SubmitSignalCommand & { reference_price?: number })
-              .reference_price,
-          });
-        }
-        await this.ensurePreOrderTransferIn(plannedEffects, command.signal_id);
-        await this.executeEffects(result.planned_effects as unknown[], {
-          phase: 'execute_effects',
-          signal_id: command.signal_id,
-          now_ms,
-        });
-        if (this.runtime.execution_mode === 'paper') {
-          await this.syncPaperCapitalAllocationInternal();
-        }
-      } catch (error) {
-        if (this.runtime.execution_mode === 'live') {
-          await this.failCloseExecutionError(
-            {
-              phase: plannedEffects.length > 0 ? 'execute_effects' : 'submit_signal',
-              signal_id: command.signal_id,
-              effects: plannedEffects,
-            },
-            error,
-          );
-          return {
-            runtime_id: this.runtime.runtime_id,
-            accepted: false,
-            reason: this.health.lock_reason ?? this.health.status,
-            correlation_id: correlationId(this.runtime.runtime_id, 'submit_signal_runtime_error', now_ms),
-          };
-        }
-        throw error;
-      }
+    const now_ms = this.now();
+    const sanitized = this.sanitizeExternalSubmitSignalCommand(command);
+    return this.runExclusive(() => this.submitSignalInternal(sanitized, now_ms));
+  }
+
+  private async submitSignalInternal(
+    command: SubmitSignalCommand,
+    now_ms: number,
+  ): Promise<SignalTraderWriteResponse> {
+    if (!this.runtime.enabled) {
       return {
         runtime_id: this.runtime.runtime_id,
-        accepted: true,
-        correlation_id: correlationId(this.runtime.runtime_id, 'submit_signal', now_ms),
+        accepted: false,
+        reason: 'RUNTIME_DISABLED',
+        correlation_id: correlationId(this.runtime.runtime_id, 'submit_signal_disabled', now_ms),
       };
-    });
+    }
+    if (this.profitTargetLifecycle?.stage === 'flatten_requested' && command.source !== 'agent') {
+      return {
+        runtime_id: this.runtime.runtime_id,
+        accepted: false,
+        reason: 'PROFIT_TARGET_FLATTENING',
+        correlation_id: correlationId(
+          this.runtime.runtime_id,
+          'submit_signal_profit_target_flattening',
+          now_ms,
+        ),
+      };
+    }
+    if (this.runtime.subscription_status !== 'active') {
+      return {
+        runtime_id: this.runtime.runtime_id,
+        accepted: false,
+        reason: 'RUNTIME_SUBSCRIPTION_INACTIVE',
+        correlation_id: correlationId(this.runtime.runtime_id, 'submit_signal_subscription_inactive', now_ms),
+      };
+    }
+    if (command.signal_key !== this.runtime.signal_key || command.product_id !== this.runtime.product_id) {
+      return {
+        runtime_id: this.runtime.runtime_id,
+        accepted: false,
+        reason: 'RUNTIME_SIGNAL_SCOPE_MISMATCH',
+        correlation_id: correlationId(this.runtime.runtime_id, 'submit_signal_scope_mismatch', now_ms),
+      };
+    }
+    let plannedEffects: unknown[] = [];
+    try {
+      const preparedCommand = await this.prepareSubmitSignalCommand(command);
+      const result = await this.appendCommand(preparedCommand, now_ms);
+      plannedEffects = result.planned_effects as unknown[];
+      if (this.executionAdapter instanceof PaperExecutionAdapter) {
+        this.executionAdapter.setMockFillContext(this.runtime, {
+          signal_id: command.signal_id,
+          product_id: command.product_id,
+          entry_price: preparedCommand.entry_price,
+          reference_price: (preparedCommand as SubmitSignalCommand & { reference_price?: number })
+            .reference_price,
+        });
+      }
+      await this.ensurePreOrderTransferIn(plannedEffects, command.signal_id);
+      await this.executeEffects(result.planned_effects as unknown[], {
+        phase: 'execute_effects',
+        signal_id: command.signal_id,
+        now_ms,
+      });
+      if (this.runtime.execution_mode === 'paper') {
+        await this.syncPaperCapitalAllocationInternal();
+      }
+    } catch (error) {
+      if (this.runtime.execution_mode === 'live') {
+        await this.failCloseExecutionError(
+          {
+            phase: plannedEffects.length > 0 ? 'execute_effects' : 'submit_signal',
+            signal_id: command.signal_id,
+            effects: plannedEffects,
+          },
+          error,
+        );
+        return {
+          runtime_id: this.runtime.runtime_id,
+          accepted: false,
+          reason: this.health.lock_reason ?? this.health.status,
+          correlation_id: correlationId(this.runtime.runtime_id, 'submit_signal_runtime_error', now_ms),
+        };
+      }
+      throw error;
+    }
+    return {
+      runtime_id: this.runtime.runtime_id,
+      accepted: true,
+      correlation_id: correlationId(this.runtime.runtime_id, 'submit_signal', now_ms),
+    };
   }
 
   async disable() {
@@ -1066,6 +1161,143 @@ export class RuntimeWorker {
     );
   }
 
+  private async maybeHandleProfitTargetLifecycle(
+    command: { command_type?: string; snapshot_id?: string; balance?: number; equity?: number },
+    now_ms: number,
+  ) {
+    if (command.command_type === 'capture_authorized_account_snapshot') {
+      const triggered = this.state.events.some(
+        (event: any) =>
+          event.idempotency_key === encodePath('capture_authorized_account_snapshot', command.snapshot_id) &&
+          event.event_type === 'AlertTriggered' &&
+          (event.payload as { type?: string } | undefined)?.type === 'profit_target_reached',
+      );
+      if (triggered) {
+        await this.triggerProfitTargetLifecycle(command.snapshot_id!, now_ms, {
+          observed_balance: command.equity ?? command.balance,
+        });
+      }
+    }
+    if (this.profitTargetLifecycle?.stage === 'flatten_requested' && this.isFlatAndSettled()) {
+      await this.completeProfitTargetLifecycle(this.profitTargetLifecycle.snapshot_id, now_ms);
+      return;
+    }
+    if (this.profitTargetLifecycle?.stage === 'flatten_requested' && this.shouldRetryProfitTargetFlat()) {
+      await this.submitProfitTargetFlatSignal(this.profitTargetLifecycle.snapshot_id, now_ms);
+    }
+  }
+
+  private async triggerProfitTargetLifecycle(
+    snapshot_id: string,
+    now_ms: number,
+    trigger?: { observed_balance?: number },
+  ) {
+    if (this.runtime.subscription_status !== 'active') return;
+    if (this.profitTargetLifecycle?.stage === 'closed') return;
+    if (this.profitTargetLifecycle?.stage === 'flatten_requested') return;
+    if (this.isFlatAndSettled()) {
+      return;
+    }
+    this.profitTargetLifecycle = {
+      stage: 'flatten_requested',
+      snapshot_id,
+      signal_id: '',
+      triggered_at_ms: now_ms,
+      attempts: 0,
+    };
+    await this.submitProfitTargetFlatSignal(snapshot_id, now_ms, trigger);
+  }
+
+  private async submitProfitTargetFlatSignal(
+    snapshot_id: string,
+    now_ms: number,
+    trigger?: { observed_balance?: number },
+  ) {
+    const attempts =
+      this.profitTargetLifecycle?.stage === 'flatten_requested' ? this.profitTargetLifecycle.attempts + 1 : 1;
+    const signal_id = encodePath('profit-target', this.runtime.runtime_id, snapshot_id, attempts);
+    const closeSignal = this.buildProfitTargetCloseSignal(snapshot_id, signal_id, now_ms);
+    this.profitTargetLifecycle = {
+      stage: 'flatten_requested',
+      snapshot_id,
+      signal_id,
+      triggered_at_ms:
+        this.profitTargetLifecycle?.stage === 'flatten_requested'
+          ? this.profitTargetLifecycle.triggered_at_ms
+          : now_ms,
+      attempts,
+    };
+    await this.logProfitTarget('profit_target_flat_submitted', {
+      snapshot_id,
+      signal_id,
+      attempts,
+      runtime_id: this.runtime.runtime_id,
+      product_id: this.runtime.product_id,
+      account_id: this.runtime.account_id,
+      profit_target_value: this.runtime.profit_target_value,
+      observed_balance: trigger?.observed_balance,
+      reconciliation_status: this.state.snapshot.reconciliation[this.runtime.account_id]?.status,
+    });
+    const response = await this.submitSignalInternal(closeSignal, now_ms);
+    if (!response.accepted) {
+      this.profitTargetLifecycle = undefined;
+    }
+  }
+
+  private async completeProfitTargetLifecycle(snapshot_id: string, now_ms: number) {
+    const signal_id =
+      this.profitTargetLifecycle?.stage === 'flatten_requested'
+        ? this.profitTargetLifecycle.signal_id
+        : encodePath('profit-target', this.runtime.runtime_id, snapshot_id);
+    if (this.runtime.subscription_status === 'closed') {
+      this.profitTargetLifecycle = {
+        stage: 'closed',
+        snapshot_id,
+        signal_id,
+        closed_at_ms: now_ms,
+      };
+      return;
+    }
+    this.profitTargetLifecycle = {
+      stage: 'closed',
+      snapshot_id,
+      signal_id,
+      closed_at_ms: now_ms,
+    };
+    await this.appendCommand(
+      {
+        command_type: 'upsert_subscription',
+        subscription_id: this.runtime.subscription_id,
+        investor_id: this.runtime.investor_id,
+        signal_key: this.runtime.signal_key,
+        product_id: this.runtime.product_id,
+        vc_budget: this.runtime.vc_budget,
+        daily_burn_amount: this.runtime.daily_burn_amount,
+        profit_target_value: this.runtime.profit_target_value,
+        status: 'closed',
+        effective_at: now_ms,
+        reserve_account_ref: this.runtime.account_id,
+        contract_multiplier: this.runtime.contract_multiplier,
+        lot_size: this.runtime.lot_size,
+      },
+      now_ms,
+    );
+    this.runtime.subscription_status = 'closed';
+    this.runtime.updated_at = new Date(now_ms).toISOString();
+    await this.repositories.runtimeConfigRepository.upsert({ ...this.runtime });
+    await this.logProfitTarget('profit_target_lifecycle_completed', {
+      snapshot_id,
+      signal_id,
+      runtime_id: this.runtime.runtime_id,
+      subscription_id: this.runtime.subscription_id,
+      product_id: this.runtime.product_id,
+      account_id: this.runtime.account_id,
+      profit_target_value: this.runtime.profit_target_value,
+      reconciliation_status: this.state.snapshot.reconciliation[this.runtime.account_id]?.status,
+      status: 'closed',
+    });
+  }
+
   private async appendCommand(command: any, now_ms: number) {
     this.state.clock_ms = now_ms;
     const result = dispatchCommand(this.state, command);
@@ -1089,6 +1321,7 @@ export class RuntimeWorker {
         );
       }
     }
+    await this.maybeHandleProfitTargetLifecycle(command, now_ms);
     await this.persistCheckpoint();
     return result;
   }

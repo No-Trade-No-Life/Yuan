@@ -108,3 +108,11 @@
 - 不要直接复用 runtime 原始 `account_id`；应派生唯一 `mock account_id`，避免多个 paper runtime 复用同一原始 account_id 时串线。
 - allocation balance 与 mock account equity 需要分层维护：transfer 预算语义继续走 `queryTradingBalance`，交易盈亏只进 mock `IAccountInfo`。
 - 若标准读面会对外暴露，至少绑到 `allowAnonymousRead === true` 这类显式门禁；authenticated-only 标准读面应另开任务设计授权模型。
+
+## [Convention] profit target auto-flat 应由 app/runtime 编排，外部不得伪造 internal `agent` 来源
+
+- 来源任务：`signal-trader-mock-exchange-account-ui`（2026-03-25）
+- `profit_target_value` 命中后的自动动作，优先由 runtime worker 在 app 层追加 `submit_signal(signal=0, source='agent')`，不要在 core 的 account snapshot command 里直接伪造成交事件。
+- `audit_only` 可以为内部 `agent` forced-flat 开绿灯，但外部请求若传 `source='agent'` 必须在入口降级或拒绝，避免绕过 fail-close 写边界。
+- auto-flat 进入 `flatten_requested` 后，要显式封住外部新 signal；直到真正 flat 并把 subscription 关到 `closed`，才算生命周期结束。
+- forced-flat 订单 attribution 要按 `target_position_qty - settled_position_qty` 计算，而不是只看 `target_position_qty`，否则 close fill 会丢失回写目标。

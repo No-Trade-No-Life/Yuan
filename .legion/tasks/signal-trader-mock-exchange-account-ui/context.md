@@ -13,6 +13,17 @@
 - 已完成验证：app/ui TypeScript 检查通过，`apps/signal-trader` Heft 测试 57 通过，独立前端 build 通过，mock Playwright 冒烟通过。
 - 已完成代码审查与安全审查，结论分别为 `PASS` 与 `PASS`。
 - 已生成 `docs/test-report.md`、`review-code.md`、`review-security.md`、`report-walkthrough.md`、`pr-body.md`。
+- 已确认 `profit_target_value` 当前只是 account-scoped advisory alert，不会自动平仓。
+- 已定位平仓投影分叉的核心原因：`signal=0` 时 `OrderSubmitted.attribution` 基于 `target_position_qty !== 0` 收集，导致 forced-flat close order 可能没有 attribution，fill 无法回写 `settled_position_qty`。
+- 已修复 `signal=0` / forced-flat attribution：`OrderSubmitted.attribution` 改为按 `target_position_qty - settled_position_qty` 分摊，平仓后 product projection 与 mock account 都能收敛到空仓。
+- 已把 `profit_target_value` 从 advisory-only 升级为 runtime worker auto-flat：命中阈值后自动追加 `submit_signal(signal=0, source='agent')`，平仓完成后把 subscription 持久化为 `closed`。
+- 已增加保护：外部传入 `source='agent'` 会在 runtime worker 入口被降级为 `manual`；在 `flatten_requested` 窗口内会拒绝外部新 signal（`PROFIT_TARGET_FLATTENING`）。
+- 已完成最新验证：core `heft test` 29/29 通过、app root `tsc --noEmit` 通过、app `heft build` 通过、ui `npm run build` 通过、focused runtime verification script 通过。
+- 已完成最新评审：`review-code` 与 `review-security` 均更新为 `PASS-WITH-NITS`。
+- 已在重启后的 mock 联调环境上用浏览器自动化走通前端开仓/平仓：初始账户 `balance=10`，开仓后 `LONG 1 @ 10`、`used=10`，平仓后账户收敛到 `balance=20/equity=20` 且 `QueryProjection(product)` 回到空仓。
+- 已验证 paper clock 跨天行为：对 `runtime-mock` 前进 1 天后，在无持仓且 runtime 仍 active 的情况下，系统自动再次执行 daily allocation，`trading_account`/mock account balance 从 20 提升到 30，product projection 仍保持空仓。
+- 已继续验证多日 paper 行为：在当前 `runtime-mock` 上连续推进 9 天后，`trading_account` / `available_vc` 最终收敛到 `vc_budget=100`，之后再推进天数不再继续增长；mock account 最终稳定在 `balance/equity=110`、空仓。
+- 已继续验证 profit target 生命周期跨天保持关闭：focused runtime script 中，auto-flat 完成后的 `subscription_status=closed` 在下一天 observer snapshot 到来后仍保持 `closed`，不会再次触发 flat，也仍会拒绝新的 submit。
 
 ### 🟡 进行中
 
@@ -49,14 +60,13 @@
 
 **下次继续从这里开始：**
 
-1. 直接使用 `/Users/c1/Work/signal-trader/.legion/tasks/signal-trader-mock-exchange-account-ui/docs/pr-body.md` 作为 PR 描述发起 Review/合并。
-2. 如果后续需要“authenticated-only 的标准 mock 读面”，单独开任务设计 `authorizeRead` 级别的授权模型，而不是继续复用 `allowAnonymousRead` 门禁。
+1. 如果要继续做产品体验层验证，可考虑在前端显式展示当前 paper clock offset，以及 `flatten_requested` / `closed` 生命周期 badge。
 
 **注意事项：**
 
-- 关键产物已齐：`rfc.md`、`review-rfc.md`、`test-report.md`、`review-code.md`、`review-security.md`、`report-walkthrough.md`、`pr-body.md`。
-- 本次 `ui/signal-trader-web` 的 `playwright.config.js` / `vite.config.js` 及其 `.d.ts` 变更来自前端 build 生成物；提交前如需缩小 diff，可按仓库约定决定是否一并提交。
+- 多日 paper 验证显示：在已有历史状态的 `runtime-mock` 上，跨天资金会继续按日拨直到 `vc_budget` 封顶；封顶后继续推进天数不会再增加。
+- profit target focused verification 显示：`profit_target_flat_submitted` / `profit_target_lifecycle_completed` 审计记录在次日不会重复新增，关闭状态会持续生效。
 
 ---
 
-_最后更新: 2026-03-24 22:05 by Claude_
+_最后更新: 2026-03-25 11:02 by Claude_

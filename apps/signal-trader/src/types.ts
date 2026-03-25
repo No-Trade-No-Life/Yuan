@@ -209,7 +209,9 @@ export interface SignalTraderRuntimeAuditLog {
     | 'transfer_submitted'
     | 'transfer_completed'
     | 'transfer_failed'
-    | 'reference_price_missing';
+    | 'reference_price_missing'
+    | 'profit_target_flat_submitted'
+    | 'profit_target_lifecycle_completed';
   operator?: string;
   note?: string;
   evidence?: string;

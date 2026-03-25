@@ -61,6 +61,9 @@ export const assessRisk = (
   if (appConfig.envProfile !== 'paper' && runtime.execution_mode !== 'live') {
     reasons.push('当前 profile 需要 live execution_mode');
   }
+  if (runtime.subscription_status !== 'active') {
+    reasons.push(`subscription_status=${runtime.subscription_status}，当前 profile 已结束`);
+  }
 
   const profileAllowsMutation = appConfig.enableMutation;
   if (!profileAllowsMutation) reasons.push('SIGNAL_TRADER_ENABLE_MUTATION 未开启');

@@ -189,21 +189,25 @@ const buildPlannedEffects = (state: EventSourcedTradingState, events: DomainEven
   return effects;
 };
 
-const collectTargetAttribution = (
+const collectOrderAttribution = (
   subscriptions: Record<string, SubscriptionState>,
   product_id: string,
 ): AttributionEntry[] => {
   return Object.values(subscriptions)
+    .map((subscription) => ({
+      subscription,
+      target_qty: round(subscription.target_position_qty - subscription.settled_position_qty),
+    }))
     .filter(
-      (subscription) =>
-        subscription.status === 'active' &&
-        subscription.product_id === product_id &&
-        subscription.target_position_qty !== 0,
+      ({ subscription, target_qty }) =>
+        subscription.status === 'active' && subscription.product_id === product_id && target_qty !== 0,
     )
-    .sort((left, right) => left.subscription_id.localeCompare(right.subscription_id))
-    .map((subscription, index) => ({
+    .sort((left, right) =>
+      left.subscription.subscription_id.localeCompare(right.subscription.subscription_id),
+    )
+    .map(({ subscription, target_qty }, index) => ({
       subscription_id: subscription.subscription_id,
-      target_qty: subscription.target_position_qty,
+      target_qty,
       allocation_rank: index,
     }));
 };
@@ -276,6 +280,7 @@ const buildProfitTargetAlertMessage = (
     .join('|');
   return [
     'advisory_scope=account',
+    'action=auto_flat_profile_close',
     `account_id=${account_id}`,
     `snapshot_id=${snapshot_id}`,
     `candidate_subscriptions=${subscription_ids.join(',')}`,
@@ -399,7 +404,9 @@ const handleSubmitSignal = (
     ),
   ];
 
-  if (state.snapshot.mode !== 'normal') {
+  const allow_agent_forced_flat_in_audit =
+    state.snapshot.mode !== 'normal' && command.signal === 0 && command.source === 'agent';
+  if (state.snapshot.mode !== 'normal' && !allow_agent_forced_flat_in_audit) {
     events.push(
       buildIntentRejected(
         state,
@@ -670,7 +677,7 @@ const handleSubmitSignal = (
           target_net_qty,
           current_net_qty,
           external_order_delta,
-          attribution: collectTargetAttribution(preview_state.snapshot.subscriptions, command.product_id),
+          attribution: collectOrderAttribution(preview_state.snapshot.subscriptions, command.product_id),
           stop_loss_price: command.stop_loss_price,
         },
         events.length,

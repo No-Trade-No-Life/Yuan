@@ -81,6 +81,77 @@ describe('@yuants/signal-trader', () => {
     expect(result.planned_effects).toHaveLength(0);
   });
 
+  it('allocates forced-flat fill back to settled exposure and clears product projection', () => {
+    let state = createEventSourcedTradingState({ clock_ms: 2 });
+    state = dispatchCommand(state, {
+      command_type: 'upsert_subscription',
+      subscription_id: 'sub-flat',
+      investor_id: 'investor-flat',
+      signal_key: 'sig-flat',
+      product_id: 'BTC-USDT',
+      vc_budget: 100,
+      daily_burn_amount: 100,
+      status: 'active',
+      effective_at: 2,
+    }).next_state;
+    state = dispatchCommand(state, {
+      command_type: 'submit_signal',
+      signal_id: 'signal-open-flat',
+      signal_key: 'sig-flat',
+      product_id: 'BTC-USDT',
+      signal: 1,
+      source: 'model',
+      entry_price: 100,
+      stop_loss_price: 90,
+    }).next_state;
+    state = dispatchCommand(state, {
+      command_type: 'apply_execution_report',
+      order_id: 'order/signal-open-flat/BTC-USDT',
+      report_id: 'report-open-flat',
+      product_id: 'BTC-USDT',
+      status: 'filled',
+      filled_qty: 10,
+      avg_fill_price: 100,
+      fee: 0,
+      reported_at: 2,
+    }).next_state;
+
+    const close = dispatchCommand(state, {
+      command_type: 'submit_signal',
+      signal_id: 'signal-close-flat',
+      signal_key: 'sig-flat',
+      product_id: 'BTC-USDT',
+      signal: 0,
+      source: 'agent',
+    });
+    const closeOrder = close.appended_events.find((item) => item.event_type === 'OrderSubmitted');
+    expect(closeOrder).toMatchObject({
+      event_type: 'OrderSubmitted',
+      payload: {
+        external_order_delta: -10,
+        attribution: [{ subscription_id: 'sub-flat', target_qty: -10, allocation_rank: 0 }],
+      },
+    });
+
+    const filled = dispatchCommand(close.next_state, {
+      command_type: 'apply_execution_report',
+      order_id: 'order/signal-close-flat/BTC-USDT',
+      report_id: 'report-close-flat',
+      product_id: 'BTC-USDT',
+      status: 'filled',
+      filled_qty: 10,
+      avg_fill_price: 120,
+      fee: 0,
+      reported_at: 3,
+    });
+    expect(filled.next_snapshot.products['BTC-USDT']).toMatchObject({
+      current_net_qty: 0,
+      target_net_qty: 0,
+      pending_order_qty: 0,
+    });
+    expect(filled.next_snapshot.subscriptions['sub-flat'].settled_position_qty).toBe(0);
+  });
+
   it('applies execution report by using frozen order attribution and supports replay', () => {
     let state = createEventSourcedTradingState({ clock_ms: 3 });
     state = dispatchCommand(state, {
@@ -194,6 +265,77 @@ describe('@yuants/signal-trader', () => {
       'SignalReceived',
       'IntentRejected',
       'AlertTriggered',
+    ]);
+  });
+
+  it('allows agent forced-flat even in audit_only mode', () => {
+    let state = createEventSourcedTradingState({ clock_ms: 4 });
+    state = dispatchCommand(state, {
+      command_type: 'upsert_subscription',
+      subscription_id: 'sub-audit-flat',
+      investor_id: 'investor-audit-flat',
+      signal_key: 'sig-audit-flat',
+      product_id: 'BTC-USDT',
+      vc_budget: 10,
+      daily_burn_amount: 10,
+      status: 'active',
+      effective_at: 4,
+    }).next_state;
+    state = dispatchCommand(state, {
+      command_type: 'submit_signal',
+      signal_id: 'signal-audit-open',
+      signal_key: 'sig-audit-flat',
+      product_id: 'BTC-USDT',
+      signal: 1,
+      source: 'model',
+      entry_price: 100,
+      stop_loss_price: 90,
+    }).next_state;
+    state = dispatchCommand(state, {
+      command_type: 'apply_execution_report',
+      order_id: 'order/signal-audit-open/BTC-USDT',
+      report_id: 'report-audit-open',
+      product_id: 'BTC-USDT',
+      status: 'filled',
+      filled_qty: 1,
+      avg_fill_price: 100,
+      fee: 0,
+      reported_at: 4,
+    }).next_state;
+    state = dispatchCommand(state, {
+      command_type: 'capture_authorized_account_snapshot',
+      snapshot_id: 'snapshot-audit-flat',
+      account_id: 'acct-audit-flat',
+      balance: 20,
+      captured_at: 4,
+    }).next_state;
+
+    expect(state.snapshot.mode).toBe('audit_only');
+
+    const forcedFlat = dispatchCommand(state, {
+      command_type: 'submit_signal',
+      signal_id: 'signal-audit-flat',
+      signal_key: 'sig-audit-flat',
+      product_id: 'BTC-USDT',
+      signal: 0,
+      source: 'agent',
+    });
+
+    expect(forcedFlat.appended_events.map((item) => item.event_type)).toEqual([
+      'SignalReceived',
+      'IntentCreated',
+      'SignalForcedFlatHandled',
+      'OrderSubmitted',
+    ]);
+    expect(forcedFlat.planned_effects).toEqual([
+      {
+        effect_type: 'place_order',
+        order_id: 'order/signal-audit-flat/BTC-USDT',
+        signal_id: 'signal-audit-flat',
+        product_id: 'BTC-USDT',
+        size: -1,
+        attribution: [{ subscription_id: 'sub-audit-flat', target_qty: -1, allocation_rank: 0 }],
+      },
     ]);
   });
 
