@@ -1,7 +1,7 @@
 import { IQuote, setMetricsQuoteState } from '@yuants/data-quote';
 import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
-import { decodePath, encodePath } from '@yuants/utils';
+import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import {
   catchError,
   defer,
@@ -20,9 +20,16 @@ import {
 import { getFuturesContracts, getFuturesTickers, getSpotTickers } from '../../api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
+const enableQuoteFromContracts = process.env.ENABLE_QUOTE_FROM_CONTRACTS === 'true';
 
 // 获取所有USDT永续合约
 const usdtFutureContracts$ = defer(() => getFuturesContracts('usdt', {})).pipe(
+  repeat({ delay: 3600_000 }),
+  retry({ delay: 60_000 }),
+  shareReplay(1),
+);
+
+const quoteFromContracts$ = usdtFutureContracts$.pipe(
   mergeMap((contracts) => contracts),
   map(
     (contract): Partial<IQuote> => ({
@@ -33,9 +40,6 @@ const usdtFutureContracts$ = defer(() => getFuturesContracts('usdt', {})).pipe(
       product_id: encodePath('GATE', 'FUTURE', contract.name),
     }),
   ),
-  repeat({ delay: 3600_000 }),
-  retry({ delay: 60_000 }),
-  shareReplay(1),
 );
 
 // 从tickers获取价格和交易量数据
@@ -83,7 +87,11 @@ const quoteFromSpotTickers$ = defer(() => getSpotTickers({})).pipe(
   retry({ delay: 1000 }),
 );
 
-const quoteSources$ = [quoteFromTickers$, quoteFromSpotTickers$, usdtFutureContracts$];
+const quoteSources$ = [
+  quoteFromTickers$,
+  quoteFromSpotTickers$,
+  ...(enableQuoteFromContracts ? [quoteFromContracts$] : []),
+];
 
 const quote$ = defer(() =>
   merge(
