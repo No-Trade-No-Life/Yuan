@@ -222,7 +222,7 @@
       "name": "vendor-tokenbucket-proxy-ip",
       "status": "active",
       "createdAt": "2026-02-03T16:40:42.595Z",
-      "updatedAt": "2026-03-21T13:58:24.021Z"
+      "updatedAt": "2026-03-25T12:01:43.523Z"
     },
     {
       "id": "http-services-terminalinfos-ready",

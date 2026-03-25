@@ -24,3 +24,7 @@
 - [x] continue：补充 env ignored / same-ip dedupe / labels.ip-only route 验收
 - [x] continue：验证完成（rush install、app-host build、http-services tests、targeted rush build、vendor-binance build）
 - [x] continue：报告生成完成（test-report / review-code / review-security / report-walkthrough / pr-body）
+- [x] continue：在 `public-api.ts` 增加 Binance Kline wrapper，并补齐 requestContext + rate limit
+- [x] continue：让 `ohlc-service.ts` 仅调用 public-api wrapper，移除对底层 client 的直接依赖
+- [x] continue：验证完成（至少 `npx tsc --noEmit --project apps/vendor-binance/tsconfig.json`）
+- [x] continue：更新报告产物（test-report / review-code / report-walkthrough / pr-body）

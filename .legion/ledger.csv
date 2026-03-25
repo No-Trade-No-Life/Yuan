@@ -2254,3 +2254,12 @@
 2026-03-21T13:58:24.002Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addConstraint: `terminal_id`、`hostname`、`ip_source` 只允许用于观测、缓存、诊断上下文，不得重新进入 HTTPProxy trust boundary 或自动 route pin。,success
 2026-03-21T13:58:24.033Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addFile: .legion/playbook.md,success
 2026-03-21T13:58:24.036Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,handoff: 如需提交/开 PR，可直接使用 `.legion/tasks/vendor-tokenbucket-proxy-ip/docs/pr-body.md` 作为 PR 描述。,success
+2026-03-25T11:58:57.155Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-03-25T11:59:04.225Z,legion_list_reviews,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"status: open, type: all",success
+2026-03-25T11:59:04.225Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-03-25T12:01:43.432Z,legion_update_tasks,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDiscoveredTask: continue：补齐 Binance OHLC public-api wrapper，确保 USE_HTTP_PROXY=true 时 Kline 请求携带 requestContext,success
+2026-03-25T12:01:43.525Z,legion_update_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,addDecision: 继续沿用 active task `vendor-tokenbucket-proxy-ip` 处理本次缺失 requestContext 的 follow-up 缺陷。,success
+2026-03-25T12:01:56.044Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-03-25T12:03:04.348Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success
+2026-03-25T12:03:04.376Z,legion_read_context,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,"section: all, includeReviews: true",success
+2026-03-25T12:14:18.412Z,legion_get_status,vendor-tokenbucket-proxy-ip,vendor-tokenbucket-proxy-ip,Claude,,success

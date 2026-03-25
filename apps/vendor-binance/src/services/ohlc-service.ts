@@ -2,7 +2,7 @@ import { IOHLC } from '@yuants/data-ohlc';
 import { provideOHLCService } from '@yuants/exchange';
 import { Terminal } from '@yuants/protocol';
 import { convertDurationToOffset, decodePath, formatTime } from '@yuants/utils';
-import { requestPublic } from '../api/client';
+import { getFutureKlines, getSpotKlines } from '../api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -24,21 +24,6 @@ const DURATION_TO_BINANCE_INTERVAL: Record<string, string> = {
   P1M: '1M',
 };
 
-type IBinanceKline = [
-  number, // Open time
-  string, // Open
-  string, // High
-  string, // Low
-  string, // Close
-  string, // Volume
-  number, // Close time
-  string, // Quote asset volume
-  number, // Number of trades
-  string, // Taker buy base asset volume
-  string, // Taker buy quote asset volume
-  string, // Ignore
-];
-
 const fetchOHLCPageBackward = async (req: {
   product_id: string;
   duration: string;
@@ -54,17 +39,21 @@ const fetchOHLCPageBackward = async (req: {
   const offset = convertDurationToOffset(req.duration);
   const endedAtMs = req.time;
 
-  const baseUrl =
-    instType === 'USDT-FUTURE'
-      ? 'https://fapi.binance.com/fapi/v1/klines'
-      : 'https://api.binance.com/api/v3/klines';
-
-  const res = await requestPublic<IBinanceKline[]>('GET', baseUrl, {
+  const params = {
     symbol,
     interval,
     endTime: endedAtMs,
     limit: 1000,
-  });
+  };
+
+  const res =
+    instType === 'USDT-FUTURE'
+      ? await getFutureKlines(params)
+      : instType === 'SPOT' || instType === 'MARGIN'
+      ? await getSpotKlines(params)
+      : (() => {
+          throw new Error(`Unsupported instType for OHLC: ${instType}`);
+        })();
 
   return (res ?? [])
     .map(
