@@ -1,6 +1,81 @@
 import { scopeError, tokenBucket } from '@yuants/utils';
 import { createRequestContext, getTokenBucketOptions, requestPublic } from './client';
 
+export type IBinanceKline = [
+  number, // Open time
+  string, // Open
+  string, // High
+  string, // Low
+  string, // Close
+  string, // Volume
+  number, // Close time
+  string, // Quote asset volume
+  number, // Number of trades
+  string, // Taker buy base asset volume
+  string, // Taker buy quote asset volume
+  string, // Ignore
+];
+
+export interface IBinanceKlineParams extends Record<string, string | number | boolean | undefined> {
+  symbol: string;
+  interval: string;
+  startTime?: number;
+  endTime?: number;
+  limit?: number;
+}
+
+type PublicRequestParams = Record<string, string | number | boolean | undefined>;
+
+const requestPublicWithRateLimit = async <T, TParams extends PublicRequestParams = PublicRequestParams>(
+  endpoint: string,
+  weight: number,
+  params?: TParams,
+) => {
+  const url = new URL(endpoint);
+  const baseKey = url.host;
+  const requestContext = await createRequestContext(baseKey, weight);
+  const bucketKey = requestContext.bucketKey;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
+  );
+  return requestPublic<T>('GET', endpoint, params, requestContext);
+};
+
+const getFutureKlineWeight = (limit?: number) => {
+  const normalizedLimit = Math.max(1, limit ?? 500);
+  if (normalizedLimit < 100) return 1;
+  if (normalizedLimit < 500) return 2;
+  if (normalizedLimit <= 1000) return 5;
+  return 10;
+};
+
+/**
+ * 获取 Kline/Candlestick 数据 (Futures)
+ *
+ * 权重: [1,100)=1, [100,500)=2, [500,1000]=5, >1000=10
+ *
+ * https://developers.binance.com/docs/zh-CN/derivatives/usds-margined-futures/market-data/rest-api/Kline-Candlestick-Data
+ */
+export const getFutureKlines = async (params: IBinanceKlineParams): Promise<IBinanceKline[]> => {
+  const endpoint = 'https://fapi.binance.com/fapi/v1/klines';
+  const weight = getFutureKlineWeight(params.limit);
+  return requestPublicWithRateLimit<IBinanceKline[]>(endpoint, weight, params);
+};
+
+/**
+ * 获取 Kline/Candlestick 数据 (Spot/Margin)
+ *
+ * 权重: 2
+ *
+ * https://developers.binance.com/docs/zh-CN/binance-spot-api-docs/rest-api/market-data-endpoints#k线数据
+ */
+export const getSpotKlines = async (params: IBinanceKlineParams): Promise<IBinanceKline[]> => {
+  const endpoint = 'https://api.binance.com/api/v3/klines';
+  return requestPublicWithRateLimit<IBinanceKline[]>(endpoint, 2, params);
+};
+
 export interface IFutureExchangeFilter extends Record<string, string | number | boolean | undefined> {
   filterType: string;
 }
@@ -401,5 +476,10 @@ export const getSpotTickerPrice = async (params?: {
     { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
     () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
   );
-  return requestPublic('GET', endpoint, params, requestContext);
+  return requestPublic<
+    {
+      symbol: string;
+      price: string;
+    }[]
+  >('GET', endpoint, params, requestContext);
 };

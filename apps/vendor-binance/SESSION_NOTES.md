@@ -7,7 +7,7 @@
 ## 0. 元信息（Meta）
 
 - **项目名称**：@yuants/vendor-binance
-- **最近更新时间**：2026-01-30 15:10(新增 USE_HTTP_PROXY 开关)
+- **最近更新时间**：2026-03-25 16:40（修复 OHLC 缺失 requestContext）
 - **当前状态标签**：重构中（credential 化 & 上下文治理）
 
 ---
@@ -100,6 +100,22 @@
 ## 6. 最近几轮工作记录（Recent Sessions）
 
 > 仅记录已结束的会话;进行中的内容放在第 11 节,收尾后再搬运;最新记录置顶。
+
+### 2026-03-25 — OpenCode
+
+- **本轮摘要**：
+  - 修复 Binance OHLC 在 `USE_HTTP_PROXY=true` 时因缺失 `requestContext` 报 `E_PROXY_TARGET_NOT_FOUND: reason="Missing request context"` 的问题。
+  - 在 `src/api/public-api.ts` 新增 `getFutureKlines` / `getSpotKlines`，统一负责 `createRequestContext`、主动限流与 `requestPublic`。
+  - `src/services/ohlc-service.ts` 改为只调用 public-api wrapper，并显式处理 `USDT-FUTURE` / `SPOT` / `MARGIN`。
+- **修改的文件**：
+  - `apps/vendor-binance/src/api/public-api.ts`
+  - `apps/vendor-binance/src/services/ohlc-service.ts`
+  - `apps/vendor-binance/SESSION_NOTES.md`
+- **运行的测试 / 检查**：
+  - `./node_modules/typescript/bin/tsc --noEmit --project tsconfig.json`（workdir: `apps/vendor-binance`，Passed）
+  - `rush build --to @yuants/vendor-binance`（workdir: repo root，Passed）
+- **备注**：
+  - 本轮未更新 `docs/zh-Hans/vendor-supporting.md`，因为没有新增对外支持项，只是修复既有 OHLC 代理链路。
 
 ### 2026-02-05 — OpenCode
 
