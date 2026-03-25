@@ -1219,3 +1219,46 @@ export const getUmAccountTradeList = async (
     | IApiError
   >(credential, 'GET', endpoint, params, requestContext);
 };
+
+/**
+ * 用户UM持仓风险(USER_DATA)
+ * @param credential
+ * https://developers.binance.com/docs/zh-CN/derivatives/portfolio-margin/account/Query-UM-Position-Information
+ * @param params
+ * @returns
+ */
+export const getUmPositionInformation = async (
+  credential: ICredential,
+  params: {
+    symbol?: string;
+    timestamp: number;
+    recvWindow?: number;
+  },
+) => {
+  const endpoint = 'https://papi.binance.com/papi/v1/um/positionRisk';
+  const url = new URL(endpoint);
+  const weight = 5;
+  const requestContext = await createRequestContext(url.host, weight);
+  const bucketKey = requestContext.bucketKey;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
+  );
+  return requestPrivate<
+    | {
+        entryPrice: string; // 开仓均价
+        leverage: string; // 当前杠杆倍数
+        markPrice: string; // 当前标记价格
+        maxNotionalValue: string; // 当前杠杆倍数允许的名义价值上限
+        positionAmt: string; // 头寸数量，符号代表多空方向, 正数为多，负数为空
+        notional: string;
+        symbol: string; // 交易对
+        unRealizedProfit: string; // 持仓未实现盈亏
+        liquidationPrice: string;
+        positionSide: string; // 持仓方向
+        updateTime: number; // 更新时间
+      }[]
+    | IApiError
+  >(credential, 'GET', endpoint, params, requestContext);
+};

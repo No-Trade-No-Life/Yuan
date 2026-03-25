@@ -7,7 +7,7 @@
 ## 0. 元信息（Meta）
 
 - **项目名称**：@yuants/vendor-bitget
-- **最近更新时间**：2025-11-20 23:20（由 Antigravity 补全 Spot/Future 功能）
+- **最近更新时间**：2026-03-25 00:00（由 OpenCode 补充 Bitget 持仓 liquidation_price 映射）
 - **当前状态标签**：已完成基础功能
 
 ---
@@ -99,6 +99,17 @@
 ## 6. 最近几轮工作记录（Recent Sessions）
 
 > 仅记录已结束的会话；进行中的内容放在第 11 节，收尾后再搬运；最新记录置顶。
+
+### 2026-03-25 — OpenCode
+
+- **本轮摘要**：
+  - 将 Bitget UTA 持仓返回中的 `liquidationPrice` 映射到 `IPosition.liquidation_price`，使 `GetPositions` 可直接返回清算价格。
+- **修改的文件**：
+  - `apps/vendor-bitget/src/services/accounts/account.ts`
+  - `apps/vendor-bitget/SESSION_NOTES.md`
+- **运行的测试 / 检查**：
+  - 命令：`./node_modules/.bin/tsc --noEmit --project tsconfig.json`
+  - 结果：通过
 
 ### 2026-02-05 — OpenCode
 

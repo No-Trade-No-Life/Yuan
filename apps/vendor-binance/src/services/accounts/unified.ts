@@ -8,6 +8,7 @@ import { isApiError } from '../../api/client';
 import {
   getFundingAsset,
   getSpotAccountInfo,
+  getUmPositionInformation,
   getUnifiedAccountBalance,
   getUnifiedUmAccount,
   ICredential,
@@ -25,11 +26,14 @@ const quoteCache = createCache<IQuote>(
 );
 
 export const getPositions = async (credential: ICredential): Promise<IPosition[]> => {
-  const [balanceRes, umAccountRes, res, fundingAsset] = await Promise.all([
+  const [balanceRes, umAccountRes, res, fundingAsset, positionRisk] = await Promise.all([
     getUnifiedAccountBalance(credential),
     getUnifiedUmAccount(credential),
     getSpotAccountInfo(credential, { omitZeroBalances: true }),
     getFundingAsset(credential, {
+      timestamp: Date.now(),
+    }),
+    getUmPositionInformation(credential, {
       timestamp: Date.now(),
     }),
   ]);
@@ -44,6 +48,10 @@ export const getPositions = async (credential: ICredential): Promise<IPosition[]
   }
   if (isApiError(fundingAsset)) {
     throw new Error(fundingAsset.msg);
+  }
+
+  if (isApiError(positionRisk)) {
+    throw new Error(positionRisk.msg);
   }
 
   const positions: IPosition[] = [];
@@ -93,6 +101,9 @@ export const getPositions = async (credential: ICredential): Promise<IPosition[]
         +position.positionAmt *
         (+position.entryPrice +
           (+position.positionAmt === 0 ? 0 : +position.unrealizedProfit / +position.positionAmt)),
+      liquidation_price: positionRisk.find(
+        (r) => r.symbol === position.symbol && position.positionSide === r.positionSide,
+      )?.liquidationPrice,
     });
   }
 
