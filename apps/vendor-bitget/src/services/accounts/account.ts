@@ -14,6 +14,7 @@ const mapDerivativePosition = (position: IUtaPosition): IPosition => ({
   position_price: +position.avgPrice,
   closable_price: +(position.markPrice ?? 0),
   floating_profit: +(position.unrealisedPnl ?? 0),
+  liquidation_price: position.liquidationPrice || undefined,
   valuation: +position.total * +(position.markPrice ?? 0),
 });
 
