@@ -24,7 +24,7 @@ const enableQuoteFromContracts = process.env.ENABLE_QUOTE_FROM_CONTRACTS === 'tr
 
 // 获取所有USDT永续合约
 const usdtFutureContracts$ = defer(() => getFuturesContracts('usdt', {})).pipe(
-  repeat({ delay: 3600_000 }),
+  repeat({ delay: 300_000 }),
   retry({ delay: 60_000 }),
   shareReplay(1),
 );
@@ -34,7 +34,7 @@ const quoteFromContracts$ = usdtFutureContracts$.pipe(
   map(
     (contract): Partial<IQuote> => ({
       interest_rate_next_settled_at: contract.funding_next_apply
-        ? `${contract.funding_next_apply * 1000}`
+        ? formatTime(contract.funding_next_apply * 1000)
         : undefined,
       datasource_id: 'GATE',
       product_id: encodePath('GATE', 'FUTURE', contract.name),
