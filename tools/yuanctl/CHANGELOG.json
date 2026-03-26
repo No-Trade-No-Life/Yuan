@@ -2,6 +2,23 @@
   "name": "@yuants/tool-yuanctl",
   "entries": [
     {
+      "version": "0.2.26",
+      "tag": "@yuants/tool-yuanctl_v0.2.26",
+      "date": "Thu, 26 Mar 2026 15:14:54 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add agent access framework"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.25",
       "tag": "@yuants/tool-yuanctl_v0.2.25",
       "date": "Wed, 18 Mar 2026 16:27:24 GMT",
