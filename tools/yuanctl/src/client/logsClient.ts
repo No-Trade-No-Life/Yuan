@@ -1,6 +1,6 @@
 import type { TerminalGateway } from './terminalGateway';
 import { encodePath } from '@yuants/utils';
-import { firstValueFrom, map } from 'rxjs';
+import { filter, firstValueFrom, map } from 'rxjs';
 
 interface ReadSliceResult {
   content: string;
@@ -46,11 +46,9 @@ export class LogsClient {
           }
           return msg.res.data;
         }),
+        filter((value): value is ReadSliceResult => value !== undefined),
       ),
     );
-    if (!response) {
-      throw new Error('Empty response when reading log slice');
-    }
     return response;
   }
 

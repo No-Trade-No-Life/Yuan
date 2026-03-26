@@ -1,0 +1,16 @@
+current_context = "e2e"
+
+[hosts.e2e]
+host_url = "ws://127.0.0.1:28888/"
+tls_verify = false
+connect_timeout_ms = 10000
+reconnect_delay_ms = 2000
+
+[hosts.staging]
+host_url = "ws://127.0.0.1:28888/"
+
+[contexts.e2e]
+host = "e2e"
+
+[contexts.staging]
+host = "staging"

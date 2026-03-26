@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/tool-yuanctl",
+      "comment": "add agent access framework",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/tool-yuanctl"
+}

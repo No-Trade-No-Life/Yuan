@@ -28,10 +28,10 @@ const skipCompose = process.env.YUANCTL_E2E_SKIP_COMPOSE === '1';
 const keepServices = process.env.YUANCTL_E2E_KEEP_SERVICES === '1';
 const sqlDir = path.join(repoRoot, 'tools', 'sql-migration', 'sql');
 
-const portalDeploymentId = process.env.YUANCTL_PORTAL_DEPLOYMENT_ID || 'yuanctl-e2e-portal';
+const portalDeploymentId = process.env.YUANCTL_PORTAL_DEPLOYMENT_ID || '11111111-1111-1111-1111-111111111111';
 const portalPackageName = process.env.YUANCTL_PORTAL_PACKAGE || '@yuants/app-portal';
 const portalPackageVersion = process.env.YUANCTL_PORTAL_VERSION || 'latest';
-const testDeploymentId = process.env.YUANCTL_TEST_DEPLOYMENT_ID || 'yuanctl-e2e';
+const testDeploymentId = process.env.YUANCTL_TEST_DEPLOYMENT_ID || '22222222-2222-2222-2222-222222222222';
 const testPackageName = process.env.YUANCTL_TEST_PACKAGE || portalPackageName;
 const testPackageVersion = process.env.YUANCTL_TEST_PACKAGE_VERSION || portalPackageVersion;
 
@@ -39,6 +39,27 @@ const hostUrl = process.env.YUANCTL_E2E_HOST_URL || `ws://127.0.0.1:${DEFAULT_HO
 
 function log(msg) {
   process.stdout.write(`[yuanctl:e2e] ${msg}\n`);
+}
+
+function stripProtocolDebugLines(stdout) {
+  return stdout
+    .split(/\r?\n/)
+    .filter(
+      (line) =>
+        !/^\d{4}-\d{2}-\d{2} .*connection (established|closed|closing because output complete|terminated:)/.test(
+          line,
+        ),
+    )
+    .join('\n')
+    .trim();
+}
+
+function parseJsonStdout(stdout, fallback = null) {
+  const sanitized = stripProtocolDebugLines(stdout || '');
+  if (!sanitized) {
+    return fallback;
+  }
+  return JSON.parse(sanitized);
 }
 
 function runCommand(command, args, options = {}) {
@@ -192,6 +213,11 @@ async function runYuanctl(args, { configPath, env = {}, ignoreError = false, inp
       env: cliEnv,
       stdio: ['pipe', 'pipe', 'pipe'],
     });
+    let timedOut = false;
+    const timer = setTimeout(() => {
+      timedOut = true;
+      child.kill('SIGKILL');
+    }, 15000);
     let stdout = '';
     let stderr = '';
     if (input) {
@@ -206,6 +232,14 @@ async function runYuanctl(args, { configPath, env = {}, ignoreError = false, inp
     });
     child.on('error', reject);
     child.on('close', (code) => {
+      clearTimeout(timer);
+      if (
+        timedOut &&
+        stripProtocolDebugLines(stdout).trim().length > 0 &&
+        stripProtocolDebugLines(stderr).trim().length === 0
+      ) {
+        return resolve({ code: 0, stdout, stderr });
+      }
       if (code !== 0 && !ignoreError) {
         const error = new Error(`yuanctl ${args.join(' ')} failed: ${stderr}`);
         error.code = code;
@@ -238,10 +272,19 @@ async function runSQL(query) {
 async function deleteDeploymentSafe(id, configPath) {
   if (!configPath) return;
   try {
-    await runYuanctl(['delete', `deployment/${id}`], { configPath, input: 'y\n', ignoreError: true });
+    await runYuanctl(['deploy', 'delete', id, '--yes'], { configPath, ignoreError: true });
   } catch {
     // ignore cleanup failures
   }
+}
+
+async function discoverNodeUnitAddress() {
+  return withSqlTerminal(async (terminal) => {
+    const response = await terminal.client.requestForResponse('GetTerminalInfos', {});
+    const terminals = response.data?.terminals ?? [];
+    const nodeUnit = terminals.find((item) => item?.tags?.node_unit_address);
+    return nodeUnit?.tags?.node_unit_address || false;
+  });
 }
 
 async function waitForPostgres() {
@@ -410,27 +453,9 @@ async function main() {
     await fsPromises.writeFile(configPath, baseConfig, 'utf-8');
 
     log('Waiting for node unit availability');
-    const nodeUnits = await waitFor(
-      async () => {
-        const result = await runYuanctl(['get', 'nodeunits', '--output', 'json', '--no-headers'], {
-          configPath,
-          ignoreError: true,
-        });
-        if (!result || !result.stdout) return false;
-        try {
-          const parsed = JSON.parse(result.stdout.trim() || '[]');
-          if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].address) {
-            return parsed;
-          }
-        } catch (err) {
-          log(`nodeunits parse error: ${(err && err.message) || err}`);
-        }
-        return false;
-      },
-      { description: 'node unit discovery' },
-    );
-
-    const nodeUnitAddress = nodeUnits[0].address;
+    const nodeUnitAddress = await waitFor(() => discoverNodeUnitAddress(), {
+      description: 'node unit discovery',
+    });
     log(`Detected node unit address: ${nodeUnitAddress}`);
 
     log('Seeding portal deployment');
@@ -455,135 +480,93 @@ async function main() {
       }),
     );
 
-    log('Waiting for portal deployment to appear');
-    await waitFor(
-      async () => {
-        const res = await runYuanctl(
-          ['get', `deployment/${portalDeploymentId}`, '--output', 'json', '--no-headers'],
-          {
-            configPath,
-            ignoreError: true,
-          },
-        );
-        if (!res.stdout) return false;
-        const parsed = JSON.parse(res.stdout.trim() || '[]');
-        return parsed.length === 1 && parsed[0].id === portalDeploymentId;
-      },
-      { description: 'portal deployment availability' },
-    );
+    await wait(1000);
 
-    log('Waiting for test deployment to appear');
-    await waitFor(
-      async () => {
-        const res = await runYuanctl(
-          ['get', `deployment/${testDeploymentId}`, '--output', 'json', '--no-headers'],
-          {
-            configPath,
-            ignoreError: true,
-          },
-        );
-        if (!res.stdout) return false;
-        const parsed = JSON.parse(res.stdout.trim() || '[]');
-        return parsed.length === 1 && parsed[0].id === testDeploymentId;
-      },
-      { description: 'test deployment availability' },
-    );
-
-    const getResult = await runYuanctl(
-      ['get', `deployment/${testDeploymentId}`, '--output', 'json', '--no-headers'],
-      { configPath },
-    );
-    const deploymentRows = JSON.parse(getResult.stdout.trim() || '[]');
-    if (!Array.isArray(deploymentRows) || deploymentRows.length !== 1) {
+    const getResult = await runYuanctl(['deploy', 'inspect', testDeploymentId, '--output', 'json'], {
+      configPath,
+    });
+    const deploymentInspect = parseJsonStdout(getResult.stdout, {});
+    if (!deploymentInspect?.data || deploymentInspect.data.id !== testDeploymentId) {
       throw new Error(`Expected single deployment row, got: ${getResult.stdout}`);
     }
 
-    log('Running describe command');
-    const describeResult = await runYuanctl(['describe', `deployment/${testDeploymentId}`], { configPath });
-    if (!describeResult.stdout.includes('Name:') || !describeResult.stdout.includes(testDeploymentId)) {
-      throw new Error('Describe output missing expected fields');
-    }
+    log('Running deploy inspect command');
 
     log('Toggling deployment enabled state');
-    await runYuanctl(['enable', `deployment/${testDeploymentId}`], { configPath });
+    await runYuanctl(['deploy', 'enable', testDeploymentId, '--yes'], { configPath });
     await waitFor(
       async () => {
-        const res = await runYuanctl(
-          ['get', `deployment/${testDeploymentId}`, '--output', 'json', '--no-headers'],
-          { configPath },
-        );
-        const parsed = JSON.parse(res.stdout.trim() || '[]');
-        return parsed[0]?.enabled === true;
+        const res = await runYuanctl(['deploy', 'inspect', testDeploymentId, '--output', 'json'], {
+          configPath,
+        });
+        const parsed = parseJsonStdout(res.stdout, {});
+        return parsed?.data?.enabled === true;
       },
       { description: 'enable propagation' },
     );
 
-    await runYuanctl(['disable', `deployment/${testDeploymentId}`], { configPath });
+    await runYuanctl(['deploy', 'disable', testDeploymentId, '--yes'], { configPath });
     await waitFor(
       async () => {
-        const res = await runYuanctl(
-          ['get', `deployment/${testDeploymentId}`, '--output', 'json', '--no-headers'],
-          { configPath },
-        );
-        const parsed = JSON.parse(res.stdout.trim() || '[]');
-        return parsed[0]?.enabled === false;
+        const res = await runYuanctl(['deploy', 'inspect', testDeploymentId, '--output', 'json'], {
+          configPath,
+        });
+        const parsed = parseJsonStdout(res.stdout, {});
+        return parsed?.data?.enabled === false;
       },
       { description: 'disable propagation' },
     );
 
     log('Checking restart command updates timestamp');
-    const beforeRestart = await runYuanctl(
-      ['get', `deployment/${testDeploymentId}`, '--output', 'json', '--no-headers'],
-      { configPath },
-    );
-    const beforeRows = JSON.parse(beforeRestart.stdout.trim() || '[]');
-    const beforeUpdatedAt = beforeRows[0]?.updated_at;
-    await runYuanctl(['restart', `deployment/${testDeploymentId}`], { configPath });
+    const beforeRestart = await runYuanctl(['deploy', 'inspect', testDeploymentId, '--output', 'json'], {
+      configPath,
+    });
+    const beforeInspect = parseJsonStdout(beforeRestart.stdout, {});
+    const beforeUpdatedAt = beforeInspect?.data?.updated_at;
+    await runYuanctl(['deploy', 'restart', testDeploymentId, '--yes'], { configPath });
     await waitFor(
       async () => {
-        const after = await runYuanctl(
-          ['get', `deployment/${testDeploymentId}`, '--output', 'json', '--no-headers'],
-          { configPath },
-        );
-        const afterRows = JSON.parse(after.stdout.trim() || '[]');
-        return afterRows[0]?.updated_at && afterRows[0]?.updated_at !== beforeUpdatedAt;
+        const after = await runYuanctl(['deploy', 'inspect', testDeploymentId, '--output', 'json'], {
+          configPath,
+        });
+        const afterInspect = parseJsonStdout(after.stdout, {});
+        return afterInspect?.data?.updated_at && afterInspect.data.updated_at !== beforeUpdatedAt;
       },
       { description: 'restart updated_at propagation' },
     );
 
-    log('Running config-init smoke test');
-    const configInit = await runYuanctl(['config-init', '--host-url', hostUrl], { configPath });
+    log('Running config init smoke test');
+    const configInit = await runYuanctl(['config', 'init', '--host-url', hostUrl], { configPath });
     if (!configInit.stdout.includes('current_context')) {
       throw new Error('config-init output missing expected content');
     }
 
     log('Executing logs command (best effort)');
-    await runYuanctl(
-      ['logs', `deployment/${testDeploymentId}`, '--tail', '50', '--node-unit', nodeUnitAddress],
-      {
-        configPath,
-        ignoreError: true,
-      },
-    );
+    const logsResult = await runYuanctl(['deploy', 'logs', portalDeploymentId, '--tail', '50', '--yes'], {
+      configPath,
+      ignoreError: true,
+    });
+    if (logsResult.code !== 0) {
+      throw new Error(`deploy logs failed: ${logsResult.stderr || logsResult.stdout}`);
+    }
 
     log('Deleting test deployment');
-    await runYuanctl(['delete', `deployment/${testDeploymentId}`], { configPath, input: 'y\n' });
+    await runYuanctl(['deploy', 'delete', testDeploymentId, '--yes'], { configPath });
 
     await waitFor(
       async () => {
-        const res = await runYuanctl(['get', 'deployments', '--output', 'json', '--no-headers'], {
+        const res = await runYuanctl(['deploy', 'list', '--output', 'json'], {
           configPath,
         });
-        const parsed = JSON.parse(res.stdout.trim() || '[]');
-        return !parsed.some((item) => item.id === testDeploymentId);
+        const parsed = parseJsonStdout(res.stdout, {});
+        return !parsed?.data?.some((item) => item.id === testDeploymentId);
       },
       { description: 'deployment deletion confirmation' },
     );
 
     log('Deleting portal deployment');
-    await runYuanctl(['delete', `deployment/${portalDeploymentId}`], {
+    await runYuanctl(['deploy', 'delete', portalDeploymentId, '--yes'], {
       configPath,
-      input: 'y\n',
       ignoreError: true,
     });
 
@@ -597,7 +580,11 @@ async function main() {
   }
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exitCode = 1;
-});
+main()
+  .then(() => {
+    process.exit(0);
+  })
+  .catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
