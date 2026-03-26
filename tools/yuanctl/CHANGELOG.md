@@ -1,6 +1,13 @@
 # Change Log - @yuants/tool-yuanctl
 
-This log was last generated on Wed, 18 Mar 2026 16:27:24 GMT and should not be manually modified.
+This log was last generated on Thu, 26 Mar 2026 15:14:54 GMT and should not be manually modified.
+
+## 0.2.26
+Thu, 26 Mar 2026 15:14:54 GMT
+
+### Patches
+
+- add agent access framework
 
 ## 0.2.25
 Wed, 18 Mar 2026 16:27:24 GMT
