@@ -33,6 +33,9 @@ const quoteFromContracts$ = usdtFutureContracts$.pipe(
   mergeMap((contracts) => contracts),
   map(
     (contract): Partial<IQuote> => ({
+      interest_rate_settlement_interval: contract.funding_interval
+        ? `${contract.funding_interval * 1000}`
+        : undefined,
       interest_rate_next_settled_at: contract.funding_next_apply
         ? formatTime(contract.funding_next_apply * 1000)
         : undefined,
