@@ -63,9 +63,10 @@ export const getPositions = async (credential: ICredential): Promise<IPosition[]
       makeSpotPosition({
         position_id: `spot/${balance.asset}`,
         datasource_id: 'BINANCE',
-        product_id: encodePath('BINANCE', 'SPOT', `${balance.asset}`),
+        product_id: encodePath('BINANCE', 'SPOT', `${balance.asset}USDT`),
         volume,
         free_volume: +balance.free,
+        size: volume.toString(),
         closable_price:
           balance.asset === 'USDT'
             ? 1
