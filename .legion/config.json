@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "vendor-tokenbucket-proxy-ip",
+  "currentTask": "host-v2-auth-ed25519-jwt",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -185,7 +185,7 @@
     {
       "id": "http-proxy-app-implementation",
       "name": "HTTP Proxy App Implementation",
-      "status": "active",
+      "status": "paused",
       "createdAt": "2026-01-28T07:31:21.903Z",
       "updatedAt": "2026-02-04T08:00:32.749Z"
     },
@@ -230,6 +230,13 @@
       "status": "paused",
       "createdAt": "2026-02-05T11:41:19.733Z",
       "updatedAt": "2026-02-07T14:17:47.617Z"
+    },
+    {
+      "id": "host-v2-auth-ed25519-jwt",
+      "name": "新 Host（隔离部署）重构设计：ED25519 授权链 + JWT 双 Token 滚动",
+      "status": "active",
+      "createdAt": "2026-03-14T00:00:00.000Z",
+      "updatedAt": "2026-03-14T00:00:00.000Z"
     }
   ],
   "pendingProposals": [
