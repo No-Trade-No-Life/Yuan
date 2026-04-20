@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Mon, 23 Mar 2026 12:33:34 GMT and should not be manually modified.
+This log was last generated on Mon, 20 Apr 2026 10:28:23 GMT and should not be manually modified.
+
+## 0.33.10
+Mon, 20 Apr 2026 10:28:23 GMT
+
+### Patches
+
+- add IOC/FOK order type support for OKX order submission and readback mapping
 
 ## 0.33.9
 Mon, 23 Mar 2026 12:33:34 GMT
