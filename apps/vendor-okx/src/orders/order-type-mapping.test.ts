@@ -18,6 +18,6 @@ describe('mapOkxOrdTypeToOrderType', () => {
   });
 
   test('returns UNKNOWN for unsupported ordType', () => {
-    expect(mapOkxOrdTypeToOrderType('optimal_limit_ioc')).toBe('UNKNOWN');
+    expect(mapOkxOrdTypeToOrderType('not_a_real_okx_ord_type')).toBe('UNKNOWN');
   });
 });
