@@ -2,13 +2,14 @@ import { IOrder } from '@yuants/data-order';
 import { encodePath } from '@yuants/utils';
 import { getAccountIds, getTradingAccountId } from '../accountInfos/uid';
 import { getTradeOrdersPending, ICredential } from '../api/private-api';
+import { mapOkxOrdTypeToOrderType } from './mapOkxOrdTypeToOrderType';
 
 export const listOrders = async (credential: ICredential, account_id: string): Promise<IOrder[]> => {
   const accountIds = await getAccountIds(credential);
   if (accountIds?.trading === account_id) {
     const orderRes = await getTradeOrdersPending(credential, {});
     return orderRes.data.map((x) => {
-      const order_type = x.ordType === 'market' ? 'MARKET' : x.ordType === 'limit' ? 'LIMIT' : 'UNKNOWN';
+      const order_type = mapOkxOrdTypeToOrderType(x.ordType);
 
       const order_direction =
         x.side === 'buy'

@@ -4,10 +4,12 @@ jest.mock('../accountInfos/uid', () => ({
   accountConfigCache: {
     query: jest.fn(),
   },
+  getAccountIds: jest.fn(),
 }));
 
 jest.mock('../api/private-api', () => ({
   postTradeOrder: jest.fn(),
+  getTradeOrdersPending: jest.fn(),
 }));
 
 jest.mock('../public-data/product', () => ({
@@ -25,12 +27,17 @@ jest.mock('../public-data/quote', () => ({
 }));
 
 import { accountConfigCache } from '../accountInfos/uid';
-import { postTradeOrder } from '../api/private-api';
+import { getAccountIds } from '../accountInfos/uid';
+import { getTradeOrdersPending, postTradeOrder } from '../api/private-api';
+import { getOrders } from '../experimental/getOrders';
+import { listOrders } from './listOrders';
 import { mapOkxOrdTypeToOrderType } from './mapOkxOrdTypeToOrderType';
 import { mapOrderTypeToOrdType } from './mapOrderTypeToOrdType';
 import { submitOrder } from './submitOrder';
 
 const mockedAccountConfigCache = jest.mocked(accountConfigCache);
+const mockedGetAccountIds = jest.mocked(getAccountIds);
+const mockedGetTradeOrdersPending = jest.mocked(getTradeOrdersPending);
 const mockedPostTradeOrder = jest.mocked(postTradeOrder);
 
 describe('mapOrderTypeToOrdType', () => {
@@ -95,5 +102,98 @@ describe('submitOrder', () => {
       { access_key: 'ak', secret_key: 'sk', passphrase: 'pp' },
       expect.objectContaining({ ordType, px: '12345', sz: '1' }),
     );
+  });
+});
+
+describe('order readback mapping', () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
+  test('listOrders maps IOC and FOK ordType values via shared readback mapping', async () => {
+    mockedGetAccountIds.mockResolvedValue({ trading: 'okx/test/trading' } as never);
+    mockedGetTradeOrdersPending.mockResolvedValue({
+      code: '0',
+      msg: '',
+      data: [
+        {
+          ordId: 'ioc-order',
+          ordType: 'ioc',
+          side: 'buy',
+          posSide: 'long',
+          instType: 'SWAP',
+          instId: 'BTC-USDT-SWAP',
+          cTime: '1',
+          fillTime: '0',
+          sz: '2',
+          accFillSz: '1',
+          px: '100',
+          avgPx: '101',
+        },
+        {
+          ordId: 'fok-order',
+          ordType: 'fok',
+          side: 'sell',
+          posSide: 'short',
+          instType: 'SWAP',
+          instId: 'ETH-USDT-SWAP',
+          cTime: '2',
+          fillTime: '0',
+          sz: '3',
+          accFillSz: '0',
+          px: '200',
+          avgPx: '0',
+        },
+      ],
+    } as never);
+
+    await expect(
+      listOrders({ access_key: 'ak', secret_key: 'sk', passphrase: 'pp' }, 'okx/test/trading'),
+    ).resolves.toMatchObject([
+      { order_id: 'ioc-order', order_type: 'IOC' },
+      { order_id: 'fok-order', order_type: 'FOK' },
+    ]);
+  });
+
+  test('getOrders maps IOC and FOK ordType values via shared readback mapping', async () => {
+    mockedGetTradeOrdersPending.mockResolvedValue({
+      code: '0',
+      msg: '',
+      data: [
+        {
+          ordId: 'ioc-order',
+          ordType: 'ioc',
+          side: 'buy',
+          posSide: 'long',
+          instType: 'SWAP',
+          instId: 'BTC-USDT-SWAP',
+          cTime: '1',
+          fillTime: '0',
+          sz: '2',
+          accFillSz: '1',
+          px: '100',
+          avgPx: '101',
+        },
+        {
+          ordId: 'fok-order',
+          ordType: 'fok',
+          side: 'sell',
+          posSide: 'short',
+          instType: 'SWAP',
+          instId: 'ETH-USDT-SWAP',
+          cTime: '2',
+          fillTime: '0',
+          sz: '3',
+          accFillSz: '0',
+          px: '200',
+          avgPx: '0',
+        },
+      ],
+    } as never);
+
+    await expect(getOrders({ access_key: 'ak', secret_key: 'sk', passphrase: 'pp' })).resolves.toMatchObject([
+      { order_id: 'ioc-order', order_type: 'IOC' },
+      { order_id: 'fok-order', order_type: 'FOK' },
+    ]);
   });
 });

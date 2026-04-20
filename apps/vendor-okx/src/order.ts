@@ -5,6 +5,7 @@ import { encodePath, formatTime } from '@yuants/utils';
 import { defer, from, map, merge, mergeMap, repeat, retry, shareReplay, Subject, tap } from 'rxjs';
 import { getDefaultCredential, getTradeOrdersHistory, getTradeOrdersPending } from './api/private-api';
 import { getTradingAccountId } from './accountInfos/uid';
+import { mapOkxOrdTypeToOrderType } from './orders/mapOkxOrdTypeToOrderType';
 
 export const order$ = new Subject<IOrder>();
 
@@ -63,7 +64,7 @@ const makeOrder = (
   },
   account_id: string,
 ): IOrder => {
-  const order_type = x.ordType === 'market' ? 'MARKET' : x.ordType === 'limit' ? 'LIMIT' : 'UNKNOWN';
+  const order_type = mapOkxOrdTypeToOrderType(x.ordType);
   const order_direction =
     x.side === 'buy'
       ? x.posSide === 'long'
