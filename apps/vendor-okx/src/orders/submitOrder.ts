@@ -5,6 +5,7 @@ import { accountConfigCache } from '../accountInfos/uid';
 import { ICredential, postTradeOrder } from '../api/private-api';
 import { productService } from '../public-data/product';
 import { spotMarketTickers$ } from '../public-data/quote';
+import { mapOrderTypeToOrdType } from './mapOrderTypeToOrdType';
 
 const mapOrderDirectionToSide = (direction?: string) => {
   switch (direction) {
@@ -16,18 +17,6 @@ const mapOrderDirectionToSide = (direction?: string) => {
       return 'sell';
   }
   throw new Error(`Unknown direction: ${direction}`);
-};
-
-const mapOrderTypeToOrdType = (order_type?: string) => {
-  switch (order_type) {
-    case 'LIMIT':
-      return 'limit';
-    case 'MARKET':
-      return 'market';
-    case 'MAKER':
-      return 'post_only';
-  }
-  throw new Error(`Unknown order type: ${order_type}`);
 };
 
 export const submitOrder = async (credential: ICredential, order: IOrder): Promise<{ order_id: string }> => {
