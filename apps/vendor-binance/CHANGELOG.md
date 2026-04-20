@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-binance
 
-This log was last generated on Sat, 11 Apr 2026 16:49:08 GMT and should not be manually modified.
+This log was last generated on Mon, 20 Apr 2026 10:28:23 GMT and should not be manually modified.
+
+## 0.14.13
+Mon, 20 Apr 2026 10:28:23 GMT
+
+### Patches
+
+- fix binance spot size
 
 ## 0.14.12
 Sat, 11 Apr 2026 16:49:08 GMT
