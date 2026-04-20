@@ -5,6 +5,7 @@ import { accountConfigCache } from '../accountInfos/uid';
 import { ICredential, postTradeOrder } from '../api/private-api';
 import { productService } from '../public-data/product';
 import { spotMarketTickers$ } from '../public-data/quote';
+import { mapOrderTypeToOrdType } from './mapOrderTypeToOrdType';
 
 const mapOrderDirectionToSide = (direction?: string) => {
   switch (direction) {
@@ -18,17 +19,7 @@ const mapOrderDirectionToSide = (direction?: string) => {
   throw new Error(`Unknown direction: ${direction}`);
 };
 
-const mapOrderTypeToOrdType = (order_type?: string) => {
-  switch (order_type) {
-    case 'LIMIT':
-      return 'limit';
-    case 'MARKET':
-      return 'market';
-    case 'MAKER':
-      return 'post_only';
-  }
-  throw new Error(`Unknown order type: ${order_type}`);
-};
+const isPricedOrderType = (orderType?: string) => ['LIMIT', 'MAKER', 'IOC', 'FOK'].includes(orderType ?? '');
 
 export const submitOrder = async (credential: ICredential, order: IOrder): Promise<{ order_id: string }> => {
   const accountConfigRes = await accountConfigCache.query(JSON.stringify(credential));
@@ -57,10 +48,7 @@ export const submitOrder = async (credential: ICredential, order: IOrder): Promi
       return order.volume;
     }
     if (instType === 'MARGIN') {
-      if (order.order_type === 'LIMIT') {
-        return order.volume;
-      }
-      if (order.order_type === 'MAKER') {
+      if (isPricedOrderType(order.order_type)) {
         return order.volume;
       }
       if (order.order_type === 'MARKET') {
@@ -128,7 +116,7 @@ export const submitOrder = async (credential: ICredential, order: IOrder): Promi
       instType === 'MARGIN' && ['CLOSE_LONG', 'CLOSE_SHORT'].includes(order.order_direction ?? '')
         ? 'true'
         : undefined,
-    px: order.order_type === 'LIMIT' || order.order_type === 'MAKER' ? order.price!.toString() : undefined,
+    px: isPricedOrderType(order.order_type) ? order.price!.toString() : undefined,
     ccy: instType === 'MARGIN' ? 'USDT' : undefined,
     tag: process.env.BROKER_CODE,
   };

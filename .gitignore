@@ -131,6 +131,7 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+.worktrees/
 
 # Rush temporary files
 common/deploy/
