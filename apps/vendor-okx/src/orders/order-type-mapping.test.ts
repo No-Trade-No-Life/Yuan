@@ -82,17 +82,18 @@ describe('submitOrder', () => {
         { access_key: 'ak', secret_key: 'sk', passphrase: 'pp' },
         {
           account_id: 'okx/test/trading',
-          product_id: encodePath('SPOT', 'BTC-USDT'),
+          product_id: encodePath('MARGIN', 'BTC-USDT'),
           order_type: orderType,
           order_direction: 'OPEN_LONG',
           volume: 1,
+          price: 12345,
         },
       ),
     ).resolves.toEqual({ order_id: 'order-1' });
 
     expect(mockedPostTradeOrder).toHaveBeenCalledWith(
       { access_key: 'ak', secret_key: 'sk', passphrase: 'pp' },
-      expect.objectContaining({ ordType }),
+      expect.objectContaining({ ordType, px: '12345', sz: '1' }),
     );
   });
 });
