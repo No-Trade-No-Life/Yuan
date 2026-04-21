@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Mon, 23 Mar 2026 12:33:34 GMT and should not be manually modified.
+This log was last generated on Tue, 21 Apr 2026 16:24:03 GMT and should not be manually modified.
+
+## 0.20.10
+Tue, 21 Apr 2026 16:24:03 GMT
+
+### Patches
+
+- add IOC/FOK order type support for Huobi swap order submission and listOrders readback mapping
 
 ## 0.20.9
 Mon, 23 Mar 2026 12:33:34 GMT

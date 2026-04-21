@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-aster
 
-This log was last generated on Mon, 23 Mar 2026 12:33:34 GMT and should not be manually modified.
+This log was last generated on Tue, 21 Apr 2026 16:24:03 GMT and should not be manually modified.
+
+## 0.11.10
+Tue, 21 Apr 2026 16:24:03 GMT
+
+### Patches
+
+- add IOC FOK order support for spot and perp order submission and readback
 
 ## 0.11.9
 Mon, 23 Mar 2026 12:33:34 GMT
