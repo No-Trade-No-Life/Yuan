@@ -2,16 +2,19 @@ import { mapGateOrderToOrderType } from './mapGateOrderToOrderType';
 import { mapOrderTypeToTif } from './mapOrderTypeToTif';
 
 jest.mock('../../api/private-api', () => ({
+  getFuturesOrders: jest.fn(async () => []),
   postFutureOrders: jest.fn(async (_credential, _settle, payload) => ({
     id: 'mock-order-id',
     ...payload,
   })),
 }));
 
-const { postFutureOrders } = jest.requireMock('../../api/private-api') as {
+const { getFuturesOrders, postFutureOrders } = jest.requireMock('../../api/private-api') as {
+  getFuturesOrders: jest.Mock;
   postFutureOrders: jest.Mock;
 };
 
+const { listOrders } = require('./listOrders') as typeof import('./listOrders');
 const { submitOrder } = require('./submitOrder') as typeof import('./submitOrder');
 
 const baseOrder = {
@@ -94,5 +97,56 @@ describe('submitOrder order type mapping', () => {
         price: '0',
       }),
     );
+  });
+});
+
+describe('listOrders order type mapping', () => {
+  beforeEach(() => {
+    getFuturesOrders.mockClear();
+  });
+
+  test('reads back order_type from Gate tif and price', async () => {
+    getFuturesOrders.mockResolvedValueOnce([
+      {
+        id: 'market-order',
+        contract: 'GATE/FUTURE/BTC_USDT',
+        size: 1,
+        left: 1,
+        price: '0',
+        fill_price: '0',
+        tif: 'ioc',
+        is_close: false,
+        create_time: 1,
+        status: 'open',
+      },
+      {
+        id: 'ioc-order',
+        contract: 'GATE/FUTURE/BTC_USDT',
+        size: 1,
+        left: 1,
+        price: '12345',
+        fill_price: '0',
+        tif: 'ioc',
+        is_close: false,
+        create_time: 2,
+        status: 'open',
+      },
+      {
+        id: 'fok-order',
+        contract: 'GATE/FUTURE/BTC_USDT',
+        size: 1,
+        left: 1,
+        price: '12345',
+        fill_price: '0',
+        tif: 'fok',
+        is_close: false,
+        create_time: 3,
+        status: 'open',
+      },
+    ]);
+
+    const orders = await listOrders({} as never);
+
+    expect(orders.map((order) => order.order_type)).toEqual(['MARKET', 'IOC', 'FOK']);
   });
 });
