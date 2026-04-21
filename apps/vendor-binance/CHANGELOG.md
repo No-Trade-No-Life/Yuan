@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-binance
 
-This log was last generated on Mon, 20 Apr 2026 10:28:23 GMT and should not be manually modified.
+This log was last generated on Tue, 21 Apr 2026 10:44:20 GMT and should not be manually modified.
+
+## 0.14.14
+Tue, 21 Apr 2026 10:44:20 GMT
+
+### Patches
+
+- add IOC/FOK order type support for BINANCE order submission and readback mapping
 
 ## 0.14.13
 Mon, 20 Apr 2026 10:28:23 GMT
