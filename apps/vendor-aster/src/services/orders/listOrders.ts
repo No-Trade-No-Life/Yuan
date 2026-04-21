@@ -10,6 +10,19 @@ import { encodePath } from '@yuants/utils';
 
 type OrderDirection = 'OPEN_LONG' | 'OPEN_SHORT' | 'CLOSE_LONG' | 'CLOSE_SHORT';
 
+const mapAsterOrderTypeToYuants = (type?: string, timeInForce?: string): IOrder['order_type'] => {
+  if (type === 'MARKET') {
+    return 'MARKET';
+  }
+  if (type === 'LIMIT') {
+    if (timeInForce === 'GTX') return 'MAKER';
+    if (timeInForce === 'IOC') return 'IOC';
+    if (timeInForce === 'FOK') return 'FOK';
+    return 'LIMIT';
+  }
+  return 'LIMIT';
+};
+
 const resolvePerpOrderDirection = (asterOrder: IAsterFutureOpenOrder): OrderDirection => {
   const reduceOnly = asterOrder.reduceOnly || asterOrder.closePosition;
 
@@ -39,7 +52,7 @@ export const mapPerpOrder = (order: IAsterFutureOpenOrder, account_id: string): 
     order_id: `${order.orderId}`,
     account_id,
     product_id: encodePath('ASTER', 'PERP', order.symbol),
-    order_type: order.type,
+    order_type: mapAsterOrderTypeToYuants(order.type, order.timeInForce),
     order_direction: resolvePerpOrderDirection(order),
     volume: Number.isFinite(volume) ? volume : 0,
     price: Number.isFinite(price) ? price : undefined,
@@ -60,7 +73,7 @@ export const mapSpotOrder = (order: IAsterSpotOpenOrder, account_id: string): IO
     order_id: `${order.orderId}`,
     account_id,
     product_id: encodePath('ASTER', 'SPOT', order.symbol),
-    order_type: order.type,
+    order_type: mapAsterOrderTypeToYuants(order.type, order.timeInForce),
     order_direction: resolveSpotOrderDirection(order.side),
     volume: Number.isFinite(volume) ? volume : 0,
     price: Number.isFinite(price) ? price : undefined,
