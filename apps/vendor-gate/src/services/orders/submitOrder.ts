@@ -1,6 +1,7 @@
 import { IActionHandlerOfSubmitOrder } from '@yuants/data-order';
 import { ICredential, postFutureOrders } from '../../api/private-api';
 import { decodePath } from '@yuants/utils';
+import { mapOrderTypeToTif } from './mapOrderTypeToTif';
 
 const resolveSizeSign = (order_direction?: string): number => {
   switch (order_direction) {
@@ -15,12 +16,6 @@ const resolveSizeSign = (order_direction?: string): number => {
   }
 };
 
-const resolveTif = (order_type?: string): string => {
-  if (order_type === 'MARKET') return 'ioc';
-  if (order_type === 'LIMIT' || order_type === 'MAKER') return 'gtc';
-  throw new Error(`Unsupported order_type: ${order_type}`);
-};
-
 export const submitOrder: IActionHandlerOfSubmitOrder<ICredential> = async (credential, order) => {
   if (!order.product_id) {
     throw new Error('Missing product_id');
@@ -30,7 +25,7 @@ export const submitOrder: IActionHandlerOfSubmitOrder<ICredential> = async (cred
   }
 
   const size = order.volume * resolveSizeSign(order.order_direction);
-  const tif = resolveTif(order.order_type);
+  const tif = mapOrderTypeToTif(order.order_type);
   const reduce_only = order.order_direction === 'CLOSE_LONG' || order.order_direction === 'CLOSE_SHORT';
   const price =
     order.order_type === 'MARKET' ? '0' : order.price !== undefined ? `${order.price}` : undefined;

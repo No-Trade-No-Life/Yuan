@@ -7,7 +7,7 @@
 ## 0. 元信息（Meta）
 
 - **项目名称**：@yuants/vendor-gate
-- **最近更新时间**：2025-11-18 15:40（由 Codex 更新，完善限速与账户缓存，并补回现货账户逻辑）
+- **最近更新时间**：2026-04-21 17:10（由 OpenCode 更新，补充 Gate IOC/FOK 下单与回读支持的交接记录）
 - **当前状态标签**：重构中（API/Service 分层已稳定，继续补公共行情与验证）
 
 ---
@@ -85,6 +85,10 @@
   - 背景：凭证化 API 需要频繁解析 UID/账户 ID，之前用 Map + access_key 作为 key，无法控制过期也难以序列化完整凭证。
   - 方案：引入 `services/accounts/profile.ts`，使用 `createCache` + JSON 序列化 credential 缓存 UID/未来/现货/统一账户 ID，并统一供 legacy 与凭证化服务使用。
   - 影响：避免重复调用 `getAccountDetail`，也能按 TTL 更新；credential 变动时自动失效。
+- **[D4] Gate 订单回读需要用 `tif + price` 区分 MARKET / IOC**
+  - 背景：Gate 永续下单里 `MARKET` 与 `IOC` 都通过 `tif=ioc` 提交，单看 `tif` 无法还原 Yuan 订单类型。
+  - 方案：提交时保持 `MARKET -> { tif: 'ioc', price: '0' }`、`IOC -> { tif: 'ioc', price: 实际限价 }`、`FOK -> { tif: 'fok', price: 实际限价 }`；`listOrders` 回读时通过 `tif + price` 组合恢复 `order_type`。
+  - 影响：避免把真实 IOC 订单误判成 MARKET，也让 submit/readback 语义保持一致。
 
 ### 4.3 已接受的折衷 / 技术债
 
@@ -106,6 +110,19 @@
 ---
 
 ## 6. 最近几轮工作记录（Recent Sessions）
+
+### 2026-04-21 — OpenCode
+
+- **本轮摘要**：
+  - 为 Gate 永续订单补齐 IOC / FOK submit 与 `listOrders` readback 映射支持。
+  - 明确记录 `MARKET` 与 `IOC` 都使用 `tif=ioc`，回读时需依赖 `tif + price` 才能区分真实订单类型。
+  - 为 `@yuants/vendor-gate` 准备变更说明与最终提测记录。
+- **修改的文件**：
+  - `apps/vendor-gate/SESSION_NOTES.md`
+  - `common/changes/@yuants/vendor-gate/*`
+- **运行的测试 / 检查**：
+  - `cd apps/vendor-gate && npx heft test --test-path-pattern lib/services/orders/order-type-mapping.test.js --max-workers 1` ✅（1 suite, 7 tests passed）
+  - `rush build -t @yuants/vendor-gate` ⚠️ 失败；阻塞来自 `@yuants/http-services` 既有集成测试失败（`src/__tests__/integration.test.ts` 等待端口 `60190` 启动超时），`@yuants/vendor-gate` 被依赖阻塞，非本轮 Gate 改动直接报错。
 
 ### 2026-02-05 — OpenCode
 

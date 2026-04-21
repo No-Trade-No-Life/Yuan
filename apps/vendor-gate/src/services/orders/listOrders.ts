@@ -1,6 +1,7 @@
 import { IOrder } from '@yuants/data-order';
 import { getFuturesOrders, ICredential } from '../../api/private-api';
 import { decodePath, newError } from '@yuants/utils';
+import { mapGateOrderToOrderType } from './mapGateOrderToOrderType';
 
 type OrderDirection = 'OPEN_LONG' | 'OPEN_SHORT' | 'CLOSE_LONG' | 'CLOSE_SHORT';
 
@@ -32,6 +33,7 @@ export const listOrders = async (credential: ICredential) => {
       traded_volume,
       traded_price: Number.isFinite(traded_price) ? traded_price : undefined,
       order_status: order.status,
+      order_type: mapGateOrderToOrderType(order),
     };
   });
 };
