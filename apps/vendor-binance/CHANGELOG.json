@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-binance",
   "entries": [
     {
+      "version": "0.14.13",
+      "tag": "@yuants/vendor-binance_v0.14.13",
+      "date": "Mon, 20 Apr 2026 10:28:23 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix binance spot size"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.14.12",
       "tag": "@yuants/vendor-binance_v0.14.12",
       "date": "Sat, 11 Apr 2026 16:49:08 GMT",

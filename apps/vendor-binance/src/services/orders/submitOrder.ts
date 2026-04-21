@@ -9,6 +9,7 @@ import {
   mapOrderDirectionToPositionSide,
   mapOrderDirectionToSide,
   mapOrderTypeToOrdType,
+  mapOrderTypeToTimeInForce,
 } from './order-utils';
 import { fetchTradeHistory } from '../trade-history';
 
@@ -22,7 +23,7 @@ const submitUnifiedOrder: IActionHandlerOfSubmitOrder<ICredential> = async (cred
   const side = mapOrderDirectionToSide(order.order_direction);
   const positionSide = isSingleSideMode ? undefined : mapOrderDirectionToPositionSide(order.order_direction);
   const type = mapOrderTypeToOrdType(order.order_type);
-  const timeInForce = order.order_type === 'MAKER' ? 'GTX' : order.order_type === 'LIMIT' ? 'GTC' : undefined;
+  const timeInForce = mapOrderTypeToTimeInForce(order.order_type);
   const reduceOnly = isSingleSideMode
     ? order.order_direction === 'CLOSE_LONG' || order.order_direction === 'CLOSE_SHORT'
       ? 'true'
@@ -56,7 +57,7 @@ const submitSpotOrder: IActionHandlerOfSubmitOrder<ICredential> = async (credent
   }
   const side = mapOrderDirectionToSide(order.order_direction);
   const type = mapOrderTypeToOrdType(order.order_type);
-  const timeInForce = order.order_type === 'MAKER' ? 'GTX' : order.order_type === 'LIMIT' ? 'GTC' : undefined;
+  const timeInForce = mapOrderTypeToTimeInForce(order.order_type);
   const params: Parameters<typeof postSpotOrder>[1] = {
     symbol,
     side,

@@ -19,7 +19,7 @@ export const listUnifiedUmOrders = async (credential: ICredential): Promise<IOrd
       order_id: `${order.orderId}`,
       account_id: '',
       product_id: encodePath('BINANCE', 'USDT-FUTURE', order.symbol),
-      order_type: mapBinanceOrderTypeToYuants(order.type),
+      order_type: mapBinanceOrderTypeToYuants(order.type, order.timeInForce),
       order_direction:
         mapBinanceSideToYuantsDirection(order.side, order.positionSide) ??
         (order.side === 'BUY' ? 'OPEN_LONG' : 'OPEN_SHORT'),
@@ -43,7 +43,7 @@ export const listSpotOrders = async (credential: ICredential): Promise<IOrder[]>
       order_id: `${order.orderId}`,
       account_id: '',
       product_id: encodePath('BINANCE', 'SPOT', order.symbol),
-      order_type: mapBinanceOrderTypeToYuants(order.type),
+      order_type: mapBinanceOrderTypeToYuants(order.type, order.timeInForce),
       order_direction: mapSpotSideToOrderDirection(order.side),
       volume: +order.origQty,
       traded_volume: +order.executedQty,

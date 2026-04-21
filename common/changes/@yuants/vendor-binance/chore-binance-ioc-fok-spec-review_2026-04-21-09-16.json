@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "add IOC/FOK order type support for BINANCE order submission and readback mapping",
+      "type": "patch",
+      "packageName": "@yuants/vendor-binance"
+    }
+  ],
+  "packageName": "@yuants/vendor-binance",
+  "email": "stayrealrhr@gmail.com"
+}
