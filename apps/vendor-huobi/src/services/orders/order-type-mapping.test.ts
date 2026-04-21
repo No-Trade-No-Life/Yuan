@@ -5,6 +5,7 @@ import { mapHuobiSwapOrderToOrderType } from './mapHuobiSwapOrderToOrderType';
 jest.mock('../../api/private-api', () => ({
   getCrossMarginLoanInfo: jest.fn(),
   getSpotAccountBalance: jest.fn(),
+  getSwapOpenOrders: jest.fn(),
   getSwapCrossPositionInfo: jest.fn(),
   postSwapOrder: jest.fn(),
   postUnionAccountSwapOrder: jest.fn(),
@@ -32,15 +33,20 @@ jest.mock('../uid', () => ({
   },
 }));
 
-const { getSwapCrossPositionInfo, postSwapOrder } =
+const { getSwapCrossPositionInfo, getSwapOpenOrders, postSwapOrder, postUnionAccountSwapOrder } =
   require('../../api/private-api') as typeof import('../../api/private-api');
 const { accountModeCache } = require('../exchange') as typeof import('../exchange');
+const { listSwapOrders } = require('./listOrders') as typeof import('./listOrders');
 const { submitOrder } = require('./submitOrder') as typeof import('./submitOrder');
 
 const mockGetSwapCrossPositionInfo = getSwapCrossPositionInfo as jest.MockedFunction<
   typeof getSwapCrossPositionInfo
 >;
+const mockGetSwapOpenOrders = getSwapOpenOrders as jest.MockedFunction<typeof getSwapOpenOrders>;
 const mockPostSwapOrder = postSwapOrder as jest.MockedFunction<typeof postSwapOrder>;
+const mockPostUnionAccountSwapOrder = postUnionAccountSwapOrder as jest.MockedFunction<
+  typeof postUnionAccountSwapOrder
+>;
 const mockAccountModeQuery = accountModeCache.query as jest.MockedFunction<typeof accountModeCache.query>;
 
 describe('Huobi swap order type mappings', () => {
@@ -205,5 +211,123 @@ describe('submitOrder normal swap account order type mapping', () => {
       order_price_type: 'fok',
       channel_code: 'broker-id',
     });
+  });
+});
+
+describe('submitOrder unified swap account order type mapping', () => {
+  const credential = { access_key: 'ak', secret_key: 'sk' };
+  const product_id = encodePath('HUOBI', 'SWAP', 'BTC-USDT');
+
+  beforeEach(() => {
+    process.env.BROKER_ID = 'broker-id';
+    mockAccountModeQuery.mockResolvedValue(1);
+    mockPostUnionAccountSwapOrder.mockResolvedValue({
+      code: 200,
+      message: 'ok',
+      data: { order_id: 1, order_id_str: '1' },
+    });
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test.each([
+    ['IOC', 'ioc'],
+    ['FOK', 'fok'],
+  ])('uses %s time_in_force for unified swap orders', async (orderType, timeInForce) => {
+    await submitOrder(credential, {
+      product_id,
+      order_type: orderType,
+      order_direction: 'OPEN_LONG',
+      volume: 1,
+      price: 12345,
+    } as any);
+
+    expect(mockPostUnionAccountSwapOrder).toHaveBeenCalledWith(credential, {
+      contract_code: 'BTC-USDT',
+      margin_mode: 'cross',
+      price: 12345,
+      volume: 1,
+      position_side: 'both',
+      side: 'buy',
+      type: 'limit',
+      time_in_force: timeInForce,
+      channel_code: 'broker-id',
+      reduce_only: 0,
+    });
+  });
+});
+
+describe('listSwapOrders order type mapping', () => {
+  const credential = { access_key: 'ak', secret_key: 'sk' };
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('maps Huobi order_price_type values back to Yuan order types', async () => {
+    mockGetSwapOpenOrders
+      .mockResolvedValueOnce({
+        status: 'ok',
+        data: {
+          orders: [
+            {
+              order_id_str: '1',
+              contract_code: 'BTC-USDT',
+              order_price_type: 'lightning',
+              direction: 'open',
+              offset: 'buy',
+              volume: 1,
+              created_at: 1,
+              price: 100,
+              trade_volume: 0,
+            },
+            {
+              order_id_str: '2',
+              contract_code: 'BTC-USDT',
+              order_price_type: 'limit',
+              direction: 'open',
+              offset: 'buy',
+              volume: 1,
+              created_at: 2,
+              price: 200,
+              trade_volume: 0,
+            },
+            {
+              order_id_str: '3',
+              contract_code: 'BTC-USDT',
+              order_price_type: 'ioc',
+              direction: 'open',
+              offset: 'buy',
+              volume: 1,
+              created_at: 3,
+              price: 300,
+              trade_volume: 0,
+            },
+            {
+              order_id_str: '4',
+              contract_code: 'BTC-USDT',
+              order_price_type: 'fok',
+              direction: 'open',
+              offset: 'buy',
+              volume: 1,
+              created_at: 4,
+              price: 400,
+              trade_volume: 0,
+            },
+          ],
+        },
+      })
+      .mockResolvedValueOnce({
+        status: 'ok',
+        data: {
+          orders: [],
+        },
+      });
+
+    const orders = await listSwapOrders(credential);
+
+    expect(orders.map((v) => v.order_type)).toEqual(['MARKET', 'LIMIT', 'IOC', 'FOK']);
   });
 });
