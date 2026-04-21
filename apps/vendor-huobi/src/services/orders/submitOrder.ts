@@ -14,6 +14,7 @@ import { getSpotTick } from '../../api/public-api';
 import { productCache } from '../product';
 import { superMarginAccountUidCache } from '../uid';
 import { accountModeCache } from '../exchange';
+import { mapSwapOrderTypeToHuobi } from './mapSwapOrderTypeToHuobi';
 
 /**
  * 处理 swap 账户订单提交
@@ -66,7 +67,7 @@ async function handleSwapOrder(order: IOrder, credential: ICredential): Promise<
       order.order_direction === 'OPEN_LONG' || order.order_direction === 'CLOSE_SHORT' ? 'buy' : 'sell',
     // dynamically adjust the leverage
     lever_rate,
-    order_price_type: order.order_type === 'MARKET' ? 'market' : 'limit',
+    ...mapSwapOrderTypeToHuobi(order.order_type),
     channel_code: process.env.BROKER_ID,
   };
 
