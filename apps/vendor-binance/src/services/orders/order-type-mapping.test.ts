@@ -1,6 +1,8 @@
 import { encodePath } from '@yuants/utils';
 
 jest.mock('../../api/private-api', () => ({
+  getSpotOpenOrders: jest.fn(),
+  getUnifiedUmOpenOrders: jest.fn(),
   postSpotOrder: jest.fn(),
   postUmOrder: jest.fn(),
 }));
@@ -13,10 +15,13 @@ jest.mock('../trade-history', () => ({
   fetchTradeHistory: jest.fn(),
 }));
 
-import { postSpotOrder, postUmOrder } from '../../api/private-api';
+import { getSpotOpenOrders, getUnifiedUmOpenOrders, postSpotOrder, postUmOrder } from '../../api/private-api';
 import { mapBinanceOrderTypeToYuants, mapOrderTypeToOrdType, mapOrderTypeToTimeInForce } from './order-utils';
+import { listSpotOrders, listUnifiedUmOrders } from './listOrders';
 import { submitOrder } from './submitOrder';
 
+const mockedGetSpotOpenOrders = jest.mocked(getSpotOpenOrders);
+const mockedGetUnifiedUmOpenOrders = jest.mocked(getUnifiedUmOpenOrders);
 const mockedPostSpotOrder = jest.mocked(postSpotOrder);
 const mockedPostUmOrder = jest.mocked(postUmOrder);
 
@@ -108,5 +113,83 @@ describe('Binance order type mappings', () => {
       { access_key: 'ak', secret_key: 'sk' },
       expect.objectContaining({ symbol: 'BTCUSDT', type: 'LIMIT', timeInForce: tif, price: 12345 }),
     );
+  });
+
+  test('listOrders maps LIMIT+IOC/FOK/GTX readback values correctly', async () => {
+    mockedGetSpotOpenOrders.mockResolvedValue([
+      {
+        symbol: 'BTCUSDT',
+        orderId: 11,
+        orderListId: -1,
+        clientOrderId: 'spot-maker',
+        price: '12345',
+        origQty: '1',
+        executedQty: '0',
+        origQuoteOrderQty: '0',
+        cummulativeQuoteQty: '0',
+        status: 'NEW',
+        timeInForce: 'GTX',
+        type: 'LIMIT',
+        side: 'BUY',
+        stopPrice: '0',
+        icebergQty: '0',
+        time: 1,
+        updateTime: 2,
+        isWorking: true,
+      },
+      {
+        symbol: 'ETHUSDT',
+        orderId: 12,
+        orderListId: -1,
+        clientOrderId: 'spot-ioc',
+        price: '2345',
+        origQty: '2',
+        executedQty: '0',
+        origQuoteOrderQty: '0',
+        cummulativeQuoteQty: '0',
+        status: 'NEW',
+        timeInForce: 'IOC',
+        type: 'LIMIT',
+        side: 'BUY',
+        stopPrice: '0',
+        icebergQty: '0',
+        time: 3,
+        updateTime: 4,
+        isWorking: true,
+      },
+    ]);
+
+    mockedGetUnifiedUmOpenOrders.mockResolvedValue([
+      {
+        avgPrice: '0',
+        clientOrderId: 'um-fok',
+        cumQuote: '0',
+        executedQty: '0',
+        orderId: 21,
+        origQty: '3',
+        origType: 'LIMIT',
+        price: '3456',
+        reduceOnly: false,
+        side: 'SELL',
+        positionSide: 'SHORT',
+        status: 'NEW',
+        symbol: 'BTCUSDT',
+        time: 5,
+        timeInForce: 'FOK',
+        type: 'LIMIT',
+        updateTime: 6,
+        selfTradePreventionMode: 'NONE',
+        goodTillDate: 0,
+      },
+    ]);
+
+    await expect(listSpotOrders({ access_key: 'ak', secret_key: 'sk' })).resolves.toMatchObject([
+      { order_id: '11', order_type: 'MAKER' },
+      { order_id: '12', order_type: 'IOC' },
+    ]);
+
+    await expect(listUnifiedUmOrders({ access_key: 'ak', secret_key: 'sk' })).resolves.toMatchObject([
+      { order_id: '21', order_type: 'FOK' },
+    ]);
   });
 });
