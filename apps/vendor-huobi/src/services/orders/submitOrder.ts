@@ -14,6 +14,7 @@ import { getSpotTick } from '../../api/public-api';
 import { productCache } from '../product';
 import { superMarginAccountUidCache } from '../uid';
 import { accountModeCache } from '../exchange';
+import { mapSwapOrderTypeToHuobi, mapUnionSwapOrderTypeToHuobi } from './mapSwapOrderTypeToHuobi';
 
 /**
  * 处理 swap 账户订单提交
@@ -23,6 +24,7 @@ async function handleUnionAccountSwapOrder(
   credential: ICredential,
 ): Promise<{ order_id: string }> {
   const [, instType, contractCode] = decodePath(order.product_id);
+  const orderTypeParams = mapUnionSwapOrderTypeToHuobi(order.order_type);
   const params = {
     contract_code: contractCode,
     margin_mode: 'cross',
@@ -30,7 +32,7 @@ async function handleUnionAccountSwapOrder(
     volume: order.volume,
     position_side: 'both',
     side: order.order_direction === 'OPEN_LONG' || order.order_direction === 'CLOSE_SHORT' ? 'buy' : 'sell',
-    type: order.order_type === 'MARKET' ? 'market' : 'limit',
+    ...orderTypeParams,
     channel_code: process.env.BROKER_ID,
     reduce_only: order.is_close ? 1 : 0,
   };
@@ -66,7 +68,7 @@ async function handleSwapOrder(order: IOrder, credential: ICredential): Promise<
       order.order_direction === 'OPEN_LONG' || order.order_direction === 'CLOSE_SHORT' ? 'buy' : 'sell',
     // dynamically adjust the leverage
     lever_rate,
-    order_price_type: order.order_type === 'MARKET' ? 'market' : 'limit',
+    ...mapSwapOrderTypeToHuobi(order.order_type),
     channel_code: process.env.BROKER_ID,
   };
 

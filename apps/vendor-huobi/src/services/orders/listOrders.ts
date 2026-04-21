@@ -1,5 +1,6 @@
 import { IOrder } from '@yuants/data-order';
 import { getSwapOpenOrders, ICredential } from '../../api/private-api';
+import { mapHuobiSwapOrderToOrderType } from './mapHuobiSwapOrderToOrderType';
 
 export const listSwapOrders = async (credential: ICredential): Promise<IOrder[]> => {
   const orders: IOrder[] = [];
@@ -17,17 +18,7 @@ export const listSwapOrders = async (credential: ICredential): Promise<IOrder[]>
         order_id: v.order_id_str,
         account_id: `huobi/swap`, // Placeholder, will be adjusted if needed
         product_id: v.contract_code,
-        order_type: ['lightning'].includes(v.order_price_type)
-          ? 'MARKET'
-          : ['limit', 'opponent', 'post_only', 'optimal_5', 'optimal_10', 'optimal_20'].includes(
-              v.order_price_type,
-            )
-          ? 'LIMIT'
-          : ['fok'].includes(v.order_price_type)
-          ? 'FOK'
-          : v.order_price_type.includes('ioc')
-          ? 'IOC'
-          : 'STOP', // unreachable code
+        order_type: mapHuobiSwapOrderToOrderType(v.order_price_type),
         order_direction:
           v.direction === 'open'
             ? v.offset === 'buy'
