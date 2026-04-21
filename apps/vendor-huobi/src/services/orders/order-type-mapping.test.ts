@@ -119,6 +119,50 @@ describe('submitOrder normal swap account order type mapping', () => {
     jest.clearAllMocks();
   });
 
+  test('uses market order_price_type for MARKET normal swap orders', async () => {
+    await submitOrder(credential, {
+      product_id,
+      order_type: 'MARKET',
+      order_direction: 'OPEN_LONG',
+      volume: 1,
+      price: 12345,
+    } as any);
+
+    expect(mockPostSwapOrder).toHaveBeenCalledWith(credential, {
+      contract_code: 'BTC-USDT',
+      contract_type: 'swap',
+      price: 12345,
+      volume: 1,
+      offset: 'open',
+      direction: 'buy',
+      lever_rate: 20,
+      order_price_type: 'market',
+      channel_code: 'broker-id',
+    });
+  });
+
+  test('uses limit order_price_type for LIMIT normal swap orders', async () => {
+    await submitOrder(credential, {
+      product_id,
+      order_type: 'LIMIT',
+      order_direction: 'OPEN_LONG',
+      volume: 1,
+      price: 12345,
+    } as any);
+
+    expect(mockPostSwapOrder).toHaveBeenCalledWith(credential, {
+      contract_code: 'BTC-USDT',
+      contract_type: 'swap',
+      price: 12345,
+      volume: 1,
+      offset: 'open',
+      direction: 'buy',
+      lever_rate: 20,
+      order_price_type: 'limit',
+      channel_code: 'broker-id',
+    });
+  });
+
   test('uses ioc order_price_type for IOC normal swap orders', async () => {
     await submitOrder(credential, {
       product_id,
