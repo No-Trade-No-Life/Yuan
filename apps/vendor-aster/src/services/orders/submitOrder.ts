@@ -21,15 +21,18 @@ const mapOrderTypeToAsterType = (order_type?: string) => {
 };
 
 const mapOrderTypeToTimeInForce = (order_type?: string) => {
-  return order_type === 'MAKER'
-    ? 'GTX'
-    : order_type === 'LIMIT'
-    ? 'GTC'
-    : order_type === 'IOC'
-    ? 'IOC'
-    : order_type === 'FOK'
-    ? 'FOK'
-    : undefined;
+  switch (order_type) {
+    case 'MAKER':
+      return 'GTX';
+    case 'LIMIT':
+      return 'GTC';
+    case 'IOC':
+      return 'IOC';
+    case 'FOK':
+      return 'FOK';
+    default:
+      return undefined;
+  }
 };
 
 const handleSubmitOrderOfSpot: IActionHandlerOfSubmitOrder<ICredential> = async (credential, order) => {
