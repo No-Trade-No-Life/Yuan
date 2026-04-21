@@ -29,6 +29,8 @@
 
 > 注：当 `USE_HTTP_PROXY=true` 时，Bitget/Gate/HTX/HyperLiquid/OKX 的限频维度按 proxy 出口 IP 计算。
 
+> 注：Binance 现货与统一账户的下单当前支持 `LIMIT`、`MARKET`、`MAKER`、`IOC`、`FOK`；其中 `IOC/FOK` 通过 `LIMIT + timeInForce` 实现。
+
 ## 行情数据接口
 
 | 交易所      | 品种类别    | 实时报价 | K 线数据 | 深度数据 | 利率数据 |

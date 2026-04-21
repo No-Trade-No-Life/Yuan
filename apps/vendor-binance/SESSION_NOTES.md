@@ -7,7 +7,7 @@
 ## 0. 元信息（Meta）
 
 - **项目名称**：@yuants/vendor-binance
-- **最近更新时间**：2026-03-25 16:40（修复 OHLC 缺失 requestContext）
+- **最近更新时间**：2026-04-21 17:14（补齐 IOC/FOK 下单与回读映射）
 - **当前状态标签**：重构中（credential 化 & 上下文治理）
 
 ---
@@ -100,6 +100,28 @@
 ## 6. 最近几轮工作记录（Recent Sessions）
 
 > 仅记录已结束的会话;进行中的内容放在第 11 节,收尾后再搬运;最新记录置顶。
+
+### 2026-04-21 — OpenCode
+
+- **本轮摘要**：
+  - 为 `apps/vendor-binance/src/services/orders/` 增加 `IOC/FOK` 支持，覆盖 `SPOT + USDT-FUTURE` 下单提交与订单回读映射。
+  - 在 `order-utils.ts` 中补齐 `order_type -> LIMIT/timeInForce` 映射，以及 `type + timeInForce -> order_type` 回读映射。
+  - `submitOrder.ts` 改为复用共享 `timeInForce` 映射；`listOrders.ts` 改为读取 `order.timeInForce`，统一识别 `MAKER/IOC/FOK`。
+  - 新增 `order-type-mapping.test.ts`，覆盖纯映射、submitOrder 参数构造、listOrders 回读。
+  - 同步更新 `docs/zh-Hans/vendor-supporting.md`，补充 Binance 支持的下单模式说明。
+- **修改的文件**：
+  - `apps/vendor-binance/src/services/orders/order-utils.ts`
+  - `apps/vendor-binance/src/services/orders/submitOrder.ts`
+  - `apps/vendor-binance/src/services/orders/listOrders.ts`
+  - `apps/vendor-binance/src/services/orders/order-type-mapping.test.ts`
+  - `apps/vendor-binance/SESSION_NOTES.md`
+  - `docs/zh-Hans/vendor-supporting.md`
+- **运行的测试 / 检查**：
+  - `./node_modules/typescript/bin/tsc --noEmit --project tsconfig.json`（workdir: `apps/vendor-binance`，Passed）
+  - `./node_modules/.bin/heft test --clean --max-workers 1`（workdir: `apps/vendor-binance`，Passed，8 tests）
+  - `rush build --to @yuants/vendor-binance`（workdir: repo root，Failed：被 `@yuants/http-services` 现有 integration tests 阻塞，错误为 `Host did not start on port 56764 within 10000ms`；`@yuants/vendor-binance` 本身因此被 blocked）
+- **备注**：
+  - 本轮未扩展 `modifyOrder.ts`；该边界已在 design/spec 中明确排除。
 
 ### 2026-03-25 — OpenCode
 

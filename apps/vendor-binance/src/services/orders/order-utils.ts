@@ -75,6 +75,8 @@ export const mapOrderTypeToOrdType = (order_type?: IOrder['order_type']) => {
   switch (order_type) {
     case 'LIMIT':
     case 'MAKER':
+    case 'IOC':
+    case 'FOK':
       return 'LIMIT';
     case 'MARKET':
       return 'MARKET';
@@ -83,10 +85,39 @@ export const mapOrderTypeToOrdType = (order_type?: IOrder['order_type']) => {
   }
 };
 
-export const mapBinanceOrderTypeToYuants = (binanceType?: string): IOrder['order_type'] => {
+export const mapOrderTypeToTimeInForce = (order_type?: IOrder['order_type']) => {
+  switch (order_type) {
+    case 'LIMIT':
+      return 'GTC';
+    case 'MAKER':
+      return 'GTX';
+    case 'IOC':
+      return 'IOC';
+    case 'FOK':
+      return 'FOK';
+    case 'MARKET':
+      return undefined;
+    default:
+      throw new Error(`Unsupported order_type: ${order_type}`);
+  }
+};
+
+export const mapBinanceOrderTypeToYuants = (
+  binanceType?: string,
+  timeInForce?: string,
+): IOrder['order_type'] => {
   switch (binanceType) {
     case 'LIMIT':
-      return 'LIMIT';
+      switch (timeInForce) {
+        case 'GTX':
+          return 'MAKER';
+        case 'IOC':
+          return 'IOC';
+        case 'FOK':
+          return 'FOK';
+        default:
+          return 'LIMIT';
+      }
     case 'MARKET':
       return 'MARKET';
     default:
