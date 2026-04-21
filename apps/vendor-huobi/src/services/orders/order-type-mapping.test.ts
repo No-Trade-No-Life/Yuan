@@ -19,10 +19,12 @@ describe('Huobi swap order type mappings', () => {
 
 describe('mapHuobiSwapOrderToOrderType', () => {
   test('maps Huobi order_price_type values back to Yuan order types', () => {
+    expect(mapHuobiSwapOrderToOrderType('market')).toBe('MARKET');
     expect(mapHuobiSwapOrderToOrderType('lightning')).toBe('MARKET');
     expect(mapHuobiSwapOrderToOrderType('limit')).toBe('LIMIT');
     expect(mapHuobiSwapOrderToOrderType('ioc')).toBe('IOC');
     expect(mapHuobiSwapOrderToOrderType('optimal_20_ioc')).toBe('IOC');
     expect(mapHuobiSwapOrderToOrderType('fok')).toBe('FOK');
+    expect(mapHuobiSwapOrderToOrderType('post_only')).toBe('LIMIT');
   });
 });
