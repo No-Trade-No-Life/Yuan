@@ -2,12 +2,16 @@ import { mapSwapOrderTypeToHuobi, mapUnionSwapOrderTypeToHuobi } from './mapSwap
 import { mapHuobiSwapOrderToOrderType } from './mapHuobiSwapOrderToOrderType';
 
 describe('Huobi swap order type mappings', () => {
-  test('maps IOC and FOK for normal swap accounts', () => {
+  test('maps MARKET LIMIT IOC and FOK for normal swap accounts', () => {
+    expect(mapSwapOrderTypeToHuobi('MARKET')).toEqual({ order_price_type: 'market' });
+    expect(mapSwapOrderTypeToHuobi('LIMIT')).toEqual({ order_price_type: 'limit' });
     expect(mapSwapOrderTypeToHuobi('IOC')).toEqual({ order_price_type: 'ioc' });
     expect(mapSwapOrderTypeToHuobi('FOK')).toEqual({ order_price_type: 'fok' });
   });
 
-  test('maps IOC and FOK for unified swap accounts', () => {
+  test('maps MARKET LIMIT IOC and FOK for unified swap accounts', () => {
+    expect(mapUnionSwapOrderTypeToHuobi('MARKET')).toEqual({ type: 'market', time_in_force: undefined });
+    expect(mapUnionSwapOrderTypeToHuobi('LIMIT')).toEqual({ type: 'limit', time_in_force: undefined });
     expect(mapUnionSwapOrderTypeToHuobi('IOC')).toEqual({ type: 'limit', time_in_force: 'ioc' });
     expect(mapUnionSwapOrderTypeToHuobi('FOK')).toEqual({ type: 'limit', time_in_force: 'fok' });
   });
