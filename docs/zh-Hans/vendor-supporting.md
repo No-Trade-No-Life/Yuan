@@ -29,6 +29,8 @@
 
 > 注：当 `USE_HTTP_PROXY=true` 时，Bitget/Gate/HTX/HyperLiquid/OKX 的限频维度按 proxy 出口 IP 计算。
 
+> 注：Aster 现货与永续的下单当前支持 `LIMIT`、`MARKET`、`MAKER`、`IOC`、`FOK`；其中 `IOC/FOK` 通过 `LIMIT + timeInForce` 实现。
+
 > 注：Binance 现货与统一账户的下单当前支持 `LIMIT`、`MARKET`、`MAKER`、`IOC`、`FOK`；其中 `IOC/FOK` 通过 `LIMIT + timeInForce` 实现。
 
 > 注：HTX 合约账户下单当前支持 `LIMIT`、`MARKET`、`IOC`、`FOK`；其中统一账户的 `IOC/FOK` 通过 `type='limit' + time_in_force` 实现。

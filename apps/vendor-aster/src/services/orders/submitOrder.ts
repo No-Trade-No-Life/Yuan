@@ -14,6 +14,27 @@ const parseProductId = (productId?: string) => {
   return { category: undefined, symbol: parts[0] };
 };
 
+const mapOrderTypeToAsterType = (order_type?: string) => {
+  return ({ MARKET: 'MARKET', LIMIT: 'LIMIT', MAKER: 'LIMIT', IOC: 'LIMIT', FOK: 'LIMIT' } as const)[
+    order_type!
+  ];
+};
+
+const mapOrderTypeToTimeInForce = (order_type?: string) => {
+  switch (order_type) {
+    case 'MAKER':
+      return 'GTX';
+    case 'LIMIT':
+      return 'GTC';
+    case 'IOC':
+      return 'IOC';
+    case 'FOK':
+      return 'FOK';
+    default:
+      return undefined;
+  }
+};
+
 const handleSubmitOrderOfSpot: IActionHandlerOfSubmitOrder<ICredential> = async (credential, order) => {
   const { symbol } = parseProductId(order.product_id);
   const resolvedSymbol = symbol ?? order.product_id;
@@ -21,7 +42,7 @@ const handleSubmitOrderOfSpot: IActionHandlerOfSubmitOrder<ICredential> = async 
     throw new Error(`Invalid product_id: unable to resolve spot symbol from "${order.product_id}"`);
   }
 
-  const type = ({ MARKET: 'MARKET', LIMIT: 'LIMIT', MAKER: 'LIMIT' } as const)[order.order_type!];
+  const type = mapOrderTypeToAsterType(order.order_type);
   if (!type) throw new Error(`Unsupported order_type: ${order.order_type}`);
 
   const side = ({ OPEN_LONG: 'BUY', OPEN_SHORT: 'SELL', CLOSE_LONG: 'SELL', CLOSE_SHORT: 'BUY' } as const)[
@@ -29,7 +50,7 @@ const handleSubmitOrderOfSpot: IActionHandlerOfSubmitOrder<ICredential> = async 
   ];
   if (!side) throw new Error(`Unsupported order_direction: ${order.order_direction}`);
 
-  const timeInForce = order.order_type === 'MAKER' ? 'GTX' : order.order_type === 'LIMIT' ? 'GTC' : undefined;
+  const timeInForce = mapOrderTypeToTimeInForce(order.order_type);
 
   const price = order.price;
 
@@ -74,7 +95,7 @@ const handleSubmitOrderOfPerp: IActionHandlerOfSubmitOrder<ICredential> = async 
   ];
   if (!side) throw new Error(`Unsupported order_direction: ${order.order_direction}`);
 
-  const type = ({ MARKET: 'MARKET', LIMIT: 'LIMIT', MAKER: 'LIMIT' } as const)[order.order_type!];
+  const type = mapOrderTypeToAsterType(order.order_type);
   if (!type) throw new Error(`Unsupported order_type: ${order.order_type}`);
 
   const quantity = order.volume;
@@ -93,7 +114,7 @@ const handleSubmitOrderOfPerp: IActionHandlerOfSubmitOrder<ICredential> = async 
   const reduceOnly =
     order.order_direction === 'CLOSE_LONG' || order.order_direction === 'CLOSE_SHORT' ? 'true' : undefined;
 
-  const timeInForce = order.order_type === 'MAKER' ? 'GTX' : order.order_type === 'LIMIT' ? 'GTC' : undefined;
+  const timeInForce = mapOrderTypeToTimeInForce(order.order_type);
 
   //
   const res = await postFApiV1Order(credential, {
