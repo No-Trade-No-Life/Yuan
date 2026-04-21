@@ -105,7 +105,7 @@ describe('listOrders order type mapping', () => {
     getFuturesOrders.mockClear();
   });
 
-  test('reads back order_type from Gate tif and price', async () => {
+  test('adds order_type without changing representative listOrders fields', async () => {
     getFuturesOrders.mockResolvedValueOnce([
       {
         id: 'market-order',
@@ -122,22 +122,22 @@ describe('listOrders order type mapping', () => {
       {
         id: 'ioc-order',
         contract: 'GATE/FUTURE/BTC_USDT',
-        size: 1,
-        left: 1,
+        size: -2,
+        left: -1,
         price: '12345',
-        fill_price: '0',
+        fill_price: '12340',
         tif: 'ioc',
-        is_close: false,
+        is_close: true,
         create_time: 2,
         status: 'open',
       },
       {
         id: 'fok-order',
         contract: 'GATE/FUTURE/BTC_USDT',
-        size: 1,
-        left: 1,
+        size: 3,
+        left: 0,
         price: '12345',
-        fill_price: '0',
+        fill_price: '12346',
         tif: 'fok',
         is_close: false,
         create_time: 3,
@@ -147,6 +147,31 @@ describe('listOrders order type mapping', () => {
 
     const orders = await listOrders({} as never);
 
-    expect(orders.map((order) => order.order_type)).toEqual(['MARKET', 'IOC', 'FOK']);
+    expect(orders).toEqual([
+      expect.objectContaining({
+        order_id: 'market-order',
+        order_direction: 'OPEN_LONG',
+        price: 0,
+        traded_volume: 0,
+        submit_at: 1000,
+        order_type: 'MARKET',
+      }),
+      expect.objectContaining({
+        order_id: 'ioc-order',
+        order_direction: 'CLOSE_LONG',
+        price: 12345,
+        traded_volume: 1,
+        submit_at: 2000,
+        order_type: 'IOC',
+      }),
+      expect.objectContaining({
+        order_id: 'fok-order',
+        order_direction: 'OPEN_LONG',
+        price: 12345,
+        traded_volume: 3,
+        submit_at: 3000,
+        order_type: 'FOK',
+      }),
+    ]);
   });
 });

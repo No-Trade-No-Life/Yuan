@@ -171,6 +171,7 @@ export const getFuturesOrders = (
     create_time: number;
     size: number;
     price: string;
+    tif?: string;
     is_close: boolean;
     fill_price: string;
     left?: number;
