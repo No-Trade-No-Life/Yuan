@@ -14,4 +14,9 @@ describe('mapGateOrderToOrderType', () => {
     expect(mapGateOrderToOrderType({ tif: 'ioc', price: '12345' })).toBe('IOC');
     expect(mapGateOrderToOrderType({ tif: 'fok', price: '12345' })).toBe('FOK');
   });
+
+  test('returns undefined when Gate tif cannot be mapped reliably', () => {
+    expect(mapGateOrderToOrderType({ tif: 'gtc', price: '12345' })).toBeUndefined();
+    expect(mapGateOrderToOrderType({ tif: 'poc', price: '12345' })).toBeUndefined();
+  });
 });
