@@ -148,30 +148,45 @@ describe('listOrders order type mapping', () => {
     const orders = await listOrders({} as never);
 
     expect(orders).toEqual([
-      expect.objectContaining({
+      {
         order_id: 'market-order',
+        account_id: '',
+        product_id: 'GATE/FUTURE/BTC_USDT',
         order_direction: 'OPEN_LONG',
+        volume: 1,
         price: 0,
+        traded_price: 0,
+        order_status: 'open',
         traded_volume: 0,
         submit_at: 1000,
         order_type: 'MARKET',
-      }),
-      expect.objectContaining({
+      },
+      {
         order_id: 'ioc-order',
+        account_id: '',
+        product_id: 'GATE/FUTURE/BTC_USDT',
         order_direction: 'CLOSE_LONG',
+        volume: 2,
         price: 12345,
+        traded_price: 12340,
+        order_status: 'open',
         traded_volume: 1,
         submit_at: 2000,
         order_type: 'IOC',
-      }),
-      expect.objectContaining({
+      },
+      {
         order_id: 'fok-order',
+        account_id: '',
+        product_id: 'GATE/FUTURE/BTC_USDT',
         order_direction: 'OPEN_LONG',
+        volume: 3,
         price: 12345,
+        traded_price: 12346,
+        order_status: 'open',
         traded_volume: 3,
         submit_at: 3000,
         order_type: 'FOK',
-      }),
+      },
     ]);
   });
 });
