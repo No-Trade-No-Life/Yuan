@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-gate
 
-This log was last generated on Sat, 28 Mar 2026 13:11:47 GMT and should not be manually modified.
+This log was last generated on Tue, 21 Apr 2026 10:44:20 GMT and should not be manually modified.
+
+## 0.9.13
+Tue, 21 Apr 2026 10:44:20 GMT
+
+### Patches
+
+- Add IOC/FOK order type support for Gate submit flow and listOrders readback mapping.
 
 ## 0.9.12
 Sat, 28 Mar 2026 13:11:47 GMT
