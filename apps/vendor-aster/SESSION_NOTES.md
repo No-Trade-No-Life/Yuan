@@ -7,7 +7,7 @@
 ## 0. 元信息（Meta）
 
 - **项目名称**：@yuants/vendor-aster
-- **最近更新时间**：2025-11-19 01:15（由 GitHub Copilot 扩展 Spot Submit/Cancel 能力并更新文档）
+- **最近更新时间**：2026-04-21 16:45（由 OpenCode 补齐 Aster IOC/FOK 下单与回读语义）
 - **当前状态标签**：实现中（services 重写完成，待验证与补文档）
 
 ---
@@ -113,6 +113,23 @@
 ---
 
 ## 6. 最近几轮工作记录（Recent Sessions）
+
+### 2026-04-21 — OpenCode
+
+- **本轮摘要**：
+  - Aster Spot/Perp 的 `submitOrder` 补齐 `IOC/FOK -> LIMIT + timeInForce` 映射，保持 `LIMIT/MARKET/MAKER` 既有语义不变。
+  - `listOrders` 回读改为基于 `type + timeInForce` 还原 `LIMIT/MAKER/IOC/FOK/MARKET`，避免 `LIMIT + IOC/FOK/GTX` 被误判成普通 `LIMIT`。
+  - 新增 `src/services/orders/order-type-mapping.test.ts`，覆盖 Spot/Perp 提交参数和回读映射。
+- **修改的文件**：
+  - `apps/vendor-aster/src/services/orders/submitOrder.ts`
+  - `apps/vendor-aster/src/services/orders/listOrders.ts`
+  - `apps/vendor-aster/src/services/orders/order-type-mapping.test.ts`
+  - `apps/vendor-aster/SESSION_NOTES.md`
+  - `docs/zh-Hans/vendor-supporting.md`
+- **运行的测试 / 检查**：
+  - `node ./node_modules/@rushstack/heft/lib/start.js test --clean --test-path-pattern lib/services/orders/order-type-mapping.test.js`（通过，6 tests passed）
+  - `node ../../common/temp/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/bin/tsc --noEmit --project tsconfig.json`（通过）
+  - `rush build --to @yuants/vendor-aster`（阻塞：`@yuants/http-services` 现有 5 个 integration tests 启动 host 超时，非本次改动引入）
 
 ### 2026-02-05 — OpenCode
 
