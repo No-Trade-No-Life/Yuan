@@ -1,6 +1,13 @@
 import { IPosition } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
-import { cancelOrder, getOrders, getPositions, modifyOrder, submitOrder } from '@yuants/exchange';
+import {
+  cancelOrder,
+  getOrders,
+  getPositions,
+  modifyOrder,
+  submitOrder,
+  getOrderByOrderId,
+} from '@yuants/exchange';
 import { Terminal } from '@yuants/protocol';
 import { getCredentialBySecretId } from './credential';
 import { polyfillOrders, polyfillPosition } from './position';
@@ -107,6 +114,24 @@ terminal.server.provideService<{ order: IOrder; secret_id: string }, void>(
     const credential = await getCredentialBySecretId(msg.req.secret_id);
     const [order] = await polyfillOrders([msg.req.order]);
     const res = await cancelOrder(terminal, credential.credential, order);
+    return { res };
+  },
+);
+
+// GetOrderDetail
+terminal.server.provideService<{ params: Record<string, unknown>; secret_id: string }, void>(
+  'VEX/GetOrderByOrderId',
+  {
+    type: 'object',
+    required: ['params', 'secret_id'],
+    properties: {
+      params: { type: 'object' },
+      secret_id: { type: 'string' },
+    },
+  },
+  async (msg) => {
+    const credential = await getCredentialBySecretId(msg.req.secret_id);
+    const res = await getOrderByOrderId(terminal, credential.credential, msg.req.params);
     return { res };
   },
 );

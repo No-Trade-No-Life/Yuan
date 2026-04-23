@@ -8,6 +8,7 @@ import { submitOrder } from '../orders/submitOrder';
 import { getOrders } from './getOrders';
 import { getPositions } from './getPositions';
 import { listProducts } from './product';
+import { getTradeOrderDetail } from './getOrderDetail';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -38,6 +39,14 @@ provideExchangeServices<ICredential>(terminal, {
   getOrdersByProductId: async (credential, product_id) => {
     const orders = await getOrders(credential);
     return orders.filter((x) => x.product_id === product_id);
+  },
+  getOrderByOrderId: async (credential, params) => {
+    const { product_id, order_id } = params as { product_id: string; order_id: string };
+    if (!product_id || !order_id) {
+      throw newError('OKX_GET_ORDER_BY_ID_MISSING_PARAMS', { params });
+    }
+    const order = await getTradeOrderDetail(credential, product_id, order_id);
+    return order;
   },
   submitOrder: submitOrder,
   modifyOrder: modifyOrder,
