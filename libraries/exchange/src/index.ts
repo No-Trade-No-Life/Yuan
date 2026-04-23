@@ -93,7 +93,7 @@ export interface IExchange<T = any> {
 
   /**
    * Get an order by its ID
-   * @param credential
+   * @param credential - The credential object
    * @param params - The parameters to identify the order, e.g. { product_id: string, order_id: string }
    */
   getOrderByOrderId?(credential: T, params: Record<string, unknown>): Promise<any>;
