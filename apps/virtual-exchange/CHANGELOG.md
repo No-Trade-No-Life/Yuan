@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-virtual-exchange
 
-This log was last generated on Wed, 18 Mar 2026 16:27:24 GMT and should not be manually modified.
+This log was last generated on Fri, 24 Apr 2026 13:23:25 GMT and should not be manually modified.
+
+## 0.19.10
+Fri, 24 Apr 2026 13:23:25 GMT
+
+### Patches
+
+- add get order detail by id
 
 ## 0.19.9
 Wed, 18 Mar 2026 16:27:24 GMT
