@@ -30,6 +30,12 @@ export const getCredentialId: <T>(terminal: Terminal, credential: {
 }) => Promise<IResponse<string>>;
 
 // @public
+export const getOrderByOrderId: <T>(terminal: Terminal, credential: {
+    type: string;
+    payload: T;
+}, params: Record<string, unknown>) => Promise<IResponse<void>>;
+
+// @public
 export const getOrders: <T>(terminal: Terminal, credential: {
     type: string;
     payload: T;
@@ -46,6 +52,7 @@ export interface IExchange<T = any> {
     cancelOrder(credential: T, order: IOrder): Promise<void>;
     credentialSchema: JSONSchema7;
     getCredentialId(credential: T): Promise<string>;
+    getOrderByOrderId?(credential: T, params: Record<string, unknown>): Promise<any>;
     getOrders(credential: T): Promise<IOrder[]>;
     getOrdersByProductId(credential: T, product_id: string): Promise<IOrder[]>;
     getPositions(credential: T): Promise<IPosition[]>;

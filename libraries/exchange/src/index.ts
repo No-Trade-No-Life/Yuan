@@ -90,6 +90,13 @@ export interface IExchange<T = any> {
    * @param order - The order object
    */
   cancelOrder(credential: T, order: IOrder): Promise<void>;
+
+  /**
+   * Get an order by its ID
+   * @param credential - The credential object
+   * @param params - The parameters to identify the order
+   */
+  getOrderByOrderId?(credential: T, params: Record<string, unknown>): Promise<any>;
 }
 
 const makeCredentialSchema = (type: string, payloadSchema: JSONSchema7): JSONSchema7 => {
@@ -244,6 +251,30 @@ export const provideExchangeServices = <T>(terminal: Terminal, exchange: IExchan
       return { res: { code: 0, message: 'OK' } };
     },
   );
+
+  terminal.server.provideService<
+    { credential: { type: string; payload: T }; params: Record<string, unknown> },
+    any
+  >(
+    'GetOrderByOrderId',
+    {
+      type: 'object',
+      required: ['credential', 'params'],
+      properties: {
+        credential: makeCredentialSchema(type, credentialSchema),
+        params: {
+          type: 'object',
+        },
+      },
+    },
+    async (msg) => {
+      if (!exchange.getOrderByOrderId) {
+        return { res: { code: 1, message: 'GetOrderByOrderId not implemented' } };
+      }
+      const order = await exchange.getOrderByOrderId(msg.req.credential.payload, msg.req.params);
+      return { res: { code: 0, message: 'OK', data: order } };
+    },
+  );
 };
 
 /**
@@ -330,4 +361,17 @@ export const cancelOrder = async <T>(
   order: IOrder,
 ): Promise<IResponse<void>> => {
   return terminal.client.requestForResponse('CancelOrder', { credential, order });
+};
+
+/**
+ * Get order by order ID
+ *
+ * @public
+ */
+export const getOrderByOrderId = async <T>(
+  terminal: Terminal,
+  credential: { type: string; payload: T },
+  params: Record<string, unknown>,
+): Promise<IResponse<void>> => {
+  return terminal.client.requestForResponse('GetOrderByOrderId', { credential, params });
 };

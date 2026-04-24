@@ -1629,3 +1629,87 @@ type AccountBillType =
   | '34'
   | '250'
   | '251';
+
+/**
+ * GET / 获取订单信息
+ *
+ *
+ * 限速：60次/2s
+ *
+ * 跟单交易带单产品的限速：4次/2s
+ *
+ * 限速规则（期权以外）：UserID + Instrument ID
+ *
+ * 限速规则（只限期权）：UserID + Instrument Family
+ *
+ * https://www.okx.com/docs-v5/zh/#order-book-trading-trade-get-order-details
+ */
+export function getTradeOrder(
+  credential: ICredential,
+  params: {
+    instId: string;
+    ordId?: string;
+    clOrdId?: string;
+  },
+): Promise<{
+  code: string;
+  msg: string;
+  data: {
+    accFillSz: string;
+    algoClOrdId: string;
+    algoId: string;
+    attachAlgoClOrdId: string;
+    attachAlgoOrds: any[];
+    avgPx: string;
+    cTime: string;
+    cancelSource: string;
+    cancelSourceReason: string;
+    category: string;
+    ccy: string;
+    clOrdId: string;
+    fee: string;
+    feeCcy: string;
+    fillPx: string;
+    fillSz: string;
+    fillTime: string;
+    instId: string;
+    instType: string;
+    isTpLimit: string;
+    lever: string;
+    linkedAlgoOrd: {
+      algoId: string;
+    };
+    ordId: string;
+    ordType: string;
+    pnl: string;
+    posSide: string;
+    px: string;
+    pxType: string;
+    pxUsd: string;
+    pxVol: string;
+    quickMgnType: string;
+    rebate: string;
+    rebateCcy: string;
+    reduceOnly: string;
+    side: string;
+    slOrdPx: string;
+    slTriggerPx: string;
+    slTriggerPxType: string;
+    source: string;
+    state: string;
+    stpId: string;
+    stpMode: string;
+    sz: string;
+    tag: string;
+    tdMode: string;
+    tgtCcy: string;
+    tpOrdPx: string;
+    tpTriggerPx: string;
+    tpTriggerPxType: string;
+    tradeId: string;
+    tradeQuoteCcy: string;
+    uTime: string;
+  }[];
+}> {
+  return request(credential, 'GET', '/api/v5/trade/order', params);
+}
