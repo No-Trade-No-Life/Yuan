@@ -1,6 +1,13 @@
 # Change Log - @yuants/exchange
 
-This log was last generated on Wed, 18 Mar 2026 16:27:24 GMT and should not be manually modified.
+This log was last generated on Sat, 25 Apr 2026 18:14:03 GMT and should not be manually modified.
+
+## 0.8.24
+Sat, 25 Apr 2026 18:14:03 GMT
+
+### Patches
+
+- 1
 
 ## 0.8.23
 Wed, 18 Mar 2026 16:27:24 GMT
