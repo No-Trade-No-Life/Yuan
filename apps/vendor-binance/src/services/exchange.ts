@@ -10,6 +10,9 @@ import { cancelOrder } from './orders/cancelOrder';
 import { getOrdersByProductId, listSpotOrders, listUnifiedUmOrders } from './orders/listOrders';
 import { modifyOrder } from './orders/modifyOrder';
 import { submitOrder } from './orders/submitOrder';
+import { newError } from '@yuants/utils/lib/error';
+import { getTradeOrderDetail } from './orders/getOrderDetail';
+import { decodePath } from '@yuants/utils/lib/path';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -44,4 +47,13 @@ provideExchangeServices<ICredential>(terminal, {
   submitOrder,
   modifyOrder,
   cancelOrder,
+  getOrderByOrderId: async (credential, params) => {
+    const { product_id, order_id } = params as { product_id: string; order_id: number };
+    if (!product_id || !order_id) {
+      throw newError('BINANCE_GET_ORDER_BY_ID_MISSING_PARAMS', { params });
+    }
+    const [_, __, symbol] = decodePath(product_id); // BINANCE/USDT-FUTURES/BTCUSDT
+    const order = await getTradeOrderDetail(credential, symbol, order_id);
+    return order;
+  },
 });

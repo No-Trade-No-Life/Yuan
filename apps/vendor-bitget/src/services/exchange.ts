@@ -2,7 +2,7 @@ import { IPosition } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { provideExchangeServices } from '@yuants/exchange';
 import { Terminal } from '@yuants/protocol';
-import { decodePath } from '@yuants/utils';
+import { decodePath, newError } from '@yuants/utils';
 import { ICredential } from '../api/types';
 import { resolveAccountProfile } from './accounts/profile';
 import { getAccountInfo } from './accounts/account';
@@ -11,6 +11,7 @@ import { cancelOrder } from './orders/cancelOrder';
 import { listFuturesOrders, listSpotOrders } from './orders/listOrders';
 import { modifyOrder } from './orders/modifyOrder';
 import { submitOrder } from './orders/submitOrder';
+import { getTradeOrderDetail } from './orders/getOrderDetail';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -65,4 +66,12 @@ provideExchangeServices<ICredential>(terminal, {
   submitOrder,
   modifyOrder,
   cancelOrder,
+  getOrderByOrderId: async (credential, params) => {
+    const { order_id } = params as { order_id: string };
+    if (!order_id) {
+      throw newError('BITGET_GET_ORDER_BY_ID_MISSING_PARAMS', { params });
+    }
+    const order = await getTradeOrderDetail(credential, order_id);
+    return order;
+  },
 });

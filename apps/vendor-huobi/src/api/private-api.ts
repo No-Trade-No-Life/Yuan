@@ -1089,3 +1089,65 @@ export const getAccountBills = (
 }> => {
   return linearSwapPrivateQueryRequest(credential, 'GET', '/v5/account/bills', params);
 };
+
+/**
+ * 查询订单信息
+ *
+ * https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb89359-77b5-11ed-9966-196a35af40e
+ *
+ *
+ */
+export const getTradeOrderDetailById = (
+  credential: ICredential,
+  params: {
+    contract_code: string;
+    order_id?: string;
+    client_order_id?: string;
+    margin_mode?: string;
+  },
+): Promise<{
+  code: number;
+  message: string;
+  data: {
+    id: string;
+    side: string;
+    type: string;
+    price: string;
+    volume: string;
+    state: string;
+    profit: null;
+    contract_code: string;
+    position_side: string;
+    price_match: null;
+    order_id: string;
+    client_order_id: string;
+    margin_mode: string;
+    lever_rate: number;
+    order_source: string;
+    reduce_only: boolean;
+    time_in_force: string;
+    tp_trigger_price: string;
+    tp_order_price: string;
+    tp_type: string;
+    tp_trigger_price_type: string;
+    sl_trigger_price: string;
+    sl_order_price: string;
+    sl_type: string;
+    sl_trigger_price_type: string;
+    trade_avg_price: string;
+    trade_volume: string;
+    trade_turnover: string;
+    fee_currency: string;
+    fee: string;
+    price_protect: boolean;
+    real_profit: null;
+    contract_type: string;
+    created_time: string;
+    updated_time: string;
+    cancel_reason: null;
+    self_match_prevent: string;
+  };
+  ts: number;
+}> => {
+  return linearSwapPrivateQueryRequest(credential, 'GET', '/v5/trade/order', params);
+};

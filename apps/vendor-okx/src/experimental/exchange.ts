@@ -1,6 +1,6 @@
 import { provideExchangeServices } from '@yuants/exchange';
 import { Terminal } from '@yuants/protocol';
-import { encodePath, newError } from '@yuants/utils';
+import { decodePath, encodePath, newError } from '@yuants/utils';
 import { getAccountConfig, ICredential } from '../api/private-api';
 import { cancelOrder } from '../orders/cancelOrder';
 import { modifyOrder } from '../orders/modifyOrder';
@@ -45,7 +45,8 @@ provideExchangeServices<ICredential>(terminal, {
     if (!product_id || !order_id) {
       throw newError('OKX_GET_ORDER_BY_ID_MISSING_PARAMS', { params });
     }
-    const order = await getTradeOrderDetail(credential, product_id, order_id);
+    const [_, __, instId] = decodePath(product_id);
+    const order = await getTradeOrderDetail(credential, instId, order_id);
     return order;
   },
   submitOrder: submitOrder,

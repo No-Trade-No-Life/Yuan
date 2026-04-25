@@ -10,6 +10,9 @@ import { listProducts } from './markets/product';
 import { cancelOrder } from './orders/cancelOrder';
 import { getOrdersByProductId, listOrders } from './orders/listOrders';
 import { submitOrder } from './orders/submitOrder';
+import { newError } from '@yuants/utils/lib/error';
+import { decodePath } from '@yuants/utils/lib/path';
+import { getTradeOrderDetail } from './orders/getOrderDetail';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -55,4 +58,12 @@ provideExchangeServices<ICredential>(terminal, {
     throw new Error('Not implemented');
   },
   cancelOrder,
+  getOrderByOrderId: async (credential, params) => {
+    const { order_id } = params as { order_id: string };
+    if (!order_id) {
+      throw newError('GATE_GET_ORDER_BY_ID_MISSING_PARAMS', { params });
+    }
+    const order = await getTradeOrderDetail(credential, order_id);
+    return order;
+  },
 });

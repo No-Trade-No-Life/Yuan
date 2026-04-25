@@ -1262,3 +1262,58 @@ export const getUmPositionInformation = async (
     | IApiError
   >(credential, 'GET', endpoint, params, requestContext);
 };
+
+/**
+ * 查询UM订单(USER_DATA)
+
+ * @param credential
+ *https://developers.binance.com/docs/zh-CN/derivatives/portfolio-margin/trade/Query-UM-Order
+ * @param params
+ * @returns
+ */
+export const getTradeOrderDetailById = async (
+  credential: ICredential,
+  params: {
+    symbol: string;
+    orderId?: number;
+    origClientOrderId?: string;
+    timestamp: number;
+    recvWindow?: number;
+  },
+) => {
+  const endpoint = 'https://papi.binance.com/papi/v1/um/order';
+  const url = new URL(endpoint);
+  const weight = 1;
+  const requestContext = await createRequestContext(url.host, weight);
+  const bucketKey = requestContext.bucketKey;
+  scopeError(
+    'BINANCE_API_RATE_LIMIT',
+    { method: 'GET', endpoint, host: url.host, path: url.pathname, bucketId: bucketKey, weight },
+    () => tokenBucket(bucketKey, getTokenBucketOptions(url.host)).acquireSync(requestContext.acquireWeight),
+  );
+  return requestPrivate<
+    | {
+        avgPrice: string;
+        clientOrderId: string;
+        cumQuote: string;
+        executedQty: string;
+        orderId: number;
+        origQty: string;
+        origType: string;
+        price: string;
+        reduceOnly: boolean;
+        side: string;
+        positionSide: string;
+        status: string;
+        symbol: string;
+        time: number;
+        timeInForce: string;
+        type: string;
+        updateTime: number;
+        selfTradePreventionMode: string;
+        goodTillDate: number;
+        priceMatch: string;
+      }
+    | IApiError
+  >(credential, 'GET', endpoint, params, requestContext);
+};

@@ -535,3 +535,44 @@ export const getFutureAccountsTrades = (
     close_size: string;
   }[]
 > => callPrivate(credential, 'GET', `/futures/${params.settle}/my_trades_timerange`, params);
+
+/**
+ * 查询单个订单详情
+ *
+ * https://www.gate.com/docs/developers/apiv4/zh_CN/#%E6%9F%A5%E8%AF%A2%E5%8D%95%E4%B8%AA%E8%AE%A2%E5%8D%95%E8%AF%A6%E6%83%85-2
+ */
+export const getTradeOrderDetailById = (
+  credential: ICredential,
+  params: {
+    settle: string;
+    order_id: string;
+  },
+): Promise<{
+  id: number;
+  user: number;
+  contract: string;
+  create_time: number;
+  size: string;
+  iceberg: string;
+  left: string;
+  price: string;
+  fill_price: string;
+  mkfr: string;
+  tkfr: string;
+  tif: string;
+  refu: number;
+  is_reduce_only: boolean;
+  is_close: boolean;
+  is_liq: boolean;
+  text: string;
+  status: string;
+  finish_time: number;
+  finish_as: string;
+  stp_id: number;
+  stp_act: string;
+  amend_text: string;
+  order_value: string;
+  trade_value: string;
+  market_order_slip_ratio: string;
+  pos_margin_mode: string;
+}> => callPrivate(credential, 'GET', `/futures/${params.settle}/orders/${params.order_id}`, params);

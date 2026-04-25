@@ -10,6 +10,7 @@ import { listSwapOrders } from './orders/listOrders';
 import { submitOrder } from './orders/submitOrder';
 import { listProducts } from './product';
 import { createCache } from '@yuants/cache';
+import { getTradeOrderDetail } from './orders/getOrderDetail';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -99,5 +100,14 @@ provideExchangeServices<ICredential>(terminal, {
       return orders.filter((order) => order.product_id === product_id);
     }
     throw newError('UnsupportedProductId', { product_id });
+  },
+  getOrderByOrderId: async (credential, params) => {
+    const { product_id, order_id } = params as { product_id: string; order_id: string };
+    if (!product_id || !order_id) {
+      throw newError('HUOBI_GET_ORDER_BY_ID_MISSING_PARAMS', { params });
+    }
+    const [_, __, contract_code] = decodePath(product_id);
+    const order = await getTradeOrderDetail(credential, contract_code, order_id);
+    return order;
   },
 });

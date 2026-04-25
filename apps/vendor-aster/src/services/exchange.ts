@@ -2,7 +2,7 @@ import { IPosition } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { provideExchangeServices } from '@yuants/exchange';
 import { Terminal } from '@yuants/protocol';
-import { decodePath } from '@yuants/utils';
+import { decodePath, newError } from '@yuants/utils';
 import { listProducts } from './markets/product';
 import { getCredentialId } from './accounts/profile';
 import { getPositions } from './accounts/spot';
@@ -10,6 +10,7 @@ import { listOrders, listPrepOrders, listSpotOrders } from './orders/listOrders'
 import { handleSubmitOrder } from './orders/submitOrder';
 import { ICredential } from '../api/private-api';
 import { handleCancelOrder } from './orders/cancelOrder';
+import { getTradeOrderDetail } from './orders/getOrderDetail';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -53,4 +54,13 @@ provideExchangeServices<ICredential>(terminal, {
     throw new Error('Not implemented');
   },
   cancelOrder: handleCancelOrder,
+  getOrderByOrderId: async (credential, params) => {
+    const { product_id, order_id } = params as { product_id: string; order_id: number };
+    if (!product_id || !order_id) {
+      throw newError('ASTER_GET_ORDER_BY_ID_MISSING_PARAMS', { params });
+    }
+    const [_, __, symbol] = decodePath(product_id); // ASTER/USDT-FUTURES/ADAUSDT
+    const order = await getTradeOrderDetail(credential, symbol, order_id);
+    return order;
+  },
 });
