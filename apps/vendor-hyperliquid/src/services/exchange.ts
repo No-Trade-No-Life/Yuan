@@ -86,4 +86,7 @@ provideExchangeServices<ICredential>(terminal, {
     ensureHyperliquidProduct(order.product_id);
     return cancelOrderAction(credential, order);
   },
+  getOrderByOrderId: async (credential, params) => {
+    throw new Error('Function not implemented.');
+  },
 });

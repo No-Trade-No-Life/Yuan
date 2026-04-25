@@ -550,6 +550,52 @@ export const getAccountTradeFills = (
     }>
   >(credential, 'GET', '/api/v3/trade/fills', params);
 
+/**
+ * 获取订单信息
+ *
+ *限频规则: 20次/秒/UID
+ *需要统一账户交易只读/读写权限
+ *
+ * https://www.bitget.com/zh-CN/api-doc/uta/trade/Get-Order-Details
+ */
+export const getTradeOrderDetailById = (
+  credential: ICredential,
+  params: {
+    orderId?: string;
+    clientOid?: string;
+  },
+) =>
+  requestPrivate<
+    ApiResponse<{
+      orderId: string;
+      clientOid: string;
+      category: string;
+      symbol: string;
+      orderType: string;
+      side: string;
+      price: string;
+      qty: string;
+      amount: string;
+      cumExecQty: string;
+      cumExecValue: string;
+      avgPrice: string;
+      timeInForce: string;
+      orderStatus: string;
+      posSide: string;
+      tradeSide: string;
+      holdMode: string;
+      reduceOnly: string;
+      feeDetail: {
+        feeCoin: string;
+        fee: string;
+      }[];
+      cancelReason: string;
+      execType: string;
+      createdTime: string;
+      updatedTime: string;
+    }>
+  >(credential, 'GET', '/api/v3/trade/order-info', params);
+
 interface FeeDetail {
   feeCoin: string;
   fee: string;
