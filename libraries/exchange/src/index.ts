@@ -96,7 +96,7 @@ export interface IExchange<T = any> {
    * @param credential - The credential object
    * @param params - The parameters to identify the order
    */
-  getOrderByOrderId?(credential: T, params: Record<string, unknown>): Promise<any>;
+  getOrderByOrderId(credential: T, params: Record<string, unknown>): Promise<any>;
 }
 
 const makeCredentialSchema = (type: string, payloadSchema: JSONSchema7): JSONSchema7 => {

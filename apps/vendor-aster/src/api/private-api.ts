@@ -692,3 +692,52 @@ export const getAccountTradeList = async (
   acquireRateLimit('GET', url, endpoint, weight, requestContext);
   return request(credential, 'GET', FutureBaseURL, endpoint, params, requestContext);
 };
+
+/**
+ * 查询订单 (USER_DATA)
+ *
+ * 权重: 1
+ *
+ * https://github.com/asterdex/api-docs/blob/master/V1(Legacy)/%E4%B8%AD%E6%96%87/aster-finance-futures-api_CN.md#%E6%9F%A5%E8%AF%A2%E8%AE%A2%E5%8D%95-user_data
+ */
+export const getTradeOrderDetailById = async (
+  credential: ICredential,
+  params: {
+    symbol: string;
+    orderId?: number;
+    origClientOrderId?: string;
+    timestamp: number;
+    recvWindow?: number;
+  },
+): Promise<{
+  clientOrderId: string; // 用户自定义的订单号
+  cumQty: string;
+  cumQuote: string; // 成交金额
+  executedQty: string; // 成交量
+  orderId: number; // 系统订单号
+  origQty: string; // 原始委托数量
+  price: string; // 委托价格
+  reduceOnly: false; // 仅减仓
+  side: string; // 买卖方向
+  positionSide: string; // 持仓方向
+  status: string; // 订单状态
+  stopPrice: string; // 触发价，对`TRAILING_STOP_MARKET`无效
+  closePosition: boolean; // 是否条件全平仓
+  symbol: string; // 交易对
+  timeInForce: string; // 有效方法
+  origType: string; // 触发前订单类型
+  type: string; // 订单类型
+  activatePrice: string; // 跟踪止损激活价格, 仅`TRAILING_STOP_MARKET` 订单返回此字段
+  priceRate: string; // 跟踪止损回调比例, 仅`TRAILING_STOP_MARKET` 订单返回此字段
+  updateTime: number; // 更新时间
+  workingType: string; // 条件价格触发类型
+  priceProtect: boolean; // 是否开启条件单触发保护
+}> => {
+  const endpoint = '/fapi/v1/order';
+  const url = new URL(FutureBaseURL);
+  url.pathname = endpoint;
+  const weight = 5;
+  const requestContext = await createRequestContext();
+  acquireRateLimit('GET', url, endpoint, weight, requestContext);
+  return request(credential, 'GET', FutureBaseURL, endpoint, params, requestContext);
+};
