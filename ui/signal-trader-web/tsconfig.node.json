@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    "types": ["node"],
+    "tsBuildInfoFile": "./dist/.cache/tsconfig.node.tsbuildinfo"
+  },
+  "include": ["vite.config.ts", "playwright.config.ts", "scripts/**/*.mjs"]
+}

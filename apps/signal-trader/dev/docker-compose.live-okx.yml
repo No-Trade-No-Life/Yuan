@@ -1,0 +1,117 @@
+services:
+  postgres:
+    image: timescale/timescaledb:latest-pg17
+    container_name: signal-trader-live-postgres
+    restart: unless-stopped
+    command: ['postgres', '-c', 'shared_preload_libraries=timescaledb']
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-yuan}
+      POSTGRES_USER: ${POSTGRES_USER:-yuants}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-yuants}
+    ports:
+      - '${POSTGRES_PORT:-54329}:5432'
+    volumes:
+      - signal-trader-live-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-yuants} -d ${POSTGRES_DB:-yuan}']
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+  host:
+    image: node:24-bookworm-slim
+    container_name: signal-trader-live-host
+    restart: unless-stopped
+    init: true
+    working_dir: /workspace
+    volumes:
+      - ../../..:/workspace
+    command: ['node', 'apps/host/lib/cli.js']
+    environment:
+      PORT: ${HOST_PORT:-8888}
+      HOST_TOKEN: ${HOST_TOKEN:-123456}
+    ports:
+      - '${HOST_PORT:-8888}:${HOST_PORT:-8888}'
+
+  postgres-storage:
+    image: node:24-bookworm-slim
+    container_name: signal-trader-live-postgres-storage
+    restart: unless-stopped
+    init: true
+    working_dir: /workspace
+    volumes:
+      - ../../..:/workspace
+    command: ['node', 'apps/postgres-storage/lib/cli.js']
+    environment:
+      HOST_URL: ${WS_HOST_URL_DOCKER:-ws://host:8888}
+      TERMINAL_ID: signal-trader-live-postgres-storage
+      POSTGRES_URI: postgres://${POSTGRES_USER:-yuants}:${POSTGRES_PASSWORD:-yuants}@postgres:5432/${POSTGRES_DB:-yuan}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      host:
+        condition: service_started
+
+  okx-vex-exchange:
+    image: node:24-bookworm-slim
+    container_name: signal-trader-live-okx-vex-exchange
+    restart: unless-stopped
+    init: true
+    working_dir: /workspace
+    volumes:
+      - ../../..:/workspace
+    command: ['node', 'apps/vendor-okx/lib/experimental/exchange.js']
+    environment:
+      HOST_URL: ${WS_HOST_URL_DOCKER:-ws://host:8888}
+      TERMINAL_ID: signal-trader-live-okx-vex-exchange
+      ACCESS_KEY: ${OKX_ACCESS_KEY:?OKX_ACCESS_KEY is required}
+      SECRET_KEY: ${OKX_SECRET_KEY:?OKX_SECRET_KEY is required}
+      PASSPHRASE: ${OKX_PASSPHRASE:?OKX_PASSPHRASE is required}
+      USE_HTTP_PROXY: ${OKX_USE_HTTP_PROXY:-false}
+    depends_on:
+      host:
+        condition: service_started
+
+  virtual-exchange:
+    image: node:24-bookworm-slim
+    container_name: signal-trader-live-virtual-exchange
+    restart: unless-stopped
+    init: true
+    working_dir: /workspace
+    volumes:
+      - ../../..:/workspace
+    command: ['node', 'apps/virtual-exchange/lib/index.js']
+    environment:
+      HOST_URL: ${WS_HOST_URL_DOCKER:-ws://host:8888}
+      TERMINAL_ID: signal-trader-live-virtual-exchange
+    depends_on:
+      postgres-storage:
+        condition: service_started
+      okx-vex-exchange:
+        condition: service_started
+      host:
+        condition: service_started
+
+  signal-trader:
+    image: node:24-bookworm-slim
+    container_name: signal-trader-live-signal-trader
+    restart: unless-stopped
+    init: true
+    working_dir: /workspace
+    volumes:
+      - ../../..:/workspace
+    command: ['node', 'apps/signal-trader/lib/index.js']
+    environment:
+      # signal-trader 的 live backend / service policy 已写死在代码里；这里只注入 Host 连接信息。
+      HOST_URL: ${WS_HOST_URL_DOCKER:-ws://host:8888}
+      TERMINAL_ID: signal-trader-live-bootstrap
+    depends_on:
+      postgres-storage:
+        condition: service_started
+      virtual-exchange:
+        condition: service_started
+      host:
+        condition: service_started
+
+volumes:
+  signal-trader-live-postgres-data:

@@ -721,6 +721,10 @@
       "projectFolder": "ui/webpilot"
     },
     {
+      "packageName": "@yuants/ui-signal-trader-web",
+      "projectFolder": "ui/signal-trader-web"
+    },
+    {
       "packageName": "@yuants/data-trade",
       "projectFolder": "libraries/data-trade",
       "shouldPublish": true
@@ -743,6 +747,16 @@
     {
       "packageName": "@yuants/http-services",
       "projectFolder": "libraries/http-services",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/signal-trader",
+      "projectFolder": "libraries/signal-trader",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/app-signal-trader",
+      "projectFolder": "apps/signal-trader",
       "shouldPublish": true
     },
     {
