@@ -271,6 +271,7 @@ export const provideExchangeServices = <T>(terminal: Terminal, exchange: IExchan
       if (!exchange.getOrderByOrderId) {
         return { res: { code: 1, message: 'GetOrderByOrderId not implemented' } };
       }
+      console.log('GetOrderByOrderId', { credential: msg.req.credential, params: msg.req.params });
       const order = await exchange.getOrderByOrderId(msg.req.credential.payload, msg.req.params);
       return { res: { code: 0, message: 'OK', data: order } };
     },
