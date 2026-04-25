@@ -104,4 +104,7 @@ provideExchangeServices<ICredential>(terminal, {
   submitOrder: submitOrder,
   modifyOrder: modifyOrder,
   cancelOrder: cancelOrderAction,
+  getOrderByOrderId: async (credential, params) => {
+    throw new Error('Function not implemented.');
+  },
 });
