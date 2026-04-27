@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "add IOC/FOK order type support for Bitget order submission and listOrders readback mapping",
+      "type": "patch",
+      "packageName": "@yuants/vendor-bitget"
+    }
+  ],
+  "packageName": "@yuants/vendor-bitget",
+  "email": "stayrealrhr@gmail.com"
+}
