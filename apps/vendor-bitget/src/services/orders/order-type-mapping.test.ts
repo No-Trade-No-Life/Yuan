@@ -109,3 +109,118 @@ test('submitOrder maps IOC and FOK to Bitget order params for futures and spot',
     price: '23456',
   });
 });
+
+test('listOrders maps Bitget open orders back to MAKER IOC FOK MARKET and LIMIT', async () => {
+  const privateApiPath = require.resolve('../../api/private-api');
+  const listOrdersPath = require.resolve('./listOrders');
+  const originalPrivateApiModule = require.cache[privateApiPath];
+  const originalListOrdersModule = require.cache[listOrdersPath];
+
+  require.cache[privateApiPath] = {
+    id: privateApiPath,
+    filename: privateApiPath,
+    loaded: true,
+    exports: {
+      getUnfilledOrders: async () => ({
+        code: '00000',
+        msg: 'success',
+        requestTime: Date.now(),
+        data: {
+          list: [
+            {
+              orderId: 'maker-order',
+              symbol: 'BTCUSDT',
+              orderType: 'limit',
+              timeInForce: 'post_only',
+              side: 'buy',
+              posSide: 'long',
+              price: '100',
+              qty: '1',
+              cumExecQty: '0',
+              createdTime: '1',
+            },
+            {
+              orderId: 'ioc-order',
+              symbol: 'BTCUSDT',
+              orderType: 'limit',
+              timeInForce: 'ioc',
+              side: 'buy',
+              posSide: 'long',
+              price: '101',
+              qty: '2',
+              cumExecQty: '1',
+              createdTime: '2',
+            },
+            {
+              orderId: 'fok-order',
+              symbol: 'BTCUSDT',
+              orderType: 'limit',
+              timeInForce: 'fok',
+              side: 'sell',
+              posSide: 'short',
+              price: '102',
+              qty: '3',
+              cumExecQty: '0',
+              createdTime: '3',
+            },
+            {
+              orderId: 'market-order',
+              symbol: 'ETHUSDT',
+              orderType: 'market',
+              timeInForce: 'gtc',
+              side: 'buy',
+              price: '0',
+              qty: '4',
+              cumExecQty: '4',
+              createdTime: '4',
+            },
+            {
+              orderId: 'limit-order',
+              symbol: 'ETHUSDT',
+              orderType: 'limit',
+              timeInForce: 'gtc',
+              side: 'sell',
+              price: '103',
+              qty: '5',
+              cumExecQty: '2',
+              createdTime: '5',
+            },
+          ],
+        },
+      }),
+    },
+    children: [],
+    path: '',
+    paths: [],
+    isPreloading: false,
+  } as unknown as NodeModule;
+
+  delete require.cache[listOrdersPath];
+  const { listFuturesOrders, listSpotOrders } = require('./listOrders') as typeof import('./listOrders');
+
+  try {
+    const futuresOrders = await listFuturesOrders({ access_key: 'ak', secret_key: 'sk', passphrase: 'pp' });
+    const spotOrders = await listSpotOrders({ access_key: 'ak', secret_key: 'sk', passphrase: 'pp' });
+
+    assert.deepEqual(
+      futuresOrders.slice(0, 3).map((order) => order.order_type),
+      ['MAKER', 'IOC', 'FOK'],
+    );
+    assert.deepEqual(
+      spotOrders.slice(3).map((order) => order.order_type),
+      ['MARKET', 'LIMIT'],
+    );
+  } finally {
+    if (originalPrivateApiModule) {
+      require.cache[privateApiPath] = originalPrivateApiModule;
+    } else {
+      delete require.cache[privateApiPath];
+    }
+
+    if (originalListOrdersModule) {
+      require.cache[listOrdersPath] = originalListOrdersModule;
+    } else {
+      delete require.cache[listOrdersPath];
+    }
+  }
+});
