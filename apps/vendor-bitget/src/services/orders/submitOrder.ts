@@ -7,7 +7,11 @@ import { mapOrderDirectionToSide } from './order-utils';
 
 export const submitOrder = async (credential: ICredential, order: IOrder) => {
   const [datasource_id, instType, instId] = decodePath(order.product_id);
-  const orderParams = mapOrderTypeToBitgetOrderParams(order.order_type);
+  const orderParams = order.order_type
+    ? mapOrderTypeToBitgetOrderParams(order.order_type)
+    : instType === 'USDT-FUTURES'
+    ? { orderType: 'market' as const }
+    : { orderType: 'limit' as const };
 
   if (instType === 'USDT-FUTURES') {
     const res = await postPlaceOrder(credential, {

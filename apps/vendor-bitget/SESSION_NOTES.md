@@ -7,7 +7,7 @@
 ## 0. 元信息（Meta）
 
 - **项目名称**：@yuants/vendor-bitget
-- **最近更新时间**：2026-03-25 00:00（由 OpenCode 补充 Bitget 持仓 liquidation_price 映射）
+- **最近更新时间**：2026-04-27 21:45（由 OpenCode 补充 Bitget IOC/FOK 下单与挂单回读映射）
 - **当前状态标签**：已完成基础功能
 
 ---
@@ -110,6 +110,32 @@
 - **运行的测试 / 检查**：
   - 命令：`./node_modules/.bin/tsc --noEmit --project tsconfig.json`
   - 结果：通过
+
+### 2026-04-27 — OpenCode
+
+- **本轮摘要**：
+  - 为 Bitget 订单服务新增 `IOC/FOK` 映射 helper，统一提交侧 `order_type -> orderType/timeInForce` 与回读侧 `timeInForce/orderType -> order_type` 规则。
+  - `submitOrder` 现已支持现货与 U 本位合约的 `IOC/FOK` 下单，且保持 `MARKET` 独立语义，不与 `IOC` 混淆。
+  - `listOrders` 改为优先依据 `timeInForce` 回填 `MAKER/IOC/FOK`，避免 Bitget 把 IOC/FOK 错读成 `LIMIT`。
+- **修改的文件**：
+  - `apps/vendor-bitget/src/services/orders/mapOrderTypeToBitgetOrderParams.ts`
+  - `apps/vendor-bitget/src/services/orders/mapBitgetOrderToOrderType.ts`
+  - `apps/vendor-bitget/src/services/orders/submitOrder.ts`
+  - `apps/vendor-bitget/src/services/orders/listOrders.ts`
+  - `apps/vendor-bitget/src/services/orders/order-type-mapping.test.ts`
+  - `apps/vendor-bitget/SESSION_NOTES.md`
+  - `docs/zh-Hans/vendor-supporting.md`
+- **关键决策 / 备注**：
+  - 仅当 `timeInForce` 显式为 `ioc` 时才回填 `IOC`；`MARKET` 仍只由 `orderType='market'` 表示。
+  - 包内现有 Heft/Jest 配置未直接拾取 `src/**/*.test.ts`，本轮用 `pnpm exec ts-node` 直接执行测试脚本完成 TDD 验证。
+  - worktree 里的 `rush build --to-except @yuants/vendor-bitget` 仍会被 `@yuants/http-services` 既有 integration test 阻塞，属于仓库基线问题，不归因于 Bitget IOC/FOK 改动。
+- **运行的测试 / 检查**：
+  - 命令：`node common/scripts/install-run-rush.js update`
+  - 结果：通过
+  - 命令：`node common/scripts/install-run-rush.js build --to-except @yuants/vendor-bitget`
+  - 结果：部分通过；`@yuants/http-services` integration test 失败（既有基线问题）
+  - 命令：`pnpm exec ts-node ./src/services/orders/order-type-mapping.test.ts`
+  - 结果：通过（4 tests passed）
 
 ### 2026-02-05 — OpenCode
 
