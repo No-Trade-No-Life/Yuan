@@ -33,6 +33,8 @@
 
 > 注：Binance 现货与统一账户的下单当前支持 `LIMIT`、`MARKET`、`MAKER`、`IOC`、`FOK`；其中 `IOC/FOK` 通过 `LIMIT + timeInForce` 实现。
 
+> 注：Bitget 现货与永续的下单当前支持 `LIMIT`、`MARKET`、`MAKER`、`IOC`、`FOK`；其中 `IOC/FOK` 通过 `orderType='limit' + timeInForce='ioc'|'fok'` 实现，挂单回读也会按 `timeInForce` 回填统一 `order_type`。
+
 > 注：HTX 合约账户下单当前支持 `LIMIT`、`MARKET`、`IOC`、`FOK`；其中统一账户的 `IOC/FOK` 通过 `type='limit' + time_in_force` 实现。
 
 ## 行情数据接口

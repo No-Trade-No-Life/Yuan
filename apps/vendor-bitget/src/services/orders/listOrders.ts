@@ -1,6 +1,7 @@
 import { IOrder } from '@yuants/data-order';
 import { getUnfilledOrders } from '../../api/private-api';
 import { ICredential } from '../../api/types';
+import { mapBitgetOrderToOrderType } from './mapBitgetOrderToOrderType';
 
 export const listFuturesOrders = async (credential: ICredential): Promise<IOrder[]> => {
   const res = await getUnfilledOrders(credential, { category: 'USDT-FUTURES' });
@@ -12,7 +13,7 @@ export const listFuturesOrders = async (credential: ICredential): Promise<IOrder
       account_id: '',
       order_id: v.orderId,
       product_id: `BITGET/USDT-FUTURES/${v.symbol}`,
-      order_type: v.orderType?.toUpperCase(),
+      order_type: mapBitgetOrderToOrderType(v),
       order_direction:
         v.posSide === 'long'
           ? v.side === 'buy'
@@ -41,7 +42,7 @@ export const listSpotOrders = async (credential: ICredential): Promise<IOrder[]>
       account_id: '',
       order_id: v.orderId!,
       product_id: `BITGET/SPOT/${v.symbol}`,
-      order_type: v.orderType?.toUpperCase(),
+      order_type: mapBitgetOrderToOrderType(v),
       order_direction: v.side === 'buy' ? 'OPEN_LONG' : 'CLOSE_LONG',
       price: Number(v.price),
       volume: Number(v.qty),
