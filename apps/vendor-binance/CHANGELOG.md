@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-binance
 
-This log was last generated on Sat, 25 Apr 2026 18:14:03 GMT and should not be manually modified.
+This log was last generated on Tue, 28 Apr 2026 22:26:14 GMT and should not be manually modified.
+
+## 0.14.16
+Tue, 28 Apr 2026 22:26:14 GMT
+
+### Patches
+
+- add getOrderByOrderId
 
 ## 0.14.15
 Sat, 25 Apr 2026 18:14:03 GMT
