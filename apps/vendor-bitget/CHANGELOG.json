@@ -2,6 +2,31 @@
   "name": "@yuants/vendor-bitget",
   "entries": [
     {
+      "version": "0.15.12",
+      "tag": "@yuants/vendor-bitget_v0.15.12",
+      "date": "Tue, 28 Apr 2026 22:26:14 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add getOrderByOrderId"
+          },
+          {
+            "comment": "add IOC/FOK order type support for Bitget order submission and listOrders readback mapping"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.25`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.15.11",
       "tag": "@yuants/vendor-bitget_v0.15.11",
       "date": "Sat, 25 Apr 2026 18:14:03 GMT",
