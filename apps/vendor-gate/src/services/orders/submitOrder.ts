@@ -46,6 +46,7 @@ export const submitOrder: IActionHandlerOfSubmitOrder<ICredential> = async (cred
       const detail = [res.label, res.message, res.detail].filter((v) => !!v).join(': ');
       throw new Error(detail);
     }
+
     return {
       order_id: `${res.id}`,
       order_detail: res,
