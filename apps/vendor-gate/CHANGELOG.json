@@ -2,6 +2,31 @@
   "name": "@yuants/vendor-gate",
   "entries": [
     {
+      "version": "0.9.16",
+      "tag": "@yuants/vendor-gate_v0.9.16",
+      "date": "Wed, 29 Apr 2026 00:32:32 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add order detail"
+          },
+          {
+            "comment": "add detail"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.8.26`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.9.15",
       "tag": "@yuants/vendor-gate_v0.9.15",
       "date": "Tue, 28 Apr 2026 22:26:14 GMT",

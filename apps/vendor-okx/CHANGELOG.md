@@ -1,6 +1,11 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Tue, 28 Apr 2026 22:26:14 GMT and should not be manually modified.
+This log was last generated on Wed, 29 Apr 2026 00:32:32 GMT and should not be manually modified.
+
+## 0.33.14
+Wed, 29 Apr 2026 00:32:32 GMT
+
+_Version update only_
 
 ## 0.33.13
 Tue, 28 Apr 2026 22:26:14 GMT
