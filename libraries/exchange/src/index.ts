@@ -73,7 +73,7 @@ export interface IExchange<T = any> {
    * @param credential - The credential object
    * @param order - The order object
    */
-  submitOrder(credential: T, order: IOrder): Promise<{ order_id: string }>;
+  submitOrder(credential: T, order: IOrder): Promise<{ order_id: string; order_detail?: any }>;
 
   /**
    * Modify an order
