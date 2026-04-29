@@ -62,6 +62,7 @@ export interface IExchange<T = any> {
     name: string;
     submitOrder(credential: T, order: IOrder): Promise<{
         order_id: string;
+        order_detail?: any;
     }>;
 }
 

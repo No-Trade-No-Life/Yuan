@@ -48,6 +48,7 @@ export const submitOrder: IActionHandlerOfSubmitOrder<ICredential> = async (cred
     }
     return {
       order_id: `${res.id}`,
+      order_detail: res,
     };
   }
   throw new Error('Product type not support');
