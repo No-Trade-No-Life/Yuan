@@ -1,0 +1,14 @@
+{
+  "taskId": "host-v2-auth-ed25519-jwt",
+  "rfcProfile": "heavy",
+  "stage": "design-only",
+  "risk": "high",
+  "scope": [
+    ".legion/tasks/host-v2-auth-ed25519-jwt/**",
+    "apps/host/src/host-manager.ts",
+    "apps/host-v2/**",
+    "libraries/protocol/**",
+    "libraries/utils/**"
+  ],
+  "constraints": ["不修改生产代码（design-only）", "新旧 Host 必须代码层隔离", "文档默认中文"]
+}
