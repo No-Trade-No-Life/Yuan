@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/signal-trader",
+      "comment": "init package",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/signal-trader"
+}

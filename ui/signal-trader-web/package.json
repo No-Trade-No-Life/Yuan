@@ -1,0 +1,32 @@
+{
+  "name": "@yuants/ui-signal-trader-web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "node scripts/serve-with-proxy.mjs",
+    "mock:stack": "node scripts/run-mock-stack.mjs",
+    "mock:clock": "node scripts/mock-clock.mjs",
+    "test:e2e:mock": "node scripts/run-playwright.mjs mock",
+    "test:e2e:dummy-live": "node scripts/run-playwright.mjs dummy-live"
+  },
+  "dependencies": {
+    "@yuants/utils": "workspace:*",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.54.2",
+    "@types/node": "24",
+    "@types/react": "^18.2.29",
+    "@types/react-dom": "18.2.7",
+    "@vitejs/plugin-react": "^5.1.2",
+    "typescript": "^5.9.3",
+    "vite": "^6.4.1"
+  }
+}

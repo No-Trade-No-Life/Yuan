@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: timescale/timescaledb:latest-pg17
+    container_name: signal-trader-paper-postgres
+    restart: unless-stopped
+    command: ['postgres', '-c', 'shared_preload_libraries=timescaledb']
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-yuan}
+      POSTGRES_USER: ${POSTGRES_USER:-yuants}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-yuants}
+    ports:
+      - '${POSTGRES_PORT:-54329}:5432'
+    volumes:
+      - signal-trader-paper-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-yuants} -d ${POSTGRES_DB:-yuan}']
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+volumes:
+  signal-trader-paper-postgres-data:

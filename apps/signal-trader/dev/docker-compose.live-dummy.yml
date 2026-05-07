@@ -1,0 +1,100 @@
+services:
+  postgres:
+    image: timescale/timescaledb:latest-pg17
+    container_name: signal-trader-dummy-postgres
+    restart: unless-stopped
+    command: ['postgres', '-c', 'shared_preload_libraries=timescaledb']
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-yuan}
+      POSTGRES_USER: ${POSTGRES_USER:-yuants}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-yuants}
+    ports:
+      - '${POSTGRES_PORT:-54339}:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-yuants} -d ${POSTGRES_DB:-yuan}']
+      interval: 2s
+      timeout: 2s
+      retries: 30
+    volumes:
+      - signal-trader-dummy-postgres-data:/var/lib/postgresql/data
+
+  host:
+    image: node:24-bookworm-slim
+    container_name: signal-trader-dummy-host
+    restart: unless-stopped
+    init: true
+    working_dir: /workspace
+    volumes:
+      - ../../..:/workspace
+    command: ['node', 'apps/host/lib/cli.js']
+    environment:
+      PORT: ${HOST_PORT:-8898}
+      HOST_TOKEN: ${HOST_TOKEN:?HOST_TOKEN is required}
+    ports:
+      - '${HOST_PORT:-8898}:${HOST_PORT:-8898}'
+
+  postgres-storage:
+    image: node:24-bookworm-slim
+    container_name: signal-trader-dummy-postgres-storage
+    restart: unless-stopped
+    init: true
+    working_dir: /workspace
+    volumes:
+      - ../../..:/workspace
+    command: ['node', 'apps/postgres-storage/lib/cli.js']
+    environment:
+      HOST_URL: ${WS_HOST_URL_DOCKER:-ws://host:8898}
+      TERMINAL_ID: signal-trader-dummy-postgres-storage
+      POSTGRES_URI: ${POSTGRES_URI_DOCKER:-postgres://yuants:yuants@postgres:5432/yuan}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      host:
+        condition: service_started
+
+  dummy-live-backend:
+    image: node:24-bookworm-slim
+    container_name: signal-trader-dummy-backend
+    restart: unless-stopped
+    init: true
+    working_dir: /workspace
+    volumes:
+      - ../../..:/workspace
+      - ${DUMMY_LIVE_OUTPUT_DIR:-/tmp/yuants-signal-trader-dummy-live}:/dummy-output
+    command: ['node', 'apps/signal-trader/dev/dummy-live-backend.js']
+    environment:
+      HOST_URL: ${WS_HOST_URL_DOCKER:-ws://host:8898}
+      TERMINAL_ID: signal-trader-dummy-live-backend
+      DUMMY_LIVE_ACCOUNT_ID: ${DUMMY_LIVE_ACCOUNT_ID:-acct-dummy-live}
+      DUMMY_LIVE_PRODUCT_ID: ${DUMMY_LIVE_PRODUCT_ID:-BINANCE/SWAP/BTC-USDT}
+      DUMMY_LIVE_OUTPUT_DIR: /dummy-output
+      DUMMY_LIVE_ORDER_HISTORY_TABLE: ${DUMMY_LIVE_ORDER_HISTORY_TABLE:-order}
+      DUMMY_LIVE_BALANCE: ${DUMMY_LIVE_BALANCE:-100000}
+    depends_on:
+      postgres-storage:
+        condition: service_started
+      host:
+        condition: service_started
+
+  signal-trader:
+    image: node:24-bookworm-slim
+    container_name: signal-trader-dummy-signal-trader
+    restart: unless-stopped
+    init: true
+    working_dir: /workspace
+    volumes:
+      - ../../..:/workspace
+    command: ['node', 'apps/signal-trader/lib/index.js']
+    environment:
+      HOST_URL: ${WS_HOST_URL_DOCKER:-ws://host:8898}
+      TERMINAL_ID: signal-trader-dummy-bootstrap
+    depends_on:
+      postgres-storage:
+        condition: service_started
+      dummy-live-backend:
+        condition: service_started
+      host:
+        condition: service_started
+
+volumes:
+  signal-trader-dummy-postgres-data:

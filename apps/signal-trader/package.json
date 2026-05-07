@@ -1,0 +1,48 @@
+{
+  "name": "@yuants/app-signal-trader",
+  "version": "0.1.0",
+  "homepage": "https://github.com/No-Trade-No-Life/Yuan/tree/main/apps/signal-trader",
+  "main": "lib/index.js",
+  "module": "dist/index.js",
+  "files": [
+    "dist",
+    "lib",
+    "temp"
+  ],
+  "scripts": {
+    "build": "heft test --clean && yuan-toolkit post-build",
+    "dev:mock:start": "bash ./dev/run-local-mock-stack.sh start",
+    "dev:mock:stop": "bash ./dev/run-local-mock-stack.sh stop",
+    "dev:mock:smoke": "bash ./dev/smoke-mock.sh",
+    "dev:live:start": "bash ./dev/run-local-live-stack.sh start",
+    "dev:live:stop": "bash ./dev/run-local-live-stack.sh stop",
+    "dev:live:status": "bash ./dev/run-local-live-stack.sh status",
+    "dev:live:dummy:start": "bash ./dev/run-local-live-dummy-stack.sh start",
+    "dev:live:dummy:stop": "bash ./dev/run-local-live-dummy-stack.sh stop",
+    "dev:live:dummy:status": "bash ./dev/run-local-live-dummy-stack.sh status",
+    "dev:live:register-credential": "node ./dev/register-vex-credential.js",
+    "dev:live:seed": "node ./dev/seed-live-runtime.js"
+  },
+  "dependencies": {
+    "@yuants/data-account": "workspace:*",
+    "@yuants/data-order": "workspace:*",
+    "@yuants/protocol": "workspace:*",
+    "@yuants/signal-trader": "workspace:*",
+    "@yuants/sql": "workspace:*",
+    "@yuants/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@microsoft/api-extractor": "~7.55.2",
+    "@rushstack/heft": "~1.1.7",
+    "@rushstack/heft-jest-plugin": "~1.1.7",
+    "@rushstack/heft-node-rig": "~2.11.12",
+    "@types/heft-jest": "1.0.6",
+    "@types/node": "24",
+    "@yuants/tool-kit": "workspace:*",
+    "typescript": "~5.9.3"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  }
+}

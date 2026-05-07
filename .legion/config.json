@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "currentTask": "vendor-tokenbucket-proxy-ip",
+  "currentTask": "signal-trader-mock-exchange-account-ui",
   "settings": {
     "autoRemind": true,
     "remindBeforeReset": true,
@@ -220,7 +220,7 @@
     {
       "id": "vendor-tokenbucket-proxy-ip",
       "name": "vendor-tokenbucket-proxy-ip",
-      "status": "active",
+      "status": "paused",
       "createdAt": "2026-02-03T16:40:42.595Z",
       "updatedAt": "2026-03-25T12:01:43.523Z"
     },
@@ -230,6 +230,118 @@
       "status": "paused",
       "createdAt": "2026-02-05T11:41:19.733Z",
       "updatedAt": "2026-02-07T14:17:47.617Z"
+    },
+    {
+      "id": "signal-trader",
+      "name": "signal-trader",
+      "status": "paused",
+      "createdAt": "2026-03-17T12:45:30.344Z",
+      "updatedAt": "2026-03-18T09:20:34.526Z"
+    },
+    {
+      "id": "app-signal-trader-live-integration",
+      "name": "app-signal-trader-live-integration",
+      "status": "paused",
+      "createdAt": "2026-03-18T09:20:34.526Z",
+      "updatedAt": "2026-03-21T16:50:24.886Z"
+    },
+    {
+      "id": "signal-trader-ui-console",
+      "name": "signal-trader-ui-console",
+      "status": "paused",
+      "createdAt": "2026-03-19T13:17:35.128Z",
+      "updatedAt": "2026-03-21T16:56:45.410Z"
+    },
+    {
+      "id": "signal-trader-standalone-ui",
+      "name": "signal-trader-standalone-ui",
+      "status": "paused",
+      "createdAt": "2026-03-21T16:56:45.410Z",
+      "updatedAt": "2026-03-22T06:30:14.173Z"
+    },
+    {
+      "id": "signal-trader-daily-burn-budget",
+      "name": "signal-trader-daily-burn-budget",
+      "status": "paused",
+      "createdAt": "2026-03-22T06:30:14.173Z",
+      "updatedAt": "2026-03-23T03:44:46.166Z"
+    },
+    {
+      "id": "signal-trader-funding-transfer",
+      "name": "signal-trader-funding-transfer",
+      "status": "paused",
+      "createdAt": "2026-03-23T03:44:46.166Z",
+      "updatedAt": "2026-03-23T05:51:28.543Z"
+    },
+    {
+      "id": "signal-trader-capital-system-completion",
+      "name": "signal-trader-capital-system-completion",
+      "status": "paused",
+      "createdAt": "2026-03-23T05:51:28.543Z",
+      "updatedAt": "2026-03-23T06:54:20.791Z"
+    },
+    {
+      "id": "signal-trader-formal-quote-source",
+      "name": "signal-trader-formal-quote-source",
+      "status": "paused",
+      "createdAt": "2026-03-23T06:54:20.791Z",
+      "updatedAt": "2026-03-23T07:53:48.690Z"
+    },
+    {
+      "id": "signal-trader-ui-capital-sync",
+      "name": "signal-trader-ui-capital-sync",
+      "status": "paused",
+      "createdAt": "2026-03-23T07:53:48.690Z",
+      "updatedAt": "2026-03-23T09:01:28.727Z"
+    },
+    {
+      "id": "signal-trader-paper-time-control",
+      "name": "signal-trader-paper-time-control",
+      "status": "paused",
+      "createdAt": "2026-03-23T09:01:28.727Z",
+      "updatedAt": "2026-03-23T12:23:21.867Z"
+    },
+    {
+      "id": "signal-trader-daily-transfer-allocation",
+      "name": "signal-trader-daily-transfer-allocation",
+      "status": "paused",
+      "createdAt": "2026-03-23T12:23:21.867Z",
+      "updatedAt": "2026-03-24T06:09:31.224Z"
+    },
+    {
+      "id": "signal-trader-jest-open-handles",
+      "name": "signal-trader-jest-open-handles",
+      "status": "paused",
+      "createdAt": "2026-03-24T06:09:31.224Z",
+      "updatedAt": "2026-03-24T08:05:24.677Z"
+    },
+    {
+      "id": "signal-trader-formal-process-tests",
+      "name": "signal-trader-formal-process-tests",
+      "status": "paused",
+      "createdAt": "2026-03-24T08:05:24.677Z",
+      "updatedAt": "2026-03-24T08:55:51.100Z"
+    },
+    {
+      "id": "signal-trader-paper-to-mock-terminology",
+      "name": "signal-trader-paper-to-mock-terminology",
+      "status": "paused",
+      "createdAt": "2026-03-24T08:55:51.100Z",
+      "updatedAt": "2026-03-24T10:04:00.735Z"
+    },
+    {
+      "id": "signal-trader-clean-final-shape",
+      "name": "signal-trader-clean-final-shape",
+      "status": "paused",
+      "createdAt": "2026-03-24T10:04:00.735Z",
+      "updatedAt": "2026-03-24T12:56:59.735Z"
+    },
+    {
+      "id": "signal-trader-mock-exchange-account-ui",
+      "name": "signal-trader-mock-exchange-account-ui",
+      "status": "active",
+      "createdAt": "2026-03-24T12:56:59.735Z",
+      "updatedAt": "2026-03-25T12:24:33.809Z"
     }
   ],
   "pendingProposals": [
@@ -2711,6 +2823,1103 @@
       "decidedAt": "2026-02-05T11:41:19.733Z",
       "decidedBy": "Claude",
       "createdTaskId": "http-services-terminalinfos-ready"
+    },
+    {
+      "id": "proposal-mmulu4fr-5d5cb2",
+      "name": "signal-trader",
+      "goal": "基于 `signal-trader-rfc-v1-事件溯源重排版.md` 落地新的 `libraries/signal-trader` 库，并产出完整 Legion 交付物（含 PR body）。",
+      "rationale": "用户明确要求启动一个新的 Legion 任务 `signal-trader`，直接采用仓库根目录现有 RFC 文档作为设计依据，并在 `libraries/` 下实现新的 `signal-trader` library。该工作涉及任务文档落盘、RFC 索引、多文件库实现、构建/测试/评审与 PR 交付材料生成，属于需要跨步骤持久化跟踪的复杂任务。",
+      "points": [
+        "直接把 `signal-trader-rfc-v1-事件溯源重排版.md` 作为 RFC 主体纳入任务文档",
+        "先生成摘要级 `plan.md`，明确问题定义、验收、假设、约束、风险、Scope 与 Design Index",
+        "在 `libraries/` 下实现新的 `signal-trader` library，并接入 Rush/TypeScript monorepo 结构",
+        "自动生成测试报告、代码评审报告、walkthrough 与可直接用于 PR 的 `pr-body.md`"
+      ],
+      "scope": [
+        "signal-trader-rfc-v1-事件溯源重排版.md",
+        ".legion/tasks/signal-trader/**",
+        "libraries/signal-trader/**",
+        "common/config/rush/**",
+        "package.json",
+        "rush.json",
+        "pnpm-lock.yaml"
+      ],
+      "phases": [
+        {
+          "name": "设计与任务落盘",
+          "tasks": [
+            {
+              "description": "建立 `signal-trader` Legion 任务，并完善 `plan.md` / `context.md` / `tasks.md`，把现有 RFC 文档登记为设计入口。",
+              "acceptance": "任务三文件创建完成；`plan.md` 明确 RFC 路径、风险等级、验收标准与允许 Scope。"
+            },
+            {
+              "description": "基于 RFC 评估风险与最小实现边界，记录关键假设与约束。",
+              "acceptance": "`plan.md`/`context.md` 有清晰风险分级、设计结论与边界说明。"
+            }
+          ]
+        },
+        {
+          "name": "实现 signal-trader library",
+          "tasks": [
+            {
+              "description": "按 RFC 在 `libraries/signal-trader` 实现最小可用库结构、源码、导出与包配置，并接入仓库构建体系。",
+              "acceptance": "新 library 可被仓库识别，完成至少一次针对性构建/测试验证。"
+            },
+            {
+              "description": "补充必要测试或示例验证，覆盖核心行为。",
+              "acceptance": "测试或验证样例存在，结果会写入任务报告。"
+            }
+          ]
+        },
+        {
+          "name": "验证与交付",
+          "tasks": [
+            {
+              "description": "运行测试、代码评审，必要时补充安全评审。",
+              "acceptance": "生成 `docs/test-report.md`、`docs/review-code.md`，若风险需要则生成 `docs/review-security.md`。"
+            },
+            {
+              "description": "生成 walkthrough 报告与 PR body。",
+              "acceptance": "`docs/report-walkthrough.md` 与 `docs/pr-body.md` 可直接用于 PR/Review。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-03-17T12:44:44.153Z",
+      "status": "approved",
+      "decidedAt": "2026-03-17T12:45:30.344Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "signal-trader"
+    },
+    {
+      "id": "proposal-mmvhz6qn-a71270",
+      "name": "app-signal-trader-live-integration",
+      "goal": "创建一个新的 `@yuants/app-signal-trader` 宿主应用，集成 `@yuants/signal-trader`，支持 mock/paper 验证与真实交易所 live execution。",
+      "rationale": "用户明确要求把刚实现的 `@yuants/signal-trader` 从 core library 提升为可运行 app：既能本地测试/演示，又能接入仓库现有 Terminal/vendor 生态进行实盘执行。这涉及新 Rush app、事件持久化、live execution 适配、安全风控、运行文档与验证链路，属于高风险跨模块任务，必须单独建 Legion 任务并先收敛设计。",
+      "points": [
+        "新增 `apps/signal-trader`（包名建议 `@yuants/app-signal-trader`），沿用仓库现有 Terminal/Heft/Rush app 模式",
+        "宿主 app 负责事件持久化、命令入口、状态重放、planned effects 执行、execution report 回灌",
+        "同时支持 `mock/paper` 与 `live` 两种运行模式，默认 fail-close，live 模式必须显式授权与配置",
+        "优先复用现有 `@yuants/exchange` / `@yuants/protocol` / `@yuants/sql` / vendor service 能力，不重复造轮子",
+        "补齐最小 SQL schema / migration、测试、运行说明和可部署入口"
+      ],
+      "scope": [
+        "apps/signal-trader/**",
+        "libraries/signal-trader/**",
+        "tools/sql-migration/sql/**",
+        "rush.json",
+        "common/config/rush/**"
+      ],
+      "phases": [
+        {
+          "name": "调研与设计",
+          "tasks": [
+            {
+              "description": "盘点现有 app 宿主模式（如 trade-copier / virtual-exchange / node-unit）与 `@yuants/signal-trader` 的集成缺口，明确新 app 的运行边界、Terminal 服务面、mock/live 模式与安全约束。",
+              "acceptance": "`plan.md`/RFC 里明确 app 架构、运行模式、外部依赖、风险与回滚策略。"
+            },
+            {
+              "description": "设计事件持久化与回放方案（SQL 表、append/query/replay）、命令入口（upsert_subscription / submit_signal / apply_execution_report / capture_authorized_account_snapshot）以及 execution adapter（mock/live）。",
+              "acceptance": "RFC 给出数据流、表结构/索引、服务契约、执行链路和故障处理策略。"
+            }
+          ]
+        },
+        {
+          "name": "实现宿主 app",
+          "tasks": [
+            {
+              "description": "创建新的 Rush project `apps/signal-trader`，接入 package/config/build，集成 `@yuants/signal-trader` 并实现宿主编排层。",
+              "acceptance": "新 app 可被 monorepo 构建并启动，能够加载历史事件、接受命令并维护状态快照。"
+            },
+            {
+              "description": "实现 mock/paper 与 live execution 适配：paper 可本地演示与测试，live 可通过现有 Terminal/vendor 生态实际下单，并把 execution report 回灌 event stream。",
+              "acceptance": "存在明确的 mock/live 运行路径；缺少授权或关键配置时 fail-close；最小 happy path 可跑通。"
+            },
+            {
+              "description": "按需补齐 SQL migration / schema 与运行配置，确保事件存储、查询与重放闭环成立。",
+              "acceptance": "迁移文件与 app 使用的读写逻辑一致；重启后可从事件流恢复状态。"
+            }
+          ]
+        },
+        {
+          "name": "验证与交付",
+          "tasks": [
+            {
+              "description": "补充单测/集成验证/最小 smoke 用例，覆盖 replay、一条信号闭环、mock execution、live adapter 安全校验。",
+              "acceptance": "生成可复现验证步骤；相关 build/test 通过。"
+            },
+            {
+              "description": "产出运行文档：本地 mock/paper 启动方式、live 配置方式、风控注意事项、部署/Node Unit 接入说明。",
+              "acceptance": "开发者可按文档完成本地演示与实盘接入，且已知风险/限制被明确记录。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-03-18T03:44:28.138Z",
+      "status": "approved",
+      "decidedAt": "2026-03-18T09:20:34.526Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "app-signal-trader-live-integration"
+    },
+    {
+      "id": "proposal-mmxfl7po-0fbab8",
+      "name": "signal-trader-frontend-feasibility",
+      "goal": "评估 signal-trader 前端页面的可行接入方案，并给出推荐落位、接口复用方式、风险与实施结论。",
+      "rationale": "用户希望在尽量少打断的前提下，为 signal-trader 增加可视化页面，用于发布 0/1/-1 信号并查看运行状态/审计信息；该需求涉及新前端落位、现有服务面复用、鉴权与运维语义，需要单独形成可追踪的设计结论。",
+      "points": [
+        "评估复用现有 `ui/web` 的可行性与接入成本",
+        "评估参考 `~/1earn` 单独前端的可行性与运维成本",
+        "梳理 signal-trader 当前可直接复用的服务面：发信号、查询 health、查询事件/审计",
+        "给出推荐方案、最小实施路径、主要风险与后续实现建议"
+      ],
+      "scope": ["ui/web/**", "apps/signal-trader/**", "apps/host/**", ".legion/tasks/<new-task>/**"],
+      "phases": [
+        {
+          "name": "调研现状",
+          "tasks": [
+            {
+              "description": "盘点 `ui/web` 现有技术栈、页面组织与数据访问模式，并确认是否适合承载 signal-trader 控制台。",
+              "acceptance": "能明确 `ui/web` 是否可直接扩展，以及需要复用/新增哪些基础设施。"
+            },
+            {
+              "description": "梳理 `apps/signal-trader` 当前服务面与前端需求之间的映射，确认哪些接口可直接复用，哪些需要新增只读/聚合接口。",
+              "acceptance": "形成一张前端需求 -> 后端服务映射表。"
+            }
+          ]
+        },
+        {
+          "name": "方案比较",
+          "tasks": [
+            {
+              "description": "比较 `ui/web` 内嵌页面 vs 参考 `~/1earn` 独立前端两种方案的开发成本、权限模型、部署方式与长期维护成本。",
+              "acceptance": "给出带理由的推荐方案与不推荐方案。"
+            }
+          ]
+        },
+        {
+          "name": "结论输出",
+          "tasks": [
+            {
+              "description": "输出可行性结论、最小落地路径、主要风险与建议的下一步实现边界。",
+              "acceptance": "用户可据此决定是否进入前端实现阶段。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-03-19T12:13:09.328Z",
+      "status": "pending"
+    },
+    {
+      "id": "proposal-mmxg15cu-0d49ef",
+      "name": "signal-trader-ui-console",
+      "goal": "在 ui/web 中新增 signal-trader 控制台页面，用于发布 0/1/-1 信号并查看 runtime 状态与审计信息。",
+      "rationale": "用户新增了 signal-trader 前端控制台需求。该工作超出当前 `app-signal-trader-live-integration` 的既有 scope（需要进入 `ui/web/**`），且仓库任务创建策略为 `agent-with-approval`；因此先落 proposal，待批准后再实现。该页面虽然主要是前端，但会进入 signal-trader 的人工控制面，涉及写服务调用、授权边界、状态展示与审计信息呈现，需要单独设计与验证。",
+      "points": [
+        "优先复用 ui/web 现有 Host/Terminal、Form、DataView、SQL 访问与页面注册机制，避免单独起一个前端重复造轮子",
+        "runtime/config/health/projection/event 优先走 `SignalTrader/*` 只读/写服务；audit log 若无标准只读服务，再决定先用 SQL 直读还是补只读服务",
+        "发布信号页面必须显式展示 runtime_id、signal(-1/0/1)、signal_id/source，并避免重复点击导致的误操作",
+        "默认把 mutating action 与只读信息分区，延续 signal-trader 现有授权/审计/高风险提示语义"
+      ],
+      "scope": [
+        "ui/web/**",
+        "apps/signal-trader/**",
+        "docs/zh-Hans/packages/@yuants-ui-web.md",
+        "apps/signal-trader/GUIDE.md"
+      ],
+      "phases": [
+        {
+          "name": "调研与设计",
+          "tasks": [
+            {
+              "description": "盘点 ui/web 现有页面注册、Terminal 连接、自定义服务调用、SQL 直读与 i18n 模式，确定 signal-trader 页面最小接入路径。",
+              "acceptance": "plan.md/RFC 明确最小页面结构、复用模块、页面入口与权限边界。"
+            },
+            {
+              "description": "设计 signal-trader 控制台的信息架构：发布信号区、runtime 状态区、事件/审计区，以及优先走服务还是 SQL 的取舍。",
+              "acceptance": "RFC 收敛页面 IA、接口映射、风险控制与验收标准。"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "在 ui/web 新增 signal-trader 模块与页面，支持选择 runtime、发布 -1/0/1 信号，并展示 runtime config/health/event/audit 信息。",
+              "acceptance": "本地 UI 能连接 Host 并完成最小 happy path：读 runtime 状态、发一个 manual signal、看到事件/审计更新。"
+            },
+            {
+              "description": "按需补 signal-trader 只读服务或文档，避免前端读取敏感字段并明确 SQL 直读边界。",
+              "acceptance": "前端展示所需数据有明确来源；无 secret 泄露；服务/文档与 UI 行为一致。"
+            }
+          ]
+        },
+        {
+          "name": "验证与交付",
+          "tasks": [
+            {
+              "description": "运行 ui/web 与 signal-trader 的最小构建/测试，补 walkthrough 与 PR body。",
+              "acceptance": "生成 test-report/review-code（必要时 review-security）/report-walkthrough/pr-body，且验证步骤可复现。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-03-19T12:25:32.768Z",
+      "status": "approved",
+      "decidedAt": "2026-03-19T13:17:35.128Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "signal-trader-ui-console"
+    },
+    {
+      "id": "proposal-mn0klk4v-07b17c",
+      "name": "signal-trader-standalone-ui",
+      "goal": "新建一个独立于 `ui/web` 的 signal-trader 前端项目，完成设计、实现、Playwright 验证与 PR 交付文档。",
+      "rationale": "用户明确要求放弃先前失败的 `ui/web` 集成方案，改为新启动一个独立前端项目，并要求一次性完成 `.legion/` 产物、端到端实现、dummy/paper 联调与 Playwright 测试，因此需要新的 Legion 任务来隔离新 scope 与旧尝试。",
+      "points": [
+        "放弃 `ui/web` 集成方案，改为独立 Vite + React 前端",
+        "首版聚焦 runtime 列表、健康态、projection、event stream、audit log、submit signal",
+        "默认面向本地 paper/dummy 环境，支持通过 Host `/request` 直连 signal-trader 服务",
+        "提供可复现的本地启动脚本，至少覆盖前端 + paper/dummy 栈 + Playwright 冒烟"
+      ],
+      "scope": [
+        ".legion/tasks/signal-trader-standalone-ui/**",
+        "ui/signal-trader-web/**",
+        "rush.json",
+        "common/config/rush/pnpm-lock.yaml",
+        ".legion/playbook.md"
+      ],
+      "phases": [
+        {
+          "name": "调研与设计",
+          "tasks": [
+            {
+              "description": "确认独立前端项目骨架、服务调用方式、运行模式（paper/dummy）与页面信息架构。",
+              "acceptance": "plan.md 与 RFC 明确项目骨架、Host `/request` 接入、页面区块、设计方向与风险边界。"
+            },
+            {
+              "description": "完成 design/RFC，并做一次对抗性设计审查后收敛。",
+              "acceptance": "`docs/rfc.md` 与审查结论可指导实现，明确 scope 与回滚策略。"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "创建新的 signal-trader 前端项目并实现运行态概览、runtime 详情、提交信号、事件/审计可视化。",
+              "acceptance": "新项目可独立启动，能连接本地 Host 并完成最小 happy path。"
+            },
+            {
+              "description": "补齐本地开发/测试脚本，能一起拉起 paper 或 dummy signal-trader 栈。",
+              "acceptance": "文档与脚本可复现前端 + 本地后端联调。"
+            }
+          ]
+        },
+        {
+          "name": "验证与交付",
+          "tasks": [
+            {
+              "description": "使用 Playwright 完成前端端到端测试，并记录测试报告。",
+              "acceptance": "`docs/test-report.md` 记录通过命令、环境与结果。"
+            },
+            {
+              "description": "完成代码评审/安全评审/交付报告与 PR body。",
+              "acceptance": "生成 `review-code.md`、必要时 `review-security.md`、`report-walkthrough.md`、`pr-body.md`。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-03-21T16:56:42.043Z",
+      "status": "approved",
+      "decidedAt": "2026-03-21T16:56:45.410Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "signal-trader-standalone-ui"
+    },
+    {
+      "id": "proposal-mn1dnk13-67d7e7",
+      "name": "signal-trader-daily-burn-budget",
+      "goal": "补齐 signal-trader 的 `daily_burn_amount` lazy-evaluate 预算释放语义，使 paper 与 live 在同一 core 规则下支持按天释放 VC，并交付完整 Legion 文档。",
+      "rationale": "用户明确要求补上当前缺失的按天分配 VC 逻辑，并要求一次性完成 `.legion`、设计、实现、验证与可直接用于 PR 的交付文档。该问题横跨 `libraries/signal-trader` 与 `apps/signal-trader`，且会改变 paper/live 的预算、sizing 与对账语义，需要一个独立 Legion 任务隔离设计、实现和回滚边界。",
+      "points": [
+        "实现 RFC 已定义但当前缺失的 `daily_burn_amount * elapsed_days(now - last_budget_eval_at)` 预算释放逻辑",
+        "paper 与 live 必须共用同一 core 语义，不能只在 app 层补丁",
+        "至少覆盖 command/query/reconciliation 三条主链，避免跨天后 projection 与实际 sizing 分叉",
+        "补上可控时间测试，确保 paper/live 都能验证“隔天释放 VC”"
+      ],
+      "scope": [
+        ".legion/tasks/signal-trader-daily-burn-budget/**",
+        "libraries/signal-trader/**",
+        "apps/signal-trader/**",
+        ".legion/playbook.md"
+      ],
+      "phases": [
+        {
+          "name": "调研与设计",
+          "tasks": [
+            {
+              "description": "确认当前 RFC、core library 与 app runtime 中 daily burn / available_vc / last_budget_eval_at 的现状与缺口。",
+              "acceptance": "plan.md 明确问题定义、风险与最小改动边界；RFC 说明 lazy-evaluate 在 core/query/app 中的落点。"
+            },
+            {
+              "description": "完成 task-local RFC 并做设计审查，收敛 paper/live 共用语义、时间控制方案与对账影响。",
+              "acceptance": "`docs/rfc.md` 与 `docs/review-rfc.md` 明确可执行方案与回滚边界。"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "在 core library 中实现按天释放 VC 的 lazy-evaluate，并让 dispatch/query/reconciliation 统一消费该语义。",
+              "acceptance": "`daily_burn_amount` 真正影响 `available_vc`、sizing 与 projected balance；replay / query 保持一致。"
+            },
+            {
+              "description": "在 app runtime / manager 中接入时间推进与验证入口，补齐 paper/live 相关测试。",
+              "acceptance": "app 层在 paper/live 测试中都能验证跨天释放 VC，且不引入 paper/live 语义分叉。"
+            }
+          ]
+        },
+        {
+          "name": "验证与交付",
+          "tasks": [
+            {
+              "description": "执行 targeted build/test，并生成测试报告。",
+              "acceptance": "`docs/test-report.md` 记录 core + app 的验证结果，至少覆盖 library 与 app-signal-trader。"
+            },
+            {
+              "description": "完成代码评审/安全评审/交付报告与 PR body。",
+              "acceptance": "生成 `review-code.md`、`review-security.md`、`report-walkthrough.md`、`pr-body.md`。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-03-22T06:30:04.073Z",
+      "status": "approved",
+      "decidedAt": "2026-03-22T06:30:14.173Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "signal-trader-daily-burn-budget"
+    },
+    {
+      "id": "proposal-mn2n6n8h-5ac4ee",
+      "name": "signal-trader-funding-transfer",
+      "goal": "为 signal-trader 落地资金账户与交易账户之间的真实转账能力，接入类似 `submitOrder` 的可配置 transfer 接口，并交付完整 Legion 文档。",
+      "rationale": "用户明确要求把此前尚未实现的 funding account / trading account 转账能力真正落地，并要求依赖 `transferController` / `ITransferOrder` 风格的可配置接口。该工作会扩展 signal-trader 的 live 执行与 runtime 语义，明显超出已完成的 daily burn 任务 scope，需要新任务隔离设计、实现、测试与回滚边界。",
+      "points": [
+        "为 signal-trader 增加资金账户/交易账户转账编排，而不再停留在预算 projection",
+        "引入类似 `submitOrder` 的可配置 transfer 接口，优先复用 `transferController` 与 `ITransferOrder`",
+        "paper 与 live 都要可跑：paper 需有 mock transfer，live 需有真实 transfer 请求链",
+        "至少覆盖 transfer 触发、状态跟踪、失败收口与测试验证"
+      ],
+      "scope": [
+        ".legion/tasks/signal-trader-funding-transfer/**",
+        "libraries/signal-trader/**",
+        "apps/signal-trader/**",
+        ".legion/playbook.md"
+      ],
+      "phases": [
+        {
+          "name": "调研与设计",
+          "tasks": [
+            {
+              "description": "盘点现有 signal-trader 预算/执行链、transferController、ITransferOrder、transfer 请求接口与 root RFC 中资金账户语义。",
+              "acceptance": "plan.md 明确问题定义、可复用接口、scope 边界与主要风险；RFC 说明 transfer 模型与编排路径。"
+            },
+            {
+              "description": "完成 task-local RFC 并做设计审查，收敛 transfer 触发条件、live/paper 适配、状态机与最小持久化策略。",
+              "acceptance": "`docs/rfc.md` 与 `docs/review-rfc.md` 达到可实现状态，明确回滚方式。"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "在 core/app 中实现 funding/trading transfer 语义、配置化 transfer 接口与 paper/live 执行编排。",
+              "acceptance": "signal-trader 能在需要时发起 transfer，并通过统一接口消费 transfer 结果，不影响既有 submitOrder 路径。"
+            },
+            {
+              "description": "补齐 transfer 相关测试与本地最小运行入口。",
+              "acceptance": "paper/live 至少各有一条转账相关回归测试，能验证成功与关键失败路径。"
+            }
+          ]
+        },
+        {
+          "name": "验证与交付",
+          "tasks": [
+            {
+              "description": "执行 targeted build/test，并生成测试报告。",
+              "acceptance": "`docs/test-report.md` 记录 transfer 相关 build/test 结果。"
+            },
+            {
+              "description": "完成代码评审/安全评审/交付报告与 PR body。",
+              "acceptance": "生成 `review-code.md`、`review-security.md`、`report-walkthrough.md`、`pr-body.md`。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-03-23T03:44:37.411Z",
+      "status": "approved",
+      "decidedAt": "2026-03-23T03:44:46.166Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "signal-trader-funding-transfer"
+    },
+    {
+      "id": "proposal-mn2rpkzc-8bbec1",
+      "name": "signal-trader-capital-system-completion",
+      "goal": "补齐 signal-trader 资本系统剩余核心能力，使实现更接近《资金持久战》目标，并交付完整 Legion 文档。",
+      "rationale": "在 `signal-trader-daily-burn-budget` 与 `signal-trader-funding-transfer` 完成后，仓库仍缺少若干资本系统目标能力：`buffer_account` 真正落地、`InternalNettingSettled/MidPriceCaptured` 内冲抵路径、`profit_target_reached` 告警、`InvestorProjection/SignalProjection` 查询、以及更接近设计目标的 capital reconciliation。用户明确要求继续做完为止，因此需要一个新的 Legion 任务收敛这些剩余缺口。",
+      "points": [
+        "补齐 `buffer_account` 的残差/费用/精度语义，而不再只是空壳 projection",
+        "实现至少最小可用的 `MidPriceCaptured` + `InternalNettingSettled` 内冲抵主链",
+        "让 `profit_target_value` 真正触发 alert，而不只是配置字段",
+        "补上 `InvestorProjection` / `SignalProjection` 查询面",
+        "在不破坏既有 live transfer 边界前提下，把 capital reconciliation 往目标设计再推进一步"
+      ],
+      "scope": [
+        ".legion/tasks/signal-trader-capital-system-completion/**",
+        "libraries/signal-trader/**",
+        "apps/signal-trader/**",
+        ".legion/playbook.md"
+      ],
+      "phases": [
+        {
+          "name": "调研与设计",
+          "tasks": [
+            {
+              "description": "盘点当前资本系统已实现与未实现部分，并给出剩余缺口的最小可行实现路径。",
+              "acceptance": "plan.md 明确 gap list、范围、风险边界与验收标准；RFC 说明 buffer/netting/profit target/projection/reconciliation 的落点。"
+            },
+            {
+              "description": "完成 task-local RFC 并做设计审查，收敛剩余功能的实现顺序与边界。",
+              "acceptance": "`docs/rfc.md` 与 `docs/review-rfc.md` 达到可编码状态。"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "在 core/app 中补齐资本系统剩余核心能力，并保持与现有 daily burn/transfer 实现兼容。",
+              "acceptance": "buffer/netting/profit target/projection/reconciliation 至少达到任务 plan 约定的最小闭环。"
+            },
+            {
+              "description": "补齐相关测试，覆盖新增 happy path 与关键 fail path。",
+              "acceptance": "library/app 测试能稳定覆盖新增资本系统功能。"
+            }
+          ]
+        },
+        {
+          "name": "验证与交付",
+          "tasks": [
+            {
+              "description": "执行 targeted build/test，并生成测试报告。",
+              "acceptance": "`docs/test-report.md` 记录核心验证结果。"
+            },
+            {
+              "description": "完成代码评审/安全评审/交付报告与 PR body。",
+              "acceptance": "生成 `review-code.md`、`review-security.md`、`report-walkthrough.md`、`pr-body.md`。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-03-23T05:51:19.418Z",
+      "status": "approved",
+      "decidedAt": "2026-03-23T05:51:28.543Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "signal-trader-capital-system-completion"
+    },
+    {
+      "id": "proposal-mn2tye80-f00e38",
+      "name": "signal-trader-formal-quote-source",
+      "goal": "把 signal-trader 的正式价格证据源切到 SQL `quote` 表，替代当前 internal netting 对 `submit_signal.entry_price` 的最低配依赖，并交付完整 Legion 文档。",
+      "rationale": "用户明确要求“正式价格源应该直接参考 sql 的 quote 表”。当前 `MidPriceCaptured` 仍依赖 `submit_signal.entry_price`，只能算最低配证据，不符合更正式的资本系统目标。该改动会横跨 `libraries/signal-trader` 与 `apps/signal-trader`：需要在 app 层引入 SQL quote 读取、把结果作为正式价格证据传入 core，并更新测试与文档，因此需要新任务隔离实现与回滚边界。",
+      "points": [
+        "用 SQL `quote` 表作为正式 mid/reference price 源",
+        "让 internal netting 不再依赖 `submit_signal.entry_price` 作为正式证据",
+        "app 层直接通过 SQL 读取 quote，并把价格证据传入 core",
+        "补齐 library/app 测试与 Legion 交付文档"
+      ],
+      "scope": [
+        ".legion/tasks/signal-trader-formal-quote-source/**",
+        "libraries/signal-trader/**",
+        "apps/signal-trader/**",
+        ".legion/playbook.md"
+      ],
+      "phases": [
+        {
+          "name": "调研与设计",
+          "tasks": [
+            {
+              "description": "盘点当前 MidPriceCaptured 证据链、SQL quote 表结构与 app/runtime 的最小接入点。",
+              "acceptance": "plan.md 明确问题定义、quote 读取方案、core/app 边界与风险边界；RFC 说明正式价格源设计。"
+            },
+            {
+              "description": "完成 task-local RFC 并做设计审查，收敛命令扩展、quote provider 与回退策略。",
+              "acceptance": "`docs/rfc.md` 与 `docs/review-rfc.md` 达到可编码状态。"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "在 app 层接入 SQL quote 读取，并将正式价格证据传入 core internal netting 主链。",
+              "acceptance": "MidPriceCaptured 正式使用 quote 表价格证据；非正式 `entry_price` 仅保留为 sizing/输入，不再作为正式 netting 价格真相。"
+            },
+            {
+              "description": "补齐相关测试，覆盖 quote 命中、quote 缺失、library/app 回归路径。",
+              "acceptance": "library/app 测试稳定覆盖正式价格源逻辑。"
+            }
+          ]
+        },
+        {
+          "name": "验证与交付",
+          "tasks": [
+            {
+              "description": "执行 targeted build/test，并生成测试报告。",
+              "acceptance": "`docs/test-report.md` 记录 quote-source 相关 build/test 结果。"
+            },
+            {
+              "description": "完成代码评审/安全评审/交付报告与 PR body。",
+              "acceptance": "生成 `review-code.md`、`review-security.md`、`report-walkthrough.md`、`pr-body.md`。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-03-23T06:54:09.793Z",
+      "status": "approved",
+      "decidedAt": "2026-03-23T06:54:20.791Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "signal-trader-formal-quote-source"
+    },
+    {
+      "id": "proposal-mn2w2wui-714b71",
+      "name": "signal-trader-ui-capital-sync",
+      "goal": "把独立前端 `ui/signal-trader-web` 同步到最新后端资本系统能力，补齐 capital 视图与相关交付文档。",
+      "rationale": "用户明确指出后端已经补了多轮资本系统能力，但前端尚未同步展示，因此需要新任务来完成独立前端与最新后端能力的同步，包含设计、实现、验证与 PR 产物。",
+      "points": [
+        "同步 `funding_account` / `trading_account` / `precision_locked_amount` 等 capital 字段",
+        "接入 `investor` / `signal` projection 查询与展示",
+        "在 UI 中展示 profit target advisory、formal quote source / netting 证据、capital reconciliation 解释",
+        "保持独立前端项目 `ui/signal-trader-web` 的产品化控制台风格"
+      ],
+      "scope": [
+        ".legion/tasks/signal-trader-ui-capital-sync/**",
+        "ui/signal-trader-web/**",
+        ".legion/playbook.md"
+      ],
+      "phases": [
+        {
+          "name": "调研与设计",
+          "tasks": [
+            {
+              "description": "盘点当前独立前端与后端资本系统能力差异，明确最小 UI 同步范围。",
+              "acceptance": "plan.md 明确问题定义、scope、风险与验收标准；RFC 说明前端信息架构与数据接入点。"
+            },
+            {
+              "description": "完成 task-local RFC 并做设计审查，收敛 capital 面板、projection 查询与展示边界。",
+              "acceptance": "`docs/rfc.md` 与 `docs/review-rfc.md` 达到可编码状态。"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "更新前端类型/API/页面，展示 capital 字段、investor/signal 视图、profit target advisory 与 formal quote source 证据。",
+              "acceptance": "独立前端能清晰展示后端最新资本系统能力，不需要人工查事件流。"
+            },
+            {
+              "description": "补齐前端相关测试或最小验证入口。",
+              "acceptance": "至少有可复现的 build/Playwright 或前端验证步骤。"
+            }
+          ]
+        },
+        {
+          "name": "验证与交付",
+          "tasks": [
+            {
+              "description": "执行前端相关 build/test，并生成测试报告。",
+              "acceptance": "`docs/test-report.md` 记录前端验证结果。"
+            },
+            {
+              "description": "完成代码评审/安全评审/交付报告与 PR body。",
+              "acceptance": "生成 `review-code.md`、`review-security.md`、`report-walkthrough.md`、`pr-body.md`。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-03-23T07:53:39.787Z",
+      "status": "approved",
+      "decidedAt": "2026-03-23T07:53:48.690Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "signal-trader-ui-capital-sync"
+    },
+    {
+      "id": "proposal-mn2yhwxy-382299",
+      "name": "signal-trader-paper-time-control",
+      "goal": "为 paper stack 增加可运行时控制的时间偏移能力，使本地联调时可推进到下一天验证 daily burn 与资本系统行为。",
+      "rationale": "用户明确希望在已启动的 paper stack 上控制时间前进，以便手动验证 daily burn/资本系统行为。当前 signal-trader runtime 直接使用 `Date.now()`，只有测试能用 fake timers，运行中的 paper stack 没有 time-travel 能力。因此需要一个新任务来设计并实现 paper-only 时间控制、验证链路和交付文档。",
+      "points": [
+        "只对 paper/local dev 生效，不能污染 live 语义",
+        "运行中的 paper stack 要能在不改系统时间的情况下前进到下一天",
+        "最好提供脚本或服务接口，便于用户手动操作",
+        "尽量复用现有 app/runtime 结构，避免大规模重构"
+      ],
+      "scope": [
+        ".legion/tasks/signal-trader-paper-time-control/**",
+        "apps/signal-trader/**",
+        "ui/signal-trader-web/scripts/**",
+        ".legion/playbook.md"
+      ],
+      "phases": [
+        {
+          "name": "调研与设计",
+          "tasks": [
+            {
+              "description": "盘点 signal-trader 当前时间来源、paper bootstrap、runtime manager/worker 与最小时间注入点。",
+              "acceptance": "plan.md 明确问题定义、scope、风险与验收标准；RFC 收敛 paper-only 时间控制方案。"
+            },
+            {
+              "description": "完成 task-local RFC 并做设计审查，明确时间偏移模型、服务接口/脚本入口与回滚边界。",
+              "acceptance": "`docs/rfc.md` 与 `docs/review-rfc.md` 达到可编码状态。"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "实现 paper-only 时间偏移能力，并接入运行中的 paper stack。",
+              "acceptance": "运行中的 paper stack 能通过脚本或服务接口前进时间，且 query/submit/reconcile 共用该时间源。"
+            },
+            {
+              "description": "补齐最小验证脚本/测试，覆盖 D+1 推进行为。",
+              "acceptance": "至少能稳定验证推进 1 天后 budget/projection 行为发生变化。"
+            }
+          ]
+        },
+        {
+          "name": "验证与交付",
+          "tasks": [
+            {
+              "description": "执行相关 build/test/manual verify，并生成测试报告。",
+              "acceptance": "`docs/test-report.md` 记录验证方式与结果。"
+            },
+            {
+              "description": "完成代码评审/安全评审/交付报告与 PR body。",
+              "acceptance": "生成 `review-code.md`、`review-security.md`、`report-walkthrough.md`、`pr-body.md`。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-03-23T09:01:18.983Z",
+      "status": "approved",
+      "decidedAt": "2026-03-23T09:01:28.727Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "signal-trader-paper-time-control"
+    },
+    {
+      "id": "proposal-mn35pgej-d3182d",
+      "name": "signal-trader-daily-transfer-allocation",
+      "goal": "把 signal-trader 的 daily burn 语义改成真实的固定日拨资金到 trading account，无论下单与否，并交付完整 Legion 文档。",
+      "rationale": "用户明确指出当前实现与目标不符：现在是预算每天释放 + 按需补资，而目标应是 funding account 每天固定向 trading account 划转一笔资金，无论是否下单。这会改变 `funding_account` / `trading_account` 的逻辑语义、runtime transfer 调度和测试预期，需要新任务隔离设计、实现、验证与回滚边界。",
+      "points": [
+        "把 `daily_burn_amount` 从账面预算释放改成真实的 daily capital allocation 到 trading account",
+        "修正 `funding_account` / `trading_account` / `available_vc` 的逻辑语义",
+        "让 live/paper 都能在不下单时按天完成资金划拨",
+        "保留已有 transfer 基础设施，但把 pre-order on-demand transfer 改成 daily allocation 驱动"
+      ],
+      "scope": [
+        ".legion/tasks/signal-trader-daily-transfer-allocation/**",
+        "libraries/signal-trader/**",
+        "apps/signal-trader/**",
+        "ui/signal-trader-web/**",
+        ".legion/playbook.md"
+      ],
+      "phases": [
+        {
+          "name": "调研与设计",
+          "tasks": [
+            {
+              "description": "梳理当前 daily burn、logical accounts 与 transfer runtime 的实现偏差，明确新的日拨资金模型。",
+              "acceptance": "plan.md 明确问题定义、scope、风险与验收标准；RFC 收敛新账户语义与 transfer 调度。"
+            },
+            {
+              "description": "完成 task-local RFC 并做设计审查，收敛 daily tranche、funding/trading 定义、runtime tick 与回滚边界。",
+              "acceptance": "`docs/rfc.md` 与 `docs/review-rfc.md` 达到可编码状态。"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "在 core/app 中实现新的 daily transfer allocation 语义，并让 live/paper 都在不下单时按天完成划拨。",
+              "acceptance": "`daily_burn_amount` 真正驱动 funding->trading 的固定日拨，logical account 与 runtime transfer 行为一致。"
+            },
+            {
+              "description": "补齐相关测试与前端同步，覆盖 D+1、无下单日拨、transfer-out excess、paper time control 场景。",
+              "acceptance": "library/app/frontend 至少有最小回归覆盖。"
+            }
+          ]
+        },
+        {
+          "name": "验证与交付",
+          "tasks": [
+            {
+              "description": "执行 targeted build/test/manual verify，并生成测试报告。",
+              "acceptance": "`docs/test-report.md` 记录新的资金语义验证结果。"
+            },
+            {
+              "description": "完成代码评审/安全评审/交付报告与 PR body。",
+              "acceptance": "生成 `review-code.md`、`review-security.md`、`report-walkthrough.md`、`pr-body.md`。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-03-23T12:23:08.108Z",
+      "status": "approved",
+      "decidedAt": "2026-03-23T12:23:21.867Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "signal-trader-daily-transfer-allocation"
+    },
+    {
+      "id": "proposal-mn47sdg3-d53736",
+      "name": "signal-trader-jest-open-handles",
+      "goal": "修复 `@yuants/app-signal-trader` 在 build/test 时的 Jest open handles / worker forced exit 问题，并交付完整 Legion 文档。",
+      "rationale": "用户明确要求修复 Rush build 中 `A worker process has failed to exit gracefully...` 的问题。该问题涉及测试 teardown、runtime 定时器与可能的资源清理，属于跨文件、需设计与验证的工程问题，需要独立 Legion 任务收敛诊断、实现、验证与回滚边界。",
+      "points": [
+        "定位 `apps/signal-trader` Jest open handles / active timers 的具体来源",
+        "优先修复运行时定时器和测试未清理的资源，而不是简单忽略 warning",
+        "确保 `npm run build` 与 Rush build 下 warning 收敛或消失",
+        "补齐任务文档、review 与 PR body"
+      ],
+      "scope": [
+        ".legion/tasks/signal-trader-jest-open-handles/**",
+        "apps/signal-trader/**",
+        ".legion/playbook.md"
+      ],
+      "phases": [
+        {
+          "name": "调研与设计",
+          "tasks": [
+            {
+              "description": "定位 open handles / worker forced exit 的来源，明确最小修复面。",
+              "acceptance": "plan.md 写清问题定义、根因假设、scope 与风险；RFC 说明修复策略。"
+            },
+            {
+              "description": "完成 task-local RFC 并做设计审查，收敛运行时清理与测试 teardown 方案。",
+              "acceptance": "`docs/rfc.md` 与 `docs/review-rfc.md` 达到可编码状态。"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "修复 runtime/test teardown 问题，清理定时器、worker 或其他 open handles。",
+              "acceptance": "相关测试与 build 不再出现 forced exit warning，或至少明确压缩到单一可解释残留。"
+            },
+            {
+              "description": "补齐必要测试或 teardown 辅助工具。",
+              "acceptance": "回归路径稳定，测试不依赖人工清理。"
+            }
+          ]
+        },
+        {
+          "name": "验证与交付",
+          "tasks": [
+            {
+              "description": "执行相关 build/test（必要时含 detectOpenHandles）并生成测试报告。",
+              "acceptance": "`docs/test-report.md` 记录修复前后验证结果。"
+            },
+            {
+              "description": "完成代码评审/安全评审/交付报告与 PR body。",
+              "acceptance": "生成 `review-code.md`、`review-security.md`、`report-walkthrough.md`、`pr-body.md`。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-03-24T06:09:09.656Z",
+      "status": "approved",
+      "decidedAt": "2026-03-24T06:09:31.224Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "signal-trader-jest-open-handles"
+    },
+    {
+      "id": "proposal-mn4bxjsg-29db7e",
+      "name": "signal-trader-formal-process-tests",
+      "goal": "补强 signal-trader 的正式流程测试用例，重点覆盖 VC 按天释放、daily allocation、paper/live 运行态与关键边界行为。",
+      "rationale": "用户明确要求增加更多“正式流程”的测试用例，尤其是正常 VC 按天释放。当前已有基础测试，但 formal process coverage 仍可显著增强，涉及 library 与 app 两侧的测试设计、实现、验证与文档，因此需要新的 Legion 任务收敛范围与交付。",
+      "points": [
+        "补强 core daily allocation / VC 按天释放用例",
+        "补强 paper/live 运行态在不下单、跨天、重复查询/重复 observer 下的正式流程用例",
+        "尽量把关键业务流程固化成回归测试，减少后续语义漂移",
+        "完成测试报告、review 与 PR body"
+      ],
+      "scope": [
+        ".legion/tasks/signal-trader-formal-process-tests/**",
+        "libraries/signal-trader/**",
+        "apps/signal-trader/**",
+        ".legion/playbook.md"
+      ],
+      "phases": [
+        {
+          "name": "调研与设计",
+          "tasks": [
+            {
+              "description": "盘点当前 daily allocation / VC / paper/live 测试缺口，明确本轮 formal process coverage。",
+              "acceptance": "plan.md 明确问题定义、scope、风险与验收标准；design/RFC 说明新增测试矩阵。"
+            },
+            {
+              "description": "完成 task-local RFC 并做设计审查，收敛新增测试用例与边界。",
+              "acceptance": "`docs/rfc.md` 与 `docs/review-rfc.md` 达到可编码状态。"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "补充 core 与 app 正式流程测试，覆盖 VC 按天释放、paper/live 跨天、不下单日拨资、重复触发幂等等关键路径。",
+              "acceptance": "新增测试在 library/app 中稳定通过，能解释关键资本系统语义。"
+            },
+            {
+              "description": "如有必要，补最小测试辅助工具或 teardown 支撑。",
+              "acceptance": "测试不依赖人工清理，输出稳定。"
+            }
+          ]
+        },
+        {
+          "name": "验证与交付",
+          "tasks": [
+            {
+              "description": "重跑相关 build/test，并生成测试报告。",
+              "acceptance": "`docs/test-report.md` 记录新增 formal process 用例的通过结果。"
+            },
+            {
+              "description": "完成代码评审/安全评审/交付报告与 PR body。",
+              "acceptance": "生成 `review-code.md`、`review-security.md`、`report-walkthrough.md`、`pr-body.md`。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-03-24T08:05:09.624Z",
+      "status": "approved",
+      "decidedAt": "2026-03-24T08:05:24.677Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "signal-trader-formal-process-tests"
+    },
+    {
+      "id": "proposal-mn4dqep3-8332f4",
+      "name": "signal-trader-paper-to-mock-terminology",
+      "goal": "把 signal-trader 中用户可见的 paper 模式术语统一改为 mock，同时保持底层协议与运行语义兼容。",
+      "rationale": "用户明确要求把 paper 模式所有 paper 相关用词改成 mock。这涉及前端展示、脚本输出、文档与可能的服务说明，需要系统盘点用户可见术语并在不破坏 `execution_mode='paper'` 等既有协议的前提下完成替换，因此需要独立 Legion 任务收敛范围、实现与验证。",
+      "points": [
+        "只改用户可见术语，不轻易改底层协议字段和值",
+        "前端、脚本、文档、日志/提示语中 visible 的 paper 文案统一切成 mock",
+        "保持现有 paper stack、execution_mode、service 名称兼容，避免破坏代码链路",
+        "补构建/测试与 PR 文档"
+      ],
+      "scope": [
+        ".legion/tasks/signal-trader-paper-to-mock-terminology/**",
+        "ui/signal-trader-web/**",
+        "apps/signal-trader/**",
+        ".legion/playbook.md"
+      ],
+      "phases": [
+        {
+          "name": "调研与设计",
+          "tasks": [
+            {
+              "description": "盘点 signal-trader 相关用户可见的 paper 用词，并划清哪些是协议/内部标识不能改。",
+              "acceptance": "plan.md 明确问题定义、范围、风险与兼容边界；RFC 收敛术语替换策略。"
+            },
+            {
+              "description": "完成 task-local RFC 并做设计审查，明确前端/脚本/服务文案修改边界。",
+              "acceptance": "`docs/rfc.md` 与 `docs/review-rfc.md` 达到可编码状态。"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "修改用户可见的 paper 文案为 mock，并保持 execution_mode / stack / tests 兼容。",
+              "acceptance": "前端和脚本的人类可见用词改为 mock，底层协议仍可正常工作。"
+            },
+            {
+              "description": "补齐相关测试或断言，确保术语替换不破坏现有流程。",
+              "acceptance": "构建/测试通过，必要的文本断言更新。"
+            }
+          ]
+        },
+        {
+          "name": "验证与交付",
+          "tasks": [
+            {
+              "description": "执行相关 build/test，并生成测试报告。",
+              "acceptance": "`docs/test-report.md` 记录验证结果。"
+            },
+            {
+              "description": "完成代码评审/安全评审/交付报告与 PR body。",
+              "acceptance": "生成 `review-code.md`、`review-security.md`、`report-walkthrough.md`、`pr-body.md`。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-03-24T08:55:35.680Z",
+      "status": "approved",
+      "decidedAt": "2026-03-24T08:55:51.100Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "signal-trader-paper-to-mock-terminology"
+    },
+    {
+      "id": "proposal-mn4g5xke-90300a",
+      "name": "signal-trader-clean-final-shape",
+      "goal": "删除 signal-trader 中已废弃或仅为兼容保留的代码与文件，只保留当前最终正确形态，并交付完整 Legion 文档。",
+      "rationale": "用户明确要求不要再做兼容考虑，仓库尚未上线，应直接按最终正确形态清理废弃代码。这包括删除 `ui/web` 中已废弃的旧 signal-trader 前端，以及清理为 paper/mock 术语迁移临时保留的兼容 wrapper 与多余引用。",
+      "points": [
+        "删除 `ui/web` 废弃 SignalTrader 前端与相关导出/文案",
+        "删除仅为兼容保留的 paper/mock wrapper，收敛到单一正式入口",
+        "更新剩余脚本、测试、文档到最终命名",
+        "通过构建/测试确认 cleanup 不破坏当前正式链路"
+      ],
+      "scope": [
+        ".legion/tasks/signal-trader-clean-final-shape/**",
+        "ui/web/**",
+        "ui/signal-trader-web/**",
+        "apps/signal-trader/**",
+        "docs/zh-Hans/packages/@yuants-ui-web.md",
+        ".legion/playbook.md"
+      ],
+      "phases": [
+        {
+          "name": "调研与设计",
+          "tasks": [
+            {
+              "description": "盘点废弃前端、兼容 wrapper 与所有引用，明确最终保留/删除清单。",
+              "acceptance": "plan.md 明确清理边界、最终保留入口与风险说明；RFC 收敛删除策略。"
+            },
+            {
+              "description": "完成 task-local RFC 并做设计审查，确认不再保留兼容层。",
+              "acceptance": "`docs/rfc.md` 与 `docs/review-rfc.md` 达到可执行状态。"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "删除 ui/web 废弃 signal-trader 前端与所有多余兼容文件，重命名剩余正式入口。",
+              "acceptance": "仓库中只剩一套当前正式 signal-trader 前端/脚本入口，不再存在废弃页面和兼容 wrapper。"
+            },
+            {
+              "description": "修正文档、脚本、测试与引用到最终形态。",
+              "acceptance": "构建/测试路径与文档都指向最终入口，没有悬空引用。"
+            }
+          ]
+        },
+        {
+          "name": "验证与交付",
+          "tasks": [
+            {
+              "description": "运行相关 build/test，并生成测试报告。",
+              "acceptance": "`docs/test-report.md` 记录 cleanup 后的验证结果。"
+            },
+            {
+              "description": "完成代码评审/安全评审/交付报告与 PR body。",
+              "acceptance": "生成 `review-code.md`、`review-security.md`、`report-walkthrough.md`、`pr-body.md`。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-03-24T10:03:39.195Z",
+      "status": "approved",
+      "decidedAt": "2026-03-24T10:04:00.735Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "signal-trader-clean-final-shape"
+    },
+    {
+      "id": "proposal-mn4lw7rf-df91ca",
+      "name": "signal-trader-mock-exchange-account-ui",
+      "goal": "在 signal-trader mock exchange 中实现最小仓位/账户管理、订单任意成交后的账户净值更新，并同步主前端与独立前端展示账户状况。",
+      "rationale": "当前仓库虽然已有 signal-trader core、mock 术语与独立前端，但 mock 成交后的账户/仓位语义还不完整，前端也缺少对 mock 账户状态的可视化。用户明确要求端到端补齐：mock exchange 允许任意成交价格、按 IAccountInfo 语义更新账户净值/持仓，并同步主前端与独立前端展示账户状况，因此需要一个新的跨模块 Legion 任务来收敛设计、实现、验证和 PR 产物。",
+      "points": [
+        "mock exchange 需要支持按成交更新 position/account，而不是只回报订单状态",
+        "账户变化要符合 IAccountInfo 语义，至少能体现余额、权益/净值与持仓影响",
+        "订单应允许任意成交价格，成交后账户变化需可解释，例如 10 买入后 20 卖出 1 手净值增加 10",
+        "同步更新 signal-trader 前端与独立前端，让 mock 账户状态可见并可联调验证"
+      ],
+      "scope": [
+        ".legion/tasks/signal-trader-mock-exchange-account-ui/**",
+        "apps/signal-trader/**",
+        "ui/signal-trader-web/**",
+        "libraries/signal-trader/**"
+      ],
+      "phases": [
+        {
+          "name": "调研与设计",
+          "tasks": [
+            {
+              "description": "盘点 mock exchange、账户信息接口、主前端与独立前端当前的数据流和展示缺口",
+              "acceptance": "plan.md 明确问题定义、验收、风险分级、允许 Scope 与设计入口；列出涉及文件/模块。"
+            },
+            {
+              "description": "形成 mock 成交记账与前端同步方案，并根据风险决定是否需要 task-local RFC",
+              "acceptance": "Low 则在 plan.md 写 design-lite；Medium/High 则生成 docs/rfc.md 并通过 review-rfc 收敛。"
+            }
+          ]
+        },
+        {
+          "name": "实现",
+          "tasks": [
+            {
+              "description": "实现 mock exchange 的仓位/账户管理与任意成交后的账户变更逻辑",
+              "acceptance": "mock order 成交后可更新 position/account，账户净值变化符合设计用例与 IAccountInfo 语义。"
+            },
+            {
+              "description": "同步主前端与独立前端展示账户状况",
+              "acceptance": "两个前端都能读取并展示 mock 账户状态，信息与后端/服务返回一致。"
+            }
+          ]
+        },
+        {
+          "name": "验证与交付",
+          "tasks": [
+            {
+              "description": "运行相关测试/构建并生成测试报告",
+              "acceptance": "docs/test-report.md 记录实现后的验证结果。"
+            },
+            {
+              "description": "完成代码评审、安全评审（如需要）与交付报告/PR body",
+              "acceptance": "生成 review-code.md、必要时 review-security.md、report-walkthrough.md、pr-body.md。"
+            }
+          ]
+        }
+      ],
+      "proposedBy": "Claude",
+      "proposedAt": "2026-03-24T12:44:03.534Z",
+      "status": "approved",
+      "decidedAt": "2026-03-24T12:56:59.735Z",
+      "decidedBy": "Claude",
+      "createdTaskId": "signal-trader-mock-exchange-account-ui"
     }
   ]
 }

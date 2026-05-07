@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS
         order_id UUID NOT NULL PRIMARY KEY,
         created_at timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
         updated_at timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        runtime_id TEXT,
         credit_account_id TEXT NOT NULL,
         debit_account_id TEXT NOT NULL,
         currency TEXT NOT NULL,
@@ -27,4 +28,8 @@ CREATE TABLE IF NOT EXISTS
         current_amount NUMERIC
     );
 
+ALTER TABLE transfer_order
+ADD COLUMN IF NOT EXISTS runtime_id TEXT;
+
 CREATE INDEX IF NOT EXISTS idx_transfer_order_status ON transfer_order (status);
+CREATE INDEX IF NOT EXISTS idx_transfer_order_runtime_status ON transfer_order (runtime_id, status);
