@@ -11,6 +11,7 @@ import {
 } from '@douyinfe/semi-icons';
 import { Button, Dropdown, DropdownItem, DropdownMenu, Input, Space } from '@douyinfe/semi-ui';
 import type { CSSProperties } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Column, Table, flexRender } from '@tanstack/react-table';
 
 function getPinnedStyle<T>(column: Column<T, unknown>, level: 'header' | 'cell'): CSSProperties | undefined {
@@ -35,6 +36,7 @@ function getPinnedStyle<T>(column: Column<T, unknown>, level: 'header' | 'cell')
 
 export function TableView<T>(props: { table: Table<T> }) {
   const { table } = props;
+  const { t } = useTranslation('DataView');
 
   return (
     <Space style={{ width: '100%', overflowX: 'auto' }}>
@@ -90,7 +92,7 @@ export function TableView<T>(props: { table: Table<T> }) {
                                     icon={<IconEyeOpened />}
                                     onClick={header.column.getToggleVisibilityHandler()}
                                   >
-                                    隐藏字段
+                                    {t('hideField')}
                                   </DropdownItem>
                                 )}
                                 {header.column.getCanGroup() && (
@@ -100,7 +102,7 @@ export function TableView<T>(props: { table: Table<T> }) {
                                     }
                                     onClick={header.column.getToggleGroupingHandler()}
                                   >
-                                    {header.column.getIsGrouped() ? '取消分组' : '分组'}
+                                    {header.column.getIsGrouped() ? t('ungroup') : t('group')}
                                   </DropdownItem>
                                 )}
                                 {header.column.getCanPin() && (
@@ -114,7 +116,7 @@ export function TableView<T>(props: { table: Table<T> }) {
                                       }
                                     }}
                                   >
-                                    {header.column.getIsPinned() === 'left' ? '取消左固定' : '左固定'}
+                                    {header.column.getIsPinned() === 'left' ? t('unpinLeft') : t('pinLeft')}
                                   </DropdownItem>
                                 )}
                                 {header.column.getCanPin() && (
@@ -128,7 +130,7 @@ export function TableView<T>(props: { table: Table<T> }) {
                                       }
                                     }}
                                   >
-                                    {header.column.getIsPinned() === 'right' ? '取消右固定' : '右固定'}
+                                    {header.column.getIsPinned() === 'right' ? t('unpinRight') : t('pinRight')}
                                   </DropdownItem>
                                 )}
                               </DropdownMenu>
@@ -142,7 +144,7 @@ export function TableView<T>(props: { table: Table<T> }) {
                       {header.column.getCanFilter() ? (
                         <Input
                           value={header.column.getFilterValue() as string}
-                          placeholder={'搜索...'}
+                          placeholder={t('search')}
                           onChange={(v) => {
                             header.column.setFilterValue(v);
                           }}

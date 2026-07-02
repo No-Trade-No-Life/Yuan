@@ -1,0 +1,10 @@
+{
+  "actions": "操作",
+  "interrupt_request": "中断请求",
+  "invoke": "调用",
+  "method": "方法",
+  "params": "参数",
+  "request_viewer_title": "请求查看工具",
+  "service_id": "服务 ID",
+  "terminal_id": "终端 ID"
+}

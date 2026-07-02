@@ -3,6 +3,7 @@ import { IServiceInfo } from '@yuants/protocol';
 import { formatTime } from '@yuants/utils';
 import { useObservable, useObservableState } from 'observable-hooks';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { debounceTime, firstValueFrom, from, map, of, scan, switchMap } from 'rxjs';
 import { showForm } from '../Form';
 import { Button, DataView } from '../Interactive';
@@ -11,6 +12,7 @@ import { terminal$ } from './create-connection';
 import { InlineTerminalId } from './InlineTerminalId';
 
 registerPage('ServiceList', () => {
+  const { t } = useTranslation('ServiceList');
   const providedServices = useObservableState(
     useObservable(
       () =>
@@ -42,22 +44,23 @@ registerPage('ServiceList', () => {
   return (
     <DataView
       data={providedServices}
+      columnsDependencyList={[t]}
       columns={[
         {
-          header: '终端 ID',
+          header: t('terminal_id'),
           accessorKey: 'terminal_id',
           cell: (x) => <InlineTerminalId terminal_id={x.getValue()} />,
         },
         {
-          header: '服务 ID',
+          header: t('service_id'),
           accessorKey: 'serviceInfo.service_id',
         },
         {
-          header: '方法',
+          header: t('method'),
           accessorKey: 'serviceInfo.method',
         },
         {
-          header: '参数',
+          header: t('params'),
           accessorFn: (x) => JSON.stringify(x.serviceInfo.schema),
         },
         {
@@ -65,7 +68,7 @@ registerPage('ServiceList', () => {
           meta: {
             fixed: 'right',
           },
-          header: '操作',
+          header: t('actions'),
           cell: (ctx) => (
             <Space>
               <Button
@@ -93,7 +96,7 @@ registerPage('ServiceList', () => {
 
                   await new Promise((resolve) => {
                     Modal.info({
-                      title: `请求查看工具`,
+                      title: t('request_viewer_title'),
                       style: { width: '80vw' },
                       content: React.createElement(() => {
                         const msg = useObservableState(a$, []);
@@ -125,7 +128,7 @@ registerPage('ServiceList', () => {
                           </Space>
                         );
                       }, {}),
-                      okText: '中断请求',
+                      okText: t('interrupt_request'),
                       onOk: resolve,
                       onCancel: resolve,
                       cancelButtonProps: { style: { display: 'none' } },
@@ -133,7 +136,7 @@ registerPage('ServiceList', () => {
                   });
                 }}
               >
-                调用
+                {t('invoke')}
               </Button>
             </Space>
           ),
