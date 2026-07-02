@@ -195,12 +195,12 @@ export const runAgent = async () => {
     const rawTable = series.map((s) => [s.name || s.series_id, ...s]);
     await CSV.writeFileFromRawTable(seriesFilename, rawTable, true);
 
-    Toast.info(`序列保存到 ${seriesFilename}`);
+    Toast.info(t('AgentConfForm:series_saved_to', { filename: seriesFilename, interpolation: { escapeValue: false } }));
 
     const ordersFilename = join(kernelDir, 'orders.csv');
     await CSV.writeFile(ordersFilename, scene.kernel.findUnit(HistoryOrderUnit)?.historyOrders!);
 
-    Toast.info(`订单保存到 ${ordersFilename}`);
+    Toast.info(t('AgentConfForm:orders_saved_to', { filename: ordersFilename, interpolation: { escapeValue: false } }));
 
     const configFilename = join(kernelDir, 'config.json');
 
@@ -223,7 +223,7 @@ export const runAgent = async () => {
       ],
       views: [
         {
-          name: '走势图',
+          name: t('AgentConfForm:chart_view_name'),
           time_ref: {
             data_index: 0,
             column_name: series[0]?.resolveRoot().name ?? '',
@@ -397,8 +397,8 @@ registerPage('AgentConfForm', () => {
               const addresses = await firstValueFrom(availableNodeUnit$);
               const address = await showForm<string>({
                 type: 'string',
-                title: '请选择部署地址',
-                description: `您的代码将会被加密并且部署到选中节点，选中节点的私钥可以解密代码，请确保您信任选中节点的所有者`,
+                title: t('select_deploy_address'),
+                description: t('deploy_address_description'),
                 oneOf: addresses.map((unit) => ({
                   title: `${unit.node_unit_name} (${unit.node_unit_address}) @yuants/node-unit@${unit.node_unit_version}`,
                   const: unit.node_unit_address,
@@ -438,26 +438,28 @@ registerPage('AgentConfForm', () => {
               const theDeployment = deployments[0];
 
               Modal.info({
-                title: '部署已就绪',
+                title: t('deploy_ready'),
                 content: (
                   <div>
                     <p>
-                      部署 ID: <Typography.Text copyable>{theDeployment.id}</Typography.Text>
+                      {t('deploy_id')}: <Typography.Text copyable>{theDeployment.id}</Typography.Text>
                     </p>
-                    <p>部署地址: {theDeployment.address}</p>
-                    <p>请前往部署页面手动启动部署</p>
-                    <p>请妥善保存部署地址的私钥，泄漏给他人可能导致源码泄漏</p>
+                    <p>
+                      {t('deploy_address')}: {theDeployment.address}
+                    </p>
+                    <p>{t('deploy_start_manually')}</p>
+                    <p>{t('deploy_keep_private_key_safe')}</p>
                   </div>
                 ),
                 hasCancel: false,
                 onOk: () => {
                   executeCommand('DeploySettings', {});
                 },
-                okText: '查看部署',
+                okText: t('view_deployment'),
               });
             }}
           >
-            部署
+            {t('deploy')}
           </Button>
         </Space>
         <Divider />
