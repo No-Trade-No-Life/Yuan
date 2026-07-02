@@ -344,10 +344,10 @@ export function DataView<T, K>(props: {
               .rows.map((row) => columns.map((col) => row.getValue(col.id)));
             data.unshift(columns.map((col) => col.id));
             await CSV.writeFileFromRawTable(`/export.csv`, data);
-            Toast.success('导出到 /export.csv');
+            Toast.success(t('exportSucceed', { filename: '/export.csv', interpolation: { escapeValue: false } }));
           }}
         >
-          {'导出CSV'}
+          {t('exportCSV')}
         </Button>
       )}
       <RadioGroup

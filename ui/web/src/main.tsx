@@ -11,7 +11,6 @@ import '@icon-park/react/styles/index.css';
 import './index.css';
 
 // Global Libraries
-import { ConfigProvider } from '@douyinfe/semi-ui';
 import * as Kernel from '@yuants/kernel';
 import * as rx from 'rxjs';
 Object.assign(globalThis, { rx, Kernel });
@@ -29,6 +28,7 @@ Object.assign(globalThis, { Modules });
 // Layout -> App
 import { Launch } from './modules/BIOS';
 import { DesktopLayout } from './modules/DesktopLayout';
+import { SemiLocaleProvider } from './modules/Locale/SemiLocaleProvider';
 import { DarkModeEffect } from './modules/Workbench';
 
 const queryClient = new QueryClient();
@@ -36,13 +36,13 @@ const queryClient = new QueryClient();
 // React Render!
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <ConfigProvider getPopupContainer={() => document.getElementById('root') as HTMLElement}>
+    <SemiLocaleProvider>
       <QueryClientProvider client={queryClient}>
         <Launch>
           <DesktopLayout />
         </Launch>
         <DarkModeEffect />
       </QueryClientProvider>
-    </ConfigProvider>
+    </SemiLocaleProvider>
   </React.StrictMode>,
 );

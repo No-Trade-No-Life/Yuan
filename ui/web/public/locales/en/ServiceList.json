@@ -1,0 +1,10 @@
+{
+  "actions": "Actions",
+  "interrupt_request": "Interrupt request",
+  "invoke": "Invoke",
+  "method": "Method",
+  "params": "Params",
+  "request_viewer_title": "Request Viewer",
+  "service_id": "Service ID",
+  "terminal_id": "Terminal ID"
+}
